@@ -252,7 +252,7 @@ export default function HistoryPage() {
                 <div className="flex items-center gap-2 mb-4">
                   <button
                     onClick={selectedMeetingIds.length === paginatedMeetings.length ? handleDeselectAll : handleSelectAll}
-                    className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-muted text-foreground rounded-lg transition-colors text-sm"
+                    className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-accent text-foreground rounded-lg transition-colors text-sm"
                   >
                     {selectedMeetingIds.length === paginatedMeetings.length ? (
                       <>
