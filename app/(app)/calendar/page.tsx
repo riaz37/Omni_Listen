@@ -303,14 +303,14 @@ export default function EventsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Calendar Skeleton */}
             <div className="lg:col-span-2">
-              <div className="bg-card rounded-lg shadow p-6">
+              <div className="bg-card rounded-lg border border-border shadow-sm p-6">
                 <div className="h-96 bg-muted rounded animate-pulse" />
               </div>
             </div>
 
             {/* Sidebar Skeleton */}
             <div className="space-y-6">
-              <div className="bg-card rounded-lg shadow p-6">
+              <div className="bg-card rounded-lg border border-border shadow-sm p-6">
                 <div className="h-6 bg-muted rounded w-32 mb-4 animate-pulse" />
                 <div className="space-y-3">
                   {[...Array(3)].map((_, i) => (
@@ -341,7 +341,7 @@ export default function EventsPage() {
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors flex items-center gap-2"
           >
             <span className="text-xl">+</span>
             <span>Create Event</span>
@@ -358,7 +358,7 @@ export default function EventsPage() {
               placeholder="Search events..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -368,7 +368,7 @@ export default function EventsPage() {
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value as any)}
-              className="px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="px-4 py-2 border border-border rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="all">All Events</option>
               <option value="meeting">Meetings</option>
@@ -381,7 +381,7 @@ export default function EventsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Calendar - Main content */}
           <div className="lg:col-span-2">
-            <div className="bg-card rounded-lg shadow-sm p-6">
+            <div className="bg-card rounded-lg border border-border shadow-sm p-6">
               <div className="mb-4 flex justify-between items-center">
                 <h2 className="text-lg font-semibold text-foreground">Calendar View</h2>
                 <div className="flex gap-2">
@@ -428,7 +428,7 @@ export default function EventsPage() {
 
           {/* Upcoming Events Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-card rounded-lg shadow-sm p-6 sticky top-24">
+            <div className="bg-card rounded-lg border border-border shadow-sm p-6 sticky top-24">
               <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-primary" />
                 Upcoming Events
@@ -487,8 +487,8 @@ export default function EventsPage() {
                             </div>
                           </div>
                           <span className={`px-2 py-1 text-xs rounded-full ${event.type === 'meeting' ? 'bg-primary/10 text-text-primary' :
-                              event.type === 'task' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
-                                'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                              event.type === 'task' ? 'bg-accent text-accent-foreground' :
+                                'bg-destructive/10 text-destructive'
                             }`}>
                             {event.type}
                           </span>
@@ -539,14 +539,14 @@ export default function EventsPage() {
       {/* Event Detail Modal */}
       {selectedEvent && (
         <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center p-4 z-50" onClick={() => setSelectedEvent(null)}>
-          <div className="bg-card rounded-lg shadow-xl max-w-lg w-full p-6" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-card rounded-lg border border-border shadow-xl max-w-lg w-full p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h2 className={`text-2xl font-bold text-foreground mb-2 ${selectedEvent.completed ? 'line-through' : ''}`}>{selectedEvent.title}</h2>
                 <div className="flex items-center gap-2">
                   <span className={`px-3 py-1 text-sm rounded-full ${selectedEvent.type === 'meeting' ? 'bg-primary/10 text-text-primary' :
-                      selectedEvent.type === 'task' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
-                        'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                      selectedEvent.type === 'task' ? 'bg-accent text-accent-foreground' :
+                        'bg-destructive/10 text-destructive'
                     }`}>
                     {selectedEvent.type}
                   </span>
@@ -635,7 +635,7 @@ export default function EventsPage() {
                   {!selectedEvent.synced && user?.calendar_connected && (
                     <button
                       onClick={() => handleSyncEvent(selectedEvent)}
-                      className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
+                      className="px-3 py-1 bg-primary text-primary-foreground text-sm rounded hover:bg-primary-hover transition-colors"
                     >
                       Sync Now
                     </button>
@@ -647,7 +647,7 @@ export default function EventsPage() {
                 <div className="pt-4 border-t border-border">
                   <button
                     onClick={() => router.push(`/meeting?id=${selectedEvent.meetingId}`)}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors"
                   >
                     <span>View Meeting Details</span>
                     <ChevronRight className="w-5 h-5" />
@@ -662,7 +662,7 @@ export default function EventsPage() {
       {/* Create Event Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center p-4 z-50" onClick={() => setShowCreateModal(false)}>
-          <div className="bg-card rounded-lg shadow-xl max-w-lg w-full p-6" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-card rounded-lg border border-border shadow-xl max-w-lg w-full p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between mb-4">
               <h2 className="text-2xl font-bold text-foreground">Create New Event</h2>
               <button
@@ -683,7 +683,7 @@ export default function EventsPage() {
                   type="text"
                   value={newEvent.title}
                   onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="Event title"
                 />
               </div>
@@ -694,7 +694,7 @@ export default function EventsPage() {
                 <select
                   value={newEvent.type}
                   onChange={(e) => setNewEvent({ ...newEvent, type: e.target.value as any })}
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="meeting">Meeting</option>
                   <option value="task">Task</option>
@@ -709,7 +709,7 @@ export default function EventsPage() {
                   type="datetime-local"
                   value={newEvent.start}
                   onChange={(e) => setNewEvent({ ...newEvent, start: e.target.value })}
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -720,7 +720,7 @@ export default function EventsPage() {
                   type="datetime-local"
                   value={newEvent.end}
                   onChange={(e) => setNewEvent({ ...newEvent, end: e.target.value })}
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -730,7 +730,7 @@ export default function EventsPage() {
                 <textarea
                   value={newEvent.description}
                   onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   rows={3}
                   placeholder="Event description"
                 />
@@ -743,7 +743,7 @@ export default function EventsPage() {
                   type="text"
                   value={newEvent.location}
                   onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="Event location"
                 />
               </div>
@@ -758,7 +758,7 @@ export default function EventsPage() {
                 </button>
                 <button
                   onClick={handleCreateEvent}
-                  className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
+                  className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors"
                 >
                   Create Event
                 </button>
