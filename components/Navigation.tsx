@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import {
   Home,
@@ -15,11 +15,12 @@ import {
   CheckSquare,
   MessageSquare,
   MoreHorizontal,
-  ChevronDown,
-  Briefcase,
   X,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
+import { useTheme } from '@/lib/theme-context';
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 // ─── Navigation item types ───────────────────────────────────────────────────
@@ -34,11 +35,16 @@ interface NavItem {
 
 const PRIMARY_ITEMS: readonly NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: Home },
+  { href: '/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/history', label: 'History', icon: History },
   { href: '/calendar', label: 'Calendar', icon: Calendar },
+  { href: '/events', label: 'Event', icon: List },
+  { href: '/tasks', label: 'Task', icon: CheckSquare },
+  { href: '/notes', label: 'Notes', icon: StickyNote },
+  { href: '/queries', label: 'Analysis', icon: MessageSquare },
 ] as const;
 
-// ─── SECONDARY: "Workspace" dropdown ─────────────────────────────────────────
+// ─── SECONDARY: "Workspace" dropdown (used in mobile bottom sheet) ──────────
 
 const SECONDARY_ITEMS: readonly NavItem[] = [
   { href: '/events', label: 'Events', icon: List },
@@ -50,7 +56,6 @@ const SECONDARY_ITEMS: readonly NavItem[] = [
 // ─── TERTIARY: User avatar menu items ────────────────────────────────────────
 
 const TERTIARY_NAV_ITEMS: readonly NavItem[] = [
-  { href: '/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/settings', label: 'Settings', icon: Settings },
 ] as const;
 
@@ -158,82 +163,14 @@ function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
       href={item.href}
       className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
         isActive
-          ? 'bg-primary text-primary-foreground'
+          ? 'bg-muted border border-border text-foreground'
           : 'text-muted-foreground hover:text-foreground hover:bg-muted'
       }`}
       aria-current={isActive ? 'page' : undefined}
     >
       <Icon className="w-4 h-4" />
-      <span className="hidden lg:inline">{item.label}</span>
+      <span>{item.label}</span>
     </Link>
-  );
-}
-
-// ─── Workspace dropdown (SECONDARY) ─────────────────────────────────────────
-
-function WorkspaceDropdown({ pathname }: { pathname: string }) {
-  const { isOpen, toggle, close, ref } = useDropdown();
-  const { handleKeyDown, setItemRef } = useDropdownKeyboard(
-    isOpen,
-    close,
-    SECONDARY_ITEMS.length,
-  );
-
-  const isAnyActive = SECONDARY_ITEMS.some((item) => pathname === item.href);
-
-  return (
-    <div ref={ref} className="relative">
-      <button
-        onClick={toggle}
-        onKeyDown={handleKeyDown}
-        className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-          isAnyActive
-            ? 'bg-primary text-primary-foreground'
-            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-        }`}
-        aria-expanded={isOpen}
-        aria-haspopup="true"
-        aria-label="Workspace navigation"
-      >
-        <Briefcase className="w-4 h-4" />
-        <span className="hidden lg:inline">Workspace</span>
-        <ChevronDown
-          className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-        />
-      </button>
-
-      {isOpen && (
-        <div
-          className="absolute left-0 top-full mt-1 w-48 rounded-lg border border-border bg-popover shadow-lg z-50 py-1"
-          role="menu"
-          aria-label="Workspace items"
-          onKeyDown={handleKeyDown}
-        >
-          {SECONDARY_ITEMS.map((item, index) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                ref={setItemRef(index) as React.Ref<HTMLAnchorElement>}
-                href={item.href}
-                onClick={close}
-                role="menuitem"
-                tabIndex={-1}
-                className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
-                  isActive
-                    ? 'bg-primary/10 text-primary font-medium'
-                    : 'text-popover-foreground hover:bg-muted'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </div>
-      )}
-    </div>
   );
 }
 
@@ -490,12 +427,43 @@ function MobileMoreSheet({
   );
 }
 
+// ─── Segmented theme toggle (matches Figma) ─────────────────────────────────
+
+function SegmentedThemeToggle() {
+  const { actualTheme, setTheme } = useTheme();
+  return (
+    <div className="flex items-center bg-muted rounded-lg p-0.5">
+      <button
+        onClick={() => setTheme('light')}
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+          actualTheme === 'light'
+            ? 'bg-background text-foreground shadow-sm'
+            : 'text-muted-foreground hover:text-foreground'
+        }`}
+      >
+        <Sun className="w-3.5 h-3.5" />
+        Light
+      </button>
+      <button
+        onClick={() => setTheme('dark')}
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+          actualTheme === 'dark'
+            ? 'bg-background text-foreground shadow-sm'
+            : 'text-muted-foreground hover:text-foreground'
+        }`}
+      >
+        <Moon className="w-3.5 h-3.5" />
+        Dark
+      </button>
+    </div>
+  );
+}
+
 // ─── Main Navigation component ───────────────────────────────────────────────
 
 export default function Navigation() {
   const pathname = usePathname();
-  const router = useRouter();
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const [showMobileMore, setShowMobileMore] = useState(false);
 
   const handleLogout = () => {
@@ -533,8 +501,8 @@ export default function Navigation() {
                 </span>
               </Link>
 
-              {/* Desktop PRIMARY items + Workspace dropdown */}
-              <div className="hidden md:ml-6 md:flex md:items-center md:gap-1">
+              {/* Desktop nav items — all flat per Figma */}
+              <div className="hidden md:ml-6 md:flex md:items-center md:gap-2">
                 {PRIMARY_ITEMS.map((item) => (
                   <NavLink
                     key={item.href}
@@ -542,17 +510,14 @@ export default function Navigation() {
                     isActive={pathname === item.href}
                   />
                 ))}
-
-                {/* SECONDARY: Workspace dropdown */}
-                <WorkspaceDropdown pathname={pathname} />
               </div>
             </div>
 
             {/* Right side: Theme toggle (desktop only outside menu) + User avatar menu */}
             <div className="flex items-center gap-2">
-              {/* Desktop-only standalone theme toggle */}
+              {/* Desktop-only segmented theme toggle */}
               <div className="hidden md:block">
-                <AnimatedThemeToggler className="inline-flex items-center justify-center w-9 h-9 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" />
+                <SegmentedThemeToggle />
               </div>
 
               {/* User avatar menu (TERTIARY) — desktop */}
