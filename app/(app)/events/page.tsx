@@ -456,8 +456,8 @@ export default function EventsPage() {
   const getEventTypeColor = (type: string) => {
     const colors: Record<string, string> = {
       meeting: 'bg-primary/10 text-text-primary border-primary/30',
-      task: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700',
-      deadline: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700',
+      task: 'bg-accent text-accent-foreground border-border',
+      deadline: 'bg-destructive/10 text-destructive border-destructive/30',
     };
     return colors[type] || colors.meeting;
   };
@@ -467,7 +467,7 @@ export default function EventsPage() {
     const diffMs = date.getTime() - now.getTime();
 
     if (isPast(date)) {
-      return { text: 'Overdue', color: 'text-red-600' };
+      return { text: 'Overdue', color: 'text-destructive' };
     }
 
     if (isFuture(date)) {
@@ -484,7 +484,7 @@ export default function EventsPage() {
       } else if (minutes >= 1) {
         return { text: `In ${minutes} minute${minutes > 1 ? 's' : ''}`, color: 'text-primary' };
       } else {
-        return { text: 'Soon', color: 'text-orange-600' };
+        return { text: 'Soon', color: 'text-foreground' };
       }
     }
 
@@ -496,11 +496,61 @@ export default function EventsPage() {
       <div className="min-h-screen bg-background">
         <Navigation />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Skeleton Header with title + action buttons */}
           <div className="mb-8">
-            <div className="h-8 bg-muted rounded w-48 mb-2 animate-pulse"></div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-muted rounded animate-pulse"></div>
+                <div className="h-8 bg-muted rounded w-48 animate-pulse"></div>
+              </div>
+              <div className="flex gap-2">
+                <div className="h-10 w-24 bg-muted rounded-md animate-pulse"></div>
+                <div className="h-10 w-16 bg-muted rounded-md animate-pulse"></div>
+                <div className="h-10 w-16 bg-muted rounded-md animate-pulse"></div>
+              </div>
+            </div>
             <div className="h-4 bg-muted rounded w-64 animate-pulse"></div>
           </div>
-          <SkeletonList count={5} />
+          {/* Skeleton Tabs */}
+          <div className="flex border-b border-border mb-6">
+            <div className="h-10 w-24 bg-muted rounded animate-pulse mr-4"></div>
+            <div className="h-10 w-20 bg-muted rounded animate-pulse mr-4"></div>
+            <div className="h-10 w-24 bg-muted rounded animate-pulse"></div>
+          </div>
+          {/* Skeleton Search + Sort */}
+          <div className="mb-6 space-y-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 h-10 bg-muted rounded-lg animate-pulse border border-border"></div>
+              <div className="h-10 w-40 bg-muted rounded-lg animate-pulse border border-border"></div>
+            </div>
+            {/* Skeleton Select All */}
+            <div className="h-10 w-44 bg-muted rounded-lg animate-pulse"></div>
+          </div>
+          {/* Skeleton Event Cards */}
+          <div className="bg-card rounded-lg shadow-sm border border-border divide-y divide-border">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="p-5 flex items-start gap-4">
+                <div className="w-5 h-5 bg-muted rounded animate-pulse flex-shrink-0 mt-1"></div>
+                <div className="flex-shrink-0">
+                  <div className="w-[70px] h-[70px] bg-muted rounded-lg animate-pulse"></div>
+                </div>
+                <div className="flex-1 min-w-0 space-y-2">
+                  <div className="h-5 bg-muted rounded w-3/4 animate-pulse"></div>
+                  <div className="flex gap-3">
+                    <div className="h-4 bg-muted rounded w-20 animate-pulse"></div>
+                    <div className="h-4 bg-muted rounded w-16 animate-pulse"></div>
+                    <div className="h-5 bg-muted rounded-full w-16 animate-pulse"></div>
+                  </div>
+                  <div className="h-4 bg-muted rounded w-1/2 animate-pulse"></div>
+                </div>
+                <div className="flex gap-2 ml-4">
+                  <div className="w-9 h-9 bg-muted rounded-full animate-pulse"></div>
+                  <div className="w-9 h-9 bg-muted rounded-full animate-pulse"></div>
+                  <div className="w-9 h-9 bg-muted rounded-full animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -524,7 +574,7 @@ export default function EventsPage() {
                   <button
                     onClick={handleBulkDelete}
                     disabled={isDeleting}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-muted disabled:cursor-not-allowed transition-colors text-sm"
+                    className="flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive-hover disabled:bg-muted disabled:cursor-not-allowed transition-colors text-sm"
                     title={`Delete ${selectedEventIds.length} selected`}
                   >
                     <Trash2 className="w-4 h-4" />
@@ -534,7 +584,7 @@ export default function EventsPage() {
                   <button
                     onClick={handleDeselectAll}
                     disabled={isDeleting}
-                    className="flex items-center gap-2 px-4 py-2 bg-secondary text-white rounded-md hover:bg-secondary/80 disabled:bg-muted disabled:cursor-not-allowed transition-colors text-sm"
+                    className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary-hover disabled:bg-muted disabled:cursor-not-allowed transition-colors text-sm"
                     title="Deselect all"
                   >
                     <X className="w-4 h-4" />
@@ -546,7 +596,7 @@ export default function EventsPage() {
                 <button
                   onClick={handleDeleteAll}
                   disabled={isDeleting}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-muted disabled:cursor-not-allowed transition-colors text-sm"
+                  className="flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive-hover disabled:bg-muted disabled:cursor-not-allowed transition-colors text-sm"
                   title="Delete all events"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -556,7 +606,7 @@ export default function EventsPage() {
               <button
                 onClick={() => exportEventsToCSV(filteredEvents)}
                 disabled={filteredEvents.length === 0}
-                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover disabled:bg-muted disabled:cursor-not-allowed transition-colors text-sm"
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary-hover disabled:bg-muted disabled:cursor-not-allowed transition-colors text-sm"
                 title="Export to CSV"
               >
                 <Download className="w-4 h-4" />
@@ -565,7 +615,7 @@ export default function EventsPage() {
               <button
                 onClick={() => exportToICS(filteredEvents, `events_${new Date().toISOString().split('T')[0]}`)}
                 disabled={filteredEvents.length === 0}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-muted disabled:cursor-not-allowed transition-colors text-sm"
+                className="flex items-center gap-2 px-4 py-2 bg-accent text-accent-foreground rounded-md hover:bg-accent/80 disabled:bg-muted disabled:cursor-not-allowed transition-colors text-sm"
                 title="Export to Calendar (ICS)"
               >
                 <Calendar className="w-4 h-4" />
@@ -590,7 +640,7 @@ export default function EventsPage() {
           <button
             onClick={() => setActiveTab('overdue')}
             className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'overdue'
-              ? 'border-red-500 text-red-600'
+              ? 'border-destructive text-destructive'
               : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
               }`}
           >
@@ -599,7 +649,7 @@ export default function EventsPage() {
           <button
             onClick={() => setActiveTab('completed')}
             className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'completed'
-              ? 'border-blue-500 text-blue-600'
+              ? 'border-primary text-primary'
               : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
               }`}
           >
@@ -618,7 +668,7 @@ export default function EventsPage() {
                 placeholder="Search events..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full pl-10 pr-4 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground"
               />
             </div>
 
@@ -626,7 +676,7 @@ export default function EventsPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="px-4 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="date">Sort by Date</option>
               <option value="type">Sort by Type</option>
@@ -665,7 +715,7 @@ export default function EventsPage() {
         {isLoading ? (
           <SkeletonList count={5} />
         ) : filteredEvents.length === 0 ? (
-          <div className="bg-card rounded-lg shadow-sm">
+          <div className="bg-card rounded-lg shadow-sm border border-border">
             <EmptyState
               icon={List}
               title="No events found"
@@ -686,7 +736,7 @@ export default function EventsPage() {
           </div>
         ) : (
           <>
-            <div className="bg-card rounded-lg shadow-sm divide-y divide-border">
+            <div className="bg-card rounded-lg shadow-sm border border-border divide-y divide-border">
               <DateGroupedList
                 items={paginatedEvents}
                 dateKey="start"
@@ -698,13 +748,13 @@ export default function EventsPage() {
                   const borderClass = event.completed
                     ? 'border-l-4 border-primary'
                     : isUrgent
-                      ? 'border-l-4 border-red-500'
+                      ? 'border-l-4 border-destructive'
                       : '';
 
                   const bgClass = event.completed
                     ? 'bg-card'
                     : isUrgent
-                      ? 'bg-red-50 dark:bg-red-900/20'
+                      ? 'bg-destructive/10'
                       : 'bg-card';
                   return (
                     <div
@@ -727,13 +777,13 @@ export default function EventsPage() {
 
                         {/* Date Badge */}
                         <div className="flex-shrink-0">
-                          <div className={`rounded-lg p-3 text-center min-w-[70px] ${isUrgent ? 'bg-red-100' : 'bg-primary/10'
+                          <div className={`rounded-lg p-3 text-center min-w-[70px] ${isUrgent ? 'bg-destructive/10' : 'bg-primary/10'
                             }`}>
-                            <div className={`text-2xl font-bold ${isUrgent ? 'text-red-700' : 'text-text-primary'
+                            <div className={`text-2xl font-bold ${isUrgent ? 'text-destructive' : 'text-text-primary'
                               }`}>
                               {format(event.start, 'd')}
                             </div>
-                            <div className={`text-xs uppercase ${isUrgent ? 'text-red-600' : 'text-primary'
+                            <div className={`text-xs uppercase ${isUrgent ? 'text-destructive' : 'text-primary'
                               }`}>
                               {format(event.start, 'MMM')}
                             </div>
@@ -782,7 +832,7 @@ export default function EventsPage() {
                                       value={editingAssigneeValue}
                                       onChange={(e) => setEditingAssigneeValue(e.target.value)}
                                       placeholder="Enter assignee name..."
-                                      className="px-2 py-1 border border-border rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                                      className="px-2 py-1 bg-card text-foreground border border-border rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground"
                                       autoFocus
                                     />
                                     <button
@@ -825,7 +875,7 @@ export default function EventsPage() {
                             <button
                               onClick={() => handleToggleCompletion(event)}
                               className={`p-2 rounded-full transition-colors ${event.completed
-                                ? 'bg-primary/10 text-primary hover:bg-green-200'
+                                ? 'bg-primary/10 text-primary hover:bg-primary/20'
                                 : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
                                 }`}
                               title={event.completed ? "Mark as incomplete" : "Mark as complete"}
@@ -835,7 +885,7 @@ export default function EventsPage() {
 
                             <button
                               onClick={() => handleEditEvent(event)}
-                              className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                              className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                               title="Edit event"
                             >
                               <Edit2 className="w-5 h-5" />
@@ -843,7 +893,7 @@ export default function EventsPage() {
 
                             <button
                               onClick={() => setReschedulingEvent(event)}
-                              className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-orange-100 hover:text-orange-600 transition-colors"
+                              className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors"
                               title="Reschedule event"
                             >
                               <Calendar className="w-5 h-5" />
@@ -852,8 +902,8 @@ export default function EventsPage() {
                             <button
                               onClick={() => handleToggleNotification(event.id)}
                               className={`p-2 rounded-full transition-colors ${event.notificationsEnabled
-                                ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
-                                : 'bg-muted text-muted-foreground hover:bg-yellow-100 hover:text-yellow-600'
+                                ? 'bg-muted text-foreground hover:bg-muted/80'
+                                : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
                                 }`}
                               title={event.notificationsEnabled ? "Disable notifications" : "Enable notifications"}
                             >
@@ -866,7 +916,7 @@ export default function EventsPage() {
 
                             <button
                               onClick={() => handleDeleteEvent(event.id)}
-                              className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-red-100 hover:text-red-600 transition-colors"
+                              className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
                               title="Delete event"
                             >
                               <Trash2 className="w-5 h-5" />
@@ -881,7 +931,7 @@ export default function EventsPage() {
             </div>
 
             {filteredEvents.length > 25 && (
-              <div className="mt-6 bg-card rounded-lg shadow-sm">
+              <div className="mt-6 bg-card rounded-lg shadow-sm border border-border">
                 <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}
@@ -899,7 +949,7 @@ export default function EventsPage() {
       {/* Event Detail Modal */}
       {selectedEvent && (
         <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center p-4 z-50" onClick={() => setSelectedEvent(null)}>
-          <div className="bg-card rounded-lg shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-card rounded-lg shadow-xl border border-border max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
@@ -986,7 +1036,7 @@ export default function EventsPage() {
                         setSelectedEvent(null);
                       }
                     }}
-                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                    className="w-full px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/80 transition-colors flex items-center justify-center gap-2"
                   >
                     <CheckCircle className="w-5 h-5" />
                     <span>Sync to Calendar</span>
@@ -996,7 +1046,7 @@ export default function EventsPage() {
                 {selectedEvent.meetingId && (
                   <button
                     onClick={() => router.push(`/meeting?id=${selectedEvent.meetingId}`)}
-                    className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors flex items-center justify-center gap-2"
+                    className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors flex items-center justify-center gap-2"
                   >
                     <span>View Meeting Details</span>
                     <ChevronRight className="w-5 h-5" />
@@ -1009,7 +1059,7 @@ export default function EventsPage() {
                       handleDeleteEvent(selectedEvent.id);
                     }
                   }}
-                  className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                  className="w-full px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive-hover transition-colors flex items-center justify-center gap-2"
                 >
                   <Trash2 className="w-5 h-5" />
                   <span>Delete Event</span>
