@@ -1,0 +1,175 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --background-2: 0 0% 96.1%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --card-2: 0 0% 100%;
+    --card-border: 0 0% 89.8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 150 85% 47.1%;
+    --primary-foreground: 0 0% 98%;
+    --primary-hover: 240 3.7% 15.9%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --secondary-hover: 240 5.9% 90%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 50.2%;
+    --destructive-foreground: 0 0% 98%;
+    --destructive-hover: 0 84.2% 60.2%;
+    --destructive-bg-10: 0 84.2% 50.2%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 3.8% 46.1%;
+    --radius: 0.75rem;
+    --nav-bg: 0 0% 98%;
+    --surface: 0 0% 96.1%;
+    --success: 142.1 76.2% 36.3%;
+    --success-hover: 142.4 71.8% 29.2%;
+    --neon-green: 76 96% 54.5%;
+    --text-primary: 153 86.4% 21.8%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-fg: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-fg: 240 5.9% 10%;
+    --sidebar-border: 240 5.9% 90%;
+    --sidebar-ring: 240 4.9% 65.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  /* Mobile touch targets - minimum 44x44px for better tap accuracy */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Mobile-optimized padding */
+  .mobile-p {
+    @apply p-3 sm:p-4 md:p-6;
+  }
+
+  /* Mobile-optimized text */
+  .mobile-text {
+    @apply text-base sm:text-sm;
+  }
+
+  /* Smooth scrolling */
+  .smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Card optimizations */
+  .mobile-card {
+    @apply p-4 sm:p-5 md:p-6;
+  }
+
+  /* Grid responsive */
+  .mobile-grid {
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+}
+
+/* Dark mode variables */
+@layer base {
+  .dark {
+    --background: 240 10% 3.9%;
+    --background-2: 0 0% 14.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --card-2: 240 5.9% 10%;
+    --card-border: 240 3.7% 15.9%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 150 91.9% 51.8%;
+    --primary-foreground: 240 5.9% 10%;
+    --primary-hover: 240 4.8% 95.9%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --secondary-hover: 240 5.3% 26.1%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --destructive-hover: 0 84.2% 50.2%;
+    --destructive-bg-10: 0 84.2% 60.2%;
+    --border: 240 5.3% 26.1%;
+    --input: 240 5.3% 26.1%;
+    --ring: 240 4.9% 65.1%;
+    --nav-bg: 240 5.9% 10%;
+    --surface: 0 0% 14.9%;
+    --success: 142.1 70.6% 45.3%;
+    --success-hover: 142.1 76.2% 36.3%;
+    --neon-green: 76 96% 54.5%;
+    --text-primary: 141 78.9% 85.1%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 226 70.7% 48%;
+    --sidebar-primary-fg: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-fg: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 240 4.9% 83.9%;
+  }
+}
+
+/* View Transition for theme toggler */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Custom Animations */
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  background-size: 200% auto;
+  animation: gradient 4s ease infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}

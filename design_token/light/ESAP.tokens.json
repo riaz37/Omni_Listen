@@ -1,0 +1,1425 @@
+{
+  "background": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "hex": "#FFFFFF"
+    },
+    "$description": "Default background colour of <body />, etc.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1574",
+      "com.figma.scopes": [
+        "ALL_SCOPES"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--background)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:67000a54f06f7c5ad8ee4967d13587af287e423e/-1:-1",
+        "targetVariableName": "base/white",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "background 2": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.9607843160629272,
+        0.9607843160629272,
+        0.9607843160629272
+      ],
+      "alpha": 1,
+      "hex": "#F5F5F5"
+    },
+    "$description": "Default background colour of <body />, etc.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:4743:7187",
+      "com.figma.scopes": [
+        "ALL_SCOPES"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--background)"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "bg-muted-40": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.95686274766922,
+        0.95686274766922,
+        0.9607843160629272
+      ],
+      "alpha": 0.4000000059604645,
+      "hex": "#F4F4F5"
+    },
+    "$description": "Muted backgrounds such as <TabsList />, <Skeleton /> and <Switch />",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:2780:42828",
+      "com.figma.scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "STROKE",
+        "EFFECT_COLOR"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--muted) / .4"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "bg-muted-50": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.95686274766922,
+        0.95686274766922,
+        0.9607843160629272
+      ],
+      "alpha": 0.5,
+      "hex": "#F4F4F5"
+    },
+    "$description": "Muted backgrounds such as <TabsList />, <Skeleton /> and <Switch />",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:2768:27390",
+      "com.figma.scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "STROKE",
+        "EFFECT_COLOR"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--muted) / .5"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "bg-accent-50": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.95686274766922,
+        0.95686274766922,
+        0.9607843160629272
+      ],
+      "alpha": 0.5,
+      "hex": "#F4F4F5"
+    },
+    "$description": "Accent colour for hover effects on <DropdownMenuItem>, <SelectItem>, etc.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:2775:38807",
+      "com.figma.scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--accent) / .5"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "foreground": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.03529411926865578,
+        0.03529411926865578,
+        0.04313725605607033
+      ],
+      "alpha": 1,
+      "hex": "#09090B"
+    },
+    "$description": "Text colour for background elements",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1575",
+      "com.figma.scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--foreground)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:239d9c86c7e40aaf19d719463a08316d5ed1199d/-1:-1",
+        "targetVariableName": "zinc/950",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "muted": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.95686274766922,
+        0.95686274766922,
+        0.9607843160629272
+      ],
+      "alpha": 1,
+      "hex": "#F4F4F5"
+    },
+    "$description": "Muted backgrounds such as <TabsList />, <Skeleton /> and <Switch />",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1576",
+      "com.figma.scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "STROKE",
+        "EFFECT_COLOR"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--muted)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:a254dd3800506d34ed329461b2b9884ef8ffd9e4/-1:-1",
+        "targetVariableName": "zinc/100",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "muted-foreground": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.4431372582912445,
+        0.4431372582912445,
+        0.47843137383461
+      ],
+      "alpha": 1,
+      "hex": "#71717A"
+    },
+    "$description": "Text colour for muted elements",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1577",
+      "com.figma.scopes": [
+        "ALL_FILLS",
+        "STROKE"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--muted-foreground)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:c7eb04b4795b7f4b6c080209e096a1900ab03da9/-1:-1",
+        "targetVariableName": "zinc/500",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "card-foreground": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.03529411926865578,
+        0.03529411926865578,
+        0.04313725605607033
+      ],
+      "alpha": 1,
+      "hex": "#09090B"
+    },
+    "$description": "Text colour for card element",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1579",
+      "com.figma.scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--card-foreground)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:239d9c86c7e40aaf19d719463a08316d5ed1199d/-1:-1",
+        "targetVariableName": "zinc/950",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "popover": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "hex": "#FFFFFF"
+    },
+    "$description": "Background colour for popovers such as <DropdownMenu />, <HoverCard />, <Popover />",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1580",
+      "com.figma.scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--popover)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:67000a54f06f7c5ad8ee4967d13587af287e423e/-1:-1",
+        "targetVariableName": "base/white",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "popover-foreground": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.03529411926865578,
+        0.03529411926865578,
+        0.04313725605607033
+      ],
+      "alpha": 1,
+      "hex": "#09090B"
+    },
+    "$description": "Text colour for popover elements",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1581",
+      "com.figma.scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE",
+        "EFFECT_COLOR"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--popover-foreground)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:239d9c86c7e40aaf19d719463a08316d5ed1199d/-1:-1",
+        "targetVariableName": "zinc/950",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "border": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.8941176533699036,
+        0.8941176533699036,
+        0.9058823585510254
+      ],
+      "alpha": 1,
+      "hex": "#E4E4E7"
+    },
+    "$description": "Default border colour",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1582",
+      "com.figma.scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "STROKE"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--border)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:94f7f96c8501c9ae07db7f65889d6406b7bc1b9c/-1:-1",
+        "targetVariableName": "zinc/200",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "border-muted-40": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.95686274766922,
+        0.95686274766922,
+        0.9607843160629272
+      ],
+      "alpha": 0.4000000059604645,
+      "hex": "#F4F4F5"
+    },
+    "$description": "Muted border like it Toast Buttons.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:2785:11095",
+      "com.figma.scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "STROKE",
+        "EFFECT_COLOR"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--muted) / .4"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "border-destructive-50": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.9960784316062927,
+        0.7921568751335144,
+        0.7921568751335144
+      ],
+      "alpha": 1,
+      "hex": "#FECACA"
+    },
+    "$description": "Used for outlining destructive elements, such as buttons or alerts",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:2718:12895",
+      "com.figma.scopes": [
+        "ALL_SCOPES"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--destructive) / .5"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:8c7ed88dec06d9e4912e3095f7fafbd275037e0c/-1:-1",
+        "targetVariableName": "red/200",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "input": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.8941176533699036,
+        0.8941176533699036,
+        0.9058823585510254
+      ],
+      "alpha": 1,
+      "hex": "#E4E4E7"
+    },
+    "$description": "Border colour for inputs such as <Input />, <Select />, <Textarea />",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1583",
+      "com.figma.scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "STROKE"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--input)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:94f7f96c8501c9ae07db7f65889d6406b7bc1b9c/-1:-1",
+        "targetVariableName": "zinc/200",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "primary": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.06666667014360428,
+        0.8745098114013672,
+        0.47058823704719543
+      ],
+      "alpha": 1,
+      "hex": "#11DF78"
+    },
+    "$description": "Primary colour for <Button />",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1584",
+      "com.figma.scopes": [
+        "ALL_SCOPES"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--primary)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:33007e599484bf9d126dfd112d349a7165c7d595/-1:-1",
+        "targetVariableName": "green 2/600",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "primary-foreground": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.9803921580314636,
+        0.9803921580314636,
+        0.9803921580314636
+      ],
+      "alpha": 1,
+      "hex": "#FAFAFA"
+    },
+    "$description": "Primary text colour for <Button />",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1585",
+      "com.figma.scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE",
+        "EFFECT_COLOR"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--primary-foreground)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:94db88233bba38c6af32e955fac7961e334dfa0a/-1:-1",
+        "targetVariableName": "zinc/50",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "hover:primary": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.15294118225574493,
+        0.15294118225574493,
+        0.16470588743686676
+      ],
+      "alpha": 1,
+      "hex": "#27272A"
+    },
+    "$description": "Placeholder colour of the primary button background on hover (because there is no HSLA or RGBA support in variables now)",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:144:1601",
+      "com.figma.scopes": [
+        "ALL_SCOPES"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:6159e5dafceebc280e8178ef7e79610c2899ff4e/-1:-1",
+        "targetVariableName": "zinc/800",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "secondary": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.95686274766922,
+        0.95686274766922,
+        0.9607843160629272
+      ],
+      "alpha": 1,
+      "hex": "#F4F4F5"
+    },
+    "$description": "Secondary colour for <Button />",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1586",
+      "com.figma.scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--secondary)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:a254dd3800506d34ed329461b2b9884ef8ffd9e4/-1:-1",
+        "targetVariableName": "zinc/100",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "secondary-foreground": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.0941176488995552,
+        0.0941176488995552,
+        0.10588235408067703
+      ],
+      "alpha": 1,
+      "hex": "#18181B"
+    },
+    "$description": "Secondary text colour for <Button />",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1587",
+      "com.figma.scopes": [
+        "ALL_SCOPES"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--secondary-foreground)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:104594281c99980d0f228bd80b659bff0412e9b1/-1:-1",
+        "targetVariableName": "zinc/900",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "hover:secondary": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.8941176533699036,
+        0.8941176533699036,
+        0.9058823585510254
+      ],
+      "alpha": 1,
+      "hex": "#E4E4E7"
+    },
+    "$description": "Placeholder colour of the secondary button background on hover",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:144:1602",
+      "com.figma.scopes": [
+        "ALL_SCOPES"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:94f7f96c8501c9ae07db7f65889d6406b7bc1b9c/-1:-1",
+        "targetVariableName": "zinc/200",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "accent": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.95686274766922,
+        0.95686274766922,
+        0.9607843160629272
+      ],
+      "alpha": 1,
+      "hex": "#F4F4F5"
+    },
+    "$description": "Accent colour for hover effects on <DropdownMenuItem>, <SelectItem>, etc.",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1588",
+      "com.figma.scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--accent)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:a254dd3800506d34ed329461b2b9884ef8ffd9e4/-1:-1",
+        "targetVariableName": "zinc/100",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "accent-foreground": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.0941176488995552,
+        0.0941176488995552,
+        0.10588235408067703
+      ],
+      "alpha": 1,
+      "hex": "#18181B"
+    },
+    "$description": "Text colour for accent elements",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1589",
+      "com.figma.scopes": [
+        "ALL_FILLS",
+        "STROKE"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--accent-foreground)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:104594281c99980d0f228bd80b659bff0412e9b1/-1:-1",
+        "targetVariableName": "zinc/900",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "destructive": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.8627451062202454,
+        0.14901961386203766,
+        0.14901961386203766
+      ],
+      "alpha": 1,
+      "hex": "#DC2626"
+    },
+    "$description": "Used for destructive actions such as <Button variant=\"destructive\"> and <Toast variant=\"destructive\">",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1590",
+      "com.figma.scopes": [
+        "ALL_SCOPES"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--destructive)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:7620f40f2d808f84b6923b753e0b2465d5276591/-1:-1",
+        "targetVariableName": "red/600",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "destructive-foreground": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.9803921580314636,
+        0.9803921580314636,
+        0.9803921580314636
+      ],
+      "alpha": 1,
+      "hex": "#FAFAFA"
+    },
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1591",
+      "com.figma.scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "TEXT_FILL",
+        "STROKE"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--destructive-foreground)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:94db88233bba38c6af32e955fac7961e334dfa0a/-1:-1",
+        "targetVariableName": "zinc/50",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "hover:destructive": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.9372549057006836,
+        0.2666666805744171,
+        0.2666666805744171
+      ],
+      "alpha": 1,
+      "hex": "#EF4444"
+    },
+    "$extensions": {
+      "com.figma.variableId": "VariableID:144:1603",
+      "com.figma.scopes": [
+        "ALL_SCOPES"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:df07d476458af18665a073576cf5798328872236/-1:-1",
+        "targetVariableName": "red/500",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "bg-destructive-10": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.8627451062202454,
+        0.14901961386203766,
+        0.14901961386203766
+      ],
+      "alpha": 0.10000000149011612,
+      "hex": "#DC2626"
+    },
+    "$extensions": {
+      "com.figma.variableId": "VariableID:2718:12896",
+      "com.figma.scopes": [
+        "ALL_SCOPES"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--destructive) / .1"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "hover:destructive-20": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.8627451062202454,
+        0.14901961386203766,
+        0.14901961386203766
+      ],
+      "alpha": 0.20000000298023224,
+      "hex": "#DC2626"
+    },
+    "$extensions": {
+      "com.figma.variableId": "VariableID:2718:12897",
+      "com.figma.scopes": [
+        "ALL_SCOPES"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--destructive) / .2"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "ring": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.4431372582912445,
+        0.4431372582912445,
+        0.47843137383461
+      ],
+      "alpha": 1,
+      "hex": "#71717A"
+    },
+    "$description": "Ring colour used for focus state",
+    "$extensions": {
+      "com.figma.variableId": "VariableID:137:1592",
+      "com.figma.scopes": [
+        "FRAME_FILL",
+        "SHAPE_FILL",
+        "STROKE",
+        "EFFECT_COLOR"
+      ],
+      "com.figma.codeSyntax": {
+        "WEB": "var(--focus)"
+      },
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:c7eb04b4795b7f4b6c080209e096a1900ab03da9/-1:-1",
+        "targetVariableName": "zinc/500",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "success": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.08627451211214066,
+        0.6392157077789307,
+        0.29019609093666077
+      ],
+      "alpha": 1,
+      "hex": "#16A34A"
+    },
+    "$extensions": {
+      "com.figma.variableId": "VariableID:773:5119",
+      "com.figma.scopes": [
+        "ALL_SCOPES"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:8b0d0131de1dcfb40899af9344ea8be2e486ea60/-1:-1",
+        "targetVariableName": "green/600",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "hover:succes": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.08235294371843338,
+        0.501960813999176,
+        0.239215686917305
+      ],
+      "alpha": 1,
+      "hex": "#15803D"
+    },
+    "$extensions": {
+      "com.figma.variableId": "VariableID:773:5120",
+      "com.figma.scopes": [
+        "ALL_SCOPES"
+      ],
+      "com.figma.aliasData": {
+        "targetVariableId": "VariableID:fa41e3a63fcc5347791dbf98c0b958d8f7a576cb/-1:-1",
+        "targetVariableName": "green/700",
+        "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+        "targetVariableSetName": "Tailwind Colors"
+      },
+      "com.figma.isOverride": true
+    }
+  },
+  "neon-green": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "srgb",
+      "components": [
+        0.6784313917160034,
+        0.9803921580314636,
+        0.11372549086809158
+      ],
+      "alpha": 1,
+      "hex": "#ADFA1D"
+    },
+    "$extensions": {
+      "com.figma.variableId": "VariableID:2884:2546",
+      "com.figma.scopes": [
+        "ALL_SCOPES"
+      ],
+      "com.figma.isOverride": true
+    }
+  },
+  "sidebar": {
+    "background": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.9803921580314636,
+          0.9803921580314636,
+          0.9803921580314636
+        ],
+        "alpha": 1,
+        "hex": "#FAFAFA"
+      },
+      "$description": "Background for the sidebar",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:2845:1919",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ],
+        "com.figma.codeSyntax": {
+          "WEB": "var(--sidebar-background)"
+        },
+        "com.figma.aliasData": {
+          "targetVariableId": "VariableID:94db88233bba38c6af32e955fac7961e334dfa0a/-1:-1",
+          "targetVariableName": "zinc/50",
+          "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+          "targetVariableSetName": "Tailwind Colors"
+        },
+        "com.figma.isOverride": true
+      }
+    },
+    "foreground": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.24705882370471954,
+          0.24705882370471954,
+          0.27450981736183167
+        ],
+        "alpha": 1,
+        "hex": "#3F3F46"
+      },
+      "$description": "Text colour for sidebar elements",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:2845:1953",
+        "com.figma.scopes": [
+          "FRAME_FILL",
+          "SHAPE_FILL",
+          "TEXT_FILL",
+          "STROKE"
+        ],
+        "com.figma.codeSyntax": {
+          "WEB": "var(--sidebar-foreground)"
+        },
+        "com.figma.aliasData": {
+          "targetVariableId": "VariableID:aa1f49e66aa5d8f0d9f707093826256761b39371/-1:-1",
+          "targetVariableName": "zinc/700",
+          "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+          "targetVariableSetName": "Tailwind Colors"
+        },
+        "com.figma.isOverride": true
+      }
+    },
+    "foreground-70": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.24705882370471954,
+          0.24705882370471954,
+          0.27450981736183167
+        ],
+        "alpha": 0.699999988079071,
+        "hex": "#3F3F46"
+      },
+      "$description": "Secondary symbols in the sidebar",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:2845:9079",
+        "com.figma.scopes": [
+          "FRAME_FILL",
+          "SHAPE_FILL",
+          "TEXT_FILL",
+          "STROKE"
+        ],
+        "com.figma.codeSyntax": {
+          "WEB": "var(--sidebar-foreground) / .7"
+        },
+        "com.figma.isOverride": true
+      }
+    },
+    "primary": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0941176488995552,
+          0.0941176488995552,
+          0.10588235408067703
+        ],
+        "alpha": 1,
+        "hex": "#18181B"
+      },
+      "$description": "Color for the buttons and accent elements in the sidebar",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:2845:1955",
+        "com.figma.scopes": [
+          "FRAME_FILL",
+          "SHAPE_FILL",
+          "TEXT_FILL",
+          "STROKE"
+        ],
+        "com.figma.codeSyntax": {
+          "WEB": "var(--sidebar-primary)"
+        },
+        "com.figma.aliasData": {
+          "targetVariableId": "VariableID:104594281c99980d0f228bd80b659bff0412e9b1/-1:-1",
+          "targetVariableName": "zinc/900",
+          "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+          "targetVariableSetName": "Tailwind Colors"
+        },
+        "com.figma.isOverride": true
+      }
+    },
+    "primary-foreground": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.9803921580314636,
+          0.9803921580314636,
+          0.9803921580314636
+        ],
+        "alpha": 1,
+        "hex": "#FAFAFA"
+      },
+      "$description": "Symbols color on the primary elements",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:2845:1956",
+        "com.figma.scopes": [
+          "FRAME_FILL",
+          "SHAPE_FILL",
+          "TEXT_FILL",
+          "STROKE"
+        ],
+        "com.figma.codeSyntax": {
+          "WEB": "var(--sidebar-primary-foreground)"
+        },
+        "com.figma.aliasData": {
+          "targetVariableId": "VariableID:94db88233bba38c6af32e955fac7961e334dfa0a/-1:-1",
+          "targetVariableName": "zinc/50",
+          "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+          "targetVariableSetName": "Tailwind Colors"
+        },
+        "com.figma.isOverride": true
+      }
+    },
+    "accent": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.95686274766922,
+          0.95686274766922,
+          0.9607843160629272
+        ],
+        "alpha": 1,
+        "hex": "#F4F4F5"
+      },
+      "$description": "Accent surfaces, hover and other interactions",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:2845:1957",
+        "com.figma.scopes": [
+          "FRAME_FILL",
+          "SHAPE_FILL",
+          "TEXT_FILL",
+          "STROKE"
+        ],
+        "com.figma.codeSyntax": {
+          "WEB": "var(--sidebar-accent)"
+        },
+        "com.figma.aliasData": {
+          "targetVariableId": "VariableID:a254dd3800506d34ed329461b2b9884ef8ffd9e4/-1:-1",
+          "targetVariableName": "zinc/100",
+          "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+          "targetVariableSetName": "Tailwind Colors"
+        },
+        "com.figma.isOverride": true
+      }
+    },
+    "accent-foreground": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0941176488995552,
+          0.0941176488995552,
+          0.10588235408067703
+        ],
+        "alpha": 1,
+        "hex": "#18181B"
+      },
+      "$description": "Symbols on the accent surfaces in active state",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:2845:2030",
+        "com.figma.scopes": [
+          "FRAME_FILL",
+          "SHAPE_FILL",
+          "TEXT_FILL",
+          "STROKE"
+        ],
+        "com.figma.codeSyntax": {
+          "WEB": "var(--sidebar-accent-foreground)"
+        },
+        "com.figma.aliasData": {
+          "targetVariableId": "VariableID:104594281c99980d0f228bd80b659bff0412e9b1/-1:-1",
+          "targetVariableName": "zinc/900",
+          "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+          "targetVariableSetName": "Tailwind Colors"
+        },
+        "com.figma.isOverride": true
+      }
+    },
+    "border": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8941176533699036,
+          0.8941176533699036,
+          0.9058823585510254
+        ],
+        "alpha": 1,
+        "hex": "#E4E4E7"
+      },
+      "$extensions": {
+        "com.figma.variableId": "VariableID:2845:2031",
+        "com.figma.scopes": [
+          "FRAME_FILL",
+          "SHAPE_FILL",
+          "TEXT_FILL",
+          "STROKE"
+        ],
+        "com.figma.codeSyntax": {
+          "WEB": "var(--sidebar-border)"
+        },
+        "com.figma.aliasData": {
+          "targetVariableId": "VariableID:94f7f96c8501c9ae07db7f65889d6406b7bc1b9c/-1:-1",
+          "targetVariableName": "zinc/200",
+          "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+          "targetVariableSetName": "Tailwind Colors"
+        },
+        "com.figma.isOverride": true
+      }
+    },
+    "ring": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.6313725709915161,
+          0.6313725709915161,
+          0.6666666865348816
+        ],
+        "alpha": 1,
+        "hex": "#A1A1AA"
+      },
+      "$extensions": {
+        "com.figma.variableId": "VariableID:2845:2032",
+        "com.figma.scopes": [
+          "FRAME_FILL",
+          "SHAPE_FILL",
+          "TEXT_FILL",
+          "STROKE"
+        ],
+        "com.figma.codeSyntax": {
+          "WEB": "var(--sidebar-ring)"
+        },
+        "com.figma.aliasData": {
+          "targetVariableId": "VariableID:8070a318e33ee2b61730215d3c0482c8c275901a/-1:-1",
+          "targetVariableName": "zinc/400",
+          "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+          "targetVariableSetName": "Tailwind Colors"
+        },
+        "com.figma.isOverride": true
+      }
+    }
+  },
+  "card": {
+    "forground": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          1,
+          1,
+          1
+        ],
+        "alpha": 1,
+        "hex": "#FFFFFF"
+      },
+      "$description": "Background color for <Card />",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:137:1578",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ],
+        "com.figma.codeSyntax": {
+          "WEB": "var(--card)"
+        },
+        "com.figma.aliasData": {
+          "targetVariableId": "VariableID:67000a54f06f7c5ad8ee4967d13587af287e423e/-1:-1",
+          "targetVariableName": "base/white",
+          "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+          "targetVariableSetName": "Tailwind Colors"
+        },
+        "com.figma.isOverride": true
+      }
+    },
+    "popover forground": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.03529411926865578,
+          0.03529411926865578,
+          0.04313725605607033
+        ],
+        "alpha": 0.20000000298023224,
+        "hex": "#09090B"
+      },
+      "$description": "Background color for <Card />",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:4749:18661",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ],
+        "com.figma.codeSyntax": {
+          "WEB": "var(--card)"
+        },
+        "com.figma.isOverride": true
+      }
+    },
+    "card 2": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          1,
+          1,
+          1
+        ],
+        "alpha": 1,
+        "hex": "#FFFFFF"
+      },
+      "$description": "Background color for <Card />",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:4743:7568",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ],
+        "com.figma.codeSyntax": {
+          "WEB": "var(--card)"
+        },
+        "com.figma.aliasData": {
+          "targetVariableId": "VariableID:67000a54f06f7c5ad8ee4967d13587af287e423e/-1:-1",
+          "targetVariableName": "base/white",
+          "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+          "targetVariableSetName": "Tailwind Colors"
+        },
+        "com.figma.isOverride": true
+      }
+    },
+    "border": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8980392217636108,
+          0.8980392217636108,
+          0.8980392217636108
+        ],
+        "alpha": 1,
+        "hex": "#E5E5E5"
+      },
+      "$description": "Background color for <Card />",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:4743:7569",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ],
+        "com.figma.codeSyntax": {
+          "WEB": "var(--card)"
+        },
+        "com.figma.isOverride": true
+      }
+    }
+  },
+  "text": {
+    "Primary": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0313725508749485,
+          0.40392157435417175,
+          0.21568627655506134
+        ],
+        "alpha": 1,
+        "hex": "#086737"
+      },
+      "$description": "Border colour for inputs such as <Input />, <Select />, <Textarea />",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:4749:17438",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ],
+        "com.figma.codeSyntax": {
+          "WEB": "var(--input)"
+        },
+        "com.figma.aliasData": {
+          "targetVariableId": "VariableID:488f2bcdab0a82ea4027e527a9debecc09459568/-1:-1",
+          "targetVariableName": "green 2/900",
+          "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+          "targetVariableSetName": "Tailwind Colors"
+        },
+        "com.figma.isOverride": true
+      }
+    }
+  },
+  "swap": {
+    "Green 1": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0313725508749485,
+          0.40392157435417175,
+          0.21568627655506134
+        ],
+        "alpha": 1,
+        "hex": "#086737"
+      },
+      "$description": "Border colour for inputs such as <Input />, <Select />, <Textarea />",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:4749:17439",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ],
+        "com.figma.codeSyntax": {
+          "WEB": "var(--input)"
+        },
+        "com.figma.aliasData": {
+          "targetVariableId": "VariableID:488f2bcdab0a82ea4027e527a9debecc09459568/-1:-1",
+          "targetVariableName": "green 2/900",
+          "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+          "targetVariableSetName": "Tailwind Colors"
+        },
+        "com.figma.isOverride": true
+      }
+    },
+    "Grey": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0313725508749485,
+          0.40392157435417175,
+          0.21568627655506134
+        ],
+        "alpha": 1,
+        "hex": "#086737"
+      },
+      "$description": "Border colour for inputs such as <Input />, <Select />, <Textarea />",
+      "$extensions": {
+        "com.figma.variableId": "VariableID:4749:17736",
+        "com.figma.scopes": [
+          "ALL_SCOPES"
+        ],
+        "com.figma.codeSyntax": {
+          "WEB": "var(--input)"
+        },
+        "com.figma.aliasData": {
+          "targetVariableId": "VariableID:488f2bcdab0a82ea4027e527a9debecc09459568/-1:-1",
+          "targetVariableName": "green 2/900",
+          "targetVariableSetId": "VariableCollectionId:eb8544f5f4b82a8824636f0768fb7a385342e094/-1:-1",
+          "targetVariableSetName": "Tailwind Colors"
+        },
+        "com.figma.isOverride": true
+      }
+    }
+  },
+  "$extensions": {
+    "com.figma.modeName": "light/ESAP"
+  }
+}
