@@ -1,0 +1,87 @@
+{
+  "name": "esapai-listen",
+  "productName": "ESAPAIListen",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist-electron/main/index.js",
+  "description": "Background Listening Agent Desktop App",
+  "author": "ESAP Listen Team",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "dev:electron": "concurrently \"cross-env BROWSER=none npm run dev\" \"wait-on http://localhost:3000 && tsc -p tsconfig.electron.json && cross-env ELECTRON_START_URL=http://localhost:3000 electron .\"",
+    "build:main": "tsc -p tsconfig.electron.json",
+    "dist": "cross-env ELECTRON_BUILD=true NEXT_PUBLIC_API_URL=https://esaplistenweb.onrender.com next build && npm run build:main && electron-builder",
+    "dist:local": "cross-env ELECTRON_BUILD=true NEXT_PUBLIC_API_URL=http://localhost:8000 next build && npm run build:main && electron-builder"
+  },
+  "build": {
+    "appId": "com.esap.listen",
+    "files": [
+      "out/**/*",
+      "dist-electron/**/*",
+      "package.json"
+    ],
+    "icon": "public/esapai_logo.png",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "icon": "public/esapai_logo.png",
+      "target": "nsis"
+    },
+    "protocols": [
+      {
+        "name": "ESAPAIListen Protocol",
+        "schemes": [
+          "esapai-listen"
+        ]
+      }
+    ]
+  },
+  "dependencies": {
+    "@ducanh2912/next-pwa": "^10.2.9",
+    "@hookform/resolvers": "^3.9.0",
+    "@tanstack/react-query": "^5.51.1",
+    "axios": "^1.7.2",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^3.6.0",
+    "framer-motion": "^12.23.25",
+    "html2pdf.js": "^0.12.1",
+    "lucide-react": "^0.408.0",
+    "next": "14.2.5",
+    "next-auth": "^4.24.7",
+    "node-record-lpcm16": "^1.0.1",
+    "onnxruntime-node": "^1.16.0",
+    "react": "^18.3.1",
+    "react-big-calendar": "^1.19.4",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.52.1",
+    "react-hot-toast": "^2.6.0",
+    "socket.io-client": "^4.7.5",
+    "tailwind-merge": "^2.4.0",
+    "zod": "^3.23.8",
+    "electron-squirrel-startup": "^1.0.1",
+    "electron-store": "^8.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "@types/react": "^18.3.3",
+    "@types/react-big-calendar": "^1.8.9",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.19",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^29.1.0",
+    "electron-builder": "^24.13.0",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.2.5",
+    "postcss": "^8.4.39",
+    "tailwindcss": "^3.4.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "wait-on": "^7.2.0"
+  }
+}
