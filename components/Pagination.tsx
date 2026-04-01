@@ -55,7 +55,7 @@ export default function Pagination({
           <select
             value={itemsPerPage}
             onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-            className="border border-border rounded-md text-sm py-1 px-2 focus:ring-primary focus:border-primary"
+            className="border border-border rounded-md text-sm py-1 px-2 bg-card text-foreground focus:ring-primary focus:border-primary"
           >
             <option value={10}>10</option>
             <option value={25}>25</option>
