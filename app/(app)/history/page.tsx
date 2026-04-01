@@ -181,7 +181,7 @@ export default function HistoryPage() {
                   <button
                     onClick={handleBulkDelete}
                     disabled={isDeleting}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-muted disabled:cursor-not-allowed transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive-hover disabled:bg-muted disabled:cursor-not-allowed transition-colors"
                     title={`Delete ${selectedMeetingIds.length} selected`}
                   >
                     <Trash2 className="w-4 h-4" />
@@ -203,7 +203,7 @@ export default function HistoryPage() {
                 <button
                   onClick={handleDeleteAll}
                   disabled={isDeleting}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-muted disabled:cursor-not-allowed transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive-hover disabled:bg-muted disabled:cursor-not-allowed transition-colors"
                   title="Delete all meetings"
                 >
                   <Trash2 className="w-4 h-4" />
