@@ -736,7 +736,7 @@ export default function EventsPage() {
           </div>
         ) : (
           <>
-            <div className="bg-card rounded-lg shadow-sm border border-border divide-y divide-border">
+            <div className="space-y-4">
               <DateGroupedList
                 items={paginatedEvents}
                 dateKey="start"
@@ -759,7 +759,7 @@ export default function EventsPage() {
                   return (
                     <div
                       key={event.id}
-                      className={`p-5 hover:bg-background transition-colors ${borderClass} ${bgClass} ${event.completed ? 'opacity-75' : ''}`}
+                      className={`p-5 rounded-lg border border-border shadow-sm hover:shadow-md transition-all ${borderClass} ${bgClass} ${event.completed ? 'opacity-75' : ''}`}
                     >
                       <div className="flex items-start gap-4">
                         {/* Checkbox */}
