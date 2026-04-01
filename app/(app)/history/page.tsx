@@ -280,7 +280,7 @@ export default function HistoryPage() {
                     renderItem={(meeting: any) => (
                       <div
                         key={meeting.job_id}
-                        className="bg-card rounded-lg shadow hover:shadow-md transition-shadow p-6 mb-4"
+                        className="bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow p-6 mb-4"
                       >
                         <div className="flex gap-4">
                           {/* Checkbox */}
