@@ -191,7 +191,7 @@ export default function HistoryPage() {
                   <button
                     onClick={handleDeselectAll}
                     disabled={isDeleting}
-                    className="flex items-center gap-2 px-4 py-2 bg-secondary text-white rounded-md hover:bg-secondary/80 disabled:bg-muted disabled:cursor-not-allowed transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary-hover disabled:bg-muted disabled:cursor-not-allowed transition-colors"
                     title="Deselect all"
                   >
                     <X className="w-4 h-4" />
