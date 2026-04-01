@@ -236,7 +236,7 @@ export default function HistoryPage() {
             {loadingMeetings ? (
               <SkeletonList count={5} />
             ) : meetings.length === 0 ? (
-              <div className="bg-card rounded-lg shadow">
+              <div className="bg-card rounded-lg border border-border shadow-sm">
                 <EmptyState
                   icon={FileText}
                   title="No meetings yet"
@@ -349,7 +349,7 @@ export default function HistoryPage() {
                 </div>
 
                 {meetings.length > 10 && (
-                  <div className="mt-6 bg-card rounded-lg shadow">
+                  <div className="mt-6 bg-card rounded-lg border border-border shadow-sm">
                     <Pagination
                       currentPage={currentPage}
                       totalPages={totalPages}
