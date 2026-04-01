@@ -382,27 +382,54 @@ export default function EventsPage() {
           {/* Calendar - Main content */}
           <div className="lg:col-span-2">
             <div className="bg-card rounded-lg border border-border shadow-sm p-6">
-              <div className="mb-4 flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-foreground">Calendar View</h2>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setView('month')}
-                    className={`px-3 py-1 rounded ${view === 'month' ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}
-                  >
-                    Month
-                  </button>
-                  <button
-                    onClick={() => setView('week')}
-                    className={`px-3 py-1 rounded ${view === 'week' ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}
-                  >
-                    Week
-                  </button>
-                  <button
-                    onClick={() => setView('day')}
-                    className={`px-3 py-1 rounded ${view === 'day' ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}
-                  >
-                    Day
-                  </button>
+              <div className="mb-4 flex flex-wrap justify-between items-center gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handleNavigate(new Date())}
+                      className="px-3 py-1.5 text-sm font-medium rounded border border-border bg-card text-foreground hover:bg-muted transition-colors"
+                    >
+                      Today
+                    </button>
+                    <button
+                      onClick={() => {
+                        const d = new Date(currentDate);
+                        if (view === 'month') d.setMonth(d.getMonth() - 1);
+                        else if (view === 'week') d.setDate(d.getDate() - 7);
+                        else d.setDate(d.getDate() - 1);
+                        handleNavigate(d);
+                      }}
+                      className="px-3 py-1.5 text-sm font-medium rounded border border-border bg-card text-foreground hover:bg-muted transition-colors"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={() => {
+                        const d = new Date(currentDate);
+                        if (view === 'month') d.setMonth(d.getMonth() + 1);
+                        else if (view === 'week') d.setDate(d.getDate() + 7);
+                        else d.setDate(d.getDate() + 1);
+                        handleNavigate(d);
+                      }}
+                      className="px-3 py-1.5 text-sm font-medium rounded border border-border bg-card text-foreground hover:bg-muted transition-colors"
+                    >
+                      Next
+                    </button>
+                  </div>
+                  <h2 className="text-lg font-semibold text-foreground">
+                    {format(currentDate, 'MMMM yyyy')}
+                  </h2>
+                </div>
+                <div className="flex gap-1">
+                  {(['month', 'week', 'day'] as const).map((v) => (
+                    <button
+                      key={v}
+                      onClick={() => setView(v)}
+                      className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${view === v ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground hover:bg-accent'}`}
+                    >
+                      {v.charAt(0).toUpperCase() + v.slice(1)}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -420,6 +447,7 @@ export default function EventsPage() {
                   eventPropGetter={(event) => ({
                     style: getEventStyle(event),
                   })}
+                  components={{ toolbar: () => null }}
                   style={{ height: '100%' }}
                 />
               </div>
