@@ -318,7 +318,7 @@ export default function HistoryPage() {
                                     <span>{meeting.event_count} events</span>
                                   </div>
                                   {meeting.has_custom_query && (
-                                    <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded text-xs">
+                                    <span className="px-2 py-1 bg-accent text-accent-foreground rounded text-xs">
                                       Additional Analysis
                                     </span>
                                   )}
