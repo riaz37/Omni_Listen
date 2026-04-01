@@ -290,32 +290,98 @@ export default function EventsPage() {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header Skeleton */}
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <CalendarIcon className="w-8 h-8 text-primary" />
-              <h1 className="text-3xl font-bold text-foreground">Calendar</h1>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
+          {/* Header Skeleton — matches real header */}
+          <div className="mb-8 flex justify-between items-start">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 bg-muted rounded" />
+                <div className="h-8 bg-muted rounded w-56" />
+              </div>
+              <div className="h-4 bg-muted rounded w-80 mt-2" />
             </div>
-            <p className="text-muted-foreground">View and manage your scheduled events</p>
+            <div className="h-10 bg-muted rounded-lg w-36" />
+          </div>
+
+          {/* Filters Skeleton — matches search + filter row */}
+          <div className="mb-6 flex flex-col sm:flex-row gap-4">
+            <div className="flex-1 h-10 bg-muted rounded-lg" />
+            <div className="h-10 bg-muted rounded-lg w-40" />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Calendar Skeleton */}
+            {/* Calendar Skeleton — matches calendar card with toolbar + grid */}
             <div className="lg:col-span-2">
               <div className="bg-card rounded-lg border border-border shadow-sm p-6">
-                <div className="h-96 bg-muted rounded animate-pulse" />
+                {/* Toolbar: nav buttons + month + view switcher */}
+                <div className="mb-4 flex justify-between items-center">
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-1">
+                      <div className="h-8 bg-muted rounded w-14" />
+                      <div className="h-8 bg-muted rounded w-12" />
+                      <div className="h-8 bg-muted rounded w-12" />
+                    </div>
+                    <div className="h-6 bg-muted rounded w-32" />
+                  </div>
+                  <div className="flex gap-1">
+                    <div className="h-8 bg-muted rounded w-16" />
+                    <div className="h-8 bg-muted rounded w-14" />
+                    <div className="h-8 bg-muted rounded w-12" />
+                  </div>
+                </div>
+                {/* Calendar grid: header row + 5 week rows */}
+                <div className="border border-border rounded-lg overflow-hidden">
+                  <div className="grid grid-cols-7 border-b border-border">
+                    {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
+                      <div key={d} className="py-3 px-2 bg-muted text-center">
+                        <div className="h-3 bg-muted-foreground/20 rounded w-8 mx-auto" />
+                      </div>
+                    ))}
+                  </div>
+                  {[...Array(5)].map((_, row) => (
+                    <div key={row} className="grid grid-cols-7 border-b border-border last:border-b-0">
+                      {[...Array(7)].map((_, col) => (
+                        <div key={col} className="h-20 p-2 border-r border-border last:border-r-0">
+                          <div className="h-3 bg-muted rounded w-5" />
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Sidebar Skeleton */}
-            <div className="space-y-6">
+            {/* Sidebar Skeleton — matches upcoming events */}
+            <div className="lg:col-span-1">
               <div className="bg-card rounded-lg border border-border shadow-sm p-6">
-                <div className="h-6 bg-muted rounded w-32 mb-4 animate-pulse" />
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-5 h-5 bg-muted rounded" />
+                  <div className="h-5 bg-muted rounded w-36" />
+                </div>
                 <div className="space-y-3">
                   {[...Array(3)].map((_, i) => (
-                    <EventCardSkeleton key={i} />
+                    <div key={i} className="p-4 border border-border rounded-lg">
+                      <div className="flex justify-between mb-2">
+                        <div className="h-4 bg-muted rounded w-32" />
+                        <div className="h-5 bg-muted rounded-full w-16" />
+                      </div>
+                      <div className="h-3 bg-muted rounded w-28 mb-1" />
+                      <div className="h-3 bg-muted rounded w-16 mb-3" />
+                      <div className="h-3 bg-muted rounded w-full" />
+                    </div>
                   ))}
+                </div>
+                {/* Legend skeleton */}
+                <div className="mt-6 pt-4 border-t border-border">
+                  <div className="h-4 bg-muted rounded w-24 mb-3" />
+                  <div className="space-y-2">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-muted rounded-full" />
+                        <div className="h-3 bg-muted rounded w-16" />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
