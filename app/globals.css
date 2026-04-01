@@ -102,6 +102,7 @@
 /* Dark mode variables */
 @layer base {
   .dark {
+    color-scheme: dark;
     --background: 240 10% 3.9%;
     --background-2: 0 0% 14.9%;
     --foreground: 0 0% 98%;
