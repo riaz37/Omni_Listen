@@ -77,7 +77,7 @@ export function DateGroupedList<T>({
         <div className="space-y-6">
             {sortedDates.map(dateStr => (
                 <div key={dateStr} className="space-y-2">
-                    <h3 className="text-sm font-medium text-muted-foreground sticky top-0 bg-muted/90 backdrop-blur-sm py-2 z-10">
+                    <h3 className="text-sm font-medium text-muted-foreground sticky top-0 bg-background/95 backdrop-blur-sm py-2 px-1 z-10">
                         {formatDateHeader(dateStr)}
                     </h3>
                     <div className="space-y-2">
