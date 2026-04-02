@@ -19,9 +19,9 @@ import {
   Sun,
   Moon,
 } from 'lucide-react';
-import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 import { useTheme } from '@/lib/theme-context';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { flushSync } from 'react-dom';
 
 // ─── Navigation item types ───────────────────────────────────────────────────
 
@@ -269,12 +269,6 @@ function UserAvatarMenu({
             );
           })}
 
-          {/* Theme toggle */}
-          <div className="flex items-center gap-3 px-4 py-2.5 text-sm text-popover-foreground">
-            <span className="flex-1">Theme</span>
-            <AnimatedThemeToggler className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" />
-          </div>
-
           {/* Logout */}
           <div className="border-t border-border mt-1 pt-1">
             <button
@@ -404,12 +398,6 @@ function MobileMoreSheet({
             );
           })}
 
-          {/* Theme row */}
-          <div className="flex items-center gap-3 px-6 py-3 text-foreground">
-            <span className="text-sm flex-1">Theme</span>
-            <AnimatedThemeToggler className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" />
-          </div>
-
           {/* Logout */}
           <button
             onClick={() => {
@@ -427,14 +415,61 @@ function MobileMoreSheet({
   );
 }
 
-// ─── Segmented theme toggle (matches Figma) ─────────────────────────────────
+// ─── Segmented theme toggle (matches Figma) with view-transition animation ──
 
 function SegmentedThemeToggle() {
   const { actualTheme, setTheme } = useTheme();
+  const lightRef = useRef<HTMLButtonElement>(null);
+  const darkRef = useRef<HTMLButtonElement>(null);
+
+  const handleSwitch = useCallback(
+    (target: 'light' | 'dark') => {
+      if (actualTheme === target) return;
+      const button = target === 'light' ? lightRef.current : darkRef.current;
+      if (!button) return;
+
+      const applyTheme = () => setTheme(target);
+
+      if (typeof document.startViewTransition !== 'function') {
+        applyTheme();
+        return;
+      }
+
+      const { top, left, width, height } = button.getBoundingClientRect();
+      const x = left + width / 2;
+      const y = top + height / 2;
+      const vw = window.visualViewport?.width ?? window.innerWidth;
+      const vh = window.visualViewport?.height ?? window.innerHeight;
+      const maxRadius = Math.hypot(Math.max(x, vw - x), Math.max(y, vh - y));
+
+      const transition = document.startViewTransition(() => {
+        flushSync(applyTheme);
+      });
+
+      transition?.ready?.then(() => {
+        document.documentElement.animate(
+          {
+            clipPath: [
+              `circle(0px at ${x}px ${y}px)`,
+              `circle(${maxRadius}px at ${x}px ${y}px)`,
+            ],
+          },
+          {
+            duration: 400,
+            easing: 'ease-in-out',
+            pseudoElement: '::view-transition-new(root)',
+          },
+        );
+      });
+    },
+    [actualTheme, setTheme],
+  );
+
   return (
     <div className="flex items-center bg-muted rounded-lg p-0.5">
       <button
-        onClick={() => setTheme('light')}
+        ref={lightRef}
+        onClick={() => handleSwitch('light')}
         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
           actualTheme === 'light'
             ? 'bg-background text-foreground shadow-sm'
@@ -445,7 +480,8 @@ function SegmentedThemeToggle() {
         Light
       </button>
       <button
-        onClick={() => setTheme('dark')}
+        ref={darkRef}
+        onClick={() => handleSwitch('dark')}
         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
           actualTheme === 'dark'
             ? 'bg-background text-foreground shadow-sm'
