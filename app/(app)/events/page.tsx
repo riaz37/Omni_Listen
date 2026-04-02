@@ -15,6 +15,9 @@ import RescheduleEventModal from '@/components/RescheduleEventModal';
 import { parseISO, format, isFuture, isPast, isToday, differenceInDays } from 'date-fns';
 import { DateGroupedList } from '@/components/DateGroupedList';
 //import { getUrgencyStyles } from '@/lib/urgency-detector';
+import PrimaryButton from '@/components/PrimaryButton';
+import { EventsSkeleton } from './EventsSkeleton';
+import { EventDetailModal } from './EventDetailModal';
 import {
   List,
   Calendar,
@@ -23,19 +26,17 @@ import {
   MapPin,
   Users,
   ChevronRight,
-  Filter,
   Search,
   Trash2,
   CheckCircle,
-  XCircle,
   Bell,
-  BellOff,
   Circle,
   CheckCircle2,
-  AlertCircle,
   Edit2,
-  Save,
-  X
+  X,
+  MoreVertical,
+  Link2,
+  Eye
 } from 'lucide-react';
 
 interface Event {
@@ -67,12 +68,11 @@ export default function EventsPage() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'overdue' | 'completed'>('upcoming');
+  const [activeTab, setActiveTab] = useState<'all' | 'today' | 'upcoming' | 'past'>('all');
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'date' | 'type'>('date');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
-  const [editingAssigneeId, setEditingAssigneeId] = useState<string | null>(null);
-  const [editingAssigneeValue, setEditingAssigneeValue] = useState('');
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [reschedulingEvent, setReschedulingEvent] = useState<Event | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -215,46 +215,12 @@ export default function EventsPage() {
     }
   };
 
-  const handleEditAssignee = (event: Event) => {
-    setEditingAssigneeId(event.id);
-    setEditingAssigneeValue(event.assignee || '');
-  };
-
-  const handleCancelEditAssignee = () => {
-    setEditingAssigneeId(null);
-    setEditingAssigneeValue('');
-  };
-
-  const handleSaveAssignee = async (event: Event) => {
-    if (!event.eventItemId) return;
-
-    try {
-      await meetingsAPI.updateEventAssignee(event.eventItemId, editingAssigneeValue);
-
-      // Update local state
-      const updatedEvents = events.map(e =>
-        e.id === event.id
-          ? { ...e, assignee: editingAssigneeValue, attendees: editingAssigneeValue ? [editingAssigneeValue] : [] }
-          : e
-      );
-      setEvents(updatedEvents);
-
-      setEditingAssigneeId(null);
-      setEditingAssigneeValue('');
-      toast.success('Assignee updated successfully');
-    } catch (error) {
-      toast.error('Failed to update assignee');
-    }
-  };
 
   const handleEditEvent = (event: Event) => {
     setEditingEvent(event);
     setShowEditModal(true);
   };
 
-  const handleRescheduleEvent = (event: Event) => {
-    setReschedulingEvent(event);
-  };
 
   const handleSaveEvent = async (eventId: number, updates: any) => {
     try {
@@ -335,14 +301,6 @@ export default function EventsPage() {
     }
   };
 
-  const handleToggleSelectEvent = (eventItemId: number) => {
-    setSelectedEventIds(prev =>
-      prev.includes(eventItemId)
-        ? prev.filter(id => id !== eventItemId)
-        : [...prev, eventItemId]
-    );
-  };
-
   const handleSelectAll = () => {
     const allEventIds = paginatedEvents
       .filter(e => e.eventItemId)
@@ -409,17 +367,17 @@ export default function EventsPage() {
   const filteredEvents = useMemo(() => {
     return events
       .filter(event => {
+        if (activeTab === 'all') {
+          return true;
+        }
+        if (activeTab === 'today') {
+          return isToday(event.start);
+        }
         if (activeTab === 'upcoming') {
-          // Future events only (including later today), AND not completed
-          return !event.completed && isFuture(event.start);
+          return isFuture(event.start);
         }
-        if (activeTab === 'overdue') {
-          // Past events (including earlier today), AND not completed
-          return !event.completed && isPast(event.start);
-        }
-        if (activeTab === 'completed') {
-          // Only completed events
-          return event.completed;
+        if (activeTab === 'past') {
+          return isPast(event.start);
         }
         return true;
       })
@@ -492,68 +450,7 @@ export default function EventsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Skeleton Header with title + action buttons */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-muted rounded animate-pulse"></div>
-                <div className="h-8 bg-muted rounded w-48 animate-pulse"></div>
-              </div>
-              <div className="flex gap-2">
-                <div className="h-10 w-24 bg-muted rounded-md animate-pulse"></div>
-                <div className="h-10 w-16 bg-muted rounded-md animate-pulse"></div>
-                <div className="h-10 w-16 bg-muted rounded-md animate-pulse"></div>
-              </div>
-            </div>
-            <div className="h-4 bg-muted rounded w-64 animate-pulse"></div>
-          </div>
-          {/* Skeleton Tabs */}
-          <div className="flex border-b border-border mb-6">
-            <div className="h-10 w-24 bg-muted rounded animate-pulse mr-4"></div>
-            <div className="h-10 w-20 bg-muted rounded animate-pulse mr-4"></div>
-            <div className="h-10 w-24 bg-muted rounded animate-pulse"></div>
-          </div>
-          {/* Skeleton Search + Sort */}
-          <div className="mb-6 space-y-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1 h-10 bg-muted rounded-lg animate-pulse border border-border"></div>
-              <div className="h-10 w-40 bg-muted rounded-lg animate-pulse border border-border"></div>
-            </div>
-            {/* Skeleton Select All */}
-            <div className="h-10 w-44 bg-muted rounded-lg animate-pulse"></div>
-          </div>
-          {/* Skeleton Event Cards */}
-          <div className="bg-card rounded-lg shadow-sm border border-border divide-y divide-border">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="p-5 flex items-start gap-4">
-                <div className="w-5 h-5 bg-muted rounded animate-pulse flex-shrink-0 mt-1"></div>
-                <div className="flex-shrink-0">
-                  <div className="w-[70px] h-[70px] bg-muted rounded-lg animate-pulse"></div>
-                </div>
-                <div className="flex-1 min-w-0 space-y-2">
-                  <div className="h-5 bg-muted rounded w-3/4 animate-pulse"></div>
-                  <div className="flex gap-3">
-                    <div className="h-4 bg-muted rounded w-20 animate-pulse"></div>
-                    <div className="h-4 bg-muted rounded w-16 animate-pulse"></div>
-                    <div className="h-5 bg-muted rounded-full w-16 animate-pulse"></div>
-                  </div>
-                  <div className="h-4 bg-muted rounded w-1/2 animate-pulse"></div>
-                </div>
-                <div className="flex gap-2 ml-4">
-                  <div className="w-9 h-9 bg-muted rounded-full animate-pulse"></div>
-                  <div className="w-9 h-9 bg-muted rounded-full animate-pulse"></div>
-                  <div className="w-9 h-9 bg-muted rounded-full animate-pulse"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <EventsSkeleton />;
   }
 
   return (
@@ -564,151 +461,96 @@ export default function EventsPage() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3">
-              <List className="w-8 h-8 text-primary" />
-              <h1 className="text-3xl font-bold text-foreground">Events</h1>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Events List</h1>
+              <p className="text-muted-foreground text-sm">All events from your meetings, sorted by date</p>
             </div>
-            <div className="flex gap-2 flex-wrap">
-              {selectedEventIds.length > 0 && (
-                <>
-                  <button
-                    onClick={handleBulkDelete}
-                    disabled={isDeleting}
-                    className="flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive-hover disabled:bg-muted disabled:cursor-not-allowed transition-colors text-sm"
-                    title={`Delete ${selectedEventIds.length} selected`}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    <span className="hidden sm:inline">Delete Selected ({selectedEventIds.length})</span>
-                    <span className="sm:hidden">{selectedEventIds.length}</span>
-                  </button>
-                  <button
-                    onClick={handleDeselectAll}
-                    disabled={isDeleting}
-                    className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary-hover disabled:bg-muted disabled:cursor-not-allowed transition-colors text-sm"
-                    title="Deselect all"
-                  >
-                    <X className="w-4 h-4" />
-                    <span className="hidden sm:inline">Clear</span>
-                  </button>
-                </>
-              )}
-              {selectedEventIds.length === 0 && events.length > 0 && (
-                <button
-                  onClick={handleDeleteAll}
-                  disabled={isDeleting}
-                  className="flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive-hover disabled:bg-muted disabled:cursor-not-allowed transition-colors text-sm"
-                  title="Delete all events"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span className="hidden sm:inline">Delete All</span>
-                </button>
-              )}
-              <button
+            <div className="flex gap-2">
+              <PrimaryButton
                 onClick={() => exportEventsToCSV(filteredEvents)}
                 disabled={filteredEvents.length === 0}
-                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary-hover disabled:bg-muted disabled:cursor-not-allowed transition-colors text-sm"
+                variant="secondary"
+                icon={Download}
                 title="Export to CSV"
               >
-                <Download className="w-4 h-4" />
-                <span className="hidden sm:inline">CSV</span>
-              </button>
-              <button
+                CSV
+              </PrimaryButton>
+              <PrimaryButton
                 onClick={() => exportToICS(filteredEvents, `events_${new Date().toISOString().split('T')[0]}`)}
                 disabled={filteredEvents.length === 0}
-                className="flex items-center gap-2 px-4 py-2 bg-accent text-accent-foreground rounded-md hover:bg-accent/80 disabled:bg-muted disabled:cursor-not-allowed transition-colors text-sm"
+                icon={Download}
                 title="Export to Calendar (ICS)"
               >
-                <Calendar className="w-4 h-4" />
-                <span className="hidden sm:inline">ICS</span>
-              </button>
+                Export
+              </PrimaryButton>
             </div>
           </div>
-          <p className="text-muted-foreground">All events from your meetings, sorted by date</p>
+        </div>
+
+        {/* Search & Actions Bar */}
+        <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <div className="relative w-full sm:w-auto sm:min-w-[280px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground text-sm"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap ml-auto">
+            <button
+              onClick={selectedEventIds.length === paginatedEvents.filter(e => e.eventItemId).length ? handleDeselectAll : handleSelectAll}
+              className="flex items-center gap-1.5 px-3 py-2 bg-card text-foreground border border-border rounded-lg hover:bg-muted transition-colors text-sm"
+            >
+              <CheckCircle className="w-4 h-4" />
+              Select All
+            </button>
+            <button
+              onClick={handleDeselectAll}
+              className="flex items-center gap-1.5 px-3 py-2 bg-card text-foreground border border-border rounded-lg hover:bg-muted transition-colors text-sm"
+            >
+              <X className="w-4 h-4" />
+              Clear
+            </button>
+            <button
+              onClick={selectedEventIds.length > 0 ? handleBulkDelete : handleDeleteAll}
+              disabled={isDeleting || events.length === 0}
+              className="flex items-center gap-1.5 px-3 py-2 bg-card text-destructive border border-border rounded-lg hover:bg-destructive/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete
+            </button>
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              Short By
+            </div>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'date' | 'type')}
+              className="px-3 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+            >
+              <option value="date">Events</option>
+              <option value="type">Type</option>
+            </select>
+          </div>
         </div>
 
         {/* Tabs */}
         <div className="flex border-b border-border mb-6">
-          <button
-            onClick={() => setActiveTab('upcoming')}
-            className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'upcoming'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-              }`}
-          >
-            Upcoming
-          </button>
-          <button
-            onClick={() => setActiveTab('overdue')}
-            className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'overdue'
-              ? 'border-destructive text-destructive'
-              : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-              }`}
-          >
-            Overdue
-          </button>
-          <button
-            onClick={() => setActiveTab('completed')}
-            className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'completed'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-              }`}
-          >
-            Completed
-          </button>
-        </div>
-
-        {/* Filters & Search */}
-        <div className="mb-6 space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search events..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground"
-              />
-            </div>
-
-            {/* Sort */}
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="px-4 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+          {(['all', 'today', 'upcoming', 'past'] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors capitalize ${activeTab === tab
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                }`}
             >
-              <option value="date">Sort by Date</option>
-              <option value="type">Sort by Type</option>
-            </select>
-          </div>
-
-          {/* Select All/Deselect All */}
-          {filteredEvents.length > 0 && (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={selectedEventIds.length === paginatedEvents.filter(e => e.eventItemId).length ? handleDeselectAll : handleSelectAll}
-                className="px-4 py-2 bg-muted hover:bg-muted text-foreground rounded-lg transition-colors text-sm flex items-center gap-2"
-              >
-                {selectedEventIds.length === paginatedEvents.filter(e => e.eventItemId).length ? (
-                  <>
-                    <XCircle className="w-4 h-4" />
-                    Deselect All on Page
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="w-4 h-4" />
-                    Select All on Page
-                  </>
-                )}
-              </button>
-              {selectedEventIds.length > 0 && (
-                <span className="text-sm text-muted-foreground">
-                  {selectedEventIds.length} selected
-                </span>
-              )}
-            </div>
-          )}
+              {tab === 'all' ? 'All' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
         </div>
 
         {/* Events List */}
@@ -743,184 +585,147 @@ export default function EventsPage() {
                 sortDirection="asc"
                 renderItem={(event) => {
                   const timeStatus = getTimeStatus(event.start);
-                  const isUrgent = event.urgency && event.urgency.toLowerCase() === 'yes';
 
-                  const borderClass = event.completed
-                    ? 'border-l-4 border-primary'
-                    : isUrgent
-                      ? 'border-l-4 border-destructive'
-                      : '';
+                  const getStatusBadge = () => {
+                    if (event.completed) {
+                      return <span className="px-2.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-medium">Complete</span>;
+                    }
+                    if (isPast(event.start)) {
+                      return <span className="px-2.5 py-0.5 bg-destructive/10 text-destructive rounded-full text-xs font-medium">Overdue</span>;
+                    }
+                    if (isFuture(event.start)) {
+                      return <span className="px-2.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-medium">{timeStatus.text}</span>;
+                    }
+                    return null;
+                  };
 
-                  const bgClass = event.completed
-                    ? 'bg-card'
-                    : isUrgent
-                      ? 'bg-destructive/10'
-                      : 'bg-card';
                   return (
                     <div
                       key={event.id}
-                      className={`p-5 rounded-lg border border-border shadow-sm hover:shadow-md transition-all ${borderClass} ${bgClass} ${event.completed ? 'opacity-75' : ''}`}
+                      className={`p-4 rounded-lg border border-border bg-card hover:shadow-sm transition-all ${event.completed ? 'opacity-75' : ''}`}
                     >
-                      <div className="flex items-start gap-4">
+                      <div className="flex items-start gap-3">
                         {/* Checkbox */}
                         {event.eventItemId && (
                           <div className="flex-shrink-0 pt-1">
-                            <input
-                              type="checkbox"
-                              checked={selectedEventIds.includes(event.eventItemId)}
-                              onChange={() => handleToggleSelectEvent(event.eventItemId!)}
-                              className="w-5 h-5 rounded border-border text-primary focus:ring-primary cursor-pointer"
-                              onClick={(e) => e.stopPropagation()}
-                            />
+                            <button
+                              onClick={() => handleToggleCompletion(event)}
+                              className="flex-shrink-0"
+                              title={event.completed ? "Mark as incomplete" : "Mark as complete"}
+                            >
+                              {event.completed ? (
+                                <CheckCircle2 className="w-5 h-5 text-primary" />
+                              ) : (
+                                <Circle className="w-5 h-5 text-border hover:text-primary transition-colors" />
+                              )}
+                            </button>
                           </div>
                         )}
 
-                        {/* Date Badge */}
-                        <div className="flex-shrink-0">
-                          <div className={`rounded-lg p-3 text-center min-w-[70px] ${isUrgent ? 'bg-destructive/10' : 'bg-primary/10'
-                            }`}>
-                            <div className={`text-2xl font-bold ${isUrgent ? 'text-destructive' : 'text-text-primary'
-                              }`}>
-                              {format(event.start, 'd')}
-                            </div>
-                            <div className={`text-xs uppercase ${isUrgent ? 'text-destructive' : 'text-primary'
-                              }`}>
-                              {format(event.start, 'MMM')}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Event Info */}
+                        {/* Event Content */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex-1">
-                              <div className="flex items-start gap-2 mb-1">
-                                <h3 className={`text-lg font-semibold text-foreground ${event.completed ? 'line-through' : ''}`}>{event.title}</h3>
-                                {event.completed && (
-                                  <span className="px-2 py-0.5 bg-primary/10 text-text-primary rounded text-xs font-medium flex-shrink-0">
-                                    ✓ Done
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mb-2">
-                                <div className="flex items-center gap-1">
-                                  <Clock className="w-4 h-4" />
-                                  <span>{format(event.start, 'h:mm a')}</span>
-                                </div>
-                                <span className={`font-medium ${timeStatus.color}`}>{timeStatus.text}</span>
-                                <span className={`px-2 py-1 rounded-full text-xs border capitalize ${getEventTypeColor(event.type)}`}>
-                                  {event.type}
-                                </span>
-                              </div>
-                              {event.description && (
-                                <p className="text-muted-foreground text-sm line-clamp-2 mb-2">{event.description}</p>
-                              )}
-                              {event.location && (
-                                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                  <MapPin className="w-4 h-4" />
-                                  <span className="line-clamp-1">{event.location}</span>
-                                </div>
-                              )}
+                          {/* Title Row */}
+                          <div className="flex items-start justify-between mb-1">
+                            <h3 className={`text-sm font-semibold text-foreground ${event.completed ? 'line-through' : ''}`}>
+                              {event.title}
+                            </h3>
+                            <div className="flex items-center gap-2 flex-shrink-0 ml-3">
+                              {/* Notify Button */}
+                              <button
+                                onClick={() => handleToggleNotification(event.id)}
+                                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${event.notificationsEnabled
+                                  ? 'bg-primary/10 text-primary'
+                                  : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                                  }`}
+                              >
+                                <Bell className="w-3 h-3" />
+                                Notify
+                              </button>
 
-                              {/* Assignee Section */}
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
-                                <Users className="w-4 h-4" />
-                                {editingAssigneeId === event.id ? (
-                                  <div className="flex items-center gap-2">
-                                    <input
-                                      type="text"
-                                      value={editingAssigneeValue}
-                                      onChange={(e) => setEditingAssigneeValue(e.target.value)}
-                                      placeholder="Enter assignee name..."
-                                      className="px-2 py-1 bg-card text-foreground border border-border rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground"
-                                      autoFocus
-                                    />
-                                    <button
-                                      onClick={() => handleSaveAssignee(event)}
-                                      className="p-1 text-primary hover:bg-primary/5 rounded transition-colors"
-                                      title="Save"
-                                    >
-                                      <Save className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                      onClick={handleCancelEditAssignee}
-                                      className="p-1 text-muted-foreground hover:bg-muted rounded transition-colors"
-                                      title="Cancel"
-                                    >
-                                      <X className="w-4 h-4" />
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-foreground">
-                                      {event.assignee || <span className="text-muted-foreground italic">No assignee</span>}
-                                    </span>
-                                    <button
-                                      onClick={() => handleEditAssignee(event)}
-                                      className="p-1 text-primary hover:bg-primary/5 rounded transition-colors"
-                                      title="Edit assignee"
-                                    >
-                                      <Edit2 className="w-3 h-3" />
-                                    </button>
-                                  </div>
+                              {/* Three-dot Menu */}
+                              <div className="relative">
+                                <button
+                                  onClick={() => setOpenMenuId(openMenuId === event.id ? null : event.id)}
+                                  className="p-1 text-muted-foreground hover:text-foreground rounded transition-colors"
+                                >
+                                  <MoreVertical className="w-4 h-4" />
+                                </button>
+                                {openMenuId === event.id && (
+                                  <>
+                                    <div className="fixed inset-0 z-40" onClick={() => setOpenMenuId(null)} />
+                                    <div className="absolute right-0 top-full mt-1 w-44 bg-card border border-border rounded-lg shadow-lg z-50 py-1">
+                                      <button
+                                        onClick={() => { handleEditEvent(event); setOpenMenuId(null); }}
+                                        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                                      >
+                                        <Edit2 className="w-4 h-4" />
+                                        Edit
+                                      </button>
+                                      <button
+                                        onClick={() => { setReschedulingEvent(event); setOpenMenuId(null); }}
+                                        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                                      >
+                                        <Clock className="w-4 h-4" />
+                                        Reschedule
+                                      </button>
+                                      <button
+                                        onClick={() => { setSelectedEvent(event); setOpenMenuId(null); }}
+                                        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                                      >
+                                        <Eye className="w-4 h-4" />
+                                        View Details
+                                      </button>
+                                      <button
+                                        onClick={() => { handleDeleteEvent(event.id); setOpenMenuId(null); }}
+                                        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-destructive hover:bg-destructive/5 transition-colors"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                        Delete
+                                      </button>
+                                    </div>
+                                  </>
                                 )}
                               </div>
                             </div>
                           </div>
-                        </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex flex-col justify-between items-end ml-4 gap-2">
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleToggleCompletion(event)}
-                              className={`p-2 rounded-full transition-colors ${event.completed
-                                ? 'bg-primary/10 text-primary hover:bg-primary/20'
-                                : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
-                                }`}
-                              title={event.completed ? "Mark as incomplete" : "Mark as complete"}
-                            >
-                              <CheckCircle2 className="w-5 h-5" />
-                            </button>
+                          {/* Description */}
+                          {event.description && (
+                            <p className="text-muted-foreground text-sm line-clamp-1 mb-2">{event.description}</p>
+                          )}
 
-                            <button
-                              onClick={() => handleEditEvent(event)}
-                              className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-                              title="Edit event"
-                            >
-                              <Edit2 className="w-5 h-5" />
-                            </button>
+                          {/* Bottom Row: Speaker, Sync, Status, Date/Time */}
+                          <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-3">
+                              {/* Speaker/Assignee */}
+                              <div className="flex items-center gap-1.5 text-muted-foreground">
+                                <span className="text-xs text-muted-foreground">Speaker</span>
+                                <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
+                                  <Users className="w-3 h-3 text-primary" />
+                                </div>
+                              </div>
 
-                            <button
-                              onClick={() => setReschedulingEvent(event)}
-                              className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors"
-                              title="Reschedule event"
-                            >
-                              <Calendar className="w-5 h-5" />
-                            </button>
+                              {/* Sync indicator */}
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <Link2 className="w-3.5 h-3.5" />
+                                <span className="text-xs">Sync</span>
+                              </div>
 
-                            <button
-                              onClick={() => handleToggleNotification(event.id)}
-                              className={`p-2 rounded-full transition-colors ${event.notificationsEnabled
-                                ? 'bg-muted text-foreground hover:bg-muted/80'
-                                : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
-                                }`}
-                              title={event.notificationsEnabled ? "Disable notifications" : "Enable notifications"}
-                            >
-                              {event.notificationsEnabled ? (
-                                <Bell className="w-5 h-5" />
-                              ) : (
-                                <BellOff className="w-5 h-5" />
-                              )}
-                            </button>
+                              {/* Status Badge */}
+                              {getStatusBadge()}
+                            </div>
 
-                            <button
-                              onClick={() => handleDeleteEvent(event.id)}
-                              className="p-2 rounded-full bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-                              title="Delete event"
-                            >
-                              <Trash2 className="w-5 h-5" />
-                            </button>
+                            {/* Date & Time */}
+                            <div className="flex items-center gap-3 text-muted-foreground text-xs">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="w-3.5 h-3.5" />
+                                <span>{format(event.start, 'MMM dd, yyyy')}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Clock className="w-3.5 h-3.5" />
+                                <span>{format(event.start, 'h:mm a')}</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -948,126 +753,15 @@ export default function EventsPage() {
 
       {/* Event Detail Modal */}
       {selectedEvent && (
-        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center p-4 z-50" onClick={() => setSelectedEvent(null)}>
-          <div className="bg-card rounded-lg shadow-xl border border-border max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium capitalize border ${getEventTypeColor(selectedEvent.type)}`}>
-                    {selectedEvent.type}
-                  </span>
-                  {selectedEvent.completed && (
-                    <span className="px-3 py-1 bg-primary/10 text-text-primary rounded-full text-sm flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4" />
-                      Completed
-                    </span>
-                  )}
-                  {selectedEvent.synced && (
-                    <span className="px-3 py-1 bg-primary/10 text-text-primary rounded-full text-sm flex items-center gap-1">
-                      <CheckCircle className="w-4 h-4" />
-                      Synced
-                    </span>
-                  )}
-                </div>
-                <h2 className={`text-2xl font-bold text-foreground ${selectedEvent.completed ? 'line-through' : ''}`}>{selectedEvent.title}</h2>
-              </div>
-              <button
-                onClick={() => setSelectedEvent(null)}
-                className="text-muted-foreground hover:text-muted-foreground ml-4"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                  <Clock className="w-5 h-5" />
-                  <span className="font-medium">Date & Time</span>
-                </div>
-                <p className="text-foreground ml-7">
-                  {format(selectedEvent.start, 'EEEE, MMMM dd, yyyy')}
-                </p>
-                <p className="text-muted-foreground ml-7">
-                  {format(selectedEvent.start, 'h:mm a')} - {format(selectedEvent.end, 'h:mm a')}
-                </p>
-              </div>
-
-              {selectedEvent.description && (
-                <div>
-                  <p className="font-medium text-muted-foreground mb-1">Description</p>
-                  <p className="text-foreground">{selectedEvent.description}</p>
-                </div>
-              )}
-
-              {selectedEvent.location && (
-                <div>
-                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <MapPin className="w-5 h-5" />
-                    <span className="font-medium">Location</span>
-                  </div>
-                  <p className="text-foreground ml-7">{selectedEvent.location}</p>
-                </div>
-              )}
-
-              {selectedEvent.attendees && selectedEvent.attendees.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                    <Users className="w-5 h-5" />
-                    <span className="font-medium">Attendees</span>
-                  </div>
-                  <div className="ml-7 space-y-1">
-                    {selectedEvent.attendees.map((attendee, index) => (
-                      <p key={index} className="text-foreground">{attendee}</p>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="pt-4 border-t border-border space-y-3">
-                {!selectedEvent.synced && user?.calendar_connected && (
-                  <button
-                    onClick={() => {
-                      if (selectedEvent) {
-                        handleSyncEvent(selectedEvent);
-                        setSelectedEvent(null);
-                      }
-                    }}
-                    className="w-full px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/80 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <CheckCircle className="w-5 h-5" />
-                    <span>Sync to Calendar</span>
-                  </button>
-                )}
-
-                {selectedEvent.meetingId && (
-                  <button
-                    onClick={() => router.push(`/meeting?id=${selectedEvent.meetingId}`)}
-                    className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors flex items-center justify-center gap-2"
-                  >
-                    <span>View Meeting Details</span>
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                )}
-
-                <button
-                  onClick={() => {
-                    if (selectedEvent) {
-                      handleDeleteEvent(selectedEvent.id);
-                    }
-                  }}
-                  className="w-full px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive-hover transition-colors flex items-center justify-center gap-2"
-                >
-                  <Trash2 className="w-5 h-5" />
-                  <span>Delete Event</span>
-                </button>
-              </div>
-            </div>
-          </div >
-        </div >
+        <EventDetailModal
+          selectedEvent={selectedEvent}
+          user={user}
+          onClose={() => setSelectedEvent(null)}
+          onSyncEvent={handleSyncEvent}
+          onDeleteEvent={handleDeleteEvent}
+          onNavigateToMeeting={(meetingId) => router.push(`/meeting?id=${meetingId}`)}
+          getEventTypeColor={getEventTypeColor}
+        />
       )}
 
 

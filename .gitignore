@@ -58,3 +58,4 @@ Thumbs.db
 # Project-specific
 .gstack-audit/
 .claude/
+.gstack/

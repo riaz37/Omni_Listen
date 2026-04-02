@@ -6,9 +6,12 @@ import { useAuth } from '@/lib/auth-context';
 import { meetingsAPI } from '@/lib/api';
 import Navigation from '@/components/Navigation';
 import Pagination from '@/components/Pagination';
-import { MessageSquare, Calendar, Search, ExternalLink, Loader2, Filter, Copy, Download, ChevronDown, ChevronUp, ArrowUpDown, TrendingUp, FileText } from 'lucide-react';
+import PrimaryButton from '@/components/PrimaryButton';
+import { MessageSquare, Search, Filter, Download, ArrowUpDown, TrendingUp, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { exportQueriesToPDF } from '@/lib/export';
+import { QueriesSkeleton } from './QueriesSkeleton';
+import { QueryCard } from './QueryCard';
 
 interface QueryResult {
   meetingId: string;
@@ -143,11 +146,7 @@ export default function QueriesPage() {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex justify-center items-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-        </div>
+        <QueriesSkeleton />
       </div>
     );
   }
@@ -171,29 +170,28 @@ export default function QueriesPage() {
             </div>
             {queries.length > 0 && (
               <div className="flex gap-2">
-                <button
+                <PrimaryButton
                   onClick={() => exportQueriesToPDF(filteredQueries)}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  variant="danger"
+                  icon={FileText}
                   title="Download PDF"
                 >
-                  <FileText className="w-4 h-4" />
                   <span className="hidden sm:inline">PDF</span>
-                </button>
-                <button
+                </PrimaryButton>
+                <PrimaryButton
                   onClick={exportToCSV}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
+                  icon={Download}
                   title="Export CSV"
                 >
-                  <Download className="w-4 h-4" />
                   <span className="hidden sm:inline">CSV</span>
-                </button>
+                </PrimaryButton>
               </div>
             )}
           </div>
 
           {/* Stats Summary */}
           {queries.length > 0 && (
-            <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg p-4 border border-primary/20">
+            <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 rounded-lg p-4 border border-primary/20">
               <div className="flex items-center gap-2 mb-3">
                 <TrendingUp className="w-5 h-5 text-primary" />
                 <h3 className="font-semibold text-foreground">Analysis Statistics</h3>
@@ -231,7 +229,7 @@ export default function QueriesPage() {
                 placeholder="Search additional analysis..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                className="w-full pl-10 pr-4 py-3 bg-background text-foreground border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary placeholder:text-muted-foreground"
               />
             </div>
 
@@ -244,7 +242,7 @@ export default function QueriesPage() {
                   setFilterType(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                className="px-4 py-3 bg-background text-foreground border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
               >
                 <option value="all">All Types</option>
                 <option value="summary">Summary</option>
@@ -262,7 +260,7 @@ export default function QueriesPage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest')}
-                className="px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                className="px-4 py-3 bg-background text-foreground border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
@@ -275,7 +273,7 @@ export default function QueriesPage() {
         {filteredQueries.length === 0 ? (
           <div className="bg-card rounded-lg shadow-sm p-12 text-center">
             <div className="max-w-md mx-auto">
-              <div className="w-20 h-20 bg-gradient-to-br from-emerald-100 to-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-20 h-20 bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-900/40 dark:to-green-900/40 rounded-full flex items-center justify-center mx-auto mb-4">
                 <MessageSquare className="w-10 h-10 text-primary" />
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">
@@ -287,13 +285,13 @@ export default function QueriesPage() {
                   : 'Start asking questions when processing meetings to see them here'}
               </p>
               {!searchTerm && filterType === 'all' && (
-                <button
+                <PrimaryButton
                   onClick={() => router.push('/dashboard')}
-                  className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors inline-flex items-center gap-2"
+                  icon={MessageSquare}
+                  size="lg"
                 >
-                  <MessageSquare className="w-5 h-5" />
                   Go to Dashboard
-                </button>
+                </PrimaryButton>
               )}
             </div>
           </div>
@@ -301,110 +299,18 @@ export default function QueriesPage() {
           <>
             <div className="space-y-4">
               {paginatedQueries.map((query, index) => {
-                // Map type to display label and color
-                const typeConfig = {
-                  summary: { label: 'SUMMARY', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700', gradient: 'from-blue-50 to-emerald-50 dark:from-blue-950/30 dark:to-emerald-950/30' },
-                  analysis: { label: 'ANALYSIS', color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700', gradient: 'from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30' },
-                  list: { label: 'LIST', color: 'bg-primary/10 text-text-primary border-primary/20', gradient: 'from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30' },
-                  comparison: { label: 'COMPARISON', color: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700', gradient: 'from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30' },
-                  search: { label: 'SEARCH', color: 'bg-primary/10 text-text-primary border-primary/20', gradient: 'from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30' },
-                  question: { label: 'QUESTION', color: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-pink-700', gradient: 'from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/30' },
-                };
-                const config = typeConfig[query.type as keyof typeof typeConfig] || typeConfig.analysis;
                 const globalIndex = startIndex + index;
-                const isExpanded = expandedIndex === globalIndex;
-                const answerPreview = query.answer.length > 200 ? query.answer.substring(0, 200) + '...' : query.answer;
-                const needsExpand = query.answer.length > 200;
-
                 return (
-                  <div
+                  <QueryCard
                     key={globalIndex}
-                    className={`bg-gradient-to-br ${config.gradient} rounded-lg shadow-sm border-2 border-border p-6 hover:shadow-lg transition-all duration-200`}
-                  >
-                    {/* Meeting Info & Type Badge */}
-                    <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground mb-4">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        <span className="font-medium">{format(query.meetingDate, 'MMM dd, yyyy • h:mm a')}</span>
-                      </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold border ${config.color}`}>
-                        {config.label}
-                      </span>
-                      <button
-                        onClick={() => router.push(`/meeting?id=${query.meetingId}`)}
-                        className="ml-auto text-primary hover:text-text-primary font-medium flex items-center gap-1 hover:underline"
-                      >
-                        View Meeting
-                        <ExternalLink className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    {/* Analysis Request Input */}
-                    <div className="mb-4 bg-card/60 rounded-lg p-4 border border-border">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="text-xs font-bold text-primary uppercase tracking-wide">
-                          ✨ Your Analysis Request
-                        </div>
-                        <button
-                          onClick={() => copyToClipboard(query.question, globalIndex * 2)}
-                          className="text-muted-foreground hover:text-primary transition-colors"
-                          title="Copy request"
-                        >
-                          {copiedIndex === globalIndex * 2 ? (
-                            <span className="text-xs text-primary font-medium">✓ Copied</span>
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
-                      <div className="text-foreground font-medium">
-                        {query.question}
-                      </div>
-                    </div>
-
-                    {/* Result */}
-                    <div className="bg-card rounded-lg p-4 border-2 border-border">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="text-xs font-bold text-primary uppercase tracking-wide">
-                          💡 AI Analysis
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => copyToClipboard(query.answer, globalIndex * 2 + 1)}
-                            className="text-muted-foreground hover:text-primary transition-colors"
-                            title="Copy answer"
-                          >
-                            {copiedIndex === globalIndex * 2 + 1 ? (
-                              <span className="text-xs text-primary font-medium">✓ Copied</span>
-                            ) : (
-                              <Copy className="w-4 h-4" />
-                            )}
-                          </button>
-                          {needsExpand && (
-                            <button
-                              onClick={() => setExpandedIndex(isExpanded ? null : globalIndex)}
-                              className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
-                            >
-                              {isExpanded ? (
-                                <>
-                                  <ChevronUp className="w-4 h-4" />
-                                  <span className="text-xs font-medium">Show less</span>
-                                </>
-                              ) : (
-                                <>
-                                  <ChevronDown className="w-4 h-4" />
-                                  <span className="text-xs font-medium">Show more</span>
-                                </>
-                              )}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      <div className="text-foreground whitespace-pre-wrap">
-                        {isExpanded || !needsExpand ? query.answer : answerPreview}
-                      </div>
-                    </div>
-                  </div>
+                    query={query}
+                    globalIndex={globalIndex}
+                    isExpanded={expandedIndex === globalIndex}
+                    copiedIndex={copiedIndex}
+                    onToggleExpand={setExpandedIndex}
+                    onCopy={copyToClipboard}
+                    onNavigateToMeeting={(meetingId) => router.push(`/meeting?id=${meetingId}`)}
+                  />
                 );
               })}
             </div>

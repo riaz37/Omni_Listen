@@ -6,22 +6,12 @@ import { useAuth } from '@/lib/auth-context';
 import { meetingsAPI } from '@/lib/api';
 import { useToast } from '@/components/Toast';
 import Navigation from '@/components/Navigation';
-import { getUrgencyStyles } from '@/lib/urgency-detector';
-import { format } from 'date-fns';
-import { TaskCardSkeleton, StatCardSkeleton } from '@/components/Skeleton';
-import {
-  CheckSquare,
-  Circle,
-  CheckCircle2,
-  AlertCircle,
-  Clock,
-  Filter,
-  Search,
-  Loader2,
-  Trash2,
-  Plus,
-  X
-} from 'lucide-react';
+import PrimaryButton from '@/components/PrimaryButton';
+import { Search, Plus } from 'lucide-react';
+import { TasksSkeleton } from './TasksSkeleton';
+import { TaskStatsCards } from './TaskStatsCards';
+import { TaskTable } from './TaskTable';
+import { AddTaskModal } from './AddTaskModal';
 
 interface Task {
   id: number;
@@ -46,6 +36,13 @@ export default function TasksPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'pending' | 'completed'>('all');
   const [filterUrgency, setFilterUrgency] = useState<'all' | 'yes' | 'no'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'done'>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [sortColumn, setSortColumn] = useState<'title' | 'status' | 'priority' | 'assign'>('title');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
   // Add task modal state
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
@@ -71,7 +68,6 @@ export default function TasksPage() {
   const fetchTasks = async () => {
     setIsLoading(true);
     try {
-      // Fetch events and notes directly (includes manual tasks and events from deleted meetings)
       const [eventsResponse, notesResponse] = await Promise.all([
         meetingsAPI.getAllEvents(),
         meetingsAPI.getAllNotes()
@@ -79,7 +75,6 @@ export default function TasksPage() {
 
       const allTasks: Task[] = [];
 
-      // Process dated_events
       if (eventsResponse.events && Array.isArray(eventsResponse.events)) {
         eventsResponse.events.forEach((event: any) => {
           try {
@@ -100,7 +95,6 @@ export default function TasksPage() {
         });
       }
 
-      // Process notes
       if (notesResponse.notes && Array.isArray(notesResponse.notes)) {
         notesResponse.notes.forEach((note: any) => {
           try {
@@ -121,9 +115,7 @@ export default function TasksPage() {
         });
       }
 
-      // Sort tasks: urgent first, then by completion status, then by date
       allTasks.sort((a, b) => {
-        // First, sort by urgency (normalize old values first)
         const aRawUrgency = a.urgency || 'no';
         const bRawUrgency = b.urgency || 'no';
         const aLevel = (aRawUrgency === 'high' || aRawUrgency === 'medium' || aRawUrgency === 'yes') ? 'yes' : 'no';
@@ -132,11 +124,9 @@ export default function TasksPage() {
           const urgencyOrder = { yes: 0, no: 1 };
           return urgencyOrder[aLevel] - urgencyOrder[bLevel];
         }
-        // Then by completion status (incomplete first)
         if (a.completed !== b.completed) {
           return a.completed ? 1 : -1;
         }
-        // Finally by date
         return a.date.getTime() - b.date.getTime();
       });
 
@@ -154,7 +144,6 @@ export default function TasksPage() {
       setTasks(tasks.map(task =>
         task.id === taskId ? { ...task, completed } : task
       ));
-      // Re-sort to push completed tasks to bottom
       setTasks(prev => [...prev].sort((a, b) => {
         if (a.completed !== b.completed) {
           return a.completed ? 1 : -1;
@@ -194,7 +183,6 @@ export default function TasksPage() {
         urgency: newTask.urgency
       });
 
-      // Add the new task to the list
       const task: Task = {
         id: createdTask.id,
         title: createdTask.title,
@@ -202,19 +190,17 @@ export default function TasksPage() {
         date: new Date(createdTask.date),
         completed: false,
         type: 'dated_events',
-        meetingId: '', // Manual task, no meeting
+        meetingId: '',
         urgency: createdTask.urgency
       };
 
       setTasks(prev => [task, ...prev].sort((a, b) => {
-        // Sort by completion, then date
         if (a.completed !== b.completed) {
           return a.completed ? 1 : -1;
         }
         return a.date.getTime() - b.date.getTime();
       }));
 
-      // Reset form and close modal
       setNewTask({ title: '', description: '', date: '', urgency: 'no' });
       setShowAddTaskModal(false);
       toast.success('Task created successfully');
@@ -224,7 +210,11 @@ export default function TasksPage() {
   };
 
   const filteredTasks = useMemo(() => {
-    return tasks
+    let result = tasks
+      .filter(task => {
+        if (activeTab === 'done') return task.completed;
+        return true;
+      })
       .filter(task => {
         if (filterType === 'pending') return !task.completed;
         if (filterType === 'completed') return task.completed;
@@ -241,7 +231,48 @@ export default function TasksPage() {
         task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         task.description?.toLowerCase().includes(searchTerm.toLowerCase())
       );
-  }, [tasks, filterType, filterUrgency, searchTerm]);
+
+    result.sort((a, b) => {
+      const dir = sortDir === 'asc' ? 1 : -1;
+      if (sortColumn === 'title') return a.title.localeCompare(b.title) * dir;
+      if (sortColumn === 'status') return (Number(a.completed) - Number(b.completed)) * dir;
+      if (sortColumn === 'priority') {
+        const aUrg = (a.urgency === 'high' || a.urgency === 'medium' || a.urgency === 'yes') ? 1 : 0;
+        const bUrg = (b.urgency === 'high' || b.urgency === 'medium' || b.urgency === 'yes') ? 1 : 0;
+        return (aUrg - bUrg) * dir;
+      }
+      if (sortColumn === 'assign') return (a.assignee || '').localeCompare(b.assignee || '') * dir;
+      return 0;
+    });
+
+    return result;
+  }, [tasks, activeTab, filterType, filterUrgency, searchTerm, sortColumn, sortDir]);
+
+  const totalPages = Math.ceil(filteredTasks.length / rowsPerPage);
+  const paginatedTasks = filteredTasks.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+  const handleSort = (column: typeof sortColumn) => {
+    if (sortColumn === column) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDir('asc');
+    }
+  };
+
+  const handleToggleSelect = (id: number) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const handleSelectAllOnPage = () => {
+    const pageIds = paginatedTasks.map(t => t.id);
+    const allSelected = pageIds.every(id => selectedIds.includes(id));
+    if (allSelected) {
+      setSelectedIds(prev => prev.filter(id => !pageIds.includes(id)));
+    } else {
+      setSelectedIds(prev => [...new Set([...prev, ...pageIds])]);
+    }
+  };
 
   const stats = useMemo(() => {
     const total = tasks.length;
@@ -262,44 +293,7 @@ export default function TasksPage() {
   }, [tasks]);
 
   if (loading || isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header Skeleton */}
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <CheckSquare className="w-8 h-8 text-primary" />
-              <h1 className="text-3xl font-bold text-foreground">Tasks</h1>
-            </div>
-            <p className="text-muted-foreground">Manage all your tasks and action items</p>
-          </div>
-
-          {/* Stats Cards Skeleton */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-            {[...Array(5)].map((_, i) => (
-              <StatCardSkeleton key={i} />
-            ))}
-          </div>
-
-          {/* Filters Skeleton */}
-          <div className="mb-6 space-y-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1 h-10 bg-muted rounded-lg animate-pulse" />
-              <div className="h-10 w-40 bg-muted rounded-lg animate-pulse" />
-              <div className="h-10 w-40 bg-muted rounded-lg animate-pulse" />
-            </div>
-          </div>
-
-          {/* Tasks Skeleton */}
-          <div className="space-y-3">
-            {[...Array(5)].map((_, i) => (
-              <TaskCardSkeleton key={i} />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <TasksSkeleton />;
   }
 
   return (
@@ -309,301 +303,113 @@ export default function TasksPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3">
-              <CheckSquare className="w-8 h-8 text-primary" />
-              <h1 className="text-3xl font-bold text-foreground">Tasks</h1>
+          <div className="flex items-center justify-between mb-1">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Task List</h1>
+              <p className="text-muted-foreground text-sm">All events from your meetings, sorted by date</p>
             </div>
-            <button
+            <PrimaryButton
               onClick={() => setShowAddTaskModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
+              icon={Plus}
             >
-              <Plus className="w-5 h-5" />
               Add Task
-            </button>
-          </div>
-          <p className="text-muted-foreground">Manage all your tasks and action items</p>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-          <div
-            onClick={() => { setFilterType('all'); setFilterUrgency('all'); }}
-            className={`bg-card rounded-lg shadow p-4 cursor-pointer transition-all hover:shadow-md ${filterType === 'all' && filterUrgency === 'all' ? 'ring-2 ring-primary' : ''}`}
-          >
-            <div className="text-2xl font-bold text-foreground">{stats.total}</div>
-            <div className="text-sm text-muted-foreground">Total Tasks</div>
-          </div>
-          <div
-            onClick={() => { setFilterType('pending'); setFilterUrgency('all'); }}
-            className={`bg-card rounded-lg shadow p-4 cursor-pointer transition-all hover:shadow-md ${filterType === 'pending' && filterUrgency === 'all' ? 'ring-2 ring-primary' : ''}`}
-          >
-            <div className="text-2xl font-bold text-primary">{stats.pending}</div>
-            <div className="text-sm text-muted-foreground">Pending</div>
-          </div>
-          <div
-            onClick={() => { setFilterType('completed'); setFilterUrgency('all'); }}
-            className={`bg-card rounded-lg shadow p-4 cursor-pointer transition-all hover:shadow-md ${filterType === 'completed' ? 'ring-2 ring-primary' : ''}`}
-          >
-            <div className="text-2xl font-bold text-primary">{stats.completed}</div>
-            <div className="text-sm text-muted-foreground">Completed</div>
-          </div>
-          <div
-            onClick={() => { setFilterType('pending'); setFilterUrgency('yes'); }}
-            className={`bg-card rounded-lg shadow p-4 cursor-pointer transition-all hover:shadow-md ${filterUrgency === 'yes' ? 'ring-2 ring-red-500' : ''}`}
-          >
-            <div className="text-2xl font-bold text-red-600">{stats.urgent}</div>
-            <div className="text-sm text-muted-foreground">Urgent</div>
-          </div>
-          <div
-            onClick={() => { setFilterType('pending'); setFilterUrgency('no'); }}
-            className={`bg-card rounded-lg shadow p-4 cursor-pointer transition-all hover:shadow-md ${filterUrgency === 'no' && filterType === 'pending' ? 'ring-2 ring-border' : ''}`}
-          >
-            <div className="text-2xl font-bold text-muted-foreground">{stats.normal}</div>
-            <div className="text-sm text-muted-foreground">Normal</div>
+            </PrimaryButton>
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="mb-6 space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search tasks..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
+        <TaskStatsCards
+          stats={stats}
+          onFilterChange={(ft, fu) => { setFilterType(ft); setFilterUrgency(fu); }}
+        />
 
-            {/* Status Filter */}
-            <div className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-muted-foreground" />
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value as any)}
-                className="px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="completed">Completed</option>
-              </select>
-            </div>
+        {/* Tabs */}
+        <div className="flex border-b border-border mb-6">
+          <button
+            onClick={() => setActiveTab('all')}
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === 'all'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setActiveTab('done')}
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === 'done'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+          >
+            Done
+          </button>
+        </div>
 
-            {/* Urgency Filter */}
+        {/* Search & Filters */}
+        <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <div className="relative w-full sm:w-auto sm:min-w-[240px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Filter tasks..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground text-sm"
+            />
+          </div>
+          <div className="flex items-center gap-3 ml-auto">
+            <span className="text-sm text-muted-foreground">Status</span>
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value as 'all' | 'pending' | 'completed')}
+              className="px-3 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+            >
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+            </select>
+            <span className="text-sm text-muted-foreground">Priority</span>
             <select
               value={filterUrgency}
-              onChange={(e) => setFilterUrgency(e.target.value as any)}
-              className="px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              onChange={(e) => setFilterUrgency(e.target.value as 'all' | 'yes' | 'no')}
+              className="px-3 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
             >
               <option value="all">All Priority</option>
-              <option value="yes">🔴 Urgent</option>
+              <option value="yes">Urgent</option>
               <option value="no">Normal</option>
             </select>
           </div>
         </div>
 
-        {/* Tasks List */}
-        {filteredTasks.length === 0 ? (
-          <div className="bg-card rounded-lg shadow p-8 text-center">
-            <CheckSquare className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">
-              {searchTerm || filterType !== 'all' || filterUrgency !== 'all'
-                ? 'No tasks match your filters'
-                : 'No tasks found. Upload meetings to create tasks.'}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {filteredTasks.map((task) => {
-              const rawUrgency = task.urgency || 'no';
-              const urgency = (rawUrgency === 'high' || rawUrgency === 'medium' || rawUrgency === 'yes') ? 'yes' : 'no';
-              const isUrgent = urgency === 'yes';
-              const urgencyLevel = urgency === 'yes' ? 'high' : 'low';
-              const styles = getUrgencyStyles(urgencyLevel);
+        <TaskTable
+          paginatedTasks={paginatedTasks}
+          filteredTasksCount={filteredTasks.length}
+          selectedIds={selectedIds}
+          sortColumn={sortColumn}
+          sortDir={sortDir}
+          searchTerm={searchTerm}
+          filterType={filterType}
+          filterUrgency={filterUrgency}
+          openMenuId={openMenuId}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          rowsPerPage={rowsPerPage}
+          onSort={handleSort}
+          onToggleSelect={handleToggleSelect}
+          onSelectAllOnPage={handleSelectAllOnPage}
+          onToggleTask={handleToggleTask}
+          onDeleteTask={handleDeleteTask}
+          onSetOpenMenuId={setOpenMenuId}
+          onSetCurrentPage={setCurrentPage}
+          onSetRowsPerPage={(rows) => { setRowsPerPage(rows); setCurrentPage(1); }}
+        />
 
-              return (
-                <div
-                  key={task.id}
-                  className={`rounded-lg shadow-sm border-l-4 transition-all ${task.completed
-                    ? 'bg-card border-primary opacity-60'
-                    : isUrgent
-                      ? `${styles.cardBg} ${styles.border}`
-                      : 'bg-card border-primary'
-                    }`}
-                >
-                  <div className="p-4">
-                    <div className="flex items-start gap-4">
-                      {/* Checkbox */}
-                      <button
-                        onClick={() => handleToggleTask(task.id, !task.completed)}
-                        className="flex-shrink-0 mt-1"
-                      >
-                        {task.completed ? (
-                          <CheckCircle2 className="w-6 h-6 text-primary" />
-                        ) : (
-                          <Circle className="w-6 h-6 text-muted-foreground hover:text-primary transition-colors" />
-                        )}
-                      </button>
-
-                      {/* Task Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <div className="flex-1">
-                            <h3
-                              className={`font-semibold text-foreground mb-1 ${task.meetingId ? 'cursor-pointer hover:text-primary' : ''
-                                } ${task.completed ? 'line-through' : ''}`}
-                              onClick={() => task.meetingId && router.push(`/meeting?id=${task.meetingId}`)}
-                            >
-                              {task.title}
-                            </h3>
-                            {task.description && (
-                              <p className="text-sm text-muted-foreground mb-2">{task.description}</p>
-                            )}
-                          </div>
-
-                          {/* Status Badges */}
-                          <div className="flex flex-col items-end gap-1">
-                            {task.completed && (
-                              <span className="px-2 py-1 bg-primary/10 text-text-primary rounded text-xs font-medium">
-                                ✓ Done
-                              </span>
-                            )}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteTask(task.id);
-                              }}
-                              className="mt-1 p-1 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                              title="Delete task"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Task Meta */}
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {format(task.date, 'MMM dd, yyyy')}
-                          </div>
-                          {task.category && (
-                            <span className="px-2 py-0.5 bg-muted text-foreground rounded">
-                              {task.category.replace(/_/g, ' ')}
-                            </span>
-                          )}
-                          <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded">
-                            {task.type === 'dated_events' ? 'Event' : 'Note'}
-                          </span>
-                          {task.assignee && (
-                            <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded flex items-center gap-1">
-                              👤 {task.assignee}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Add Task Modal */}
-        {showAddTaskModal && (
-          <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-card rounded-lg shadow-xl max-w-md w-full p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-foreground">Add New Task</h2>
-                <button
-                  onClick={() => setShowAddTaskModal(false)}
-                  className="text-muted-foreground hover:text-muted-foreground"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {/* Title */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">
-                    Title *
-                  </label>
-                  <input
-                    type="text"
-                    value={newTask.title}
-                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Enter task title"
-                  />
-                </div>
-
-                {/* Description */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    value={newTask.description}
-                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Enter task description"
-                    rows={3}
-                  />
-                </div>
-
-                {/* Date */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">
-                    Due Date
-                  </label>
-                  <input
-                    type="date"
-                    value={newTask.date}
-                    onChange={(e) => setNewTask({ ...newTask, date: e.target.value })}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
-
-                {/* Urgency */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">
-                    Urgency
-                  </label>
-                  <select
-                    value={newTask.urgency}
-                    onChange={(e) => setNewTask({ ...newTask, urgency: e.target.value as 'yes' | 'no' })}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                  >
-                    <option value="no">Normal</option>
-                    <option value="yes">Urgent</option>
-                  </select>
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-3 pt-4">
-                  <button
-                    onClick={() => setShowAddTaskModal(false)}
-                    className="flex-1 px-4 py-2 border border-border text-foreground rounded-lg hover:bg-muted transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleCreateTask}
-                    className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
-                  >
-                    Create Task
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <AddTaskModal
+          show={showAddTaskModal}
+          newTask={newTask}
+          onNewTaskChange={setNewTask}
+          onClose={() => setShowAddTaskModal(false)}
+          onSubmit={handleCreateTask}
+        />
       </div>
     </div>
   );

@@ -70,17 +70,20 @@ export function DateGroupedList<T>({
         const date = parseISO(dateStr);
         if (isToday(date)) return 'Today';
         if (isYesterday(date)) return 'Yesterday';
-        return format(date, 'MMMM d, yyyy');
+        return format(date, 'MMM dd, yyyy');
     };
 
     return (
         <div className="space-y-6">
             {sortedDates.map(dateStr => (
                 <div key={dateStr} className="space-y-2">
-                    <h3 className="text-sm font-medium text-muted-foreground sticky top-0 bg-background/95 backdrop-blur-sm py-2 px-1 z-10">
-                        {formatDateHeader(dateStr)}
-                    </h3>
-                    <div className="space-y-2">
+                    <div className="flex items-center gap-2 py-2 px-1">
+                        <div className="w-4 h-4 rounded-full border-2 border-border flex-shrink-0" />
+                        <h3 className="text-sm font-medium text-muted-foreground">
+                            {formatDateHeader(dateStr)}
+                        </h3>
+                    </div>
+                    <div className="space-y-2 ml-1">
                         {groupedItems[dateStr].map((item, index) => (
                             <React.Fragment key={index}>
                                 {renderItem(item)}

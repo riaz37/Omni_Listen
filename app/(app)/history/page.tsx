@@ -13,6 +13,7 @@ import { DateGroupedList } from '@/components/DateGroupedList';
 import { meetingsAPI } from '@/lib/api';
 import { formatDate, truncate } from '@/lib/utils';
 import { exportMeetingsToCSV } from '@/lib/export';
+import PrimaryButton from '@/components/PrimaryButton';
 import { Calendar, FileText, Trash2, Check, Download, X, CheckCircle, XCircle } from 'lucide-react';
 
 export default function HistoryPage() {
@@ -142,16 +143,69 @@ export default function HistoryPage() {
     setCurrentPage(1); // Reset to first page
   };
 
-  if (loading) {
+  if (loading || loadingMeetings) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <div className="h-8 bg-muted rounded w-64 mb-2 animate-pulse"></div>
-            <div className="h-4 bg-muted rounded w-32 animate-pulse"></div>
+          {/* Header skeleton: title left, tabs right */}
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <div className="h-8 bg-muted rounded w-56 mb-2 animate-pulse" />
+              <div className="h-4 bg-muted rounded w-36 animate-pulse" />
+            </div>
+            <div className="h-10 w-52 bg-muted rounded-full animate-pulse" />
           </div>
-          <SkeletonList count={5} />
+
+          {/* Action bar skeleton */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="h-9 w-28 bg-muted rounded-lg animate-pulse" />
+            <div className="h-9 w-24 bg-muted rounded-lg animate-pulse" />
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-14 bg-muted rounded animate-pulse" />
+              <div className="h-9 w-24 bg-muted rounded-lg animate-pulse" />
+            </div>
+          </div>
+
+          {/* Select all skeleton */}
+          <div className="h-8 w-44 bg-muted rounded-lg animate-pulse mb-4" />
+
+          {/* Date group skeleton */}
+          <div className="space-y-6">
+            {[...Array(2)].map((_, gi) => (
+              <div key={gi}>
+                {/* Date header */}
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-3 h-3 bg-muted rounded-full animate-pulse" />
+                  <div className="h-4 w-28 bg-muted rounded animate-pulse" />
+                </div>
+
+                {/* Meeting cards in group */}
+                <div className="space-y-4 ml-5">
+                  {[...Array(gi === 0 ? 1 : 2)].map((_, ci) => (
+                    <div key={ci} className="bg-card rounded-lg border border-border shadow-sm p-6 animate-pulse">
+                      <div className="flex gap-4">
+                        <div className="w-5 h-5 bg-muted rounded mt-1 flex-shrink-0" />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="h-5 bg-muted rounded w-48" />
+                            <div className="h-4 bg-muted rounded w-40" />
+                          </div>
+                          <div className="h-4 bg-muted rounded w-full mb-1" />
+                          <div className="h-4 bg-muted rounded w-4/5 mb-4" />
+                          <div className="flex items-center gap-4">
+                            <div className="h-4 bg-muted rounded w-20" />
+                            <div className="h-5 bg-muted rounded w-28" />
+                          </div>
+                        </div>
+                        <div className="w-5 h-5 bg-muted rounded flex-shrink-0" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -176,56 +230,56 @@ export default function HistoryPage() {
         {historyView === 'meetings' && (
           <>
             <div className="flex items-center gap-3 flex-wrap mb-6">
-              {selectedMeetingIds.length > 0 && (
+              {selectedMeetingIds.length > 0 ? (
                 <>
-                  <button
+                  <PrimaryButton
                     onClick={handleBulkDelete}
                     disabled={isDeleting}
-                    className="flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive-hover disabled:bg-muted disabled:cursor-not-allowed transition-colors"
+                    loading={isDeleting}
+                    variant="danger"
+                    icon={Trash2}
                     title={`Delete ${selectedMeetingIds.length} selected`}
                   >
-                    <Trash2 className="w-4 h-4" />
                     <span className="hidden sm:inline">Delete Selected ({selectedMeetingIds.length})</span>
                     <span className="sm:hidden">{selectedMeetingIds.length}</span>
-                  </button>
-                  <button
+                  </PrimaryButton>
+                  <PrimaryButton
                     onClick={handleDeselectAll}
                     disabled={isDeleting}
-                    className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary-hover disabled:bg-muted disabled:cursor-not-allowed transition-colors"
+                    variant="outline"
+                    icon={X}
                     title="Deselect all"
                   >
-                    <X className="w-4 h-4" />
                     <span className="hidden sm:inline">Clear</span>
-                  </button>
+                  </PrimaryButton>
                 </>
-              )}
-              {selectedMeetingIds.length === 0 && meetings.length > 0 && (
-                <button
+              ) : meetings.length > 0 && (
+                <PrimaryButton
                   onClick={handleDeleteAll}
                   disabled={isDeleting}
-                  className="flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive-hover disabled:bg-muted disabled:cursor-not-allowed transition-colors"
+                  loading={isDeleting}
+                  variant="danger"
+                  icon={Trash2}
                   title="Delete all meetings"
                 >
-                  <Trash2 className="w-4 h-4" />
                   <span className="hidden sm:inline">Delete All</span>
-                </button>
+                </PrimaryButton>
               )}
-              <button
+              <PrimaryButton
                 onClick={() => exportMeetingsToCSV(meetings)}
                 disabled={meetings.length === 0}
-                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary-hover disabled:bg-muted disabled:cursor-not-allowed transition-colors"
+                icon={Download}
                 title="Export to CSV"
               >
-                <Download className="w-4 h-4" />
-                <span className="hidden sm:inline">Export</span>
-              </button>
+                Export
+              </PrimaryButton>
 
               <div className="flex items-center gap-2">
                 <label className="text-sm text-muted-foreground">Sort by:</label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
-                  className="px-3 py-2 border border-border rounded-md bg-card text-foreground focus:ring-primary focus:border-primary"
+                  className="px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:ring-primary focus:border-primary"
                 >
                   <option value="date">Date</option>
                   <option value="events">Events Count</option>
@@ -250,22 +304,14 @@ export default function HistoryPage() {
             ) : (
               <>
                 <div className="flex items-center gap-2 mb-4">
-                  <button
+                  <PrimaryButton
                     onClick={selectedMeetingIds.length === paginatedMeetings.length ? handleDeselectAll : handleSelectAll}
-                    className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-accent text-foreground rounded-lg transition-colors text-sm"
+                    variant="outline"
+                    icon={selectedMeetingIds.length === paginatedMeetings.length ? XCircle : CheckCircle}
+                    size="sm"
                   >
-                    {selectedMeetingIds.length === paginatedMeetings.length ? (
-                      <>
-                        <XCircle className="w-4 h-4" />
-                        Deselect All on Page
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle className="w-4 h-4" />
-                        Select All on Page
-                      </>
-                    )}
-                  </button>
+                    {selectedMeetingIds.length === paginatedMeetings.length ? 'Deselect All on Page' : 'Select All on Page'}
+                  </PrimaryButton>
                   {selectedMeetingIds.length > 0 && (
                     <span className="text-sm text-muted-foreground">
                       {selectedMeetingIds.length} selected

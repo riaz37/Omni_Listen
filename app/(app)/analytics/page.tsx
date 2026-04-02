@@ -4,87 +4,197 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import Navigation from '@/components/Navigation';
-import StatCard from '@/components/StatCard';
-import { analyticsAPI } from '@/lib/api';
-import { StatCardSkeleton, CardSkeleton } from '@/components/Skeleton';
-import { FileText, Calendar, Clock, TrendingUp, Loader2, BarChart3 } from 'lucide-react';
+import { analyticsAPI, meetingsAPI } from '@/lib/api';
+import { AnalyticsSkeleton } from './AnalyticsSkeleton';
+import { AnalyticsStatCards } from './AnalyticsStatCards';
+import { RecentMeetingsCard } from './RecentMeetingsCard';
+import { RecentNotesCard } from './RecentNotesCard';
+import { EventListCard } from './EventListCard';
+import { AnalysisHistoryCard } from './AnalysisHistoryCard';
+import { TaskListTable } from './TaskListTable';
+
+interface Meeting {
+  job_id: string;
+  title: string;
+  created_at: string;
+  event_count: number;
+  final_summary?: any;
+}
+
+interface Note {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+  meeting_id: string;
+  created_at?: string;
+}
+
+interface EventItem {
+  id: number;
+  title: string;
+  description?: string;
+  date: string;
+  assignee?: string;
+  completed?: boolean;
+  synced?: boolean;
+  meeting_id?: string;
+}
+
+interface Task {
+  id: number;
+  title: string;
+  description?: string;
+  completed: boolean;
+  urgency?: string;
+  assignee?: string;
+  category?: string;
+  type?: string;
+}
 
 export default function AnalyticsPage() {
   const router = useRouter();
   const { user, loading } = useAuth();
   const [analytics, setAnalytics] = useState<any>(null);
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Helper function to format duration in minutes and seconds
-  const formatDuration = (seconds: number): string => {
-    if (seconds === 0) return '0m 0s';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.round(seconds % 60);
-    if (secs === 0) return `${mins}m`;
-    return `${mins}m ${secs}s`;
-  };
-
-  // Helper function to format total time (consistent precision with avg duration)
-  const formatTotalTime = (seconds: number): string => {
-    if (seconds === 0) return '0m 0s';
-    if (seconds < 3600) {
-      // Less than 1 hour - show in minutes and seconds (consistent with formatDuration)
-      const mins = Math.floor(seconds / 60);
-      const secs = Math.round(seconds % 60);
-      if (secs === 0) return `${mins}m`;
-      return `${mins}m ${secs}s`;
-    }
-    // 1 hour or more - show in hours with 1 decimal
-    const hours = (seconds / 3600).toFixed(1);
-    return `${hours} hr${parseFloat(hours) !== 1 ? 's' : ''}`;
-  };
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/signin');
     } else if (user) {
-      // Fetch analytics
-      setIsLoading(true);
-      analyticsAPI.getAnalytics()
-        .then(setAnalytics)
-        .catch(console.error)
-        .finally(() => setIsLoading(false));
+      fetchAllData();
     }
   }, [user, loading, router]);
 
-  if (loading || isLoading) {
+  const fetchAllData = async () => {
+    setIsLoading(true);
+    try {
+      const [analyticsData, meetingsData, eventsData, notesData] = await Promise.all([
+        analyticsAPI.getAnalytics(),
+        meetingsAPI.getAllMeetings(),
+        meetingsAPI.getAllEvents(),
+        meetingsAPI.getAllNotes(),
+      ]);
+
+      setAnalytics(analyticsData);
+
+      // Process meetings
+      const processedMeetings = (Array.isArray(meetingsData) ? meetingsData : []).map((m: any) => {
+        const summary = typeof m.final_summary === 'string'
+          ? JSON.parse(m.final_summary)
+          : m.final_summary;
+        return {
+          job_id: m.job_id,
+          title: summary?.title || 'Meeting Analysis',
+          created_at: m.created_at,
+          event_count: 0,
+          final_summary: summary,
+        };
+      });
+      setMeetings(processedMeetings.slice(0, 2));
+
+      // Process events
+      const allEvents = eventsData.events || [];
+      setEvents(allEvents.slice(0, 2));
+
+      // Count events per meeting
+      allEvents.forEach((ev: any) => {
+        const meeting = processedMeetings.find((m: Meeting) => m.job_id === ev.meeting_id);
+        if (meeting) {
+          meeting.event_count++;
+        }
+      });
+
+      // Process notes
+      const allNotes = notesData.notes || [];
+      setNotes(allNotes.slice(0, 2));
+
+      // Build tasks from events + notes
+      const allTasks: Task[] = [];
+      allEvents.forEach((ev: any) => {
+        allTasks.push({
+          id: ev.id,
+          title: ev.title || 'Untitled',
+          description: ev.description || ev.details,
+          completed: ev.completed || false,
+          urgency: ev.urgency || 'no',
+          assignee: ev.assignee,
+          category: ev.category,
+          type: 'Event',
+        });
+      });
+      allNotes.forEach((note: any) => {
+        allTasks.push({
+          id: note.id,
+          title: note.title || 'Untitled',
+          description: note.description,
+          completed: note.completed || false,
+          urgency: note.urgency || 'no',
+          assignee: '',
+          category: note.category,
+          type: 'General',
+        });
+      });
+      setTasks(allTasks.slice(0, 4));
+    } catch (error) {
+      // silently fail - analytics page shows empty state
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatDuration = (seconds: number): string => {
+    if (!seconds || seconds === 0) return '0';
+    const mins = Math.floor(seconds / 60);
+    return String(mins);
+  };
+
+  const getCategoryBadge = (category: string) => {
+    const cat = (category || 'general').toLowerCase();
+    const styles: Record<string, string> = {
+      general: 'bg-primary/10 text-primary',
+      decision: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400',
+      budget: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
+      action: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
+      summary: 'bg-primary/10 text-primary',
+    };
+    const style = styles[cat] || styles.general;
+    const label = category ? category.charAt(0).toUpperCase() + category.slice(1).toLowerCase() : 'General';
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header Skeleton */}
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <BarChart3 className="w-8 h-8 text-primary" />
-              <h1 className="text-3xl font-bold text-foreground">Analytics</h1>
-            </div>
-            <p className="text-muted-foreground">Insights and statistics about your meetings</p>
-          </div>
-
-          {/* Stats Grid Skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {[...Array(4)].map((_, i) => (
-              <StatCardSkeleton key={i} />
-            ))}
-          </div>
-
-          {/* Cards Skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <CardSkeleton key={i} />
-            ))}
-          </div>
-        </div>
-      </div>
+      <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${style}`}>
+        {label}
+      </span>
     );
+  };
+
+  const getUrgencyLabel = (urgency?: string) => {
+    if (urgency === 'yes' || urgency === 'high') {
+      return <span className="px-2.5 py-0.5 rounded text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">Urgent</span>;
+    }
+    return <span className="px-2.5 py-0.5 rounded text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400">Normal</span>;
+  };
+
+  const getStatusBadge = (completed: boolean) => {
+    if (completed) {
+      return <span className="px-2.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">Done</span>;
+    }
+    return <span className="px-2.5 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">To Do</span>;
+  };
+
+  if (loading || isLoading) {
+    return <AnalyticsSkeleton />;
   }
 
   if (!user) return null;
+
+  const totalMeetings = analytics?.total_meetings || 0;
+  const totalEvents = analytics?.total_events || 0;
+  const avgDuration = formatDuration(analytics?.avg_duration_seconds || 0);
+  const last30Days = analytics?.meetings_last_30_days || 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -93,160 +203,52 @@ export default function AnalyticsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <BarChart3 className="w-8 h-8 text-primary dark:text-primary" />
-            <h1 className="text-3xl font-bold text-foreground">Analytics</h1>
-          </div>
-          <p className="text-muted-foreground">
-            Overview of your meeting analysis and activity
+          <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            View and manage all your meeting events and deadlines
           </p>
         </div>
 
-        {/* Analytics Cards */}
-        {analytics ? (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <StatCard
-                title="Total Meetings"
-                value={analytics.total_meetings}
-                icon={FileText}
-                description="All time"
-                color="blue"
-              />
-              <StatCard
-                title="Total Events"
-                value={analytics.total_events}
-                icon={Calendar}
-                description="Created from meetings"
-                color="green"
-              />
-              <StatCard
-                title="Avg Duration"
-                value={formatDuration(analytics.avg_duration_seconds)}
-                icon={Clock}
-                description="Per meeting"
-                color="purple"
-              />
-              <StatCard
-                title="Last 30 Days"
-                value={analytics.meetings_last_30_days}
-                icon={TrendingUp}
-                description="Recent meetings"
-                color="orange"
-              />
-            </div>
+        {/* Stat Cards */}
+        <AnalyticsStatCards
+          totalMeetings={totalMeetings}
+          totalEvents={totalEvents}
+          avgDuration={avgDuration}
+          last30Days={last30Days}
+          onNavigate={(path) => router.push(path)}
+        />
 
-            {/* Additional Analytics Sections */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Meeting Activity */}
-              <div className="bg-card-2 rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold text-foreground mb-4">
-                  Meeting Activity
-                </h2>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Total Meetings</span>
-                    <span className="text-2xl font-bold text-foreground">
-                      {analytics.total_meetings}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">This Month</span>
-                    <span className="text-2xl font-bold text-primary dark:text-primary">
-                      {analytics.meetings_last_30_days}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Average per Week</span>
-                    <span className="text-2xl font-bold text-foreground">
-                      {(() => {
-                        const avgPerWeek = analytics.meetings_last_30_days / 4.3;
-                        return avgPerWeek < 1 ? avgPerWeek.toFixed(1) : Math.round(avgPerWeek);
-                      })()}
-                    </span>
-                  </div>
-                </div>
-              </div>
+        {/* Recent Meetings History + Recent Notes */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <RecentMeetingsCard
+            meetings={meetings}
+            totalMeetings={totalMeetings}
+            onNavigate={(path) => router.push(path)}
+          />
+          <RecentNotesCard
+            notes={notes}
+            totalNotes={analytics?.total_events || 0}
+            getCategoryBadge={getCategoryBadge}
+          />
+        </div>
 
-              {/* Events Generated */}
-              <div className="bg-card-2 rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold text-foreground mb-4">
-                  Events Generated
-                </h2>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Total Events</span>
-                    <span className="text-2xl font-bold text-foreground">
-                      {analytics.total_events}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Avg per Meeting</span>
-                    <span className="text-2xl font-bold text-primary dark:text-primary">
-                      {analytics.total_meetings > 0
-                        ? (analytics.total_events / analytics.total_meetings).toFixed(1)
-                        : '0'}
-                    </span>
-                  </div>
-                </div>
-              </div>
+        {/* Event List + Recent Additional Analysis History */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <EventListCard
+            events={events}
+            totalEvents={totalEvents}
+          />
+          <AnalysisHistoryCard
+            notes={notes}
+          />
+        </div>
 
-              {/* Meeting Duration Stats */}
-              <div className="bg-card-2 rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold text-foreground mb-4">
-                  Duration Stats
-                </h2>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Average Duration</span>
-                    <span className="text-2xl font-bold text-foreground">
-                      {formatDuration(analytics.avg_duration_seconds)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Total Time Analyzed</span>
-                    <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                      {formatTotalTime(analytics.total_audio_duration_seconds || 0)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Actions */}
-              <div className="bg-card-2 rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold text-foreground mb-4">
-                  Quick Actions
-                </h2>
-                <div className="space-y-3">
-                  <button
-                    onClick={() => router.push('/dashboard')}
-                    className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
-                  >
-                    Upload New Meeting
-                  </button>
-                  <button
-                    onClick={() => router.push('/history')}
-                    className="w-full px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/80 transition-colors"
-                  >
-                    View Meeting History
-                  </button>
-                  <button
-                    onClick={() => router.push('/calendar')}
-                    className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
-                  >
-                    View Calendar
-                  </button>
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="bg-card-2 rounded-lg shadow p-8 text-center">
-            <p className="text-muted-foreground">
-              No analytics data available yet. Upload your first meeting to get started!
-            </p>
-          </div>
-        )}
+        {/* Task List Table */}
+        <TaskListTable
+          tasks={tasks}
+          getStatusBadge={getStatusBadge}
+          getUrgencyLabel={getUrgencyLabel}
+        />
       </div>
     </div>
   );

@@ -8,13 +8,15 @@ import { useGlobalState } from '@/lib/global-state-context';
 import { useToast } from '@/components/Toast';
 import Navigation from '@/components/Navigation';
 import RoleConfigModal from '@/components/RoleConfigModal';
-import { meetingsAPI, analyticsAPI, presetsAPI } from '@/lib/api';
+import { presetsAPI } from '@/lib/api';
 import { SYSTEM_PRESETS } from '@/lib/presets';
 import { Loader2, Settings } from 'lucide-react';
 import MorningBriefingCard from '@/components/MorningBriefingCard';
 import DashboardRecorder from '@/components/dashboard/DashboardRecorder';
-import DashboardAnalytics from '@/components/dashboard/DashboardAnalytics';
 import DashboardRecentMeetings from '@/components/dashboard/DashboardRecentMeetings';
+import { useElectronSync } from '@/hooks/useElectronSync';
+import { useWebSocketNotifications } from '@/hooks/useWebSocketNotifications';
+import { useDashboardData } from '@/hooks/useDashboardData';
 
 declare global {
   interface Window {
@@ -87,89 +89,32 @@ export default function DashboardPage() {
     }
   }, [user, loading, isLoggingOut, router]);
 
-  // Listen for Mini Window Actions (IPC)
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.electron && window.electron.onMiniAction) {
-      window.electron.onMiniAction((action) => {
-        if (action === 'stop') {
-          setAutoProcess(true);
-          stopRecording();
-        } else if (action === 'cancel') {
-          cancelRecording();
-        } else if (action === 'pause') {
-          pauseRecording();
-        } else if (action === 'resume') {
-          resumeRecording();
-        }
-      });
-    }
-  }, [stopRecording, cancelRecording, pauseRecording, resumeRecording]);
+  // Electron IPC sync
+  useElectronSync({
+    isRecording,
+    isPaused,
+    isProcessing,
+    recordingTime,
+    processingStatus,
+    stopRecording,
+    cancelRecording,
+    pauseRecording,
+    resumeRecording,
+    setAutoProcess,
+  });
 
-  // Sync Timer to Mini Window
-  useEffect(() => {
-    if (window.electron?.sendTimerUpdate) {
-      if (isRecording) {
-        const mins = Math.floor(recordingTime / 60).toString().padStart(2, '0');
-        const secs = (recordingTime % 60).toString().padStart(2, '0');
-        window.electron.sendTimerUpdate(`${mins}:${secs}`);
-      } else {
-        window.electron.sendTimerUpdate('00:00');
-      }
-    }
-  }, [recordingTime, isRecording]);
+  // WebSocket notifications
+  useWebSocketNotifications({ user, refreshUser });
 
-  // Sync Recording State (Active/Pause)
-  useEffect(() => {
-    if (window.electron?.sendRecordingState) {
-      window.electron.sendRecordingState({ isPaused, isRecording: isRecording || false });
-    }
-  }, [isPaused, isRecording]);
-
-  // Sync Processing Status to Mini Window
-  useEffect(() => {
-    if (window.electron?.sendProcessingStatus) {
-      if (isProcessing) {
-        window.electron.sendProcessingStatus('processing');
-      } else if (!isProcessing && !isRecording && (processingStatus === 'completed' || processingStatus.includes('Complete'))) {
-        window.electron.sendProcessingStatus('done');
-      } else {
-        window.electron.sendProcessingStatus('idle');
-      }
-    }
-  }, [isProcessing, isRecording, processingStatus]);
-
-  // WebSocket for System Notifications (Calendar Disconnect Popup)
-  useEffect(() => {
-    if (!user) return;
-
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    const wsUrlBase = apiUrl.replace(/^http/, 'ws');
-    const token = localStorage.getItem('access_token');
-
-    if (!token) return;
-
-    const wsUrl = `${wsUrlBase}/ws/notifications?token=${token}`;
-    const ws = new WebSocket(wsUrl);
-
-    ws.onopen = () => {};
-
-    ws.onmessage = async (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.type === 'calendar.disconnected') {
-          await refreshUser();
-          toast.error("⚠️ Calendar Disconnected! Please sign in again.", 5000);
-          router.push('/settings');
-        }
-      } catch (e) {
-        // WS message parse error handled silently
-      }
-    };
-
-    return () => {
-      ws.close();
-    };
-  }, [user, router, toast]);
+  // Dashboard data
+  const {
+    upcomingEvents,
+    tasks,
+    recentMeetings,
+    handleToggleTask,
+    handleDeleteTask,
+    handleDeleteEvent,
+  } = useDashboardData(user, loading, isLoggingOut);
 
   // Auto-switch to record tab if recording is active
   useEffect(() => {
@@ -193,11 +138,6 @@ export default function DashboardPage() {
       setActiveTemplate(null);
     }
   }, [config.user_input]);
-
-  const [analytics, setAnalytics] = useState<any>(null);
-  const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
-  const [tasks, setTasks] = useState<any[]>([]);
-  const [recentMeetings, setRecentMeetings] = useState<any[]>([]);
 
   const [allPresets, setAllPresets] = useState<any[]>([]);
 
@@ -388,177 +328,6 @@ export default function DashboardPage() {
     loadPreset();
   }, [user]); // Only run once when user is loaded
 
-  const fetchUpcomingEvents = async () => {
-    try {
-      const eventsResponse = await meetingsAPI.getAllEvents();
-      const now = new Date();
-      const allEvents: any[] = [];
-
-      if (eventsResponse.events && Array.isArray(eventsResponse.events)) {
-        eventsResponse.events.forEach((event: any) => {
-          try {
-            if (event.date) {
-              const eventDate = new Date(event.date);
-              if (eventDate > now) {
-                allEvents.push({
-                  id: event.id,
-                  title: event.title || 'Untitled Event',
-                  date: eventDate,
-                  assignee: event.assignee,
-                  description: event.description || '',
-                  urgency: event.urgency || 'no',
-                  completed: event.completed || false,
-                  meetingId: event.meeting_id || '',
-                });
-              }
-            }
-          } catch (err) {
-          }
-        });
-      }
-
-      allEvents.sort((a, b) => {
-        if (a.completed !== b.completed) {
-          return a.completed ? 1 : -1;
-        }
-        return a.date.getTime() - b.date.getTime();
-      });
-      setUpcomingEvents(allEvents.slice(0, 5));
-    } catch (error) {
-    }
-  };
-
-  const fetchTasks = async () => {
-    try {
-      const [eventsResponse, notesResponse] = await Promise.all([
-        meetingsAPI.getAllEvents(),
-        meetingsAPI.getAllNotes()
-      ]);
-
-      const allTasks: any[] = [];
-
-      if (eventsResponse.events && Array.isArray(eventsResponse.events)) {
-        eventsResponse.events.forEach((event: any) => {
-          try {
-            allTasks.push({
-              id: event.id,
-              title: event.title || 'Untitled Task',
-              date: new Date(event.date),
-              completed: event.completed || false,
-              type: 'dated_events',
-              category: event.category,
-              description: event.description || '',
-              urgency: event.urgency || 'no',
-              meetingId: event.meeting_id || '',
-              assignee: event.assignee,
-            });
-          } catch (err) {
-          }
-        });
-      }
-
-      if (notesResponse.notes && Array.isArray(notesResponse.notes)) {
-        notesResponse.notes.forEach((note: any) => {
-          try {
-            allTasks.push({
-              id: note.id,
-              title: note.title || 'Untitled Note',
-              date: new Date(note.created_at || Date.now()),
-              completed: note.completed || false,
-              type: 'notes',
-              category: note.category || note.note_type,
-              description: note.description || '',
-              urgency: note.urgency || 'no',
-              meetingId: note.meeting_id || '',
-              assignee: note.assignee,
-            });
-          } catch (err) {
-          }
-        });
-      }
-
-      allTasks.sort((a, b) => {
-        const aRawUrgency = a.urgency || 'no';
-        const bRawUrgency = b.urgency || 'no';
-        const aLevel = (aRawUrgency === 'high' || aRawUrgency === 'medium' || aRawUrgency === 'yes') ? 'yes' : 'no';
-        const bLevel = (bRawUrgency === 'high' || bRawUrgency === 'medium' || bRawUrgency === 'yes') ? 'yes' : 'no';
-        if (aLevel !== bLevel) {
-          const urgencyOrder = { yes: 0, no: 1 };
-          return urgencyOrder[aLevel] - urgencyOrder[bLevel];
-        }
-        if (a.completed !== b.completed) {
-          return a.completed ? 1 : -1;
-        }
-        return a.date.getTime() - b.date.getTime();
-      });
-      setTasks(allTasks);
-    } catch (error) {
-    }
-  };
-
-  const fetchRecentMeetings = async () => {
-    try {
-      const response = await meetingsAPI.getMeetings(5, 0);
-      if (response.meetings && Array.isArray(response.meetings)) {
-        const meetings = response.meetings.map((meeting: any) => ({
-          job_id: meeting.job_id,
-          title: meeting.title || 'Meeting Analysis',
-          created_at: new Date(meeting.created_at),
-        }));
-        setRecentMeetings(meetings);
-      }
-    } catch (error) {
-    }
-  };
-
-  const handleToggleTask = async (taskId: number, completed: boolean) => {
-    try {
-      await meetingsAPI.toggleTaskCompletion(taskId, completed);
-      setTasks(tasks.map(task =>
-        task.id === taskId ? { ...task, completed } : task
-      ));
-      setTasks(prev => [...prev].sort((a, b) => {
-        const aRawUrgency = a.urgency || 'no';
-        const bRawUrgency = b.urgency || 'no';
-        const aLevel = (aRawUrgency === 'high' || aRawUrgency === 'medium' || aRawUrgency === 'yes') ? 'yes' : 'no';
-        const bLevel = (bRawUrgency === 'high' || bRawUrgency === 'medium' || bRawUrgency === 'yes') ? 'yes' : 'no';
-        if (aLevel !== bLevel) {
-          const urgencyOrder = { yes: 0, no: 1 };
-          return urgencyOrder[aLevel] - urgencyOrder[bLevel];
-        }
-        if (a.completed !== b.completed) {
-          return a.completed ? 1 : -1;
-        }
-        return a.date.getTime() - b.date.getTime();
-      }));
-      fetchUpcomingEvents();
-    } catch (error) {
-    }
-  };
-
-  const handleDeleteTask = async (taskId: number) => {
-    if (!confirm('Are you sure you want to delete this task?')) {
-      return;
-    }
-    try {
-      await meetingsAPI.deleteEvent(taskId);
-      setTasks(tasks.filter(task => task.id !== taskId));
-      fetchUpcomingEvents();
-    } catch (error) {
-    }
-  };
-
-  const handleDeleteEvent = async (eventId: number) => {
-    if (!confirm('Are you sure you want to delete this event?')) {
-      return;
-    }
-    try {
-      await meetingsAPI.deleteEvent(eventId);
-      setUpcomingEvents(upcomingEvents.filter(event => event.id !== eventId));
-    } catch (error) {
-    }
-  };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
@@ -605,6 +374,7 @@ export default function DashboardPage() {
 
       const checkInterval = setInterval(async () => {
         try {
+          const { meetingsAPI } = await import('@/lib/api');
           const statusData = await meetingsAPI.getJobStatus(id);
           if (statusData.status === 'completed') {
             clearInterval(checkInterval);
@@ -664,17 +434,6 @@ export default function DashboardPage() {
     }
   }, [autoProcess, audioBlob, isRecording]);
 
-  useEffect(() => {
-    if (!loading && !user && !isLoggingOut) {
-      router.push('/signin');
-    } else if (user) {
-      analyticsAPI.getAnalytics().then(setAnalytics).catch(() => {});
-      fetchUpcomingEvents();
-      fetchTasks();
-      fetchRecentMeetings();
-    }
-  }, [user, loading, router, isLoggingOut]);
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -718,9 +477,6 @@ export default function DashboardPage() {
 
         {/* Morning Briefing Floating Bubble */}
         <MorningBriefingCard />
-
-        {/* Analytics Stats */}
-        <DashboardAnalytics analytics={analytics} />
 
         {/* Main Content Area with Sidebar */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
