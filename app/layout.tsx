@@ -45,7 +45,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
-      <body className={`${GeistSans.className} ${GeistMono.variable} ${instrumentSerif.variable} h-full`} suppressHydrationWarning>
+      <body className={`${GeistSans.variable} ${GeistSans.className} ${GeistMono.variable} ${instrumentSerif.variable} h-full`} suppressHydrationWarning>
         <ThemeProvider>
           <ToastProvider>
             <AuthProvider>
