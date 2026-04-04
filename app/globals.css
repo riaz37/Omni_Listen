@@ -196,6 +196,13 @@
   .animate-pulse-ring {
     animation: none !important;
   }
+
+  /* Force Framer Motion animated elements visible when motion is reduced */
+  [style*="opacity: 0"],
+  [style*="opacity:0"] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 /* ─── Dot-grid pattern for empty states ──────────────────────────────────── */

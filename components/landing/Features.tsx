@@ -148,7 +148,7 @@ function HeroFeatureRow({
       variants={imageLeft ? slideFromLeft : slideFromRight}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: '-80px' }}
+      viewport={{ once: true, margin: '-20px' }}
       className="flex items-center justify-center"
     >
       <div className="relative w-full max-w-sm aspect-square rounded-2xl bg-card border border-border flex items-center justify-center overflow-hidden">
@@ -163,7 +163,7 @@ function HeroFeatureRow({
       variants={fadeDelayed}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: '-80px' }}
+      viewport={{ once: true, margin: '-20px' }}
       className="flex flex-col justify-center"
     >
       <div className="inline-flex items-center gap-2 mb-4">
@@ -215,7 +215,7 @@ function CoreFeatureRow() {
             key={feature.title}
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            viewport={{ once: true, margin: '-50px' }}
+            viewport={{ once: true, margin: '-10px' }}
             transition={{ delay: i * 0.06, duration: DURATIONS.fast }}
             className="flex items-start gap-4 py-4"
           >
@@ -280,7 +280,7 @@ function SupportFeatureList() {
     <motion.div
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
-      viewport={{ once: true, margin: '-50px' }}
+      viewport={{ once: true, margin: '-10px' }}
       transition={{ duration: DURATIONS.fast }}
       className="max-w-md"
     >
