@@ -174,7 +174,7 @@ function HeroFeatureRow({
           {index === 0 ? 'Core' : 'Intelligence'}
         </span>
       </div>
-      <h3 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 tracking-tight">
+      <h3 className="text-2xl sm:text-3xl font-semibold text-foreground mb-4 tracking-tight">
         {feature.title}
       </h3>
       <p className="text-base text-muted-foreground leading-relaxed mb-3">
@@ -308,7 +308,7 @@ export default function Features() {
           transition={{ duration: 0.6 }}
           className="mb-20"
         >
-          <h2 className="text-3xl sm:text-5xl font-bold text-foreground mb-4 tracking-tight">
+          <h2 className="text-3xl sm:text-5xl font-semibold text-foreground mb-4 tracking-tight">
             Everything You Need to
             <br />
             <span className="text-primary">Master Your Meetings</span>

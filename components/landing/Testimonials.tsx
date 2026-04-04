@@ -56,7 +56,7 @@ export default function Testimonials() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-3xl sm:text-5xl font-bold text-foreground mb-4 tracking-tight">
+            <h2 className="text-3xl sm:text-5xl font-semibold text-foreground mb-4 tracking-tight">
               Loved by Teams
             </h2>
             <p className="text-lg text-muted-foreground">
