@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import Navigation from '@/components/Navigation';
 import { calendarAPI, authAPI, webhooksAPI, apiKeysAPI } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
+import { Skeleton } from 'boneyard-js/react';
 import { ProfileSection } from './ProfileSection';
 import { CalendarSection } from './CalendarSection';
 import { ExtensionSection } from './ExtensionSection';
@@ -292,17 +292,9 @@ export default function SettingsPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <Skeleton name="settings-form" loading={loading} fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+      <div className="min-h-screen bg-background">
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
@@ -371,6 +363,7 @@ export default function SettingsPage() {
           />
         </div>
       </div>
-    </div>
+      </div>
+    </Skeleton>
   );
 }

@@ -6,11 +6,11 @@ import { useAuth } from '@/lib/auth-context';
 import { useConfig } from '@/lib/config-context';
 import { useGlobalState } from '@/lib/global-state-context';
 import { useToast } from '@/components/Toast';
-import Navigation from '@/components/Navigation';
 import RoleConfigModal from '@/components/RoleConfigModal';
 import { presetsAPI } from '@/lib/api';
 import { SYSTEM_PRESETS } from '@/lib/presets';
 import { Loader2, Settings } from 'lucide-react';
+import { Skeleton } from 'boneyard-js/react';
 import MorningBriefingCard from '@/components/MorningBriefingCard';
 import DashboardRecorder from '@/components/dashboard/DashboardRecorder';
 import DashboardRecentMeetings from '@/components/dashboard/DashboardRecentMeetings';
@@ -434,21 +434,13 @@ export default function DashboardPage() {
     }
   }, [autoProcess, audioBlob, isRecording]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   return (
+    <Skeleton name="dashboard-recorder" loading={loading} fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Background Gradients */}
       <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
       <div className="absolute top-0 right-0 w-1/3 h-96 bg-gradient-to-bl from-primary/3 to-transparent pointer-events-none" />
 
-      <Navigation />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-10">
@@ -560,5 +552,6 @@ export default function DashboardPage() {
         />
       </div>
     </div>
+    </Skeleton>
   );
 }

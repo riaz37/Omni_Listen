@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { meetingsAPI } from '@/lib/api';
 import { useToast } from '@/components/Toast';
-import Navigation from '@/components/Navigation';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay, parseISO, isFuture, isToday, isValid } from 'date-fns';
 import { enUS } from 'date-fns/locale';
@@ -15,6 +14,7 @@ import PrimaryButton from '@/components/PrimaryButton';
 import { Search, Plus } from 'lucide-react';
 import type { CalendarEvent } from '@/lib/types';
 import { CalendarSkeleton } from './CalendarSkeleton';
+import { Skeleton } from 'boneyard-js/react';
 import { CalendarToolbar } from './CalendarToolbar';
 import { YearlyView } from './YearlyView';
 import { CalendarEventModal } from './CalendarEventModal';
@@ -264,13 +264,9 @@ export default function EventsPage() {
     }
   };
 
-  if (loading || isLoading) {
-    return <CalendarSkeleton />;
-  }
-
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <Skeleton name="calendar-grid" loading={loading || isLoading} fallback={<CalendarSkeleton />}>
+      <div className="min-h-screen bg-background">
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
@@ -388,6 +384,7 @@ export default function EventsPage() {
           onSubmit={handleCreateEvent}
         />
       )}
-    </div>
+      </div>
+    </Skeleton>
   );
 }

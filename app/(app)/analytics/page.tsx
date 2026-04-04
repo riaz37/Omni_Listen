@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import Navigation from '@/components/Navigation';
 import { analyticsAPI, meetingsAPI } from '@/lib/api';
 import { AnalyticsSkeleton } from './AnalyticsSkeleton';
 import { AnalyticsStatCards } from './AnalyticsStatCards';
@@ -12,6 +11,7 @@ import { RecentNotesCard } from './RecentNotesCard';
 import { EventListCard } from './EventListCard';
 import { AnalysisHistoryCard } from './AnalysisHistoryCard';
 import { TaskListTable } from './TaskListTable';
+import { Skeleton } from 'boneyard-js/react';
 
 interface Meeting {
   job_id: string;
@@ -185,10 +185,6 @@ export default function AnalyticsPage() {
     return <span className="px-2.5 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">To Do</span>;
   };
 
-  if (loading || isLoading) {
-    return <AnalyticsSkeleton />;
-  }
-
   if (!user) return null;
 
   const totalMeetings = analytics?.total_meetings || 0;
@@ -197,59 +193,60 @@ export default function AnalyticsPage() {
   const last30Days = analytics?.meetings_last_30_days || 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <Skeleton name="analytics-dashboard" loading={loading || isLoading} fallback={<AnalyticsSkeleton />}>
+      <div className="min-h-screen bg-background">
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            View and manage all your meeting events and deadlines
-          </p>
-        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Page Header */}
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              View and manage all your meeting events and deadlines
+            </p>
+          </div>
 
-        {/* Stat Cards */}
-        <AnalyticsStatCards
-          totalMeetings={totalMeetings}
-          totalEvents={totalEvents}
-          avgDuration={avgDuration}
-          last30Days={last30Days}
-          onNavigate={(path) => router.push(path)}
-        />
-
-        {/* Recent Meetings History + Recent Notes */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <RecentMeetingsCard
-            meetings={meetings}
+          {/* Stat Cards */}
+          <AnalyticsStatCards
             totalMeetings={totalMeetings}
+            totalEvents={totalEvents}
+            avgDuration={avgDuration}
+            last30Days={last30Days}
             onNavigate={(path) => router.push(path)}
           />
-          <RecentNotesCard
-            notes={notes}
-            totalNotes={analytics?.total_events || 0}
-            getCategoryBadge={getCategoryBadge}
+
+          {/* Recent Meetings History + Recent Notes */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <RecentMeetingsCard
+              meetings={meetings}
+              totalMeetings={totalMeetings}
+              onNavigate={(path) => router.push(path)}
+            />
+            <RecentNotesCard
+              notes={notes}
+              totalNotes={analytics?.total_events || 0}
+              getCategoryBadge={getCategoryBadge}
+            />
+          </div>
+
+          {/* Event List + Recent Additional Analysis History */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <EventListCard
+              events={events}
+              totalEvents={totalEvents}
+            />
+            <AnalysisHistoryCard
+              notes={notes}
+            />
+          </div>
+
+          {/* Task List Table */}
+          <TaskListTable
+            tasks={tasks}
+            getStatusBadge={getStatusBadge}
+            getUrgencyLabel={getUrgencyLabel}
           />
         </div>
-
-        {/* Event List + Recent Additional Analysis History */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <EventListCard
-            events={events}
-            totalEvents={totalEvents}
-          />
-          <AnalysisHistoryCard
-            notes={notes}
-          />
-        </div>
-
-        {/* Task List Table */}
-        <TaskListTable
-          tasks={tasks}
-          getStatusBadge={getStatusBadge}
-          getUrgencyLabel={getUrgencyLabel}
-        />
       </div>
-    </div>
+    </Skeleton>
   );
 }

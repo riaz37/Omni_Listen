@@ -20,6 +20,7 @@ import {
   Moon,
 } from 'lucide-react';
 import { useTheme } from '@/lib/theme-context';
+import { useGlobalState } from '@/lib/global-state-context';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { flushSync } from 'react-dom';
 
@@ -500,6 +501,7 @@ function SegmentedThemeToggle() {
 export default function Navigation() {
   const pathname = usePathname();
   const { logout } = useAuth();
+  const { isRecording } = useGlobalState();
   const [showMobileMore, setShowMobileMore] = useState(false);
 
   const handleLogout = () => {
@@ -517,7 +519,7 @@ export default function Navigation() {
         Skip to content
       </a>
 
-      <nav className="bg-background border-b border-border" aria-label="Main navigation">
+      <nav className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             {/* Left side: Logo + PRIMARY nav + Workspace dropdown */}
@@ -527,11 +529,19 @@ export default function Navigation() {
                 href="/dashboard"
                 className="flex items-center gap-2 flex-shrink-0"
               >
-                <img
-                  src="/esapai_logo.png"
-                  alt="ESAPListen Logo"
-                  className="h-8 w-8 rounded-lg"
-                />
+                <div className="relative">
+                  <img
+                    src="/esapai_logo.png"
+                    alt="ESAPListen Logo"
+                    className="h-8 w-8 rounded-lg"
+                  />
+                  {isRecording && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
+                    </span>
+                  )}
+                </div>
                 <span className="text-lg font-bold whitespace-nowrap hidden md:block text-foreground">
                   <span className="text-primary">ESAP</span>
                 </span>

@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import Navigation from '@/components/Navigation';
 import { meetingsAPI, calendarAPI } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import PrimaryButton from '@/components/PrimaryButton';
@@ -11,6 +10,7 @@ import { Calendar, FileText, Loader2, Download, Check, ArrowLeft } from 'lucide-
 import { exportMeetingToPDF } from '@/lib/export';
 import { useToast } from '@/components/Toast';
 import FloatingChat from '@/components/FloatingChat';
+import { Skeleton } from 'boneyard-js/react';
 import { MeetingKeyTakeaways } from './MeetingKeyTakeaways';
 import { MeetingTranscript } from './MeetingTranscript';
 import { MeetingSidebar } from './MeetingSidebar';
@@ -134,22 +134,13 @@ export default function MeetingDetailClient() {
         }
     };
 
-    if (loading || loadingMeeting) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            </div>
-        );
-    }
-
-    if (!meeting) {
+    if (!meeting && !loading && !loadingMeeting) {
         return null;
     }
 
     return (
-        <div className="min-h-screen bg-background">
-            <Navigation />
-
+        <Skeleton name="meeting-detail" loading={loading || loadingMeeting} fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+            <div className="min-h-screen bg-background">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Back Button */}
                 <button
@@ -242,6 +233,7 @@ export default function MeetingDetailClient() {
                 </div>
             </div>
             {jobId && <FloatingChat jobId={jobId} />}
-        </div>
+            </div>
+        </Skeleton>
     );
 }

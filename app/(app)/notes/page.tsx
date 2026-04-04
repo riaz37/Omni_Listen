@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { meetingsAPI } from '@/lib/api';
 import { useToast } from '@/components/Toast';
-import Navigation from '@/components/Navigation';
 import EmptyState from '@/components/EmptyState';
 import PrimaryButton from '@/components/PrimaryButton';
 import {
@@ -18,6 +17,7 @@ import {
 } from 'lucide-react';
 import EditNoteModal from '@/components/EditNoteModal';
 import { NotesSkeleton } from './NotesSkeleton';
+import { Skeleton } from 'boneyard-js/react';
 import { NoteCard } from './NoteCard';
 import { AddNoteModal } from './AddNoteModal';
 import { NoteQuickViewModal } from './NoteQuickViewModal';
@@ -293,13 +293,9 @@ export default function NotesPage() {
     return colors[category] || colors.general;
   };
 
-  if (loading) {
-    return <NotesSkeleton />;
-  }
-
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <Skeleton name="notes-grid" loading={loading} fallback={<NotesSkeleton />}>
+      <div className="min-h-screen bg-background">
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
@@ -461,6 +457,7 @@ export default function NotesPage() {
           onSave={handleSaveNote}
         />
       )}
-    </div>
+      </div>
+    </Skeleton>
   );
 }

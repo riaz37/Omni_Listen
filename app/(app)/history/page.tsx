@@ -3,10 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import Navigation from '@/components/Navigation';
 import Pagination from '@/components/Pagination';
 import EmptyState from '@/components/EmptyState';
-import { SkeletonList } from '@/components/SkeletonCard';
 import HistoryTabs from '@/components/HistoryTabs';
 import DayHistoryView from '@/components/DayHistoryView'; // Re-export check
 import { DateGroupedList } from '@/components/DateGroupedList';
@@ -14,6 +12,7 @@ import { meetingsAPI } from '@/lib/api';
 import { formatDate, truncate } from '@/lib/utils';
 import { exportMeetingsToCSV } from '@/lib/export';
 import PrimaryButton from '@/components/PrimaryButton';
+import { Skeleton } from 'boneyard-js/react';
 import { Calendar, FileText, Trash2, Check, Download, X, CheckCircle, XCircle } from 'lucide-react';
 
 export default function HistoryPage() {
@@ -143,79 +142,75 @@ export default function HistoryPage() {
     setCurrentPage(1); // Reset to first page
   };
 
-  if (loading || loadingMeetings) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header skeleton: title left, tabs right */}
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <div className="h-8 bg-muted rounded w-56 mb-2 animate-pulse" />
-              <div className="h-4 bg-muted rounded w-36 animate-pulse" />
-            </div>
-            <div className="h-10 w-52 bg-muted rounded-full animate-pulse" />
+  const historySkeleton = (
+    <div className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header skeleton: title left, tabs right */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <div className="h-8 bg-muted rounded w-56 mb-2 animate-pulse" />
+            <div className="h-4 bg-muted rounded w-36 animate-pulse" />
           </div>
+          <div className="h-10 w-52 bg-muted rounded-full animate-pulse" />
+        </div>
 
-          {/* Action bar skeleton */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-9 w-28 bg-muted rounded-lg animate-pulse" />
+        {/* Action bar skeleton */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="h-9 w-28 bg-muted rounded-lg animate-pulse" />
+          <div className="h-9 w-24 bg-muted rounded-lg animate-pulse" />
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-14 bg-muted rounded animate-pulse" />
             <div className="h-9 w-24 bg-muted rounded-lg animate-pulse" />
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-14 bg-muted rounded animate-pulse" />
-              <div className="h-9 w-24 bg-muted rounded-lg animate-pulse" />
-            </div>
-          </div>
-
-          {/* Select all skeleton */}
-          <div className="h-8 w-44 bg-muted rounded-lg animate-pulse mb-4" />
-
-          {/* Date group skeleton */}
-          <div className="space-y-6">
-            {[...Array(2)].map((_, gi) => (
-              <div key={gi}>
-                {/* Date header */}
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-3 h-3 bg-muted rounded-full animate-pulse" />
-                  <div className="h-4 w-28 bg-muted rounded animate-pulse" />
-                </div>
-
-                {/* Meeting cards in group */}
-                <div className="space-y-4 ml-5">
-                  {[...Array(gi === 0 ? 1 : 2)].map((_, ci) => (
-                    <div key={ci} className="bg-card rounded-lg border border-border shadow-sm p-6 animate-pulse">
-                      <div className="flex gap-4">
-                        <div className="w-5 h-5 bg-muted rounded mt-1 flex-shrink-0" />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="h-5 bg-muted rounded w-48" />
-                            <div className="h-4 bg-muted rounded w-40" />
-                          </div>
-                          <div className="h-4 bg-muted rounded w-full mb-1" />
-                          <div className="h-4 bg-muted rounded w-4/5 mb-4" />
-                          <div className="flex items-center gap-4">
-                            <div className="h-4 bg-muted rounded w-20" />
-                            <div className="h-5 bg-muted rounded w-28" />
-                          </div>
-                        </div>
-                        <div className="w-5 h-5 bg-muted rounded flex-shrink-0" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
           </div>
         </div>
+
+        {/* Select all skeleton */}
+        <div className="h-8 w-44 bg-muted rounded-lg animate-pulse mb-4" />
+
+        {/* Date group skeleton */}
+        <div className="space-y-6">
+          {[...Array(2)].map((_, gi) => (
+            <div key={gi}>
+              {/* Date header */}
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-3 h-3 bg-muted rounded-full animate-pulse" />
+                <div className="h-4 w-28 bg-muted rounded animate-pulse" />
+              </div>
+
+              {/* Meeting cards in group */}
+              <div className="space-y-4 ml-5">
+                {[...Array(gi === 0 ? 1 : 2)].map((_, ci) => (
+                  <div key={ci} className="bg-card rounded-lg border border-border shadow-sm p-6 animate-pulse">
+                    <div className="flex gap-4">
+                      <div className="w-5 h-5 bg-muted rounded mt-1 flex-shrink-0" />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="h-5 bg-muted rounded w-48" />
+                          <div className="h-4 bg-muted rounded w-40" />
+                        </div>
+                        <div className="h-4 bg-muted rounded w-full mb-1" />
+                        <div className="h-4 bg-muted rounded w-4/5 mb-4" />
+                        <div className="flex items-center gap-4">
+                          <div className="h-4 bg-muted rounded w-20" />
+                          <div className="h-5 bg-muted rounded w-28" />
+                        </div>
+                      </div>
+                      <div className="w-5 h-5 bg-muted rounded flex-shrink-0" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    );
-  }
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <Skeleton name="history-groups" loading={loading || loadingMeetings} fallback={historySkeleton}>
+      <div className="min-h-screen bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Meeting History</h1>
@@ -288,7 +283,27 @@ export default function HistoryPage() {
             </div>
 
             {loadingMeetings ? (
-              <SkeletonList count={5} />
+              <div className="space-y-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="bg-card rounded-lg border border-border shadow-sm p-6 animate-pulse">
+                    <div className="flex items-start gap-4">
+                      <div className="w-5 h-5 bg-muted rounded mt-1 flex-shrink-0" />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="h-5 bg-muted rounded w-1/3" />
+                          <div className="h-4 bg-muted rounded w-24" />
+                        </div>
+                        <div className="h-4 bg-muted rounded w-full mb-2" />
+                        <div className="h-4 bg-muted rounded w-2/3 mb-4" />
+                        <div className="flex items-center gap-4">
+                          <div className="h-4 bg-muted rounded w-20" />
+                          <div className="h-4 bg-muted rounded w-28" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : meetings.length === 0 ? (
               <div className="bg-card rounded-lg border border-border shadow-sm">
                 <EmptyState
@@ -416,7 +431,8 @@ export default function HistoryPage() {
           <DayHistoryView meetings={meetings} />
         )}
 
+        </div>
       </div>
-    </div>
+    </Skeleton>
   );
 }

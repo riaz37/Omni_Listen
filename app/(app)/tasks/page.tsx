@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { meetingsAPI } from '@/lib/api';
 import { useToast } from '@/components/Toast';
-import Navigation from '@/components/Navigation';
 import PrimaryButton from '@/components/PrimaryButton';
 import { Search, Plus } from 'lucide-react';
+import { Skeleton } from 'boneyard-js/react';
 import { TasksSkeleton } from './TasksSkeleton';
 import { TaskStatsCards } from './TaskStatsCards';
 import { TaskTable } from './TaskTable';
@@ -292,13 +292,9 @@ export default function TasksPage() {
     return { total, completed, pending, urgent, normal };
   }, [tasks]);
 
-  if (loading || isLoading) {
-    return <TasksSkeleton />;
-  }
-
   return (
+    <Skeleton name="tasks-list" loading={loading || isLoading} fallback={<TasksSkeleton />}>
     <div className="min-h-screen bg-background">
-      <Navigation />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
@@ -412,5 +408,6 @@ export default function TasksPage() {
         />
       </div>
     </div>
+    </Skeleton>
   );
 }

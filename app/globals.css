@@ -15,7 +15,7 @@
     --popover-foreground: 240 10% 3.9%;
     --primary: 150 85% 47.1%;
     --primary-foreground: 240 10% 3.9%;
-    --primary-hover: 240 3.7% 15.9%;
+    --primary-hover: 150 85% 38%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
     --secondary-hover: 240 5.9% 90%;
@@ -114,7 +114,7 @@
     --popover-foreground: 0 0% 98%;
     --primary: 150 91.9% 51.8%;
     --primary-foreground: 240 10% 3.9%;
-    --primary-hover: 240 4.8% 95.9%;
+    --primary-hover: 150 85% 40%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
     --secondary-hover: 240 5.3% 26.1%;
@@ -173,4 +173,31 @@
 
 .animate-float {
   animation: float 6s ease-in-out infinite;
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-pulse,
+  .animate-spin,
+  .animate-bounce,
+  .animate-ping,
+  .animate-gradient,
+  .animate-float {
+    animation: none !important;
+  }
+}
+
+/* ─── Dot-grid pattern for empty states ──────────────────────────────────── */
+.dot-grid-bg {
+  background-image: radial-gradient(circle, hsl(var(--muted-foreground) / 0.15) 1px, transparent 1px);
+  background-size: 16px 16px;
 }

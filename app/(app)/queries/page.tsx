@@ -4,13 +4,13 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { meetingsAPI } from '@/lib/api';
-import Navigation from '@/components/Navigation';
 import Pagination from '@/components/Pagination';
 import PrimaryButton from '@/components/PrimaryButton';
 import { MessageSquare, Search, Filter, Download, ArrowUpDown, TrendingUp, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { exportQueriesToPDF } from '@/lib/export';
 import { QueriesSkeleton } from './QueriesSkeleton';
+import { Skeleton } from 'boneyard-js/react';
 import { QueryCard } from './QueryCard';
 
 interface QueryResult {
@@ -142,19 +142,9 @@ export default function QueriesPage() {
     return typeCounts;
   }, [queries]);
 
-  if (authLoading || loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <QueriesSkeleton />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-
+    <Skeleton name="queries-results" loading={authLoading || loading} fallback={<div className="min-h-screen bg-background"><QueriesSkeleton /></div>}>
+      <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -330,7 +320,8 @@ export default function QueriesPage() {
             )}
           </>
         )}
+        </div>
       </div>
-    </div>
+    </Skeleton>
   );
 }

@@ -5,10 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { meetingsAPI } from '@/lib/api';
 import { useToast } from '@/components/Toast';
-import Navigation from '@/components/Navigation';
 import Pagination from '@/components/Pagination';
 import EmptyState from '@/components/EmptyState';
-import { SkeletonList } from '@/components/SkeletonCard';
 import { exportEventsToCSV, exportToICS } from '@/lib/export';
 import EditEventModal from '@/components/EditEventModal';
 import RescheduleEventModal from '@/components/RescheduleEventModal';
@@ -17,6 +15,7 @@ import { DateGroupedList } from '@/components/DateGroupedList';
 //import { getUrgencyStyles } from '@/lib/urgency-detector';
 import PrimaryButton from '@/components/PrimaryButton';
 import { EventsSkeleton } from './EventsSkeleton';
+import { Skeleton } from 'boneyard-js/react';
 import { EventDetailModal } from './EventDetailModal';
 import {
   List,
@@ -449,15 +448,11 @@ export default function EventsPage() {
     return { text: format(date, 'MMM dd, yyyy'), color: 'text-muted-foreground' };
   };
 
-  if (loading) {
-    return <EventsSkeleton />;
-  }
-
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <Skeleton name="events-list" loading={loading} fallback={<EventsSkeleton />}>
+      <div className="min-h-screen bg-background">
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
@@ -555,7 +550,27 @@ export default function EventsPage() {
 
         {/* Events List */}
         {isLoading ? (
-          <SkeletonList count={5} />
+          <div className="space-y-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="bg-card rounded-lg border border-border shadow-sm p-6 animate-pulse">
+                <div className="flex items-start gap-4">
+                  <div className="w-5 h-5 bg-muted rounded mt-1 flex-shrink-0" />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="h-5 bg-muted rounded w-1/3" />
+                      <div className="h-4 bg-muted rounded w-24" />
+                    </div>
+                    <div className="h-4 bg-muted rounded w-full mb-2" />
+                    <div className="h-4 bg-muted rounded w-2/3 mb-4" />
+                    <div className="flex items-center gap-4">
+                      <div className="h-4 bg-muted rounded w-20" />
+                      <div className="h-4 bg-muted rounded w-28" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : filteredEvents.length === 0 ? (
           <div className="bg-card rounded-lg shadow-sm border border-border">
             <EmptyState
@@ -803,6 +818,7 @@ export default function EventsPage() {
           />
         )
       }
-    </div >
+      </div >
+    </Skeleton>
   );
 }

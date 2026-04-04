@@ -55,10 +55,10 @@ export default function MorningBriefingBubble() {
     // if (!briefing?.content && !isMorning) return null;
 
     return (
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
             {/* Expanded Panel */}
             {isExpanded && (
-                <div className="mb-4 w-80 sm:w-96 bg-card rounded-2xl shadow-2xl border border-amber-200 overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+                <div className="mb-3 w-80 sm:w-96 bg-card rounded-2xl shadow-2xl border border-amber-200 overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
                     {/* Header */}
                     <div className="bg-gradient-to-r from-amber-400 to-orange-400 px-4 py-3 flex items-center justify-between">
                         <div className="flex items-center gap-2 text-white">
