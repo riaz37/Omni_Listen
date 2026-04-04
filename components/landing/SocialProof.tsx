@@ -13,28 +13,28 @@ const stats = [
 
 function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
   const [count, setCount] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true });
 
   useEffect(() => {
-    if (!isInView) return;
+    if (!isInView || hasAnimated) return;
+    setHasAnimated(true);
 
     const duration = 1500;
-    const steps = 40;
-    const increment = value / steps;
-    let current = 0;
+    const start = Date.now();
     const timer = setInterval(() => {
-      current += increment;
-      if (current >= value) {
+      const progress = Math.min((Date.now() - start) / duration, 1);
+      if (progress === 1) {
         setCount(value);
         clearInterval(timer);
       } else {
-        setCount(Math.floor(current));
+        setCount(Math.floor(value * progress));
       }
-    }, duration / steps);
+    }, 16);
 
     return () => clearInterval(timer);
-  }, [isInView, value]);
+  }, [isInView, hasAnimated, value]);
 
   return (
     <span ref={ref}>

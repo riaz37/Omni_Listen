@@ -4,8 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
 import { ArrowRight, Play, Menu, X } from 'lucide-react';
-import { motion, useScroll, useSpring } from 'framer-motion';
-import { useState } from 'react';
+import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
+import { useRef, useState } from 'react';
 
 const navLinks = [
   { label: 'Features', href: '#features' },
@@ -17,12 +17,17 @@ const navLinks = [
 export default function Hero() {
   const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { scrollYProgress } = useScroll();
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollY, scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
     restDelta: 0.001,
   });
+
+  // Parallax: blobs move at 0.3x scroll speed
+  const blob1Y = useTransform(scrollY, [0, 800], [0, -120]);
+  const blob2Y = useTransform(scrollY, [0, 800], [0, -80]);
 
   return (
     <>
@@ -152,11 +157,17 @@ export default function Hero() {
       </nav>
 
       {/* Hero Section */}
-      <section className="min-h-screen flex flex-col justify-center items-center relative pt-20 overflow-hidden">
-        {/* Background decoration */}
+      <section ref={heroRef} className="min-h-screen flex flex-col justify-center items-center relative pt-20 overflow-hidden">
+        {/* Background decoration — parallax blobs */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          <div className="absolute -top-[30%] left-[10%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px]" />
-          <div className="absolute top-[50%] right-[5%] w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px]" />
+          <motion.div
+            style={{ y: blob1Y }}
+            className="absolute -top-[30%] left-[10%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px]"
+          />
+          <motion.div
+            style={{ y: blob2Y }}
+            className="absolute top-[50%] right-[5%] w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px]"
+          />
         </div>
 
         <div className="max-w-5xl mx-auto px-4 text-center z-10">
