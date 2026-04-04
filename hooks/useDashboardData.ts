@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { meetingsAPI, analyticsAPI } from '@/lib/api';
+import { sortByUrgencyThenDate } from '@/lib/utils';
 
 export function useDashboardData(user: any, loading: boolean, isLoggingOut: boolean) {
   const [analytics, setAnalytics] = useState<any>(null);
@@ -96,20 +97,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
         });
       }
 
-      allTasks.sort((a, b) => {
-        const aRawUrgency = a.urgency || 'no';
-        const bRawUrgency = b.urgency || 'no';
-        const aLevel = (aRawUrgency === 'high' || aRawUrgency === 'medium' || aRawUrgency === 'yes') ? 'yes' : 'no';
-        const bLevel = (bRawUrgency === 'high' || bRawUrgency === 'medium' || bRawUrgency === 'yes') ? 'yes' : 'no';
-        if (aLevel !== bLevel) {
-          const urgencyOrder = { yes: 0, no: 1 };
-          return urgencyOrder[aLevel] - urgencyOrder[bLevel];
-        }
-        if (a.completed !== b.completed) {
-          return a.completed ? 1 : -1;
-        }
-        return a.date.getTime() - b.date.getTime();
-      });
+      allTasks.sort(sortByUrgencyThenDate);
       setTasks(allTasks);
     } catch (error) {
     }
@@ -136,20 +124,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
       setTasks(tasks.map(task =>
         task.id === taskId ? { ...task, completed } : task
       ));
-      setTasks(prev => [...prev].sort((a, b) => {
-        const aRawUrgency = a.urgency || 'no';
-        const bRawUrgency = b.urgency || 'no';
-        const aLevel = (aRawUrgency === 'high' || aRawUrgency === 'medium' || aRawUrgency === 'yes') ? 'yes' : 'no';
-        const bLevel = (bRawUrgency === 'high' || bRawUrgency === 'medium' || bRawUrgency === 'yes') ? 'yes' : 'no';
-        if (aLevel !== bLevel) {
-          const urgencyOrder = { yes: 0, no: 1 };
-          return urgencyOrder[aLevel] - urgencyOrder[bLevel];
-        }
-        if (a.completed !== b.completed) {
-          return a.completed ? 1 : -1;
-        }
-        return a.date.getTime() - b.date.getTime();
-      }));
+      setTasks(prev => [...prev].sort(sortByUrgencyThenDate));
       fetchUpcomingEvents();
     } catch (error) {
     }

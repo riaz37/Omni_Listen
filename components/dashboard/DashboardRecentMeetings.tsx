@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-
+import { normalizeUrgency } from '@/lib/utils';
 
 import {
   Calendar,
@@ -96,8 +96,7 @@ export default function DashboardRecentMeetings({
             {upcomingEvents.length > 0 ? (
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {upcomingEvents.map((event, index) => {
-                  const rawUrgency = event.urgency || 'no';
-                  const isUrgent = rawUrgency === 'high' || rawUrgency === 'medium' || rawUrgency === 'yes';
+                  const isUrgent = normalizeUrgency(event.urgency) === 'yes';
 
                   return (
                     <div
@@ -204,8 +203,7 @@ export default function DashboardRecentMeetings({
             {tasks.length > 0 ? (
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {tasks.map((task) => {
-                  const rawUrgency = task.urgency || 'no';
-                  const isUrgent = rawUrgency === 'high' || rawUrgency === 'medium' || rawUrgency === 'yes';
+                  const isUrgent = normalizeUrgency(task.urgency) === 'yes';
 
                   return (
                     <div

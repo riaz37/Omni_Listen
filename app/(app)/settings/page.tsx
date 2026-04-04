@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth-context';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useToast } from '@/components/Toast';
 import { calendarAPI, authAPI, webhooksAPI, apiKeysAPI } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { Skeleton } from 'boneyard-js/react';
@@ -40,8 +40,8 @@ const AVAILABLE_EVENTS = [
 ];
 
 export default function SettingsPage() {
-  const router = useRouter();
-  const { user, loading, refreshUser } = useAuth();
+  const { user, loading, refreshUser } = useRequireAuth();
+  const toast = useToast();
   const [connectingCalendar, setConnectingCalendar] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState('');
@@ -127,12 +127,6 @@ export default function SettingsPage() {
   };
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/signin');
-    }
-  }, [user, loading, router]);
-
-  useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     const state = urlParams.get('state');
@@ -148,7 +142,7 @@ export default function SettingsPage() {
       const data = await calendarAPI.getAuthUrl();
       window.location.href = data.authorization_url;
     } catch (error) {
-      alert('Failed to connect calendar');
+      toast.error('Failed to connect calendar');
       setConnectingCalendar(false);
     }
   };
@@ -158,9 +152,9 @@ export default function SettingsPage() {
       await calendarAPI.handleCallback(code, state);
       await refreshUser();
       window.history.replaceState({}, document.title, '/settings');
-      alert('Calendar connected successfully!');
+      toast.success('Calendar connected successfully!');
     } catch (error) {
-      alert('Failed to connect calendar');
+      toast.error('Failed to connect calendar');
     }
   };
 
@@ -170,15 +164,15 @@ export default function SettingsPage() {
     try {
       await calendarAPI.disconnect();
       await refreshUser();
-      alert('Calendar disconnected');
+      toast.success('Calendar disconnected');
     } catch (error) {
-      alert('Failed to disconnect calendar');
+      toast.error('Failed to disconnect calendar');
     }
   };
 
   const handleUpdateName = async () => {
     if (!newName.trim()) {
-      alert('Please enter a name');
+      toast.error('Please enter a name');
       return;
     }
 
@@ -188,7 +182,7 @@ export default function SettingsPage() {
       setEditingName(false);
       setNewName('');
     } catch (error) {
-      alert('Failed to update name');
+      toast.error('Failed to update name');
     }
   };
 
@@ -245,7 +239,7 @@ export default function SettingsPage() {
       setNewWebhookName('');
       setSelectedEvents([]);
     } catch (error) {
-      alert('Failed to create webhook');
+      toast.error('Failed to create webhook');
     } finally {
       setWebhookCreating(false);
     }

@@ -1,3 +1,4 @@
+import { normalizeUrgency } from '@/lib/utils';
 import {
   CheckCircle2,
   Trash2,
@@ -125,8 +126,7 @@ export function TaskTable({
             </tr>
           ) : (
             paginatedTasks.map((task) => {
-              const rawUrgency = task.urgency || 'no';
-              const isUrgent = rawUrgency === 'high' || rawUrgency === 'medium' || rawUrgency === 'yes';
+              const isUrgent = normalizeUrgency(task.urgency) === 'yes';
 
               return (
                 <tr key={task.id} className="border-b border-border last:border-b-0 hover:bg-muted/50 transition-colors">

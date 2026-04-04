@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth-context';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { meetingsAPI } from '@/lib/api';
 import { useToast } from '@/components/Toast';
 import EmptyState from '@/components/EmptyState';
@@ -38,7 +38,7 @@ interface Note {
 
 export default function NotesPage() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading } = useRequireAuth();
   const toast = useToast();
 
   const [notes, setNotes] = useState<Note[]>([]);
@@ -60,12 +60,6 @@ export default function NotesPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'date' | 'type'>('date');
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/signin');
-    }
-  }, [user, loading, router]);
 
   useEffect(() => {
     if (user) {

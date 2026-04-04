@@ -5,7 +5,7 @@
 // CSV Export
 export function exportToCSV(data: any[], filename: string, headers?: string[]) {
   if (data.length === 0) {
-    alert('No data to export');
+    console.warn('No data to export');
     return;
   }
 
@@ -35,7 +35,7 @@ export function exportToCSV(data: any[], filename: string, headers?: string[]) {
 // ICS Calendar Export
 export function exportToICS(events: any[], filename: string) {
   if (events.length === 0) {
-    alert('No events to export');
+    console.warn('No events to export');
     return;
   }
 
@@ -71,7 +71,7 @@ END:VCALENDAR`;
 export function exportToPDF(elementId: string, filename: string) {
   const element = document.getElementById(elementId);
   if (!element) {
-    alert('Content not found for PDF export');
+    console.warn('Content not found for PDF export');
     return;
   }
 
@@ -302,14 +302,14 @@ export async function exportMeetingToPDF(meeting: any) {
     const html2pdf = (await import('html2pdf.js')).default;
     await html2pdf().set(options as any).from(html).save();
   } catch (error) {
-    alert('Failed to generate PDF. Please try again.');
+    console.error('Failed to generate PDF.');
   }
 }
 
 // Export queries to PDF
 export async function exportQueriesToPDF(queries: any[]) {
   if (queries.length === 0) {
-    alert('No queries to export');
+    console.warn('No queries to export');
     return;
   }
 
@@ -395,6 +395,6 @@ export async function exportQueriesToPDF(queries: any[]) {
     const html2pdf = (await import('html2pdf.js')).default;
     await html2pdf().set(options as any).from(html).save();
   } catch (error) {
-    alert('Failed to generate PDF. Please try again.');
+    console.error('Failed to generate PDF.');
   }
 }

@@ -7,7 +7,7 @@ import { useConfig } from '@/lib/config-context';
 import { useGlobalState } from '@/lib/global-state-context';
 import { useToast } from '@/components/Toast';
 import RoleConfigModal from '@/components/RoleConfigModal';
-import { presetsAPI } from '@/lib/api';
+import { presetsAPI, authAPI } from '@/lib/api';
 import { SYSTEM_PRESETS } from '@/lib/presets';
 import { Loader2, Settings } from 'lucide-react';
 import { Skeleton } from 'boneyard-js/react';
@@ -37,6 +37,13 @@ declare global {
     };
   }
 }
+
+const CHIP_QUERIES: Record<string, string> = {
+  'budget': 'What were the main budget concerns discussed?',
+  'actions': 'List all action items with assigned owners and deadlines',
+  'technical': 'Summarize all technical decisions and their rationale',
+  'deadlines': 'List all deadlines and important dates mentioned in the meeting.',
+};
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -154,40 +161,25 @@ export default function DashboardPage() {
   const lastSavedQuery = useRef<string>('');
 
   const saveCustomQuery = useCallback((query: string, immediate: boolean = false, targetRole?: string) => {
-    const token = localStorage.getItem('access_token');
     const roleToSave = targetRole || activeRole;
 
     const doSave = () => {
-      if (token && user && query !== lastSavedQuery.current) {
+      if (user && query !== lastSavedQuery.current) {
         lastSavedQuery.current = query;
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/last-query`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            query,
-            role_name: roleToSave
-          })
-        })
-          .then(res => {
-            if (res.ok) {
-              if (roleToSave) {
-                setLocalRolePrefs(prev => ({
-                  ...prev,
-                  [roleToSave]: query
-                }));
-              }
-              refreshUser();
-              if (immediate) {
-                toast.success('Saved!', 1500);
-              }
+        authAPI.saveLastQuery(query, roleToSave)
+          .then(() => {
+            if (roleToSave) {
+              setLocalRolePrefs(prev => ({
+                ...prev,
+                [roleToSave]: query
+              }));
             }
-            return res.json();
+            refreshUser();
+            if (immediate) {
+              toast.success('Saved!', 1500);
+            }
           })
-          .then(() => {})
-          .catch(err => {
+          .catch(() => {
             if (immediate) {
               toast.error('Failed to save query');
             }
@@ -214,17 +206,9 @@ export default function DashboardPage() {
     return () => {
       if (saveQueryTimeout.current) {
         clearTimeout(saveQueryTimeout.current);
-        const token = localStorage.getItem('access_token');
         const query = config.user_input;
-        if (token && user && query !== lastSavedQuery.current) {
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/last-query`, {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ query })
-          }).catch(() => {});
+        if (user && query !== lastSavedQuery.current) {
+          authAPI.saveLastQuery(query).catch(() => {});
         }
       }
     };
@@ -276,14 +260,7 @@ export default function DashboardPage() {
           });
           setActiveRole(targetPreset.name);
 
-          const chipQueries = {
-            'budget': 'What were the main budget concerns discussed?',
-            'actions': 'List all action items with assigned owners and deadlines',
-            'technical': 'Summarize all technical decisions and their rationale',
-            'deadlines': 'List all deadlines and important dates mentioned in the meeting.'
-          };
-
-          for (const [templateId, query] of Object.entries(chipQueries)) {
+          for (const [templateId, query] of Object.entries(CHIP_QUERIES)) {
             if (roleQuery === query) {
               setActiveTemplate(templateId);
               break;
@@ -302,26 +279,6 @@ export default function DashboardPage() {
             }
           }
         }
-        if (false && lastQuery) {
-          updateConfig({
-            user_input: lastQuery || undefined,
-          });
-
-          const chipQueries = {
-            'budget': 'What were the main budget concerns discussed?',
-            'actions': 'List all action items with assigned owners and deadlines',
-            'technical': 'Summarize all technical decisions and their rationale',
-            'deadlines': 'List all deadlines and important dates mentioned in the meeting.'
-          };
-
-          for (const [templateId, query] of Object.entries(chipQueries)) {
-            if (lastQuery === query) {
-              setActiveTemplate(templateId);
-              break;
-            }
-          }
-        }
-
       } catch (error) {
       }
     };
@@ -342,31 +299,25 @@ export default function DashboardPage() {
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
       if (error.name === 'NotAllowedError') {
         if (isMobile) {
-          alert(
-            '❌ Microphone permission denied.\n\n' +
-            'If you see "This site can\'t ask for your permission":\n\n' +
-            '1. Close all overlay apps (chat heads, screen filters, blue light apps)\n' +
-            '2. Disable "Draw over other apps" for those apps in Settings\n' +
-            '3. Clear Chrome site settings and try again\n' +
-            '4. Or try Firefox/Samsung Internet browser\n\n' +
-            'Then reload this page and try recording again.'
+          toast.error(
+            'Microphone permission denied. Close overlay apps, disable "Draw over other apps", clear site settings, then reload.'
           );
         } else {
-          alert('Microphone permission denied. Please grant permission in your browser settings and reload the page.');
+          toast.error('Microphone permission denied. Please grant permission in your browser settings and reload the page.');
         }
       } else if (error.name === 'NotFoundError') {
-        alert('No microphone found. Please connect a microphone and try again.');
+        toast.error('No microphone found. Please connect a microphone and try again.');
       } else if (error.name === 'NotSupportedError') {
-        alert('Audio recording is not supported in your browser. Please try a different browser.');
+        toast.error('Audio recording is not supported in your browser. Please try a different browser.');
       } else {
-        alert(`Failed to access microphone: ${error.message || 'Unknown error'}`);
+        toast.error(`Failed to access microphone: ${error.message || 'Unknown error'}`);
       }
     }
   };
 
   const processAudio = async (audioSource: File) => {
     if (config.custom_field_only && !config.user_input.trim()) {
-      alert('Please provide a question in the "Additional Analysis" field, or uncheck the "Only process additional analysis" option.');
+      toast.error('Please provide a question in the "Additional Analysis" field, or uncheck the "Only process additional analysis" option.');
       return;
     }
 
@@ -400,7 +351,7 @@ export default function DashboardPage() {
             verifyMeeting();
           } else if (statusData.status === 'failed') {
             clearInterval(checkInterval);
-            alert('Processing failed: ' + statusData.error);
+            toast.error('Processing failed: ' + statusData.error);
           }
         } catch (e) {
           clearInterval(checkInterval);
@@ -408,7 +359,7 @@ export default function DashboardPage() {
       }, 2000);
 
     } catch (error) {
-      alert('Upload failed. Please try again.');
+      toast.error('Upload failed. Please try again.');
     }
   };
 
@@ -528,15 +479,8 @@ export default function DashboardPage() {
               defaultQuery = localRolePrefs[roleName];
             }
 
-            const chipQueries = {
-              'budget': 'What were the main budget concerns discussed?',
-              'actions': 'List all action items with assigned owners and deadlines',
-              'technical': 'Summarize all technical decisions and their rationale',
-              'deadlines': 'List all deadlines and important dates mentioned in the meeting.'
-            };
-
             let matchedTemplate = null;
-            for (const [templateId, query] of Object.entries(chipQueries)) {
+            for (const [templateId, query] of Object.entries(CHIP_QUERIES)) {
               if (defaultQuery === query) {
                 matchedTemplate = templateId;
                 break;

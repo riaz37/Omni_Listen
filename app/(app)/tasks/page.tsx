@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth-context';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { meetingsAPI } from '@/lib/api';
 import { useToast } from '@/components/Toast';
+import { normalizeUrgency, sortByUrgencyThenDate } from '@/lib/utils';
 import PrimaryButton from '@/components/PrimaryButton';
 import { Search, Plus } from 'lucide-react';
 import { Skeleton } from 'boneyard-js/react';
@@ -28,8 +28,7 @@ interface Task {
 }
 
 export default function TasksPage() {
-  const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading } = useRequireAuth();
   const toast = useToast();
 
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -53,12 +52,6 @@ export default function TasksPage() {
     date: '',
     urgency: 'no' as 'yes' | 'no'
   });
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/signin');
-    }
-  }, [user, loading, router]);
 
   useEffect(() => {
     if (user) {
@@ -116,20 +109,7 @@ export default function TasksPage() {
         });
       }
 
-      allTasks.sort((a, b) => {
-        const aRawUrgency = a.urgency || 'no';
-        const bRawUrgency = b.urgency || 'no';
-        const aLevel = (aRawUrgency === 'high' || aRawUrgency === 'medium' || aRawUrgency === 'yes') ? 'yes' : 'no';
-        const bLevel = (bRawUrgency === 'high' || bRawUrgency === 'medium' || bRawUrgency === 'yes') ? 'yes' : 'no';
-        if (aLevel !== bLevel) {
-          const urgencyOrder = { yes: 0, no: 1 };
-          return urgencyOrder[aLevel] - urgencyOrder[bLevel];
-        }
-        if (a.completed !== b.completed) {
-          return a.completed ? 1 : -1;
-        }
-        return a.date.getTime() - b.date.getTime();
-      });
+      allTasks.sort(sortByUrgencyThenDate);
 
       setTasks(allTasks);
     } catch (error) {
@@ -145,12 +125,7 @@ export default function TasksPage() {
       setTasks(tasks.map(task =>
         task.id === taskId ? { ...task, completed } : task
       ));
-      setTasks(prev => [...prev].sort((a, b) => {
-        if (a.completed !== b.completed) {
-          return a.completed ? 1 : -1;
-        }
-        return a.date.getTime() - b.date.getTime();
-      }));
+      setTasks(prev => [...prev].sort(sortByUrgencyThenDate));
       toast.success(completed ? 'Task marked as completed' : 'Task marked as incomplete');
     } catch (error) {
       toast.error('Failed to update task status');
@@ -195,12 +170,7 @@ export default function TasksPage() {
         urgency: createdTask.urgency
       };
 
-      setTasks(prev => [task, ...prev].sort((a, b) => {
-        if (a.completed !== b.completed) {
-          return a.completed ? 1 : -1;
-        }
-        return a.date.getTime() - b.date.getTime();
-      }));
+      setTasks(prev => [task, ...prev].sort(sortByUrgencyThenDate));
 
       setNewTask({ title: '', description: '', date: '', urgency: 'no' });
       setShowAddTaskModal(false);
@@ -223,9 +193,7 @@ export default function TasksPage() {
       })
       .filter(task => {
         if (filterUrgency === 'all') return true;
-        const rawUrgency = task.urgency || 'no';
-        const normalizedUrgency = (rawUrgency === 'high' || rawUrgency === 'medium' || rawUrgency === 'yes') ? 'yes' : 'no';
-        return normalizedUrgency === filterUrgency;
+        return normalizeUrgency(task.urgency) === filterUrgency;
       })
       .filter(task =>
         searchTerm === '' ||
@@ -238,8 +206,8 @@ export default function TasksPage() {
       if (sortColumn === 'title') return a.title.localeCompare(b.title) * dir;
       if (sortColumn === 'status') return (Number(a.completed) - Number(b.completed)) * dir;
       if (sortColumn === 'priority') {
-        const aUrg = (a.urgency === 'high' || a.urgency === 'medium' || a.urgency === 'yes') ? 1 : 0;
-        const bUrg = (b.urgency === 'high' || b.urgency === 'medium' || b.urgency === 'yes') ? 1 : 0;
+        const aUrg = normalizeUrgency(a.urgency) === 'yes' ? 1 : 0;
+        const bUrg = normalizeUrgency(b.urgency) === 'yes' ? 1 : 0;
         return (aUrg - bUrg) * dir;
       }
       if (sortColumn === 'assign') return (a.assignee || '').localeCompare(b.assignee || '') * dir;
@@ -279,16 +247,8 @@ export default function TasksPage() {
     const total = tasks.length;
     const completed = tasks.filter(t => t.completed).length;
     const pending = total - completed;
-    const urgent = tasks.filter(t => {
-      const rawUrgency = t.urgency || 'no';
-      const normalizedUrgency = (rawUrgency === 'high' || rawUrgency === 'medium' || rawUrgency === 'yes') ? 'yes' : 'no';
-      return normalizedUrgency === 'yes' && !t.completed;
-    }).length;
-    const normal = tasks.filter(t => {
-      const rawUrgency = t.urgency || 'no';
-      const normalizedUrgency = (rawUrgency === 'high' || rawUrgency === 'medium' || rawUrgency === 'yes') ? 'yes' : 'no';
-      return normalizedUrgency === 'no' && !t.completed;
-    }).length;
+    const urgent = tasks.filter(t => normalizeUrgency(t.urgency) === 'yes' && !t.completed).length;
+    const normal = tasks.filter(t => normalizeUrgency(t.urgency) === 'no' && !t.completed).length;
 
     return { total, completed, pending, urgent, normal };
   }, [tasks]);

@@ -165,6 +165,11 @@ export const authAPI = {
     return response.data;
   },
 
+  saveLastQuery: async (query: string, role_name?: string | null) => {
+    const response = await api.post('/api/user/last-query', { query, role_name });
+    return response.data;
+  },
+
   forgotPassword: async (email: string) => {
     const response = await api.post('/api/auth/forgot-password', { email });
     return response.data;

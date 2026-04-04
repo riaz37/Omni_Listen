@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth-context';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { meetingsAPI } from '@/lib/api';
 import { useToast } from '@/components/Toast';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
@@ -36,7 +36,7 @@ const localizer = dateFnsLocalizer({
 
 export default function EventsPage() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading } = useRequireAuth();
   const toast = useToast();
 
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -56,12 +56,6 @@ export default function EventsPage() {
     description: '',
     location: '',
   });
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/signin');
-    }
-  }, [user, loading, router]);
 
   useEffect(() => {
     if (user) {

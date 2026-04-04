@@ -45,11 +45,11 @@ export default function MeetingDetailClient() {
 
             // Show specific error message
             if (error.response?.status === 404) {
-                alert('Meeting not found');
+                toast.error('Meeting not found');
                 router.push('/history');
             } else {
                 const errorMsg = error.response?.data?.detail || error.message || 'Failed to load meeting';
-                alert(`Error loading meeting: ${errorMsg}`);
+                toast.error(`Error loading meeting: ${errorMsg}`);
             }
         } finally {
             setLoadingMeeting(false);
@@ -59,19 +59,19 @@ export default function MeetingDetailClient() {
     const handleSyncCalendar = async () => {
         if (!jobId) return;
         if (!user?.calendar_connected) {
-            alert('Please connect your calendar in Settings first');
+            toast.error('Please connect your calendar in Settings first');
             return;
         }
 
         if (meeting?.calendar_synced) {
-            alert('This meeting has already been synced to calendar');
+            toast.info('This meeting has already been synced to calendar');
             return;
         }
 
         setSyncing(true);
         try {
             await meetingsAPI.syncToCalendar(jobId);
-            alert('Events synced to calendar successfully!');
+            toast.success('Events synced to calendar successfully!');
             // Reload meeting to get updated sync status
             await loadMeeting();
         } catch (error: any) {
@@ -102,10 +102,10 @@ export default function MeetingDetailClient() {
                     }, 500);
 
                 } catch (oauthError) {
-                    alert('Unable to reconnect calendar. Please try from Settings.');
+                    toast.error('Unable to reconnect calendar. Please try from Settings.');
                 }
             } else {
-                alert(errorMessage);
+                toast.error(errorMessage);
             }
         } finally {
             setSyncing(false);

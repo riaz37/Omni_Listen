@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth-context';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useToast } from '@/components/Toast';
 import PageEntrance from '@/components/ui/page-entrance';
 import Pagination from '@/components/Pagination';
 import EmptyState from '@/components/EmptyState';
@@ -18,7 +19,8 @@ import { Calendar, FileText, Trash2, Check, Download, X, CheckCircle, XCircle } 
 
 export default function HistoryPage() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading } = useRequireAuth();
+  const toast = useToast();
   const [meetings, setMeetings] = useState<any[]>([]);
   const [loadingMeetings, setLoadingMeetings] = useState(true);
   const [sortBy, setSortBy] = useState<'date' | 'events'>('date');
@@ -29,12 +31,10 @@ export default function HistoryPage() {
   const [historyView, setHistoryView] = useState<'meetings' | 'days'>('meetings');
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/signin');
-    } else if (user) {
+    if (user) {
       loadMeetings();
     }
-  }, [user, loading, router]);
+  }, [user]);
 
   const loadMeetings = async () => {
     try {
@@ -53,7 +53,7 @@ export default function HistoryPage() {
       await meetingsAPI.deleteMeeting(jobId);
       setMeetings(meetings.filter((m) => m.job_id !== jobId));
     } catch (error) {
-      alert('Failed to delete meeting');
+      toast.error('Failed to delete meeting');
     }
   };
 
@@ -76,7 +76,7 @@ export default function HistoryPage() {
 
   const handleBulkDelete = async () => {
     if (selectedMeetingIds.length === 0) {
-      alert('No meetings selected');
+      toast.error('No meetings selected');
       return;
     }
 
@@ -89,9 +89,9 @@ export default function HistoryPage() {
       const result = await meetingsAPI.bulkDeleteMeetings(selectedMeetingIds);
       setMeetings(meetings.filter(m => !selectedMeetingIds.includes(m.id)));
       setSelectedMeetingIds([]);
-      alert(`Deleted ${result.deleted_count} meeting(s)`);
+      toast.success(`Deleted ${result.deleted_count} meeting(s)`);
     } catch (error) {
-      alert('Failed to delete selected meetings');
+      toast.error('Failed to delete selected meetings');
     } finally {
       setIsDeleting(false);
     }
@@ -99,7 +99,7 @@ export default function HistoryPage() {
 
   const handleDeleteAll = async () => {
     if (meetings.length === 0) {
-      alert('No meetings to delete');
+      toast.error('No meetings to delete');
       return;
     }
 
@@ -112,9 +112,9 @@ export default function HistoryPage() {
       const result = await meetingsAPI.deleteAllMeetings();
       setMeetings([]);
       setSelectedMeetingIds([]);
-      alert(`Deleted all ${result.deleted_count} meeting(s)`);
+      toast.success(`Deleted all ${result.deleted_count} meeting(s)`);
     } catch (error) {
-      alert('Failed to delete all meetings');
+      toast.error('Failed to delete all meetings');
     } finally {
       setIsDeleting(false);
     }

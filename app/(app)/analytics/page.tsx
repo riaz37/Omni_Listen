@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth-context';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { analyticsAPI, meetingsAPI } from '@/lib/api';
 import { AnalyticsSkeleton } from './AnalyticsSkeleton';
 import { AnalyticsStatCards } from './AnalyticsStatCards';
@@ -55,7 +55,7 @@ interface Task {
 
 export default function AnalyticsPage() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading } = useRequireAuth();
   const [analytics, setAnalytics] = useState<any>(null);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
@@ -64,12 +64,10 @@ export default function AnalyticsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/signin');
-    } else if (user) {
+    if (user) {
       fetchAllData();
     }
-  }, [user, loading, router]);
+  }, [user]);
 
   const fetchAllData = async () => {
     setIsLoading(true);
