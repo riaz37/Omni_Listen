@@ -71,12 +71,12 @@ export default function Footer() {
           {/* Product */}
           <div>
             <h4 className="font-bold text-foreground mb-4">Product</h4>
-            <ul className="space-y-2.5">
+            <ul className="space-y-1">
               {productLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-muted-foreground hover:text-foreground transition-colors inline-block py-1.5"
                   >
                     {link.label}
                   </Link>
@@ -88,12 +88,12 @@ export default function Footer() {
           {/* Company */}
           <div>
             <h4 className="font-bold text-foreground mb-4">Company</h4>
-            <ul className="space-y-2.5">
+            <ul className="space-y-1">
               {companyLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-muted-foreground hover:text-foreground transition-colors inline-block py-1.5"
                   >
                     {link.label}
                   </Link>
@@ -105,12 +105,12 @@ export default function Footer() {
           {/* Legal */}
           <div>
             <h4 className="font-bold text-foreground mb-4">Legal</h4>
-            <ul className="space-y-2.5">
+            <ul className="space-y-1">
               {legalLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-muted-foreground hover:text-foreground transition-colors inline-block py-1.5"
                   >
                     {link.label}
                   </Link>
@@ -130,7 +130,7 @@ export default function Footer() {
                 href={social.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-foreground transition-colors"
+                className="hover:text-foreground transition-colors p-2"
                 aria-label={social.label}
               >
                 {social.icon}
