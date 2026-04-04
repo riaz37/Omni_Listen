@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import { Instrument_Serif } from 'next/font/google';
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 import { AuthProvider } from '@/lib/auth-context';
 import { ConfigProvider } from '@/lib/config-context';
@@ -8,7 +10,12 @@ import { ToastProvider } from '@/components/Toast';
 import { GlobalStateProvider } from '@/lib/global-state-context';
 import FloatingStatusIndicator from '@/components/FloatingStatusIndicator';
 
-const inter = Inter({ subsets: ['latin'] });
+const instrumentSerif = Instrument_Serif({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-display',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'ESAPListen - AI Meeting Analysis',
@@ -38,7 +45,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
-      <body className={`${inter.className} h-full`} suppressHydrationWarning>
+      <body className={`${GeistSans.className} ${GeistMono.variable} ${instrumentSerif.variable} h-full`} suppressHydrationWarning>
         <ThemeProvider>
           <ToastProvider>
             <AuthProvider>

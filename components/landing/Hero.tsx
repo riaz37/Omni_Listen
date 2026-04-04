@@ -184,7 +184,7 @@ export default function Hero() {
               Now in Public Beta
             </div>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-foreground leading-[1.1] mb-6">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-display font-normal tracking-[-0.02em] text-foreground leading-[1.08] mb-6">
               Never Miss a Detail
               <br />
               <span className="text-primary">From Your Meetings</span>
