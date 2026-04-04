@@ -54,11 +54,11 @@ export default function Hero() {
             <div className="hidden md:flex items-center gap-8">
               {navLinks.map((link) =>
                 link.isRoute ? (
-                  <Link key={link.label} href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  <Link key={link.label} href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3">
                     {link.label}
                   </Link>
                 ) : (
-                  <a key={link.label} href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  <a key={link.label} href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3">
                     {link.label}
                   </a>
                 )
@@ -77,7 +77,7 @@ export default function Hero() {
                 <>
                   <Link
                     href="/signin"
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden sm:block"
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden sm:block py-3"
                   >
                     Sign In
                   </Link>
