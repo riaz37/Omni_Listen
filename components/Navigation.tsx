@@ -23,6 +23,8 @@ import { useTheme } from '@/lib/theme-context';
 import { useGlobalState } from '@/lib/global-state-context';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { flushSync } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { DURATIONS, EASINGS, SPRINGS } from '@/lib/motion';
 
 // ─── Navigation item types ───────────────────────────────────────────────────
 
@@ -162,15 +164,24 @@ function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
   return (
     <Link
       href={item.href}
-      className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+      className={`relative inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
         isActive
-          ? 'bg-muted border border-border text-foreground'
+          ? 'text-foreground'
           : 'text-muted-foreground hover:text-foreground hover:bg-muted'
       }`}
       aria-current={isActive ? 'page' : undefined}
     >
-      <Icon className="w-4 h-4" />
-      <span>{item.label}</span>
+      {isActive && (
+        <motion.span
+          layoutId="nav-indicator"
+          className="absolute inset-0 bg-muted border border-border rounded-lg"
+          transition={{ type: 'spring', ...SPRINGS.default }}
+        />
+      )}
+      <span className="relative z-10 flex items-center gap-1.5">
+        <Icon className="w-4 h-4" />
+        <span>{item.label}</span>
+      </span>
     </Link>
   );
 }
@@ -223,12 +234,17 @@ function UserAvatarMenu({
         )}
       </button>
 
+      <AnimatePresence>
       {isOpen && (
-        <div
+        <motion.div
           className="absolute right-0 top-full mt-1 w-56 rounded-lg border border-border bg-popover shadow-lg z-50 py-1"
           role="menu"
           aria-label="User menu items"
           onKeyDown={handleKeyDown}
+          initial={{ opacity: 0, scale: 0.95, y: -4 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: -4 }}
+          transition={{ duration: DURATIONS.fast, ease: EASINGS.easeOut }}
         >
           {/* User info header */}
           {(user?.name || user?.email) && (
@@ -286,8 +302,9 @@ function UserAvatarMenu({
               Logout
             </button>
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -318,22 +335,30 @@ function MobileMoreSheet({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
-
   return (
+    <AnimatePresence>
+    {isOpen && (
     <>
       {/* Backdrop */}
-      <div
+      <motion.div
         className="sm:hidden fixed inset-0 bg-black/60 z-40"
         onClick={onClose}
         aria-hidden="true"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: DURATIONS.fast }}
       />
 
       {/* Sheet */}
-      <div
+      <motion.div
         className="sm:hidden fixed bottom-16 left-0 right-0 bg-background border-t border-border z-50 max-h-[60vh] overflow-y-auto rounded-t-2xl"
         role="dialog"
         aria-label="More navigation items"
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
       >
         {/* Handle bar */}
         <div className="flex justify-center pt-2 pb-1">
@@ -411,8 +436,10 @@ function MobileMoreSheet({
             <span className="text-sm">Logout</span>
           </button>
         </div>
-      </div>
+      </motion.div>
     </>
+    )}
+    </AnimatePresence>
   );
 }
 

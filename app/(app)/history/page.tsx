@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import PageEntrance from '@/components/ui/page-entrance';
 import Pagination from '@/components/Pagination';
 import EmptyState from '@/components/EmptyState';
 import HistoryTabs from '@/components/HistoryTabs';
@@ -210,7 +211,7 @@ export default function HistoryPage() {
   return (
     <Skeleton name="history-groups" loading={loading || loadingMeetings} fallback={historySkeleton}>
       <div className="min-h-screen bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <PageEntrance name="history" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Meeting History</h1>
@@ -431,7 +432,7 @@ export default function HistoryPage() {
           <DayHistoryView meetings={meetings} />
         )}
 
-        </div>
+        </PageEntrance>
       </div>
     </Skeleton>
   );

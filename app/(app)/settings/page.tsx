@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import { calendarAPI, authAPI, webhooksAPI, apiKeysAPI } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { Skeleton } from 'boneyard-js/react';
+import PageEntrance from '@/components/ui/page-entrance';
 import { ProfileSection } from './ProfileSection';
 import { CalendarSection } from './CalendarSection';
 import { ExtensionSection } from './ExtensionSection';
@@ -296,7 +297,7 @@ export default function SettingsPage() {
     <Skeleton name="settings-form" loading={loading} fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
       <div className="min-h-screen bg-background">
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <PageEntrance name="settings" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground">Settings</h1>
           <p className="text-muted-foreground mt-2">Manage your account and preferences</p>
@@ -362,7 +363,7 @@ export default function SettingsPage() {
             closeApiKeyModal={closeApiKeyModal}
           />
         </div>
-      </div>
+      </PageEntrance>
       </div>
     </Skeleton>
   );

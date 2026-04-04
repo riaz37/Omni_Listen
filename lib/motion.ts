@@ -196,3 +196,62 @@ export function prefersReducedMotion(): boolean {
   if (typeof window === 'undefined') return false;
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
+
+// ─── First-visit animation speed ───────────────────────────────────────────
+
+const ANIMATED_PAGES_KEY = 'esap-animated-pages';
+
+/**
+ * Returns true if this page has NOT been animated yet this session.
+ * Marks the page as animated on first call.
+ * First visit → slow (500ms), returning → fast (200ms).
+ */
+export function isFirstVisit(pageName: string): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    const raw = sessionStorage.getItem(ANIMATED_PAGES_KEY);
+    const visited: string[] = raw ? JSON.parse(raw) : [];
+    if (visited.includes(pageName)) return false;
+    sessionStorage.setItem(
+      ANIMATED_PAGES_KEY,
+      JSON.stringify([...visited, pageName]),
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Returns stagger container variants with speed based on first visit.
+ * First visit: slower stagger + delay. Return visit: snappy.
+ */
+export function getPageStagger(pageName: string) {
+  const first = isFirstVisit(pageName);
+  return {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: first ? STAGGER.slow : STAGGER.fast,
+        delayChildren: first ? 0.1 : 0.02,
+      },
+    },
+  } satisfies Variants;
+}
+
+/**
+ * Returns child item variants with speed based on first visit.
+ */
+export function getPageItem(firstVisit: boolean) {
+  return {
+    hidden: { opacity: 0, y: DISTANCES.small },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: firstVisit ? DURATIONS.slow : DURATIONS.fast,
+        ease: EASINGS.easeOut,
+      },
+    },
+  } satisfies Variants;
+}

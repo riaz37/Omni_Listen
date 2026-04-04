@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X, Calendar, Clock, Save } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import AnimatedModal from '@/components/ui/animated-modal';
 
 interface Event {
   id: number;
@@ -92,8 +93,6 @@ export default function RescheduleEventModal({ event, isOpen, onClose, onSave }:
     }
   };
 
-  if (!isOpen) return null;
-
   // Format current schedule for display
   const getCurrentSchedule = () => {
     try {
@@ -111,7 +110,7 @@ export default function RescheduleEventModal({ event, isOpen, onClose, onSave }:
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/50 backdrop-blur-sm">
+    <AnimatedModal open={isOpen} onClose={onClose}>
       <div className="bg-card-2 rounded-lg shadow-xl max-w-md w-full">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
@@ -193,6 +192,6 @@ export default function RescheduleEventModal({ event, isOpen, onClose, onSave }:
           </div>
         </form>
       </div>
-    </div>
+    </AnimatedModal>
   );
 }

@@ -12,6 +12,7 @@ import { exportQueriesToPDF } from '@/lib/export';
 import { QueriesSkeleton } from './QueriesSkeleton';
 import { Skeleton } from 'boneyard-js/react';
 import { QueryCard } from './QueryCard';
+import PageEntrance from '@/components/ui/page-entrance';
 
 interface QueryResult {
   meetingId: string;
@@ -145,7 +146,7 @@ export default function QueriesPage() {
   return (
     <Skeleton name="queries-results" loading={authLoading || loading} fallback={<div className="min-h-screen bg-background"><QueriesSkeleton /></div>}>
       <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <PageEntrance name="queries" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
@@ -320,7 +321,7 @@ export default function QueriesPage() {
             )}
           </>
         )}
-        </div>
+        </PageEntrance>
       </div>
     </Skeleton>
   );

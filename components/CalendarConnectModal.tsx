@@ -2,6 +2,7 @@
 
 import { Calendar, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import AnimatedModal from '@/components/ui/animated-modal';
 
 interface CalendarConnectModalProps {
     isOpen: boolean;
@@ -16,10 +17,8 @@ export default function CalendarConnectModal({
     onSkip,
     isConnecting = false,
 }: CalendarConnectModalProps) {
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/50 backdrop-blur-sm">
+        <AnimatedModal open={isOpen} onClose={onSkip}>
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -72,6 +71,6 @@ export default function CalendarConnectModal({
                     </div>
                 </div>
             </motion.div>
-        </div>
+        </AnimatedModal>
     );
 }

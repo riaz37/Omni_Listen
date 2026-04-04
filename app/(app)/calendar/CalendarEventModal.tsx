@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import { Clock, MapPin, Users, ChevronRight, CheckCircle2 } from 'lucide-react';
 import PrimaryButton from '@/components/PrimaryButton';
+import AnimatedModal from '@/components/ui/animated-modal';
 import type { CalendarEvent } from '@/lib/types';
 
 interface CalendarEventModalProps {
@@ -13,8 +14,8 @@ interface CalendarEventModalProps {
 
 export function CalendarEventModal({ event, calendarConnected, onClose, onSync, onNavigateToMeeting }: CalendarEventModalProps) {
   return (
-    <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center p-4 z-50" onClick={onClose}>
-      <div className="bg-card rounded-lg border border-border shadow-xl max-w-lg w-full p-6" onClick={(e) => e.stopPropagation()}>
+    <AnimatedModal open onClose={onClose}>
+      <div className="bg-card rounded-lg border border-border shadow-xl max-w-lg w-full p-6">
         <div className="flex items-start justify-between mb-4">
           <div>
             <h2 className={`text-2xl font-bold text-foreground mb-2 ${event.completed ? 'line-through' : ''}`}>{event.title}</h2>
@@ -132,6 +133,6 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
           )}
         </div>
       </div>
-    </div>
+    </AnimatedModal>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, Calendar, MapPin, FileText, User, Save } from 'lucide-react';
+import AnimatedModal from '@/components/ui/animated-modal';
 
 interface Event {
   id: number;
@@ -67,10 +68,8 @@ export default function EditEventModal({ event, isOpen, onClose, onSave }: EditE
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/50 backdrop-blur-sm">
+    <AnimatedModal open={isOpen} onClose={onClose}>
       <div className="bg-card-2 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
@@ -182,6 +181,6 @@ export default function EditEventModal({ event, isOpen, onClose, onSave }: EditE
           </div>
         </form>
       </div>
-    </div>
+    </AnimatedModal>
   );
 }

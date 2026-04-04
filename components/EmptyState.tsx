@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import {
   Mic,
   History,
@@ -12,6 +13,12 @@ import {
   CalendarDays,
   LucideIcon,
 } from 'lucide-react';
+import {
+  DURATIONS,
+  SPRINGS,
+  TRANSITIONS,
+  prefersReducedMotion,
+} from '@/lib/motion';
 
 type EmptyStateVariant =
   | 'dashboard'
@@ -53,8 +60,8 @@ const variantConfigs: Record<EmptyStateVariant, VariantConfig> = {
   },
   tasks: {
     icon: CheckSquare,
-    title: 'No tasks yet',
-    description: 'Tasks will be created from your meeting action items',
+    title: 'All caught up!',
+    description: 'Tasks from your meeting action items will show up here',
   },
   notes: {
     icon: StickyNote,
@@ -64,19 +71,41 @@ const variantConfigs: Record<EmptyStateVariant, VariantConfig> = {
   analytics: {
     icon: BarChart3,
     title: 'No analytics data',
-    description: 'Upload your first meeting to see analytics',
+    description: 'Upload your first meeting to see insights',
     cta: { label: 'Go to Dashboard', href: '/dashboard' },
   },
   queries: {
     icon: MessageSquare,
-    title: 'No analyses yet',
-    description: 'Ask questions about your meetings to get insights',
+    title: 'Ask anything',
+    description: 'Try asking a question about your meetings to get insights',
   },
   calendar: {
     icon: CalendarDays,
     title: 'Calendar not connected',
     description: 'Connect your Google Calendar to see upcoming events',
     cta: { label: 'Connect Calendar', href: '/settings' },
+  },
+};
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0, scale: 0.97 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: DURATIONS.normal,
+      staggerChildren: 0.08,
+    },
+  },
+};
+
+const childVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: TRANSITIONS.enter,
   },
 };
 
@@ -106,35 +135,61 @@ export default function EmptyState({
     description ?? config?.description ?? 'No data to display';
   const ctaConfig = config?.cta;
 
+  const reduced = prefersReducedMotion();
+  const Container = reduced ? 'div' : motion.div;
+  const Child = reduced ? 'div' : motion.div;
+
+  const containerProps = reduced
+    ? {}
+    : { variants: containerVariants, initial: 'hidden', animate: 'visible' };
+  const childProps = reduced ? {} : { variants: childVariants };
+
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+    <Container
+      className="flex flex-col items-center justify-center py-12 px-4 text-center dot-grid-bg rounded-xl"
+      {...containerProps}
+    >
       {Icon && (
-        <div className="bg-card-2 rounded-full p-6 mb-4">
-          <Icon className="w-12 h-12 text-muted-foreground" />
-        </div>
-      )}
-      <h3 className="text-lg font-semibold text-foreground mb-2">
-        {displayTitle}
-      </h3>
-      <p className="text-sm text-muted-foreground max-w-sm mb-6">
-        {displayDescription}
-      </p>
-      {action && (
-        <button
-          onClick={action.onClick}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors"
+        <Child
+          className="bg-card rounded-full p-6 mb-4 shadow-sm"
+          {...childProps}
         >
-          {action.label}
-        </button>
+          <Icon className={`w-12 h-12 text-muted-foreground ${reduced ? '' : 'animate-float'}`} />
+        </Child>
+      )}
+      <Child {...childProps}>
+        <h3 className="text-lg font-semibold text-foreground mb-2">
+          {displayTitle}
+        </h3>
+      </Child>
+      <Child {...childProps}>
+        <p className="text-sm text-muted-foreground max-w-sm mb-6">
+          {displayDescription}
+        </p>
+      </Child>
+      {action && (
+        <Child {...childProps}>
+          <button
+            onClick={action.onClick}
+            className="relative px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors"
+          >
+            {/* Pulse ring */}
+            <span className="absolute inset-0 rounded-lg animate-ping bg-primary/20 pointer-events-none" style={{ animationDuration: '3s' }} />
+            {action.label}
+          </button>
+        </Child>
       )}
       {!action && ctaConfig && (
-        <Link
-          href={ctaConfig.href}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors"
-        >
-          {ctaConfig.label}
-        </Link>
+        <Child {...childProps}>
+          <Link
+            href={ctaConfig.href}
+            className="relative px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors"
+          >
+            <span className="absolute inset-0 rounded-lg animate-ping bg-primary/20 pointer-events-none" style={{ animationDuration: '3s' }} />
+            {ctaConfig.label}
+          </Link>
+        </Child>
       )}
-    </div>
+    </Container>
   );
 }

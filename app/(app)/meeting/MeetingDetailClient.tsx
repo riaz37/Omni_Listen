@@ -14,6 +14,7 @@ import { Skeleton } from 'boneyard-js/react';
 import { MeetingKeyTakeaways } from './MeetingKeyTakeaways';
 import { MeetingTranscript } from './MeetingTranscript';
 import { MeetingSidebar } from './MeetingSidebar';
+import PageEntrance from '@/components/ui/page-entrance';
 
 export default function MeetingDetailClient() {
     const router = useRouter();
@@ -141,7 +142,7 @@ export default function MeetingDetailClient() {
     return (
         <Skeleton name="meeting-detail" loading={loading || loadingMeeting} fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
             <div className="min-h-screen bg-background">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageEntrance name="meeting" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Back Button */}
                 <button
                     onClick={() => router.back()}
@@ -231,7 +232,7 @@ export default function MeetingDetailClient() {
                         onToggleCompletion={handleToggleCompletion}
                     />
                 </div>
-            </div>
+            </PageEntrance>
             {jobId && <FloatingChat jobId={jobId} />}
             </div>
         </Skeleton>

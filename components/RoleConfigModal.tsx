@@ -5,6 +5,7 @@ import { X, User, Settings, Plus, Edit2, Trash2, Star, Copy, Lock, AlertCircle, 
 import { useConfig } from '@/lib/config-context';
 import { presetsAPI, authAPI } from '@/lib/api';
 import { useToast } from './Toast';
+import AnimatedModal from '@/components/ui/animated-modal';
 
 // Predefined system presets
 import { SYSTEM_PRESETS } from '@/lib/presets';
@@ -303,10 +304,8 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
     );
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-foreground/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+    <AnimatedModal open={isOpen} onClose={onClose}>
       <div className="bg-card rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div className="flex items-center gap-3">
@@ -519,6 +518,6 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
           )}
         </div>
       </div>
-    </div>
+    </AnimatedModal>
   );
 }

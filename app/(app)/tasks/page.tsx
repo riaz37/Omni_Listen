@@ -12,6 +12,7 @@ import { TasksSkeleton } from './TasksSkeleton';
 import { TaskStatsCards } from './TaskStatsCards';
 import { TaskTable } from './TaskTable';
 import { AddTaskModal } from './AddTaskModal';
+import PageEntrance from '@/components/ui/page-entrance';
 
 interface Task {
   id: number;
@@ -296,7 +297,7 @@ export default function TasksPage() {
     <Skeleton name="tasks-list" loading={loading || isLoading} fallback={<TasksSkeleton />}>
     <div className="min-h-screen bg-background">
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <PageEntrance name="tasks" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-1">
@@ -406,7 +407,7 @@ export default function TasksPage() {
           onClose={() => setShowAddTaskModal(false)}
           onSubmit={handleCreateTask}
         />
-      </div>
+      </PageEntrance>
     </div>
     </Skeleton>
   );

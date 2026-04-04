@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import PrimaryButton from '@/components/PrimaryButton';
+import AnimatedModal from '@/components/ui/animated-modal';
 
 interface Note {
   id: string;
@@ -26,8 +27,8 @@ export function NoteQuickViewModal({
   onViewDetails,
 }: NoteQuickViewModalProps) {
   return (
-    <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center p-4 z-50" onClick={onClose}>
-      <div className="bg-card rounded-lg shadow-xl max-w-lg w-full p-6" onClick={(e) => e.stopPropagation()}>
+    <AnimatedModal open onClose={onClose}>
+      <div className="bg-card rounded-lg shadow-xl max-w-lg w-full p-6">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-semibold text-foreground">Note Quick View</h2>
           <button
@@ -66,6 +67,6 @@ export function NoteQuickViewModal({
           </div>
         </div>
       </div>
-    </div>
+    </AnimatedModal>
   );
 }

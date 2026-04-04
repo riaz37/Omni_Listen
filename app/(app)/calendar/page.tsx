@@ -20,6 +20,7 @@ import { YearlyView } from './YearlyView';
 import { CalendarEventModal } from './CalendarEventModal';
 import { EventListSidebar } from './EventListSidebar';
 import { CreateEventModal } from './CreateEventModal';
+import PageEntrance from '@/components/ui/page-entrance';
 
 const locales = {
   'en-US': enUS,
@@ -268,7 +269,7 @@ export default function EventsPage() {
     <Skeleton name="calendar-grid" loading={loading || isLoading} fallback={<CalendarSkeleton />}>
       <div className="min-h-screen bg-background">
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <PageEntrance name="calendar" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8 flex justify-between items-start">
           <div>
@@ -349,7 +350,7 @@ export default function EventsPage() {
             </div>
           )}
         </div>
-      </div>
+      </PageEntrance>
 
       {/* Event List Sidebar */}
       {showEventList && (

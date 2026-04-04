@@ -191,7 +191,9 @@
   .animate-bounce,
   .animate-ping,
   .animate-gradient,
-  .animate-float {
+  .animate-float,
+  .animate-shake,
+  .animate-pulse-ring {
     animation: none !important;
   }
 }
@@ -200,4 +202,40 @@
 .dot-grid-bg {
   background-image: radial-gradient(circle, hsl(var(--muted-foreground) / 0.15) 1px, transparent 1px);
   background-size: 16px 16px;
+}
+
+/* ─── Form focus ring animation ─────────────────────────────────────────── */
+@keyframes focus-ring-expand {
+  from { box-shadow: 0 0 0 0px hsl(var(--primary) / 0.3); }
+  to { box-shadow: 0 0 0 3px hsl(var(--primary) / 0.15); }
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  animation: focus-ring-expand 0.2s ease-out forwards;
+}
+
+/* ─── Shake animation for form validation errors ────────────────────────── */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+.animate-shake {
+  animation: shake 0.3s ease-out;
+}
+
+/* ─── CTA pulse ring ────────────────────────────────────────────────────── */
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4); }
+  70% { box-shadow: 0 0 0 8px hsl(var(--primary) / 0); }
+  100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0); }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 3s ease-out infinite;
 }

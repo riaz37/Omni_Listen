@@ -21,6 +21,7 @@ import { Skeleton } from 'boneyard-js/react';
 import { NoteCard } from './NoteCard';
 import { AddNoteModal } from './AddNoteModal';
 import { NoteQuickViewModal } from './NoteQuickViewModal';
+import PageEntrance from '@/components/ui/page-entrance';
 
 interface Note {
   id: string;
@@ -297,7 +298,7 @@ export default function NotesPage() {
     <Skeleton name="notes-grid" loading={loading} fallback={<NotesSkeleton />}>
       <div className="min-h-screen bg-background">
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <PageEntrance name="notes" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-1">
@@ -421,7 +422,7 @@ export default function NotesPage() {
             ))}
           </div>
         )}
-      </div>
+      </PageEntrance>
 
       <AddNoteModal
         show={showAddNoteModal}

@@ -1,4 +1,5 @@
 import PrimaryButton from '@/components/PrimaryButton';
+import AnimatedModal from '@/components/ui/animated-modal';
 
 interface NewEventData {
   title: string;
@@ -18,8 +19,8 @@ interface CreateEventModalProps {
 
 export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit }: CreateEventModalProps) {
   return (
-    <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center p-4 z-50" onClick={onClose}>
-      <div className="bg-card rounded-lg border border-border shadow-xl max-w-lg w-full p-6" onClick={(e) => e.stopPropagation()}>
+    <AnimatedModal open onClose={onClose}>
+      <div className="bg-card rounded-lg border border-border shadow-xl max-w-lg w-full p-6">
         <div className="flex items-start justify-between mb-1">
           <div>
             <h2 className="text-2xl font-bold text-foreground">Add Event</h2>
@@ -124,6 +125,6 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
           </div>
         </div>
       </div>
-    </div>
+    </AnimatedModal>
   );
 }

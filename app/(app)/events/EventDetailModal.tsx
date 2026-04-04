@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 import PrimaryButton from '@/components/PrimaryButton';
+import AnimatedModal from '@/components/ui/animated-modal';
 import {
   Clock,
   MapPin,
@@ -50,8 +51,8 @@ export function EventDetailModal({
   getEventTypeColor,
 }: EventDetailModalProps) {
   return (
-    <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center p-4 z-50" onClick={onClose}>
-      <div className="bg-card rounded-lg shadow-xl border border-border max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+    <AnimatedModal open onClose={onClose}>
+      <div className="bg-card rounded-lg shadow-xl border border-border max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
@@ -165,7 +166,7 @@ export function EventDetailModal({
             </button>
           </div>
         </div>
-      </div >
-    </div >
+      </div>
+    </AnimatedModal>
   );
 }

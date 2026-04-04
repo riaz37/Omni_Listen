@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import { X } from 'lucide-react';
 import PrimaryButton from '@/components/PrimaryButton';
+import AnimatedModal from '@/components/ui/animated-modal';
 
 interface NewNoteData {
   title: string;
@@ -26,10 +27,8 @@ export function AddNoteModal({
   meetings,
   onSubmit,
 }: AddNoteModalProps) {
-  if (!show) return null;
-
   return (
-    <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50 p-4">
+    <AnimatedModal open={show} onClose={onClose}>
       <div className="bg-card rounded-lg shadow-xl max-w-md w-full p-6">
         <div className="flex items-start justify-between mb-5">
           <div>
@@ -122,6 +121,6 @@ export function AddNoteModal({
           </div>
         </div>
       </div>
-    </div>
+    </AnimatedModal>
   );
 }

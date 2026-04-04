@@ -2,6 +2,7 @@
 
 import { X } from 'lucide-react';
 import PrimaryButton from '@/components/PrimaryButton';
+import AnimatedModal from '@/components/ui/animated-modal';
 
 interface NewTaskData {
   title: string;
@@ -19,11 +20,9 @@ interface AddTaskModalProps {
 }
 
 export function AddTaskModal({ show, newTask, onNewTaskChange, onClose, onSubmit }: AddTaskModalProps) {
-  if (!show) return null;
-
   return (
-    <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-card rounded-lg shadow-xl max-w-md w-full p-6">
+    <AnimatedModal open={show} onClose={onClose}>
+      <div className="p-6">
         <div className="flex items-start justify-between mb-5">
           <div>
             <h2 className="text-lg font-semibold text-foreground">Add task</h2>
@@ -111,6 +110,6 @@ export function AddTaskModal({ show, newTask, onNewTaskChange, onClose, onSubmit
           </div>
         </div>
       </div>
-    </div>
+    </AnimatedModal>
   );
 }

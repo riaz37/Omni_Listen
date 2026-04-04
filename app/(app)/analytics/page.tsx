@@ -12,6 +12,7 @@ import { EventListCard } from './EventListCard';
 import { AnalysisHistoryCard } from './AnalysisHistoryCard';
 import { TaskListTable } from './TaskListTable';
 import { Skeleton } from 'boneyard-js/react';
+import PageEntrance from '@/components/ui/page-entrance';
 
 interface Meeting {
   job_id: string;
@@ -196,7 +197,7 @@ export default function AnalyticsPage() {
     <Skeleton name="analytics-dashboard" loading={loading || isLoading} fallback={<AnalyticsSkeleton />}>
       <div className="min-h-screen bg-background">
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <PageEntrance name="analytics" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Page Header */}
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
@@ -245,7 +246,7 @@ export default function AnalyticsPage() {
             getStatusBadge={getStatusBadge}
             getUrgencyLabel={getUrgencyLabel}
           />
-        </div>
+        </PageEntrance>
       </div>
     </Skeleton>
   );

@@ -12,6 +12,7 @@ import EditEventModal from '@/components/EditEventModal';
 import RescheduleEventModal from '@/components/RescheduleEventModal';
 import { parseISO, format, isFuture, isPast, isToday, differenceInDays } from 'date-fns';
 import { DateGroupedList } from '@/components/DateGroupedList';
+import PageEntrance from '@/components/ui/page-entrance';
 //import { getUrgencyStyles } from '@/lib/urgency-detector';
 import PrimaryButton from '@/components/PrimaryButton';
 import { EventsSkeleton } from './EventsSkeleton';
@@ -452,7 +453,7 @@ export default function EventsPage() {
     <Skeleton name="events-list" loading={loading} fallback={<EventsSkeleton />}>
       <div className="min-h-screen bg-background">
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <PageEntrance name="events" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
@@ -764,7 +765,7 @@ export default function EventsPage() {
             )}
           </>
         )}
-      </div>
+      </PageEntrance>
 
       {/* Event Detail Modal */}
       {selectedEvent && (
