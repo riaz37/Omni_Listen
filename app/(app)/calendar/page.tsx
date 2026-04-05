@@ -239,24 +239,20 @@ export default function EventsPage() {
   };
 
   const getEventStyle = (event: CalendarEvent) => {
-    const baseStyle = {
-      borderRadius: '4px',
-      border: 'none',
-      padding: '2px 6px',
-      fontSize: '13px',
-      fontWeight: '500',
+    const colors: Record<string, { bg: string; border: string; text: string }> = {
+      meeting: { bg: 'hsl(var(--primary) / 0.15)', border: 'hsl(var(--primary))', text: 'hsl(var(--primary))' },
+      task: { bg: 'rgba(59, 130, 246, 0.15)', border: '#3b82f6', text: '#3b82f6' },
+      deadline: { bg: 'hsl(var(--destructive) / 0.15)', border: 'hsl(var(--destructive))', text: 'hsl(var(--destructive))' },
     };
-
-    switch (event.type) {
-      case 'meeting':
-        return { ...baseStyle, backgroundColor: '#10b981', color: 'white' };
-      case 'task':
-        return { ...baseStyle, backgroundColor: '#3b82f6', color: 'white' };
-      case 'deadline':
-        return { ...baseStyle, backgroundColor: '#ef4444', color: 'white' };
-      default:
-        return { ...baseStyle, backgroundColor: '#6b7280', color: 'white' };
-    }
+    const c = colors[event.type] || { bg: 'hsl(var(--muted) / 0.5)', border: 'hsl(var(--muted-foreground))', text: 'hsl(var(--foreground))' };
+    return {
+      backgroundColor: c.bg,
+      borderLeft: `3px solid ${c.border}`,
+      color: c.text,
+      borderRadius: '4px',
+      fontSize: '0.8125rem',
+      padding: '2px 6px',
+    };
   };
 
   return (
@@ -324,7 +320,7 @@ export default function EventsPage() {
           {view === 'yearly' ? (
             <YearlyView currentDate={currentDate} />
           ) : (
-            <div style={{ height: '600px' }}>
+            <div style={{ height: 'calc(100vh - 280px)', minHeight: '400px' }}>
               <Calendar
                 localizer={localizer}
                 events={filteredEvents}
