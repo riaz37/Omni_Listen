@@ -54,7 +54,7 @@ export default function HowItWorks() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
           {/* Connector line (desktop only) */}
-          <div className="hidden md:block absolute top-[72px] left-[16.67%] right-[16.67%] h-[2px] bg-border" />
+          <div className="hidden md:block absolute top-[32px] left-[16.67%] right-[16.67%] h-[2px] bg-border" />
 
           {steps.map((step, i) => {
             const Icon = step.icon;
@@ -67,19 +67,17 @@ export default function HowItWorks() {
                 transition={{ delay: i * 0.2, duration: 0.6 }}
                 className="relative flex flex-col items-center text-center"
               >
-                {/* Step circle */}
-                <div className={`relative z-10 w-[88px] h-[88px] rounded-2xl ${step.bg} border-2 ${step.border} flex items-center justify-center mb-6`}>
-                  <Icon className={`w-8 h-8 ${step.color}`} />
-                </div>
-
-                {/* Step number */}
-                <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">
-                  Step {step.number}
+                {/* Step number — large, typographic */}
+                <span className="relative z-10 text-5xl font-display font-normal text-primary/30 mb-4">
+                  {step.number}
                 </span>
 
-                <h3 className="text-xl font-semibold text-foreground mb-3">
-                  {step.title}
-                </h3>
+                <div className="flex items-center gap-2 mb-3">
+                  <Icon className={`w-4 h-4 ${step.color}`} />
+                  <h3 className="text-xl font-semibold text-foreground">
+                    {step.title}
+                  </h3>
+                </div>
                 <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
                   {step.description}
                 </p>
