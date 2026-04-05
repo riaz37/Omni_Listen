@@ -54,7 +54,7 @@ export default function FloatingChat({ jobId }: FloatingChatProps) {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        <div className="fixed bottom-6 right-6 z-[60] flex flex-col items-end">
             {/* Chat Window */}
             {isOpen && (
                 <div className="mb-4 w-[350px] sm:w-[400px] h-[500px] bg-card rounded-2xl shadow-2xl border border-border flex flex-col overflow-hidden animate-slide-up origin-bottom-right">

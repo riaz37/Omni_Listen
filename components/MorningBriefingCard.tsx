@@ -52,7 +52,7 @@ export default function MorningBriefingBubble() {
     if (!briefing?.content && !isMorning) return null;
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        <div className="fixed bottom-6 left-6 z-50 flex flex-col items-start">
             {/* Expanded Panel */}
             {isExpanded && (
                 <div className="mb-3 w-80 sm:w-96 bg-card rounded-2xl shadow-2xl border border-amber-200 overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
@@ -133,7 +133,7 @@ export default function MorningBriefingBubble() {
                 )}
 
                 {/* Tooltip */}
-                <span className="absolute right-full mr-3 px-3 py-1.5 bg-foreground text-background text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                <span className="absolute left-full ml-3 px-3 py-1.5 bg-foreground text-background text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                     Morning Briefing
                 </span>
             </button>
