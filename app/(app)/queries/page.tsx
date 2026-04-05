@@ -163,7 +163,7 @@ export default function QueriesPage() {
               <div className="flex gap-2">
                 <PrimaryButton
                   onClick={() => exportQueriesToPDF(filteredQueries)}
-                  variant="danger"
+                  variant="secondary"
                   icon={FileText}
                   title="Download PDF"
                 >

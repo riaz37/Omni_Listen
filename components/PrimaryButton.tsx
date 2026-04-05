@@ -29,7 +29,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   outline:
     'bg-transparent text-foreground border border-border hover:bg-muted',
   danger:
-    'bg-red-600 text-white hover:bg-red-700 shadow-sm',
+    'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
