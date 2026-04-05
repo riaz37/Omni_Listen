@@ -75,22 +75,7 @@ export default function SocialProof() {
           })}
         </div>
 
-        {/* Trust logos placeholder */}
-        <div className="mt-12 pt-8 border-t border-border/50">
-          <p className="text-center text-xs text-muted-foreground uppercase tracking-widest mb-6">
-            Trusted by teams at
-          </p>
-          <div className="flex items-center justify-center gap-8 sm:gap-12 flex-wrap opacity-40">
-            {['Company A', 'Company B', 'Company C', 'Company D', 'Company E'].map((name) => (
-              <div
-                key={name}
-                className="text-muted-foreground font-bold text-lg tracking-tight"
-              >
-                {name}
-              </div>
-            ))}
-          </div>
-        </div>
+{/* Trust logos — replace placeholder names with real logos when available */}
       </div>
     </section>
   );
