@@ -321,11 +321,12 @@ export default function DashboardRecorder({
               <div className="space-y-6">
                 {inputMode === 'upload' && (
                   <>
-                    <div
+                    <label
+                      htmlFor="file-upload"
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
                       onDrop={handleDrop}
-                      className={`border border-dashed rounded-lg p-8 text-center transition-all duration-200 ${
+                      className={`block cursor-pointer border border-dashed rounded-lg p-8 text-center transition-all duration-200 ${
                         isDragging
                           ? 'border-primary bg-primary/[0.03] scale-[1.01]'
                           : 'border-border/60 hover:border-primary/40 hover:bg-primary/[0.02]'
@@ -339,12 +340,9 @@ export default function DashboardRecorder({
                         className="hidden"
                         id="file-upload"
                       />
-                      <label
-                        htmlFor="file-upload"
-                        className="cursor-pointer text-primary hover:text-primary/80 font-medium"
-                      >
+                      <span className="text-primary hover:text-primary/80 font-medium">
                         Choose a file
-                      </label>
+                      </span>
                       <span className="text-muted-foreground"> or drag and drop</span>
                       <p className="text-sm text-muted-foreground mt-2">
                         MP3, WAV, M4A, WebM up to 500MB
@@ -366,7 +364,7 @@ export default function DashboardRecorder({
                           </button>
                         </div>
                       )}
-                    </div>
+                    </label>
 
                     {/* Additional Analysis for Upload */}
                     {renderAnalysisBox('upload')}

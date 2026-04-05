@@ -8,15 +8,23 @@ import PageEntrance from '@/components/ui/page-entrance';
 import Pagination from '@/components/Pagination';
 import EmptyState from '@/components/EmptyState';
 import HistoryTabs from '@/components/HistoryTabs';
-import DayHistoryView from '@/components/DayHistoryView'; // Re-export check
+import DayHistoryView from '@/components/DayHistoryView';
 import { DateGroupedList } from '@/components/DateGroupedList';
 import { meetingsAPI } from '@/lib/api';
 import { formatDate, truncate } from '@/lib/utils';
 import { exportMeetingsToCSV } from '@/lib/export';
-import PrimaryButton from '@/components/PrimaryButton';
 import { Skeleton } from 'boneyard-js/react';
 import ConfirmDialog from '@/components/ConfirmDialog';
-import { Calendar, FileText, Trash2, Check, Download, X, CheckCircle, XCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { DURATIONS, EASINGS } from '@/lib/motion';
+import {
+  Calendar,
+  FileText,
+  Trash2,
+  Check,
+  Download,
+  ArrowUpDown,
+} from 'lucide-react';
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -30,7 +38,14 @@ export default function HistoryPage() {
   const [selectedMeetingIds, setSelectedMeetingIds] = useState<number[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [historyView, setHistoryView] = useState<'meetings' | 'days'>('meetings');
-  const [confirmDialog, setConfirmDialog] = useState<{title: string; message: string; onConfirm: () => void; confirmLabel?: string} | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    confirmLabel?: string;
+  } | null>(null);
+
+  const hasSelection = selectedMeetingIds.length > 0;
 
   useEffect(() => {
     if (user) {
@@ -65,15 +80,15 @@ export default function HistoryPage() {
   };
 
   const handleToggleSelectMeeting = (meetingId: number) => {
-    setSelectedMeetingIds(prev =>
+    setSelectedMeetingIds((prev) =>
       prev.includes(meetingId)
-        ? prev.filter(id => id !== meetingId)
+        ? prev.filter((id) => id !== meetingId)
         : [...prev, meetingId]
     );
   };
 
   const handleSelectAll = () => {
-    const allMeetingIds = paginatedMeetings.map(m => m.id);
+    const allMeetingIds = paginatedMeetings.map((m) => m.id);
     setSelectedMeetingIds(allMeetingIds);
   };
 
@@ -95,7 +110,7 @@ export default function HistoryPage() {
         setIsDeleting(true);
         try {
           const result = await meetingsAPI.bulkDeleteMeetings(selectedMeetingIds);
-          setMeetings(meetings.filter(m => !selectedMeetingIds.includes(m.id)));
+          setMeetings(meetings.filter((m) => !selectedMeetingIds.includes(m.id)));
           setSelectedMeetingIds([]);
           toast.success(`Deleted ${result.deleted_count} meeting(s)`);
         } catch (error) {
@@ -146,6 +161,10 @@ export default function HistoryPage() {
   const endIndex = startIndex + itemsPerPage;
   const paginatedMeetings = sortedMeetings.slice(startIndex, endIndex);
 
+  const allOnPageSelected =
+    paginatedMeetings.length > 0 &&
+    paginatedMeetings.every((m) => selectedMeetingIds.includes(m.id));
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -153,63 +172,54 @@ export default function HistoryPage() {
 
   const handleItemsPerPageChange = (newItemsPerPage: number) => {
     setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1); // Reset to first page
+    setCurrentPage(1);
   };
 
   const historySkeleton = (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header skeleton: title left, tabs right */}
-        <div className="flex justify-between items-center mb-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header skeleton */}
+        <div className="flex justify-between items-start mb-8">
           <div>
             <div className="h-8 bg-muted rounded w-56 mb-2 animate-pulse" />
-            <div className="h-4 bg-muted rounded w-36 animate-pulse" />
+            <div className="h-4 bg-muted rounded w-36 mt-1 animate-pulse" />
           </div>
-          <div className="h-10 w-52 bg-muted rounded-full animate-pulse" />
+          <div className="h-10 w-52 bg-muted rounded-lg animate-pulse" />
         </div>
 
-        {/* Action bar skeleton */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="h-9 w-28 bg-muted rounded-lg animate-pulse" />
-          <div className="h-9 w-24 bg-muted rounded-lg animate-pulse" />
-          <div className="flex items-center gap-2">
-            <div className="h-4 w-14 bg-muted rounded animate-pulse" />
-            <div className="h-9 w-24 bg-muted rounded-lg animate-pulse" />
-          </div>
-        </div>
+        {/* Toolbar skeleton */}
+        <div className="h-[44px] bg-surface/50 rounded-lg border border-border/60 mb-6 animate-pulse" />
 
-        {/* Select all skeleton */}
-        <div className="h-8 w-44 bg-muted rounded-lg animate-pulse mb-4" />
-
-        {/* Date group skeleton */}
-        <div className="space-y-6">
+        {/* Date groups skeleton */}
+        <div className="space-y-8">
           {[...Array(2)].map((_, gi) => (
             <div key={gi}>
-              {/* Date header */}
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-3 h-3 bg-muted rounded-full animate-pulse" />
-                <div className="h-4 w-28 bg-muted rounded animate-pulse" />
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-2.5 h-2.5 bg-muted rounded-full animate-pulse" />
+                <div className="h-3 w-16 bg-muted rounded animate-pulse" />
+                <div className="h-3 w-24 bg-muted rounded animate-pulse" />
+                <div className="flex-1 h-px bg-border/50" />
               </div>
-
-              {/* Meeting cards in group */}
-              <div className="space-y-4 ml-5">
+              <div className="space-y-3 ml-[5px] border-l border-border/40 pl-5">
                 {[...Array(gi === 0 ? 1 : 2)].map((_, ci) => (
-                  <div key={ci} className="bg-card rounded-lg border border-border shadow-sm p-6 animate-pulse">
+                  <div
+                    key={ci}
+                    className="bg-card rounded-lg border border-border p-5 animate-pulse"
+                  >
                     <div className="flex gap-4">
-                      <div className="w-5 h-5 bg-muted rounded mt-1 flex-shrink-0" />
+                      <div className="w-5 h-5 bg-muted rounded mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <div className="h-5 bg-muted rounded w-48" />
-                          <div className="h-4 bg-muted rounded w-40" />
+                          <div className="h-4 bg-muted rounded w-32" />
                         </div>
                         <div className="h-4 bg-muted rounded w-full mb-1" />
-                        <div className="h-4 bg-muted rounded w-4/5 mb-4" />
-                        <div className="flex items-center gap-4">
+                        <div className="h-4 bg-muted rounded w-3/4 mb-4" />
+                        <div className="flex items-center gap-3">
                           <div className="h-4 bg-muted rounded w-20" />
                           <div className="h-5 bg-muted rounded w-28" />
                         </div>
                       </div>
-                      <div className="w-5 h-5 bg-muted rounded flex-shrink-0" />
                     </div>
                   </div>
                 ))}
@@ -221,238 +231,242 @@ export default function HistoryPage() {
     </div>
   );
 
+  const tabContentVariants = {
+    initial: { opacity: 0, y: 6 },
+    animate: { opacity: 1, y: 0, transition: { duration: DURATIONS.normal, ease: EASINGS.easeOut } },
+    exit: { opacity: 0, y: -4, transition: { duration: DURATIONS.fast, ease: EASINGS.easeIn } },
+  };
+
   return (
     <Skeleton name="history-groups" loading={loading || loadingMeetings} fallback={historySkeleton}>
       <div className="min-h-screen bg-background">
-        <PageEntrance name="history" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Meeting History</h1>
-            <p className="text-muted-foreground mt-2">
-              {meetings.length} meeting{meetings.length !== 1 ? 's' : ''} analyzed
-            </p>
+        <PageEntrance name="history" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* ── Header ── */}
+          <div className="flex justify-between items-start mb-8">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground tracking-tight">
+                Meeting History
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                {meetings.length} meeting{meetings.length !== 1 ? 's' : ''} analyzed
+              </p>
+            </div>
+            <HistoryTabs activeView={historyView} onViewChange={setHistoryView} />
           </div>
 
-          <HistoryTabs activeView={historyView} onViewChange={setHistoryView} />
-        </div>
+          {/* ── Tab content ── */}
+          <AnimatePresence mode="wait">
+            {historyView === 'meetings' && (
+              <motion.div key="meetings" {...tabContentVariants}>
+                {/* ── Toolbar ── */}
+                {meetings.length > 0 && (
+                  <div className="flex items-center justify-between gap-3 mb-6 py-2.5 px-4 bg-surface/50 rounded-lg border border-border/60">
+                    {/* Left: select + actions */}
+                    <div className="flex items-center gap-3">
+                      {/* Select all checkbox */}
+                      <label className="flex items-center gap-2 cursor-pointer select-none group">
+                        <input
+                          type="checkbox"
+                          checked={allOnPageSelected}
+                          onChange={allOnPageSelected ? handleDeselectAll : handleSelectAll}
+                          className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
+                        />
+                        <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                          All
+                        </span>
+                      </label>
 
-        {historyView === 'meetings' && (
-          <>
-            <div className="flex items-center gap-3 flex-wrap mb-6">
-              {selectedMeetingIds.length > 0 ? (
-                <>
-                  <PrimaryButton
-                    onClick={handleBulkDelete}
-                    disabled={isDeleting}
-                    loading={isDeleting}
-                    variant="danger"
-                    icon={Trash2}
-                    title={`Delete ${selectedMeetingIds.length} selected`}
-                  >
-                    <span className="hidden sm:inline">Delete Selected ({selectedMeetingIds.length})</span>
-                    <span className="sm:hidden">{selectedMeetingIds.length}</span>
-                  </PrimaryButton>
-                  <PrimaryButton
-                    onClick={handleDeselectAll}
-                    disabled={isDeleting}
-                    variant="outline"
-                    icon={X}
-                    title="Deselect all"
-                  >
-                    <span className="hidden sm:inline">Clear</span>
-                  </PrimaryButton>
-                </>
-              ) : meetings.length > 0 && (
-                <PrimaryButton
-                  onClick={handleDeleteAll}
-                  disabled={isDeleting}
-                  loading={isDeleting}
-                  variant="danger"
-                  icon={Trash2}
-                  title="Delete all meetings"
-                >
-                  <span className="hidden sm:inline">Delete All</span>
-                </PrimaryButton>
-              )}
-              <PrimaryButton
-                onClick={() => exportMeetingsToCSV(meetings)}
-                disabled={meetings.length === 0}
-                icon={Download}
-                title="Export to CSV"
-              >
-                Export
-              </PrimaryButton>
+                      <div className="w-px h-5 bg-border/60" />
 
-              <div className="flex items-center gap-2">
-                <label className="text-sm text-muted-foreground">Sort by:</label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:ring-primary focus:border-primary"
-                >
-                  <option value="date">Date</option>
-                  <option value="events">Events Count</option>
-                </select>
-              </div>
-            </div>
-
-            {loadingMeetings ? (
-              <div className="space-y-4">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="bg-card rounded-lg border border-border shadow-sm p-6 animate-pulse">
-                    <div className="flex items-start gap-4">
-                      <div className="w-5 h-5 bg-muted rounded mt-1 flex-shrink-0" />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="h-5 bg-muted rounded w-1/3" />
-                          <div className="h-4 bg-muted rounded w-24" />
+                      {/* Selection-aware actions — grid-stack crossfade, no layout shift */}
+                      <div className="grid [grid-template-areas:'stack'] h-8 items-center">
+                        {/* Default actions (no selection) */}
+                        <div
+                          className="flex items-center gap-2 [grid-area:stack] transition-opacity duration-200"
+                          style={{ opacity: hasSelection ? 0 : 1, pointerEvents: hasSelection ? 'none' : 'auto' }}
+                        >
+                          <button
+                            onClick={handleDeleteAll}
+                            disabled={isDeleting}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Delete All</span>
+                          </button>
+                          <button
+                            onClick={() => exportMeetingsToCSV(meetings)}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-primary text-primary-foreground hover:bg-primary-hover rounded-md transition-colors shadow-sm"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Export</span>
+                          </button>
                         </div>
-                        <div className="h-4 bg-muted rounded w-full mb-2" />
-                        <div className="h-4 bg-muted rounded w-2/3 mb-4" />
-                        <div className="flex items-center gap-4">
-                          <div className="h-4 bg-muted rounded w-20" />
-                          <div className="h-4 bg-muted rounded w-28" />
+
+                        {/* Selection actions */}
+                        <div
+                          className="flex items-center gap-2 [grid-area:stack] transition-opacity duration-200"
+                          style={{ opacity: hasSelection ? 1 : 0, pointerEvents: hasSelection ? 'auto' : 'none' }}
+                        >
+                          <span className="text-xs font-medium text-primary tabular-nums">
+                            {selectedMeetingIds.length} selected
+                          </span>
+                          <button
+                            onClick={handleBulkDelete}
+                            disabled={isDeleting}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-destructive-foreground bg-destructive hover:bg-destructive/90 rounded-md transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            Delete
+                          </button>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            ) : meetings.length === 0 ? (
-              <div className="bg-card rounded-lg border border-border shadow-sm">
-                <EmptyState
-                  icon={FileText}
-                  title="No meetings yet"
-                  description="Upload your first meeting to get started"
-                  action={{
-                    label: 'Go to Dashboard',
-                    onClick: () => router.push('/dashboard'),
-                  }}
-                />
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center gap-2 mb-4">
-                  <PrimaryButton
-                    onClick={selectedMeetingIds.length === paginatedMeetings.length ? handleDeselectAll : handleSelectAll}
-                    variant="outline"
-                    icon={selectedMeetingIds.length === paginatedMeetings.length ? XCircle : CheckCircle}
-                    size="sm"
-                  >
-                    {selectedMeetingIds.length === paginatedMeetings.length ? 'Deselect All on Page' : 'Select All on Page'}
-                  </PrimaryButton>
-                  {selectedMeetingIds.length > 0 && (
-                    <span className="text-sm text-muted-foreground">
-                      {selectedMeetingIds.length} selected
-                    </span>
-                  )}
-                </div>
 
-                <div className="grid gap-4">
-                  <DateGroupedList
-                    items={paginatedMeetings}
-                    dateKey="created_at"
-                    renderItem={(meeting: any) => (
-                      <div
-                        key={meeting.job_id}
-                        className="bg-card rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow p-6 mb-4"
+                    {/* Right: sort */}
+                    <div className="flex items-center gap-2">
+                      <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground" />
+                      <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value as any)}
+                        className="text-xs font-medium bg-transparent text-muted-foreground hover:text-foreground border-none focus:ring-0 cursor-pointer pr-6 py-1"
                       >
-                        <div className="flex gap-4">
-                          {/* Checkbox */}
-                          <input
-                            type="checkbox"
-                            checked={selectedMeetingIds.includes(meeting.id)}
-                            onChange={(e) => {
-                              e.stopPropagation();
-                              handleToggleSelectMeeting(meeting.id);
-                            }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="mt-1 w-5 h-5 rounded border-border text-primary focus:ring-primary cursor-pointer flex-shrink-0"
-                          />
-
-                          {/* Meeting Content */}
-                          <div className="flex-1 cursor-pointer" onClick={() => router.push(`/meeting?id=${meeting.job_id}`)}>
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-2">
-                                  <h3 className="text-lg font-semibold text-foreground">
-                                    {meeting.title || "Meeting Analysis"}
-                                  </h3>
-                                  <span className="text-sm text-muted-foreground">
-                                    {formatDate(meeting.created_at)}
-                                  </span>
-                                </div>
-
-                                <p className="text-muted-foreground text-sm mb-4">
-                                  {truncate(meeting.summary_preview, 200)}
-                                </p>
-
-                                <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                                  <div className="flex items-center gap-1">
-                                    <Calendar className="w-4 h-4" />
-                                    <span>{meeting.event_count} events</span>
-                                  </div>
-                                  {meeting.has_custom_query && (
-                                    <span className="px-2 py-1 bg-accent text-accent-foreground rounded text-xs">
-                                      Additional Analysis
-                                    </span>
-                                  )}
-                                  {meeting.calendar_synced && (
-                                    <span className="px-2 py-1 bg-primary/10 text-text-primary rounded text-xs flex items-center gap-1">
-                                      <Check className="w-3 h-3" />
-                                      Synced to Calendar
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDelete(meeting.job_id);
-                                }}
-                                className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors"
-                              >
-                                <Trash2 className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  />
-                </div>
-
-                {meetings.length > 10 && (
-                  <div className="mt-6 bg-card rounded-lg border border-border shadow-sm">
-                    <Pagination
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      totalItems={sortedMeetings.length}
-                      itemsPerPage={itemsPerPage}
-                      onPageChange={handlePageChange}
-                      onItemsPerPageChange={handleItemsPerPageChange}
-                    />
+                        <option value="date">Date</option>
+                        <option value="events">Events</option>
+                      </select>
+                    </div>
                   </div>
                 )}
-              </>
+
+                {/* ── Meeting list ── */}
+                {meetings.length === 0 ? (
+                  <div className="bg-card rounded-lg border border-border shadow-sm">
+                    <EmptyState
+                      icon={FileText}
+                      title="No meetings yet"
+                      description="Upload your first meeting to get started"
+                      action={{
+                        label: 'Go to Dashboard',
+                        onClick: () => router.push('/dashboard'),
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <DateGroupedList
+                      items={paginatedMeetings}
+                      dateKey="created_at"
+                      renderItem={(meeting: any) => (
+                        <div
+                          key={meeting.job_id}
+                          className={`group relative bg-card rounded-lg border transition-all duration-200 cursor-pointer ${
+                            selectedMeetingIds.includes(meeting.id)
+                              ? 'border-primary/40 ring-1 ring-primary/20'
+                              : 'border-border hover:border-border/80 hover:shadow-md'
+                          }`}
+                        >
+                          <div className="flex gap-4 p-5">
+                            {/* Checkbox */}
+                            <div className="flex-shrink-0 pt-0.5">
+                              <input
+                                type="checkbox"
+                                checked={selectedMeetingIds.includes(meeting.id)}
+                                onChange={(e) => {
+                                  e.stopPropagation();
+                                  handleToggleSelectMeeting(meeting.id);
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
+                              />
+                            </div>
+
+                            {/* Content */}
+                            <div
+                              className="flex-1 min-w-0"
+                              onClick={() => router.push(`/meeting?id=${meeting.job_id}`)}
+                            >
+                              <div className="flex items-baseline gap-3 mb-1.5">
+                                <h3 className="text-base font-semibold text-foreground truncate">
+                                  {meeting.title || 'Meeting Analysis'}
+                                </h3>
+                                <span className="text-xs text-muted-foreground whitespace-nowrap font-mono">
+                                  {formatDate(meeting.created_at)}
+                                </span>
+                              </div>
+
+                              <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 mb-3">
+                                {truncate(meeting.summary_preview, 180)}
+                              </p>
+
+                              <div className="flex items-center gap-3 text-xs">
+                                <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+                                  <Calendar className="w-3.5 h-3.5" />
+                                  {meeting.event_count} event{meeting.event_count !== 1 ? 's' : ''}
+                                </span>
+                                {meeting.has_custom_query && (
+                                  <span className="px-2 py-0.5 bg-accent text-accent-foreground rounded-full text-xs font-medium">
+                                    Analysis
+                                  </span>
+                                )}
+                                {meeting.calendar_synced && (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
+                                    <Check className="w-3 h-3" />
+                                    Synced
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Delete */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(meeting.job_id);
+                              }}
+                              className="flex-shrink-0 p-1.5 text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-destructive hover:bg-destructive/10 rounded-md transition-all"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    />
+
+                    {meetings.length > 10 && (
+                      <div className="mt-8 bg-card rounded-lg border border-border">
+                        <Pagination
+                          currentPage={currentPage}
+                          totalPages={totalPages}
+                          totalItems={sortedMeetings.length}
+                          itemsPerPage={itemsPerPage}
+                          onPageChange={handlePageChange}
+                          onItemsPerPageChange={handleItemsPerPageChange}
+                        />
+                      </div>
+                    )}
+                  </>
+                )}
+              </motion.div>
             )}
-          </>
-        )}
 
-        {/* Day History View */}
-        {historyView === 'days' && (
-          <DayHistoryView meetings={meetings} />
-        )}
-
+            {/* Day History View */}
+            {historyView === 'days' && (
+              <motion.div key="days" {...tabContentVariants}>
+                <DayHistoryView meetings={meetings} />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </PageEntrance>
+
         {confirmDialog && (
           <ConfirmDialog
             isOpen={!!confirmDialog}
             title={confirmDialog.title}
             message={confirmDialog.message}
             confirmLabel={confirmDialog.confirmLabel}
-            onConfirm={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }}
+            onConfirm={() => {
+              confirmDialog.onConfirm();
+              setConfirmDialog(null);
+            }}
             onCancel={() => setConfirmDialog(null)}
           />
         )}

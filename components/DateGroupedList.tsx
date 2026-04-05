@@ -1,5 +1,7 @@
 import React from 'react';
 import { format, parseISO, isToday, isYesterday } from 'date-fns';
+import { motion } from 'framer-motion';
+import { DURATIONS, EASINGS, STAGGER } from '@/lib/motion';
 
 interface DateGroupedListProps<T> {
     items: T[];
@@ -73,24 +75,42 @@ export function DateGroupedList<T>({
         return format(date, 'MMM dd, yyyy');
     };
 
+    const getDateCount = (dateStr: string) => groupedItems[dateStr].length;
+
     return (
-        <div className="space-y-6">
-            {sortedDates.map(dateStr => (
-                <div key={dateStr} className="space-y-2">
-                    <div className="flex items-center gap-2 py-2 px-1">
-                        <div className="w-4 h-4 rounded-full border-2 border-border flex-shrink-0" />
-                        <h3 className="text-sm font-medium text-muted-foreground">
+        <div className="space-y-8">
+            {sortedDates.map((dateStr, groupIndex) => (
+                <motion.div
+                    key={dateStr}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                        duration: DURATIONS.normal,
+                        ease: EASINGS.easeOut,
+                        delay: groupIndex * STAGGER.fast,
+                    }}
+                >
+                    {/* Date header */}
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="w-2.5 h-2.5 rounded-full bg-primary/60 ring-4 ring-primary/10 flex-shrink-0" />
+                        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                             {formatDateHeader(dateStr)}
                         </h3>
+                        <span className="text-xs text-muted-foreground/60">
+                            {getDateCount(dateStr)} meeting{getDateCount(dateStr) !== 1 ? 's' : ''}
+                        </span>
+                        <div className="flex-1 h-px bg-border/50" />
                     </div>
-                    <div className="space-y-2 ml-[7px] border-l-2 border-border pl-[13px]">
+
+                    {/* Items */}
+                    <div className="space-y-3 ml-[5px] border-l border-border/40 pl-5">
                         {groupedItems[dateStr].map((item, index) => (
                             <React.Fragment key={index}>
                                 {renderItem(item)}
                             </React.Fragment>
                         ))}
                     </div>
-                </div>
+                </motion.div>
             ))}
         </div>
     );

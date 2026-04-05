@@ -39,6 +39,7 @@ function DayGroupItem({ group }: { group: DayGroup }) {
     const router = useRouter();
     const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
     const [loading, setLoading] = useState(false);
+    const [loadingSummary, setLoadingSummary] = useState(true);
     const [isExpanded, setIsExpanded] = useState(false);
 
     useEffect(() => {
@@ -46,6 +47,7 @@ function DayGroupItem({ group }: { group: DayGroup }) {
     }, [group.date]);
 
     const loadSummary = async () => {
+        setLoadingSummary(true);
         try {
             const data = await summaryAPI.getDailySummary(group.date);
             setSummaryData({
@@ -54,6 +56,8 @@ function DayGroupItem({ group }: { group: DayGroup }) {
             });
         } catch (e) {
             // Summary might not exist yet
+        } finally {
+            setLoadingSummary(false);
         }
     };
 
@@ -137,7 +141,22 @@ function DayGroupItem({ group }: { group: DayGroup }) {
 
             {/* Summary Section */}
             <div className="px-6 py-4">
-                {summaryData ? (
+                {loadingSummary ? (
+                    <div className="animate-pulse">
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 bg-muted rounded" />
+                                <div className="h-3.5 w-28 bg-muted rounded" />
+                            </div>
+                            <div className="h-3.5 w-20 bg-muted rounded" />
+                        </div>
+                        <div className="h-4 bg-muted rounded w-full mb-2" />
+                        <div className="h-4 bg-muted rounded w-4/5 mb-3" />
+                        <div className="flex items-center justify-center pt-2 border-t border-border">
+                            <div className="h-3.5 w-24 bg-muted rounded" />
+                        </div>
+                    </div>
+                ) : summaryData ? (
                     <div>
                         {/* Summary Header */}
                         <div className="flex items-center justify-between mb-3">
