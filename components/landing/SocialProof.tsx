@@ -12,7 +12,7 @@ const stats = [
 ];
 
 function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(value);
   const [hasAnimated, setHasAnimated] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true });
@@ -20,6 +20,7 @@ function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
   useEffect(() => {
     if (!isInView || hasAnimated) return;
     setHasAnimated(true);
+    setCount(0);
 
     const duration = 1500;
     const start = Date.now();
