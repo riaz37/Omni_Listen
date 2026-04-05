@@ -373,7 +373,21 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                 </div>
 
                 {loading ? (
-                  <div className="text-center py-8 text-muted-foreground text-sm">Loading presets...</div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[...Array(2)].map((_, i) => (
+                      <div key={i} className="rounded-lg border border-border p-4 animate-pulse">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="h-4 bg-muted rounded w-32" />
+                          <div className="flex gap-2">
+                            <div className="w-7 h-7 bg-muted rounded" />
+                            <div className="w-7 h-7 bg-muted rounded" />
+                          </div>
+                        </div>
+                        <div className="h-3 bg-muted rounded w-full mb-2" />
+                        <div className="h-3 bg-muted rounded w-3/4" />
+                      </div>
+                    ))}
+                  </div>
                 ) : userPresets.length === 0 ? (
                   <div className="py-8 text-center">
                     <p className="text-sm text-muted-foreground">No custom presets yet.</p>
