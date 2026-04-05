@@ -44,7 +44,7 @@ export default function HowItWorks() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl sm:text-5xl font-semibold text-foreground mb-4">
+          <h2 className="text-3xl sm:text-5xl font-display font-normal text-foreground mb-4">
             How It Works
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">

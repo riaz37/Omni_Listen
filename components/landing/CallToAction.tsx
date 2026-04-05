@@ -65,7 +65,7 @@ export default function CallToAction() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-3xl sm:text-5xl font-semibold text-foreground mb-4 tracking-tight">
+          <h2 className="text-3xl sm:text-5xl font-display font-normal text-foreground mb-4 tracking-tight">
             Ready to Transform
             <br />
             <span className="text-primary">Your Meetings?</span>

@@ -308,7 +308,7 @@ export default function Features() {
           transition={{ duration: 0.6 }}
           className="mb-20"
         >
-          <h2 className="text-3xl sm:text-5xl font-semibold text-foreground mb-4 tracking-tight">
+          <h2 className="text-3xl sm:text-5xl font-display font-normal text-foreground mb-4 tracking-tight">
             Everything You Need to
             <br />
             <span className="text-primary">Master Your Meetings</span>
