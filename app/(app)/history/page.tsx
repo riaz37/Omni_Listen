@@ -15,6 +15,7 @@ import { formatDate, truncate } from '@/lib/utils';
 import { exportMeetingsToCSV } from '@/lib/export';
 import PrimaryButton from '@/components/PrimaryButton';
 import { Skeleton } from 'boneyard-js/react';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import { Calendar, FileText, Trash2, Check, Download, X, CheckCircle, XCircle } from 'lucide-react';
 
 export default function HistoryPage() {
@@ -29,6 +30,7 @@ export default function HistoryPage() {
   const [selectedMeetingIds, setSelectedMeetingIds] = useState<number[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [historyView, setHistoryView] = useState<'meetings' | 'days'>('meetings');
+  const [confirmDialog, setConfirmDialog] = useState<{title: string; message: string; onConfirm: () => void; confirmLabel?: string} | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -46,15 +48,20 @@ export default function HistoryPage() {
     }
   };
 
-  const handleDelete = async (jobId: string) => {
-    if (!confirm('Are you sure you want to delete this meeting?')) return;
-
-    try {
-      await meetingsAPI.deleteMeeting(jobId);
-      setMeetings(meetings.filter((m) => m.job_id !== jobId));
-    } catch (error) {
-      toast.error('Failed to delete meeting');
-    }
+  const handleDelete = (jobId: string) => {
+    setConfirmDialog({
+      title: 'Delete meeting',
+      message: 'Are you sure you want to delete this meeting?',
+      confirmLabel: 'Delete',
+      onConfirm: async () => {
+        try {
+          await meetingsAPI.deleteMeeting(jobId);
+          setMeetings(meetings.filter((m) => m.job_id !== jobId));
+        } catch (error) {
+          toast.error('Failed to delete meeting');
+        }
+      },
+    });
   };
 
   const handleToggleSelectMeeting = (meetingId: number) => {
@@ -80,21 +87,24 @@ export default function HistoryPage() {
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete ${selectedMeetingIds.length} selected meeting(s)?`)) {
-      return;
-    }
-
-    setIsDeleting(true);
-    try {
-      const result = await meetingsAPI.bulkDeleteMeetings(selectedMeetingIds);
-      setMeetings(meetings.filter(m => !selectedMeetingIds.includes(m.id)));
-      setSelectedMeetingIds([]);
-      toast.success(`Deleted ${result.deleted_count} meeting(s)`);
-    } catch (error) {
-      toast.error('Failed to delete selected meetings');
-    } finally {
-      setIsDeleting(false);
-    }
+    setConfirmDialog({
+      title: 'Delete selected meetings',
+      message: `Are you sure you want to delete ${selectedMeetingIds.length} selected meeting(s)?`,
+      confirmLabel: 'Delete',
+      onConfirm: async () => {
+        setIsDeleting(true);
+        try {
+          const result = await meetingsAPI.bulkDeleteMeetings(selectedMeetingIds);
+          setMeetings(meetings.filter(m => !selectedMeetingIds.includes(m.id)));
+          setSelectedMeetingIds([]);
+          toast.success(`Deleted ${result.deleted_count} meeting(s)`);
+        } catch (error) {
+          toast.error('Failed to delete selected meetings');
+        } finally {
+          setIsDeleting(false);
+        }
+      },
+    });
   };
 
   const handleDeleteAll = async () => {
@@ -103,21 +113,24 @@ export default function HistoryPage() {
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete ALL ${meetings.length} meeting(s)? This action cannot be undone.`)) {
-      return;
-    }
-
-    setIsDeleting(true);
-    try {
-      const result = await meetingsAPI.deleteAllMeetings();
-      setMeetings([]);
-      setSelectedMeetingIds([]);
-      toast.success(`Deleted all ${result.deleted_count} meeting(s)`);
-    } catch (error) {
-      toast.error('Failed to delete all meetings');
-    } finally {
-      setIsDeleting(false);
-    }
+    setConfirmDialog({
+      title: 'Delete all meetings',
+      message: `Are you sure you want to delete ALL ${meetings.length} meeting(s)? This action cannot be undone.`,
+      confirmLabel: 'Delete all',
+      onConfirm: async () => {
+        setIsDeleting(true);
+        try {
+          const result = await meetingsAPI.deleteAllMeetings();
+          setMeetings([]);
+          setSelectedMeetingIds([]);
+          toast.success(`Deleted all ${result.deleted_count} meeting(s)`);
+        } catch (error) {
+          toast.error('Failed to delete all meetings');
+        } finally {
+          setIsDeleting(false);
+        }
+      },
+    });
   };
 
   const sortedMeetings = [...meetings].sort((a, b) => {
@@ -433,6 +446,16 @@ export default function HistoryPage() {
         )}
 
         </PageEntrance>
+        {confirmDialog && (
+          <ConfirmDialog
+            isOpen={!!confirmDialog}
+            title={confirmDialog.title}
+            message={confirmDialog.message}
+            confirmLabel={confirmDialog.confirmLabel}
+            onConfirm={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }}
+            onCancel={() => setConfirmDialog(null)}
+          />
+        )}
       </div>
     </Skeleton>
   );

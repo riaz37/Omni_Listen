@@ -6,6 +6,7 @@ import { meetingsAPI } from '@/lib/api';
 import { useToast } from '@/components/Toast';
 import { normalizeUrgency, sortByUrgencyThenDate } from '@/lib/utils';
 import PrimaryButton from '@/components/PrimaryButton';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import { Search, Plus } from 'lucide-react';
 import { Skeleton } from 'boneyard-js/react';
 import { TasksSkeleton } from './TasksSkeleton';
@@ -43,6 +44,7 @@ export default function TasksPage() {
   const [sortColumn, setSortColumn] = useState<'title' | 'status' | 'priority' | 'assign'>('title');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{title: string; message: string; onConfirm: () => void} | null>(null);
 
   // Add task modal state
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
@@ -132,17 +134,20 @@ export default function TasksPage() {
     }
   };
 
-  const handleDeleteTask = async (taskId: number) => {
-    if (!confirm('Are you sure you want to delete this task?')) {
-      return;
-    }
-    try {
-      await meetingsAPI.deleteEvent(taskId);
-      setTasks(tasks.filter(task => task.id !== taskId));
-      toast.success('Task deleted successfully');
-    } catch (error) {
-      toast.error('Failed to delete task');
-    }
+  const handleDeleteTask = (taskId: number) => {
+    setConfirmDialog({
+      title: 'Delete task',
+      message: 'Are you sure you want to delete this task?',
+      onConfirm: async () => {
+        try {
+          await meetingsAPI.deleteEvent(taskId);
+          setTasks(tasks.filter(task => task.id !== taskId));
+          toast.success('Task deleted successfully');
+        } catch (error) {
+          toast.error('Failed to delete task');
+        }
+      },
+    });
   };
 
   const handleCreateTask = async () => {
@@ -367,6 +372,15 @@ export default function TasksPage() {
           onClose={() => setShowAddTaskModal(false)}
           onSubmit={handleCreateTask}
         />
+        {confirmDialog && (
+          <ConfirmDialog
+            isOpen={!!confirmDialog}
+            title={confirmDialog.title}
+            message={confirmDialog.message}
+            onConfirm={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }}
+            onCancel={() => setConfirmDialog(null)}
+          />
+        )}
       </PageEntrance>
     </div>
     </Skeleton>

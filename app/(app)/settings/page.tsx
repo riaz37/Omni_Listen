@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/Toast';
 import { calendarAPI, authAPI, webhooksAPI, apiKeysAPI } from '@/lib/api';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import { Loader2 } from 'lucide-react';
 import { Skeleton } from 'boneyard-js/react';
 import PageEntrance from '@/components/ui/page-entrance';
@@ -66,6 +67,7 @@ export default function SettingsPage() {
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [newApiKeyName, setNewApiKeyName] = useState('');
   const [newKeySecret, setNewKeySecret] = useState<string | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{title: string; message: string; onConfirm: () => void; confirmLabel?: string; variant?: 'danger' | 'warning'} | null>(null);
 
   // Load webhooks on mount
   useEffect(() => {
@@ -99,14 +101,19 @@ export default function SettingsPage() {
     }
   };
 
-  const handleRevokeApiKey = async (id: number) => {
-    if (!confirm('Are you sure you want to revoke this API key? This cannot be undone.')) return;
-
-    try {
-      await apiKeysAPI.revoke(id);
-      await loadApiKeys();
-    } catch (error) {
-    }
+  const handleRevokeApiKey = (id: number) => {
+    setConfirmDialog({
+      title: 'Revoke API key',
+      message: 'Are you sure you want to revoke this API key? This cannot be undone.',
+      confirmLabel: 'Revoke',
+      onConfirm: async () => {
+        try {
+          await apiKeysAPI.revoke(id);
+          await loadApiKeys();
+        } catch (error) {
+        }
+      },
+    });
   };
 
   const closeApiKeyModal = () => {
@@ -158,16 +165,22 @@ export default function SettingsPage() {
     }
   };
 
-  const handleDisconnectCalendar = async () => {
-    if (!confirm('Are you sure you want to disconnect your calendar?')) return;
-
-    try {
-      await calendarAPI.disconnect();
-      await refreshUser();
-      toast.success('Calendar disconnected');
-    } catch (error) {
-      toast.error('Failed to disconnect calendar');
-    }
+  const handleDisconnectCalendar = () => {
+    setConfirmDialog({
+      title: 'Disconnect calendar',
+      message: 'Are you sure you want to disconnect your calendar?',
+      confirmLabel: 'Disconnect',
+      variant: 'warning',
+      onConfirm: async () => {
+        try {
+          await calendarAPI.disconnect();
+          await refreshUser();
+          toast.success('Calendar disconnected');
+        } catch (error) {
+          toast.error('Failed to disconnect calendar');
+        }
+      },
+    });
   };
 
   const handleUpdateName = async () => {
@@ -245,13 +258,19 @@ export default function SettingsPage() {
     }
   };
 
-  const handleDeleteWebhook = async (id: number) => {
-    if (!confirm('Delete this webhook?')) return;
-    try {
-      await webhooksAPI.delete(id);
-      setWebhooks(webhooks.filter(w => w.id !== id));
-    } catch (error) {
-    }
+  const handleDeleteWebhook = (id: number) => {
+    setConfirmDialog({
+      title: 'Delete webhook',
+      message: 'Are you sure you want to delete this webhook?',
+      confirmLabel: 'Delete',
+      onConfirm: async () => {
+        try {
+          await webhooksAPI.delete(id);
+          setWebhooks(webhooks.filter(w => w.id !== id));
+        } catch (error) {
+        }
+      },
+    });
   };
 
   const handleToggleWebhook = async (id: number, currentState: boolean) => {
@@ -358,6 +377,17 @@ export default function SettingsPage() {
           />
         </div>
       </PageEntrance>
+        {confirmDialog && (
+          <ConfirmDialog
+            isOpen={!!confirmDialog}
+            title={confirmDialog.title}
+            message={confirmDialog.message}
+            confirmLabel={confirmDialog.confirmLabel}
+            variant={confirmDialog.variant}
+            onConfirm={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }}
+            onCancel={() => setConfirmDialog(null)}
+          />
+        )}
       </div>
     </Skeleton>
   );

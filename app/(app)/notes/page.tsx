@@ -15,6 +15,7 @@ import {
   Trash2,
   CheckCircle,
 } from 'lucide-react';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import EditNoteModal from '@/components/EditNoteModal';
 import { NotesSkeleton } from './NotesSkeleton';
 import { Skeleton } from 'boneyard-js/react';
@@ -60,6 +61,7 @@ export default function NotesPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'date' | 'type'>('date');
+  const [confirmDialog, setConfirmDialog] = useState<{title: string; message: string; onConfirm: () => void} | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -176,18 +178,21 @@ export default function NotesPage() {
     }
   };
 
-  const handleDeleteNote = async (noteId: string) => {
-    if (!confirm('Are you sure you want to delete this note?')) {
-      return;
-    }
-    try {
-      const numericId = parseInt(noteId.replace('note-', ''));
-      await meetingsAPI.deleteNote(numericId);
-      setNotes(notes.filter(note => note.id !== noteId));
-      toast.success('Note deleted successfully');
-    } catch (error) {
-      toast.error('Failed to delete note');
-    }
+  const handleDeleteNote = (noteId: string) => {
+    setConfirmDialog({
+      title: 'Delete note',
+      message: 'Are you sure you want to delete this note?',
+      onConfirm: async () => {
+        try {
+          const numericId = parseInt(noteId.replace('note-', ''));
+          await meetingsAPI.deleteNote(numericId);
+          setNotes(notes.filter(note => note.id !== noteId));
+          toast.success('Note deleted successfully');
+        } catch (error) {
+          toast.error('Failed to delete note');
+        }
+      },
+    });
   };
 
   const handleSaveNote = async (noteId: number, updates: any) => {
@@ -240,24 +245,26 @@ export default function NotesPage() {
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete ${selectedNoteIds.length} selected note(s)?`)) {
-      return;
-    }
-
-    setIsDeleting(true);
-    try {
-      const result = await meetingsAPI.bulkDeleteNotes(selectedNoteIds);
-      setNotes(notes.filter(n => {
-        const numericId = parseInt(n.id.replace('note-', ''));
-        return !selectedNoteIds.includes(numericId);
-      }));
-      setSelectedNoteIds([]);
-      toast.success(`Deleted ${result.deleted_count} note(s)`);
-    } catch (error) {
-      toast.error('Failed to delete selected notes');
-    } finally {
-      setIsDeleting(false);
-    }
+    setConfirmDialog({
+      title: 'Delete selected notes',
+      message: `Are you sure you want to delete ${selectedNoteIds.length} selected note(s)?`,
+      onConfirm: async () => {
+        setIsDeleting(true);
+        try {
+          const result = await meetingsAPI.bulkDeleteNotes(selectedNoteIds);
+          setNotes(notes.filter(n => {
+            const numericId = parseInt(n.id.replace('note-', ''));
+            return !selectedNoteIds.includes(numericId);
+          }));
+          setSelectedNoteIds([]);
+          toast.success(`Deleted ${result.deleted_count} note(s)`);
+        } catch (error) {
+          toast.error('Failed to delete selected notes');
+        } finally {
+          setIsDeleting(false);
+        }
+      },
+    });
   };
 
   const filteredNotes = useMemo(() => {
@@ -432,6 +439,16 @@ export default function NotesPage() {
           note={selectedNote}
           onClose={() => setSelectedNote(null)}
           onViewDetails={(meetingId) => router.push(`/meeting?id=${meetingId}`)}
+        />
+      )}
+
+      {confirmDialog && (
+        <ConfirmDialog
+          isOpen={!!confirmDialog}
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          onConfirm={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }}
+          onCancel={() => setConfirmDialog(null)}
         />
       )}
 
