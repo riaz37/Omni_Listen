@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useRef, useEffect, ReactNode } from 'react';
 import { X, CheckCircle2, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 
 type ToastType = 'success' | 'error' | 'info' | 'warning';
@@ -10,6 +10,7 @@ interface Toast {
   type: ToastType;
   message: string;
   duration?: number;
+  isClosing?: boolean;
 }
 
 interface ToastContextType {
@@ -33,6 +34,15 @@ export function useToast() {
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
+  const closeToast = useCallback((id: string) => {
+    setToasts((prev) =>
+      prev.map((toast) => (toast.id === id ? { ...toast, isClosing: true } : toast))
+    );
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    }, 300);
+  }, []);
+
   const showToast = useCallback((type: ToastType, message: string, duration = 5000) => {
     const id = Math.random().toString(36).substring(7);
     const newToast: Toast = { id, type, message, duration };
@@ -41,10 +51,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
     if (duration > 0) {
       setTimeout(() => {
-        setToasts((prev) => prev.filter((toast) => toast.id !== id));
+        closeToast(id);
       }, duration);
     }
-  }, []);
+  }, [closeToast]);
 
   const success = useCallback((message: string, duration?: number) => {
     showToast('success', message, duration);
@@ -62,21 +72,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     showToast('warning', message, duration);
   }, [showToast]);
 
-  const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  };
-
   return (
     <ToastContext.Provider value={{ showToast, success, error, info, warning }}>
       {children}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      <ToastContainer toasts={toasts} onRemove={closeToast} />
     </ToastContext.Provider>
   );
 }
 
 function ToastContainer({ toasts, onRemove }: { toasts: Toast[]; onRemove: (id: string) => void }) {
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2 max-w-md">
+    <div role="alert" aria-live="assertive" className="fixed top-4 right-4 z-50 space-y-2 max-w-md">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onRemove={onRemove} />
       ))}
@@ -94,14 +100,18 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
 
   const styles = {
     success: 'bg-primary/90 text-white border-primary',
-    error: 'bg-red-500/90 text-white border-red-400',
+    error: 'bg-destructive/90 text-white border-destructive',
     info: 'bg-blue-500/90 text-white border-blue-400',
     warning: 'bg-yellow-500/90 text-white border-yellow-400',
   };
 
   return (
     <div
-      className={`${styles[toast.type]} backdrop-blur-xl border rounded-xl p-4 shadow-2xl flex items-start gap-3 animate-in slide-in-from-right-full fade-in duration-300`}
+      className={`${styles[toast.type]} backdrop-blur-xl border rounded-xl p-4 shadow-2xl flex items-start gap-3 transition-all duration-300 ${
+        toast.isClosing
+          ? 'translate-x-full opacity-0'
+          : 'animate-in slide-in-from-right-full fade-in'
+      }`}
     >
       <div className="flex-shrink-0 mt-0.5">{icons[toast.type]}</div>
       <p className="flex-1 text-sm font-medium">{toast.message}</p>

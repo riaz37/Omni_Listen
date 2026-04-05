@@ -51,8 +51,9 @@ export default function Pagination({
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="text-sm text-foreground">Items per page:</label>
+          <label htmlFor="items-per-page" className="text-sm text-foreground">Items per page:</label>
           <select
+            id="items-per-page"
             value={itemsPerPage}
             onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
             className="border border-border rounded-md text-sm py-1 px-2 bg-card text-foreground focus:ring-primary focus:border-primary"

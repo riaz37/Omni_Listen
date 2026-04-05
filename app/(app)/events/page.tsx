@@ -237,7 +237,7 @@ export default function EventsPage() {
               />
             </div>
 
-            {filteredEvents.length > 25 && (
+            {filteredEvents.length > 10 && (
               <div className="mt-6 bg-card rounded-lg shadow-sm border border-border">
                 <Pagination
                   currentPage={currentPage}
