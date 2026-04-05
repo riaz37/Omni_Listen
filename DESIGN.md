@@ -30,8 +30,8 @@
 
 ## Color
 - **Approach:** Restrained. Neon green is the ONLY accent. Everything else is neutral.
-- **Primary:** `#22c55e` / `hsl(150 85% 47%)` — the brand. Used for CTAs, active states, badges, links.
-- **Primary Hover:** `#16a34a` / `hsl(150 85% 38%)` — darkened for hover.
+- **Primary:** `#12DE78` / `hsl(150 85% 47%)` — the brand. Used for CTAs, active states, badges, links.
+- **Primary Hover:** `hsl(150 85% 38%)` — darkened for hover.
 - **Primary Foreground:** `#0a0a0a` — dark text on green buttons (both modes).
 - **Neutrals (light mode):**
   - Background: `#ffffff` / `hsl(0 0% 100%)`
