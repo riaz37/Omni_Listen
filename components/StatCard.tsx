@@ -1,6 +1,6 @@
 'use client';
 
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface StatCardProps {
   title: string;
@@ -32,7 +32,7 @@ export default function StatCard({ title, value, icon: Icon, description, trend,
             <p className="text-3xl font-semibold text-foreground">{value}</p>
             {trend && (
               <span className={`text-sm font-medium ${trend.isPositive ? 'text-primary' : 'text-red-600'}`}>
-                {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
+                {trend.isPositive ? <TrendingUp className="w-3 h-3 inline" /> : <TrendingDown className="w-3 h-3 inline" />} {Math.abs(trend.value)}%
               </span>
             )}
           </div>

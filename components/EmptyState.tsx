@@ -174,7 +174,7 @@ export default function EmptyState({
             className="relative px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors"
           >
             {/* Pulse ring */}
-            <span className="absolute inset-0 rounded-lg animate-ping bg-primary/20 pointer-events-none" style={{ animationDuration: '3s' }} />
+            <span className="absolute inset-0 rounded-lg animate-ping [animation-iteration-count:3] bg-primary/20 pointer-events-none" style={{ animationDuration: '3s' }} />
             {action.label}
           </button>
         </Child>
@@ -185,7 +185,7 @@ export default function EmptyState({
             href={ctaConfig.href}
             className="relative px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors"
           >
-            <span className="absolute inset-0 rounded-lg animate-ping bg-primary/20 pointer-events-none" style={{ animationDuration: '3s' }} />
+            <span className="absolute inset-0 rounded-lg animate-ping [animation-iteration-count:3] bg-primary/20 pointer-events-none" style={{ animationDuration: '3s' }} />
             {ctaConfig.label}
           </Link>
         </Child>
