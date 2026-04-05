@@ -138,7 +138,7 @@ export default function PricingTeaser() {
         >
           <Link
             href="/pricing"
-            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground font-medium transition-colors"
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground font-medium transition-colors py-3"
           >
             See full pricing details
             <ArrowRight className="w-4 h-4" />
