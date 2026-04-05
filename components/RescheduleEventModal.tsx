@@ -111,7 +111,7 @@ export default function RescheduleEventModal({ event, isOpen, onClose, onSave }:
 
   return (
     <AnimatedModal open={isOpen} onClose={onClose}>
-      <div className="bg-card-2 rounded-lg shadow-xl max-w-md w-full">
+      <div className="bg-card rounded-2xl shadow-xl max-w-md w-full">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div>

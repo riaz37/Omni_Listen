@@ -70,7 +70,7 @@ export default function EditEventModal({ event, isOpen, onClose, onSave }: EditE
 
   return (
     <AnimatedModal open={isOpen} onClose={onClose}>
-      <div className="bg-card-2 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-card rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <h2 className="text-2xl font-bold text-foreground">
