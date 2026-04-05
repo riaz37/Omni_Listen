@@ -11,9 +11,8 @@ import {
   StickyNote,
   Search,
   Plus,
-  X,
   Trash2,
-  CheckCircle,
+  ArrowUpDown,
 } from 'lucide-react';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import EditNoteModal from '@/components/EditNoteModal';
@@ -36,6 +35,8 @@ interface Note {
   completed?: boolean;
   urgency?: 'yes' | 'no';
 }
+
+const CATEGORIES = ['all', 'general', 'decision', 'budget'] as const;
 
 export default function NotesPage() {
   const router = useRouter();
@@ -61,7 +62,13 @@ export default function NotesPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'date' | 'type'>('date');
-  const [confirmDialog, setConfirmDialog] = useState<{title: string; message: string; onConfirm: () => void} | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  } | null>(null);
+
+  const hasSelection = selectedNoteIds.length > 0;
 
   useEffect(() => {
     if (user) {
@@ -75,7 +82,7 @@ export default function NotesPage() {
       const [meetingsData, notesResponse, eventsResponse] = await Promise.all([
         meetingsAPI.getAllMeetings(),
         meetingsAPI.getAllNotes(),
-        meetingsAPI.getAllEvents()
+        meetingsAPI.getAllEvents(),
       ]);
 
       setMeetings(meetingsData);
@@ -116,9 +123,10 @@ export default function NotesPage() {
             const meeting = meetingsData.find((m: any) => m.job_id === note.meeting_id);
             let meetingTitle = 'Manual Note';
             if (meeting) {
-              const finalSummary = typeof meeting.final_summary === 'string'
-                ? JSON.parse(meeting.final_summary)
-                : meeting.final_summary;
+              const finalSummary =
+                typeof meeting.final_summary === 'string'
+                  ? JSON.parse(meeting.final_summary)
+                  : meeting.final_summary;
               meetingTitle = finalSummary.title || 'Meeting';
             }
 
@@ -134,8 +142,7 @@ export default function NotesPage() {
               completed: note.completed || hasCompletedRelatedTask,
               urgency: note.urgency,
             });
-          } catch (err) {
-          }
+          } catch (err) {}
         });
       }
 
@@ -186,7 +193,7 @@ export default function NotesPage() {
         try {
           const numericId = parseInt(noteId.replace('note-', ''));
           await meetingsAPI.deleteNote(numericId);
-          setNotes(notes.filter(note => note.id !== noteId));
+          setNotes(notes.filter((note) => note.id !== noteId));
           toast.success('Note deleted successfully');
         } catch (error) {
           toast.error('Failed to delete note');
@@ -199,7 +206,7 @@ export default function NotesPage() {
     try {
       await meetingsAPI.updateNote(noteId, updates);
 
-      const updatedNotes = notes.map(n => {
+      const updatedNotes = notes.map((n) => {
         const numericId = parseInt(n.id.replace('note-', ''));
         if (numericId === noteId) {
           return {
@@ -223,15 +230,13 @@ export default function NotesPage() {
 
   const handleToggleSelectNote = (noteId: string) => {
     const numericId = parseInt(noteId.replace('note-', ''));
-    setSelectedNoteIds(prev =>
-      prev.includes(numericId)
-        ? prev.filter(id => id !== numericId)
-        : [...prev, numericId]
+    setSelectedNoteIds((prev) =>
+      prev.includes(numericId) ? prev.filter((id) => id !== numericId) : [...prev, numericId]
     );
   };
 
   const handleSelectAll = () => {
-    const allNoteIds = filteredNotes.map(n => parseInt(n.id.replace('note-', '')));
+    const allNoteIds = filteredNotes.map((n) => parseInt(n.id.replace('note-', '')));
     setSelectedNoteIds(allNoteIds);
   };
 
@@ -252,10 +257,12 @@ export default function NotesPage() {
         setIsDeleting(true);
         try {
           const result = await meetingsAPI.bulkDeleteNotes(selectedNoteIds);
-          setNotes(notes.filter(n => {
-            const numericId = parseInt(n.id.replace('note-', ''));
-            return !selectedNoteIds.includes(numericId);
-          }));
+          setNotes(
+            notes.filter((n) => {
+              const numericId = parseInt(n.id.replace('note-', ''));
+              return !selectedNoteIds.includes(numericId);
+            })
+          );
           setSelectedNoteIds([]);
           toast.success(`Deleted ${result.deleted_count} note(s)`);
         } catch (error) {
@@ -269,13 +276,17 @@ export default function NotesPage() {
 
   const filteredNotes = useMemo(() => {
     return notes
-      .filter(note => selectedCategory === 'all' || note.category === selectedCategory)
-      .filter(note =>
-        searchTerm === '' ||
-        note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        note.description.toLowerCase().includes(searchTerm.toLowerCase())
+      .filter((note) => selectedCategory === 'all' || note.category === selectedCategory)
+      .filter(
+        (note) =>
+          searchTerm === '' ||
+          note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          note.description.toLowerCase().includes(searchTerm.toLowerCase())
       )
       .sort((a, b) => {
+        if (sortBy === 'type') {
+          return a.category.localeCompare(b.category);
+        }
         if (a.date && b.date) {
           return b.date.getTime() - a.date.getTime();
         }
@@ -283,7 +294,7 @@ export default function NotesPage() {
         if (b.date) return 1;
         return 0;
       });
-  }, [notes, selectedCategory, searchTerm]);
+  }, [notes, selectedCategory, searchTerm, sortBy]);
 
   const getCategoryBadgeColor = (category: string) => {
     const colors: Record<string, string> = {
@@ -295,180 +306,254 @@ export default function NotesPage() {
     return colors[category] || colors.general;
   };
 
+  const getCategoryCount = (cat: string) => {
+    if (cat === 'all') return notes.length;
+    return notes.filter((n) => n.category === cat).length;
+  };
+
+  const allOnPageSelected =
+    filteredNotes.length > 0 &&
+    filteredNotes.every((n) => selectedNoteIds.includes(parseInt(n.id.replace('note-', ''))));
+
   return (
     <Skeleton name="notes-grid" loading={loading} fallback={<NotesSkeleton />}>
       <div className="min-h-screen bg-background">
-
-      <PageEntrance name="notes" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-1">
+        <PageEntrance name="notes" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* ── Header ── */}
+          <div className="flex items-start justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Note List</h1>
-              <p className="text-muted-foreground text-sm">All notes captured from your meetings</p>
+              <h1 className="text-2xl font-bold text-foreground tracking-tight">Notes</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                {notes.length} note{notes.length !== 1 ? 's' : ''} captured from your meetings
+              </p>
             </div>
-            <PrimaryButton
-              onClick={() => setShowAddNoteModal(true)}
-              icon={Plus}
-            >
+            <PrimaryButton onClick={() => setShowAddNoteModal(true)} icon={Plus}>
               Add Note
             </PrimaryButton>
           </div>
-        </div>
 
-        {/* Tabs */}
-        <div className="flex border-b border-border mb-6">
-          {['all', 'general', 'decision', 'budget'].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setSelectedCategory(tab)}
-              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors capitalize ${selectedCategory === tab
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
-            >
-              {tab === 'all' ? 'All' : tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
-        </div>
+          {/* ── Category tabs ── */}
+          <div className="flex items-center gap-1 mb-6 border-b border-border">
+            {CATEGORIES.map((tab) => {
+              const count = getCategoryCount(tab);
+              const isActive = selectedCategory === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setSelectedCategory(tab)}
+                  className={`relative px-4 py-2.5 text-sm font-medium transition-colors capitalize ${
+                    isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    {tab === 'all' ? 'All' : tab}
+                    <span
+                      className={`text-xs tabular-nums px-1.5 py-0.5 rounded-full ${
+                        isActive
+                          ? 'bg-primary/10 text-primary'
+                          : 'bg-muted text-muted-foreground'
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </span>
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
 
-        {/* Search & Actions */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-          <div className="relative w-full sm:w-auto sm:min-w-[240px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Filter tasks..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground text-sm"
-            />
-          </div>
-          <div className="flex items-center gap-2 flex-wrap ml-auto">
-            <button
-              onClick={handleSelectAll}
-              className="flex items-center gap-1.5 px-3 py-2 bg-card text-foreground border border-border rounded-lg hover:bg-muted transition-colors text-sm"
-            >
-              <CheckCircle className="w-4 h-4" />
-              Select All
-            </button>
-            <button
-              onClick={handleDeselectAll}
-              className="flex items-center gap-1.5 px-3 py-2 bg-card text-foreground border border-border rounded-lg hover:bg-muted transition-colors text-sm"
-            >
-              <X className="w-4 h-4" />
-              Clear
-            </button>
-            <button
-              onClick={selectedNoteIds.length > 0 ? handleBulkDelete : undefined}
-              disabled={isDeleting || selectedNoteIds.length === 0}
-              className="flex items-center gap-1.5 px-3 py-2 bg-card text-destructive border border-border rounded-lg hover:bg-destructive/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
-            >
-              <Trash2 className="w-4 h-4" />
-              Delete
-            </button>
-            <span className="text-sm text-muted-foreground">Sort By</span>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'date' | 'type')}
-              className="px-3 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-            >
-              <option value="date">Events</option>
-              <option value="type">Type</option>
-            </select>
-          </div>
-        </div>
+          {/* ── Toolbar ── */}
+          <div className="flex items-center justify-between gap-3 mb-6 py-2.5 px-4 bg-surface/50 rounded-lg border border-border/60">
+            {/* Left: search + select */}
+            <div className="flex items-center gap-3 flex-1">
+              <div className="relative w-full max-w-[220px]">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search notes..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-8 pr-3 py-1.5 bg-background text-foreground border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground text-xs"
+                />
+              </div>
 
-        {/* Notes Grid */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-card rounded-lg border border-border p-4 h-40 animate-pulse"></div>
-            ))}
+              <div className="w-px h-5 bg-border/60" />
+
+              <label className="flex items-center gap-2 cursor-pointer select-none group">
+                <input
+                  type="checkbox"
+                  checked={allOnPageSelected}
+                  onChange={allOnPageSelected ? handleDeselectAll : handleSelectAll}
+                  className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
+                />
+                <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                  All
+                </span>
+              </label>
+
+              <div className="w-px h-5 bg-border/60" />
+
+              {/* Selection-aware actions — grid-stack crossfade */}
+              <div className="grid [grid-template-areas:'stack'] h-8 items-center">
+                <div
+                  className="flex items-center gap-2 [grid-area:stack] transition-opacity duration-200"
+                  style={{
+                    opacity: hasSelection ? 0 : 1,
+                    pointerEvents: hasSelection ? 'none' : 'auto',
+                  }}
+                >
+                  <span className="text-xs text-muted-foreground">
+                    {filteredNotes.length} note{filteredNotes.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                <div
+                  className="flex items-center gap-2 [grid-area:stack] transition-opacity duration-200"
+                  style={{
+                    opacity: hasSelection ? 1 : 0,
+                    pointerEvents: hasSelection ? 'auto' : 'none',
+                  }}
+                >
+                  <span className="text-xs font-medium text-primary tabular-nums">
+                    {selectedNoteIds.length} selected
+                  </span>
+                  <button
+                    onClick={handleBulkDelete}
+                    disabled={isDeleting}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-destructive-foreground bg-destructive hover:bg-destructive/90 rounded-md transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: sort */}
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'date' | 'type')}
+                className="text-xs font-medium bg-transparent text-muted-foreground hover:text-foreground border-none focus:ring-0 cursor-pointer pr-6 py-1"
+              >
+                <option value="date">Date</option>
+                <option value="type">Type</option>
+              </select>
+            </div>
           </div>
-        ) : filteredNotes.length === 0 ? (
-          <div className="bg-card rounded-lg shadow-sm">
-            <EmptyState
-              icon={StickyNote}
-              title="No notes found"
-              description={
-                searchTerm || selectedCategory !== 'all'
-                  ? 'Try adjusting your search or filter criteria'
-                  : 'Upload and analyze meetings to see notes here'
-              }
-              action={
-                !(searchTerm || selectedCategory !== 'all')
-                  ? {
-                    label: 'Go to Dashboard',
-                    onClick: () => router.push('/dashboard'),
-                  }
-                  : undefined
-              }
-            />
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredNotes.map((note) => (
-              <NoteCard
-                key={note.id}
-                note={note}
-                isSelected={selectedNoteIds.includes(parseInt(note.id.replace('note-', '')))}
-                onToggleSelect={handleToggleSelectNote}
-                onView={setSelectedNote}
-                onDelete={handleDeleteNote}
-                openMenuId={openMenuId}
-                onToggleMenu={(id) => setOpenMenuId(openMenuId === id ? null : id)}
-                getCategoryBadgeColor={getCategoryBadgeColor}
+
+          {/* ── Notes Grid ── */}
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="bg-card rounded-lg border border-border p-4 space-y-3 animate-pulse">
+                  <div className="flex items-start gap-2">
+                    <div className="w-4 h-4 bg-muted rounded flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <div className="h-4 bg-muted rounded w-3/4 mb-1" />
+                      <div className="h-3.5 bg-muted rounded w-1/2" />
+                    </div>
+                    <div className="h-5 w-16 bg-muted rounded-full flex-shrink-0" />
+                  </div>
+                  <div className="ml-6">
+                    <div className="h-3.5 bg-muted rounded w-full mb-1.5" />
+                    <div className="h-3.5 bg-muted rounded w-4/5" />
+                  </div>
+                  <div className="flex items-center gap-3 ml-6 pt-1">
+                    <div className="h-3 bg-muted rounded w-24" />
+                    <div className="h-3 bg-muted rounded w-16" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredNotes.length === 0 ? (
+            <div className="bg-card rounded-lg shadow-sm">
+              <EmptyState
+                icon={StickyNote}
+                title="No notes found"
+                description={
+                  searchTerm || selectedCategory !== 'all'
+                    ? 'Try adjusting your search or filter criteria'
+                    : 'Upload and analyze meetings to see notes here'
+                }
+                action={
+                  !(searchTerm || selectedCategory !== 'all')
+                    ? {
+                        label: 'Go to Dashboard',
+                        onClick: () => router.push('/dashboard'),
+                      }
+                    : undefined
+                }
               />
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredNotes.map((note) => (
+                <NoteCard
+                  key={note.id}
+                  note={note}
+                  isSelected={selectedNoteIds.includes(parseInt(note.id.replace('note-', '')))}
+                  onToggleSelect={handleToggleSelectNote}
+                  onView={setSelectedNote}
+                  onDelete={handleDeleteNote}
+                  openMenuId={openMenuId}
+                  onToggleMenu={(id) => setOpenMenuId(openMenuId === id ? null : id)}
+                  getCategoryBadgeColor={getCategoryBadgeColor}
+                />
+              ))}
+            </div>
+          )}
+        </PageEntrance>
+
+        <AddNoteModal
+          show={showAddNoteModal}
+          onClose={() => setShowAddNoteModal(false)}
+          newNoteData={newNoteData}
+          setNewNoteData={setNewNoteData}
+          meetings={meetings}
+          onSubmit={handleAddNote}
+        />
+
+        {selectedNote && (
+          <NoteQuickViewModal
+            note={selectedNote}
+            onClose={() => setSelectedNote(null)}
+            onViewDetails={(meetingId) => router.push(`/meeting?id=${meetingId}`)}
+          />
         )}
-      </PageEntrance>
 
-      <AddNoteModal
-        show={showAddNoteModal}
-        onClose={() => setShowAddNoteModal(false)}
-        newNoteData={newNoteData}
-        setNewNoteData={setNewNoteData}
-        meetings={meetings}
-        onSubmit={handleAddNote}
-      />
+        {confirmDialog && (
+          <ConfirmDialog
+            isOpen={!!confirmDialog}
+            title={confirmDialog.title}
+            message={confirmDialog.message}
+            onConfirm={() => {
+              confirmDialog.onConfirm();
+              setConfirmDialog(null);
+            }}
+            onCancel={() => setConfirmDialog(null)}
+          />
+        )}
 
-      {selectedNote && (
-        <NoteQuickViewModal
-          note={selectedNote}
-          onClose={() => setSelectedNote(null)}
-          onViewDetails={(meetingId) => router.push(`/meeting?id=${meetingId}`)}
-        />
-      )}
-
-      {confirmDialog && (
-        <ConfirmDialog
-          isOpen={!!confirmDialog}
-          title={confirmDialog.title}
-          message={confirmDialog.message}
-          onConfirm={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }}
-          onCancel={() => setConfirmDialog(null)}
-        />
-      )}
-
-      {/* Edit Note Modal */}
-      {editingNote && (
-        <EditNoteModal
-          note={{
-            id: parseInt(editingNote.id.replace('note-', '')),
-            title: editingNote.title,
-            description: editingNote.description,
-            category: editingNote.category,
-          }}
-          isOpen={showEditModal}
-          onClose={() => {
-            setShowEditModal(false);
-            setEditingNote(null);
-          }}
-          onSave={handleSaveNote}
-        />
-      )}
+        {editingNote && (
+          <EditNoteModal
+            note={{
+              id: parseInt(editingNote.id.replace('note-', '')),
+              title: editingNote.title,
+              description: editingNote.description,
+              category: editingNote.category,
+            }}
+            isOpen={showEditModal}
+            onClose={() => {
+              setShowEditModal(false);
+              setEditingNote(null);
+            }}
+            onSave={handleSaveNote}
+          />
+        )}
       </div>
     </Skeleton>
   );
