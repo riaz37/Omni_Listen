@@ -263,7 +263,7 @@ export default function TasksPage() {
           <div className="flex items-center justify-between mb-1">
             <div>
               <h1 className="text-2xl font-bold text-foreground">Task List</h1>
-              <p className="text-muted-foreground text-sm">All events from your meetings, sorted by date</p>
+              <p className="text-muted-foreground text-sm">All tasks extracted from your meetings</p>
             </div>
             <PrimaryButton
               onClick={() => setShowAddTaskModal(true)}

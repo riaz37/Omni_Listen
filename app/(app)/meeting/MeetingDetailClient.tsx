@@ -180,7 +180,7 @@ export default function MeetingDetailClient() {
                                     loading={syncing}
                                     icon={Calendar}
                                 >
-                                    Sync to Calender
+                                    Sync to Calendar
                                 </PrimaryButton>
                             )}
                         </div>

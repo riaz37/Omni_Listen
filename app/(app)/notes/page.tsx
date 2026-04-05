@@ -282,7 +282,7 @@ export default function NotesPage() {
     const colors: Record<string, string> = {
       general: 'bg-primary/10 text-primary',
       budget: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300',
-      decision: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
+      decision: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400',
       action: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
     };
     return colors[category] || colors.general;
@@ -298,7 +298,7 @@ export default function NotesPage() {
           <div className="flex items-center justify-between mb-1">
             <div>
               <h1 className="text-2xl font-bold text-foreground">Note List</h1>
-              <p className="text-muted-foreground text-sm">All events from your meetings, sorted by date</p>
+              <p className="text-muted-foreground text-sm">All notes captured from your meetings</p>
             </div>
             <PrimaryButton
               onClick={() => setShowAddNoteModal(true)}
@@ -360,7 +360,7 @@ export default function NotesPage() {
               <Trash2 className="w-4 h-4" />
               Delete
             </button>
-            <span className="text-sm text-muted-foreground">Short By</span>
+            <span className="text-sm text-muted-foreground">Sort By</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'date' | 'type')}

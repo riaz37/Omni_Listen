@@ -267,7 +267,7 @@ export default function EventsPage() {
         {/* Header */}
         <div className="mb-8 flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Event Calendar</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-2">Event Calendar</h1>
             <p className="text-muted-foreground">View and manage all your meeting events and deadlines</p>
           </div>
           <PrimaryButton
@@ -298,7 +298,7 @@ export default function EventsPage() {
             >
               Event List
             </button>
-            <span className="text-sm text-muted-foreground">Short By</span>
+            <span className="text-sm text-muted-foreground">Sort By</span>
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value as any)}
