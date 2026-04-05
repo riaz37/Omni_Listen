@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import {
   Upload,
   Mic,
@@ -9,12 +10,12 @@ import {
   Play,
   Pause,
   X,
-  Check,
   ChevronDown,
   ChevronUp,
   Landmark,
   ListChecks,
   Settings,
+  AlertTriangle,
 } from 'lucide-react';
 import DashboardProcessing from './DashboardProcessing';
 
@@ -36,6 +37,8 @@ interface DashboardRecorderProps {
   file: File | null;
   config: RecorderConfig;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onFileDrop: (file: File) => void;
+  onClearFile: () => void;
   onStartRecording: () => void;
   onStopRecording: () => void;
   onCancelRecording: () => void;
@@ -62,6 +65,8 @@ export default function DashboardRecorder({
   file,
   config,
   onFileChange,
+  onFileDrop,
+  onClearFile,
   onStartRecording,
   onStopRecording,
   onCancelRecording,
@@ -76,6 +81,29 @@ export default function DashboardRecorder({
   activeRole,
 }: DashboardRecorderProps) {
   const [showAnalysisBox, setShowAnalysisBox] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const droppedFile = e.dataTransfer.files[0];
+    if (droppedFile && droppedFile.type.startsWith('audio/')) {
+      onFileDrop(droppedFile);
+    }
+  }, [onFileDrop]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -107,26 +135,21 @@ export default function DashboardRecorder({
       }
     };
 
-    const getChipClass = (query: string, activeClass: string, inactiveClass: string) => {
-      const currentInput = mode === 'upload' ? config.user_input.trim() : config.user_input;
-      return currentInput === query ? activeClass : inactiveClass;
-    };
-
     const isChipActive = (query: string) => {
       return mode === 'upload' ? config.user_input.trim() === query : config.user_input === query;
     };
 
     return (
-      <div className="bg-muted p-4 rounded-lg text-left">
+      <div className="rounded-lg text-left border border-border">
         <button
           onClick={() => setShowAnalysisBox(!showAnalysisBox)}
-          className="w-full flex items-center justify-between p-4 bg-muted hover:bg-muted/80 transition-colors text-left"
+          className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left rounded-lg"
         >
           <div className="flex items-center gap-2">
             <span className="font-semibold text-foreground">
               {config.custom_field_only
-                ? '🎯 Custom Analysis (Required)'
-                : '✨ Additional Analysis (Optional)'}
+                ? 'Custom Analysis (Required)'
+                : 'Additional Analysis (Optional)'}
             </span>
             {config.user_input && (
               <span className="text-xs bg-primary/10 text-text-primary px-2 py-0.5 rounded-full font-medium">
@@ -141,7 +164,7 @@ export default function DashboardRecorder({
 
         {showAnalysisBox && (
           <div className={`p-4 border-t ${config.custom_field_only
-            ? 'bg-gradient-to-br from-emerald-50 to-green-50'
+            ? 'bg-primary/5'
             : 'bg-card'
             }`}>
             <div>
@@ -153,8 +176,8 @@ export default function DashboardRecorder({
 
               {/* Quick Access Cards */}
               <div className="mb-3">
-                <p className="text-xs font-medium text-muted-foreground mb-2">Quick Acess</p>
-                <div className="grid grid-cols-3 gap-3">
+                <p className="text-xs font-medium text-muted-foreground mb-2">Quick Access</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <button
                     type="button"
                     onClick={() => handleChipClick("What were the main budget concerns discussed?")}
@@ -213,7 +236,7 @@ export default function DashboardRecorder({
                 }}
                 placeholder={
                   config.custom_field_only
-                    ? "🎯 Additional analysis active!\n\nDescribe what you want to extract from the meeting:\n• Focus on specific topics\n• Ask targeted questions\n• Request particular formats"
+                    ? "Custom analysis active.\n\nDescribe what you want to extract from the meeting:\n• Focus on specific topics\n• Ask targeted questions\n• Request particular formats"
                     : mode === 'upload'
                       ? "describe what you want to extract...\n\nExamples:\n• List the risks indentified.\n• Who is assigned to each task?\n• What follow-up meetings were scheduled?"
                       : "Describe what you want to extract...\n\nExamples:\n• What risks were identified?\n• Who is assigned to each task?\n• What follow-up meetings were scheduled?"
@@ -230,11 +253,11 @@ export default function DashboardRecorder({
                   }`}>
                   {config.user_input.length}/1000 characters
                   {config.user_input.length > 900 && (
-                    <span className="ml-2">⚠️ Approaching limit</span>
+                    <span className="ml-2 inline-flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Approaching limit</span>
                   )}
                 </p>
                 {config.custom_field_only && config.user_input.length === 0 && (
-                  <span className="text-sm text-amber-600 font-medium">⚠️ Analysis request required in this mode</span>
+                  <span className="text-sm text-amber-600 font-medium inline-flex items-center gap-1"><AlertTriangle className="w-3.5 h-3.5" /> Analysis request required in this mode</span>
                 )}
               </div>
             </div>
@@ -262,14 +285,20 @@ export default function DashboardRecorder({
   return (
     <div className="lg:col-span-2">
       <div>
-        <div className="bg-card rounded-2xl shadow-sm border border-border p-1">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-1">
           {/* Segmented Control Tabs */}
-          <div className="grid grid-cols-2 p-1 bg-muted/50 rounded-xl mb-8 border border-border">
+          <div className="relative grid grid-cols-2 p-1 bg-muted/50 rounded-lg mb-6 border border-border">
+            {/* Sliding indicator */}
+            <motion.div
+              className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-card shadow-sm ring-1 ring-black/5 rounded-md"
+              animate={{ x: inputMode === 'record' ? 4 : 'calc(100% + 4px)' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 24, mass: 0.8 }}
+            />
             <button
               onClick={() => setInputMode('record')}
-              className={`flex items-center justify-center gap-2 py-3 text-sm font-semibold rounded-lg transition-all duration-200 ${inputMode === 'record'
-                ? 'bg-card text-primary shadow-sm ring-1 ring-black/5'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              className={`relative z-10 flex items-center justify-center gap-2 py-3 text-sm font-semibold rounded-md transition-colors duration-200 ${inputMode === 'record'
+                ? 'text-primary'
+                : 'text-muted-foreground hover:text-foreground'
                 }`}
             >
               <AudioLines className="w-4 h-4" />
@@ -277,23 +306,32 @@ export default function DashboardRecorder({
             </button>
             <button
               onClick={() => setInputMode('upload')}
-              className={`flex items-center justify-center gap-2 py-3 text-sm font-semibold rounded-lg transition-all duration-200 ${inputMode === 'upload'
-                ? 'bg-card text-primary shadow-sm ring-1 ring-black/5'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              className={`relative z-10 flex items-center justify-center gap-2 py-3 text-sm font-semibold rounded-md transition-colors duration-200 ${inputMode === 'upload'
+                ? 'text-primary'
+                : 'text-muted-foreground hover:text-foreground'
                 }`}
             >
-              <AudioLines className="w-4 h-4" />
+              <Upload className="w-4 h-4" />
               File Upload
             </button>
           </div>
 
           <div className="px-6 pb-8">
             {!isProcessing ? (
-              <div className="space-y-8">
+              <div className="space-y-6">
                 {inputMode === 'upload' && (
                   <>
-                    <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors">
-                      <Upload className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                    <div
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      className={`border border-dashed rounded-lg p-8 text-center transition-all duration-200 ${
+                        isDragging
+                          ? 'border-primary bg-primary/[0.03] scale-[1.01]'
+                          : 'border-border/60 hover:border-primary/40 hover:bg-primary/[0.02]'
+                      }`}
+                    >
+                      <Upload className={`w-8 h-8 mx-auto mb-4 transition-colors ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
                       <input
                         type="file"
                         accept="audio/*"
@@ -303,7 +341,7 @@ export default function DashboardRecorder({
                       />
                       <label
                         htmlFor="file-upload"
-                        className="cursor-pointer text-primary hover:text-text-primary font-medium"
+                        className="cursor-pointer text-primary hover:text-primary/80 font-medium"
                       >
                         Choose a file
                       </label>
@@ -312,12 +350,20 @@ export default function DashboardRecorder({
                         MP3, WAV, M4A, WebM up to 500MB
                       </p>
                       {file && (
-                        <div className="mt-4 p-3 bg-primary/5 border border-primary/20 rounded-lg">
-                          <p className="text-sm font-medium text-text-primary">Selected file:</p>
-                          <p className="text-sm text-text-primary truncate">{file.name}</p>
-                          <p className="text-xs text-primary mt-1">
-                            {(file.size / (1024 * 1024)).toFixed(2)} MB
-                          </p>
+                        <div className="mt-4 p-3 bg-primary/5 border border-primary/20 rounded-lg flex items-center justify-between">
+                          <div className="text-left min-w-0">
+                            <p className="text-sm font-medium text-foreground truncate">{file.name}</p>
+                            <p className="text-xs text-primary mt-0.5">
+                              {(file.size / (1024 * 1024)).toFixed(2)} MB
+                            </p>
+                          </div>
+                          <button
+                            onClick={onClearFile}
+                            className="ml-3 p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex-shrink-0"
+                            title="Remove file"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
                         </div>
                       )}
                     </div>
@@ -329,16 +375,16 @@ export default function DashboardRecorder({
                     <button
                       onClick={inputMode === 'upload' ? onUpload : onUploadRecording}
                       disabled={inputMode === 'upload' ? !file : !audioUrl}
-                      className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-md hover:bg-primary-hover disabled:bg-muted disabled:cursor-not-allowed font-medium transition-colors"
+                      className="w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 disabled:bg-primary/20 disabled:text-primary/40 disabled:cursor-not-allowed bg-primary text-primary-foreground hover:bg-primary-hover hover:shadow-md"
                     >
-                      Process Audio
+                      {(inputMode === 'upload' && !file) ? 'Select a file to process' : 'Process Audio'}
                     </button>
                   </>
                 )}
 
                 {/* Record Mode */}
                 {inputMode === 'record' && (
-                  <div className="flex flex-col items-center justify-center py-6 space-y-5">
+                  <div className="flex flex-col items-center justify-center py-4 space-y-5">
                     {/* Timer */}
                     <div className="relative">
                       <div className="text-5xl sm:text-6xl font-light text-foreground tracking-tight font-mono">
@@ -356,18 +402,28 @@ export default function DashboardRecorder({
 
                     {/* Visualizer Placeholder */}
                     <div className="h-24 flex items-end gap-1.5 justify-center w-full max-w-lg px-4">
-                      {[...Array(24)].map((_, i) => (
-                        <div
-                          key={i}
-                          className={`w-2.5 rounded-full transition-all duration-150 ${isRecording ? 'bg-gradient-to-t from-primary to-primary' : 'bg-muted-foreground/20'
-                            }`}
-                          style={{
-                            height: isRecording ? `${Math.max(15, Math.random() * 100)}%` : '15%',
-                            opacity: isRecording ? 1 : 0.5,
-                            animation: isRecording && !isPaused ? `pulse 1s infinite ${i * 0.05}s` : 'none'
-                          }}
-                        />
-                      ))}
+                      {[...Array(24)].map((_, i) => {
+                        const baseHeight = Math.sin((i / 24) * Math.PI * 3) * 35 + 50;
+                        return (
+                          <motion.div
+                            key={i}
+                            className={`w-2.5 rounded-full ${isRecording ? 'bg-primary' : 'bg-muted-foreground/20'}`}
+                            animate={isRecording && !isPaused ? {
+                              height: [`${baseHeight * 0.4}%`, `${baseHeight}%`, `${baseHeight * 0.6}%`],
+                              opacity: 1,
+                            } : {
+                              height: '15%',
+                              opacity: 0.5,
+                            }}
+                            transition={isRecording && !isPaused ? {
+                              height: { duration: 0.8 + (i % 3) * 0.2, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut', delay: i * 0.04 },
+                              opacity: { duration: 0.3 },
+                            } : {
+                              duration: 0.3,
+                            }}
+                          />
+                        );
+                      })}
                     </div>
 
                     {/* Controls */}

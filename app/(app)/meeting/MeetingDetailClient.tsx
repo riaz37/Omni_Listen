@@ -140,7 +140,29 @@ export default function MeetingDetailClient() {
     }
 
     return (
-        <Skeleton name="meeting-detail" loading={loading || loadingMeeting} fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+        <Skeleton name="meeting-detail" loading={loading || loadingMeeting} fallback={
+            <div className="min-h-screen bg-background">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div className="h-5 w-16 bg-muted rounded animate-pulse mb-4" />
+                    <div className="mb-8">
+                        <div className="h-8 w-64 bg-muted rounded-lg animate-pulse" />
+                        <div className="h-4 w-40 bg-muted/60 rounded animate-pulse mt-2" />
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="lg:col-span-2 space-y-6">
+                            <div className="bg-card rounded-xl border border-border p-6 h-48 animate-pulse" />
+                            <div className="bg-card rounded-xl border border-border p-6 h-64 animate-pulse" />
+                        </div>
+                        <div className="bg-card rounded-xl border border-border p-6 h-80 animate-pulse" />
+                    </div>
+                </div>
+            </div>
+        }>
+            {!meeting ? (
+                <div className="min-h-screen bg-background flex items-center justify-center">
+                    <p className="text-muted-foreground">Meeting not found.</p>
+                </div>
+            ) : (
             <div className="min-h-screen bg-background">
             <PageEntrance name="meeting" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Back Button */}
@@ -235,6 +257,7 @@ export default function MeetingDetailClient() {
             </PageEntrance>
             {jobId && <FloatingChat jobId={jobId} />}
             </div>
+            )}
         </Skeleton>
     );
 }

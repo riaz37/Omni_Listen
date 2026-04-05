@@ -90,7 +90,7 @@ export default function AnimatedModal({
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div
-          className="fixed inset-0 bg-foreground/50"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm"
           onClick={onClose}
           aria-hidden="true"
         />
@@ -111,7 +111,7 @@ export default function AnimatedModal({
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-foreground/50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
             variants={backdropVariants}
             initial="hidden"
             animate="visible"

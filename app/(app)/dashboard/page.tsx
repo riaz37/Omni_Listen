@@ -292,6 +292,14 @@ export default function DashboardPage() {
     }
   };
 
+  const handleFileDrop = (droppedFile: File) => {
+    setFile(droppedFile);
+  };
+
+  const handleClearFile = () => {
+    setFile(null);
+  };
+
   const handleStartRecording = async () => {
     try {
       await startRecording();
@@ -387,7 +395,33 @@ export default function DashboardPage() {
   }, [autoProcess, audioBlob, isRecording]);
 
   return (
-    <Skeleton name="dashboard-recorder" loading={loading} fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+    <Skeleton name="dashboard-recorder" loading={loading} fallback={
+      <div className="min-h-screen bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="mb-10">
+            <div className="h-9 w-48 bg-muted rounded-lg animate-pulse" />
+            <div className="h-5 w-80 bg-muted/60 rounded-md animate-pulse mt-3" />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <div className="bg-card rounded-xl border border-border p-1">
+                <div className="h-12 bg-muted/50 rounded-lg mx-1 mt-1 animate-pulse" />
+                <div className="px-6 pb-8 pt-6 space-y-6">
+                  <div className="h-48 bg-muted/30 rounded-lg animate-pulse" />
+                  <div className="h-14 bg-muted/40 rounded-lg animate-pulse" />
+                  <div className="h-12 bg-muted/50 rounded-lg animate-pulse" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-card rounded-xl border border-border p-6 space-y-4">
+              <div className="h-10 bg-muted/50 rounded-lg animate-pulse" />
+              <div className="h-24 bg-muted/30 rounded-lg animate-pulse" />
+              <div className="h-24 bg-muted/30 rounded-lg animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
     <div className="min-h-screen bg-background relative overflow-hidden">
 
 
@@ -434,6 +468,8 @@ export default function DashboardPage() {
             file={file}
             config={config}
             onFileChange={handleFileChange}
+            onFileDrop={handleFileDrop}
+            onClearFile={handleClearFile}
             onStartRecording={handleStartRecording}
             onStopRecording={stopRecording}
             onCancelRecording={cancelRecording}

@@ -202,100 +202,100 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
     return (
       <div
         key={preset.id}
-        className={`group relative rounded-xl border transition-all duration-200 p-5 hover:-translate-y-1 ${isActive
-          ? 'bg-primary/5 border-primary ring-2 ring-primary ring-offset-2 shadow-lg'
-          : preset.is_system
-            ? 'bg-card border-border hover:border-primary/20 hover:shadow-lg'
-            : 'bg-card border-primary/10 hover:border-primary/30 hover:shadow-lg'
-          }`}
+        className={`group relative rounded-lg border transition-colors duration-200 p-5 ${
+          isActive
+            ? 'bg-primary/5 border-primary'
+            : 'bg-card border-border hover:border-muted-foreground/25'
+        }`}
       >
-        {preset.is_default && (
-          <div className="absolute top-3 right-3">
-            <Star className="w-5 h-5 text-amber-400 fill-amber-400 drop-shadow-sm" />
-          </div>
-        )}
-
-        <div className="mb-4">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-bold text-lg text-foreground">{preset.name}</h3>
-            {preset.is_system && (
-              <span className="px-2 py-0.5 bg-muted text-muted-foreground border border-border text-[10px] font-bold uppercase tracking-wider rounded-full">
-                System
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <User className="w-3.5 h-3.5" />
-            <span>{preset.config.role}</span>
-          </div>
-
-          {(preset.config.user_input || preset.config.custom_field_only) && (
-            <div className="mt-3 space-y-1">
-              {preset.config.user_input && (
-                <p className="text-xs text-muted-foreground line-clamp-2 bg-muted p-2 rounded border border-border">
-                  "{preset.config.user_input}"
-                </p>
-              )}
-              {preset.config.custom_field_only && (
-                <div className="flex items-center gap-1.5 text-xs text-amber-600 font-medium bg-amber-50 px-2 py-1 rounded w-fit">
-                  <AlertCircle className="w-3 h-3" />
-                  Custom Analysis Only
-                </div>
+        {/* Header row: name + badges */}
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-base text-foreground truncate">{preset.name}</h3>
+              {preset.is_system && (
+                <span className="shrink-0 px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-muted-foreground border border-border rounded">
+                  System
+                </span>
               )}
             </div>
+            <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1.5">
+              <User className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">{preset.config.role}</span>
+            </p>
+          </div>
+          {preset.is_default && (
+            <Star className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0 mt-0.5" />
           )}
         </div>
 
-        <div className="flex items-center gap-2 mt-auto pt-2 border-t border-border">
+        {/* Optional metadata */}
+        {(preset.config.user_input || preset.config.custom_field_only) && (
+          <div className="space-y-2 mb-4">
+            {preset.config.user_input && (
+              <p className="text-xs text-muted-foreground line-clamp-2 bg-muted/50 dark:bg-muted/20 px-2.5 py-2 rounded border border-border">
+                {preset.config.user_input}
+              </p>
+            )}
+            {preset.config.custom_field_only && (
+              <div className="flex items-center gap-1.5 text-xs font-medium text-foreground/70 bg-muted/50 dark:bg-muted/20 px-2 py-1 rounded border border-border w-fit">
+                <AlertCircle className="w-3 h-3 shrink-0" />
+                Custom analysis only
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex items-center gap-1.5 pt-3 border-t border-border">
           <button
             onClick={() => handleSelectPreset(preset)}
             disabled={isActive || saving}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors shadow-sm ${isActive
-              ? 'bg-primary text-primary-foreground cursor-default'
-              : saving
-                ? 'bg-primary/70 text-primary-foreground cursor-wait'
-                : 'bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-hover hover:shadow'
-              }`}
+            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+              isActive
+                ? 'bg-primary/10 text-primary cursor-default border border-primary/20'
+                : saving
+                  ? 'bg-primary/70 text-primary-foreground cursor-wait'
+                  : 'bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-hover'
+            }`}
           >
             {saving ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 Saving...
               </>
             ) : isActive ? (
-              'Applied'
+              'Active'
             ) : (
               'Apply'
             )}
           </button>
 
-          {/* Edit/Customize Button */}
           <button
             onClick={() => handleEdit(preset)}
-            className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-colors border border-transparent hover:border-primary/10"
+            className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
             title={preset.is_system ? "Customize this template" : "Edit preset"}
           >
-            <Edit2 className="w-4 h-4" />
+            <Edit2 className="w-3.5 h-3.5" />
           </button>
 
-          {/* User Preset Actions */}
           {!preset.is_system && (
             <>
               {!preset.is_default && (
                 <button
                   onClick={() => handleSetDefault(preset)}
-                  className="p-2 text-muted-foreground hover:text-amber-500 hover:bg-amber-50 rounded-lg transition-colors"
+                  className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
                   title="Set as default"
                 >
-                  <Star className="w-4 h-4" />
+                  <Star className="w-3.5 h-3.5" />
                 </button>
               )}
               <button
                 onClick={() => handleDelete(preset)}
-                className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors"
                 title="Delete preset"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-3.5 h-3.5" />
               </button>
             </>
           )}
@@ -305,26 +305,21 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
   };
 
   return (
-    <AnimatedModal open={isOpen} onClose={onClose}>
-      <div className="bg-card rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between p-6 border-b border-border">
+    <AnimatedModal open={isOpen} onClose={onClose} className="max-w-4xl">
+      <div className="bg-card rounded-xl border border-border max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <div className="flex items-center gap-3">
             {view === 'edit' && (
               <button
                 onClick={() => setView('list')}
-                className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors mr-1"
+                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
                 title="Back to list"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-4 h-4" />
               </button>
             )}
-            <div className="p-2 bg-primary/5 rounded-lg">
-              {view === 'edit'
-                ? <Settings className="w-6 h-6 text-primary" />
-                : <User className="w-6 h-6 text-primary" />
-              }
-            </div>
-            <h2 className="text-2xl font-bold text-foreground">
+            <h2 className="text-lg font-semibold text-foreground">
               {view === 'list' ? 'Manage Presets' : (editingPreset ? 'Edit Preset' : (isSystemTemplate ? 'Customize Template' : 'New Preset'))}
             </h2>
           </div>
@@ -333,51 +328,57 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
               <button
                 onClick={handleSavePreset}
                 disabled={saving || !formData.name || !formData.role || (formData.custom_field_only && !formData.user_input)}
-                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover disabled:bg-muted disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                className="flex items-center gap-2 px-3.5 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm font-medium"
               >
                 {saving ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : (
-                  <Save className="w-4 h-4" />
+                  <Save className="w-3.5 h-3.5" />
                 )}
                 {saving ? 'Saving...' : 'Save'}
               </button>
             )}
             <button
               onClick={onClose}
-              className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors"
+              className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
             >
-              <X className="w-6 h-6" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
+        {/* Body */}
         <div className="p-6 overflow-y-auto custom-scrollbar">
 
           {view === 'list' ? (
             <div className="space-y-8">
               {/* User Presets Section */}
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
-                    My Presets
-                    <span className="px-2 py-0.5 bg-primary/5 text-primary text-xs rounded-full font-medium">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-baseline gap-2">
+                    <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">
+                      My Presets
+                    </h3>
+                    <span className="text-xs text-muted-foreground tabular-nums">
                       {userPresets.length}
                     </span>
-                  </h3>
+                  </div>
                   <button
                     onClick={handleCreateNew}
-                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover text-sm font-medium flex items-center gap-2 shadow-sm transition-all hover:shadow"
+                    className="px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary-hover text-sm font-medium flex items-center gap-1.5 transition-colors"
                   >
-                    <Plus className="w-4 h-4" />
-                    Create New
+                    <Plus className="w-3.5 h-3.5" />
+                    Create new
                   </button>
                 </div>
 
                 {loading ? (
-                  <div className="text-center py-4 text-muted-foreground">Loading...</div>
+                  <div className="text-center py-8 text-muted-foreground text-sm">Loading presets...</div>
                 ) : userPresets.length === 0 ? (
-                  <p className="text-muted-foreground text-sm italic">No custom presets yet. Create one or use a system template below.</p>
+                  <div className="py-8 text-center">
+                    <p className="text-sm text-muted-foreground">No custom presets yet.</p>
+                    <p className="text-xs text-muted-foreground mt-1">Create one above or customize a system template below.</p>
+                  </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {userPresets.map(renderPresetCard)}
@@ -387,7 +388,9 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
 
               {/* System Presets Section */}
               <div>
-                <h3 className="text-lg font-semibold text-foreground mb-4">System Templates</h3>
+                <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide mb-4">
+                  System Templates
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {SYSTEM_PRESETS.map(renderPresetCard)}
                 </div>
@@ -397,14 +400,14 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
             <>
               {/* Edit/Create Form */}
               {isSystemTemplate && (
-                <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6 text-sm text-blue-700">
-                  You are customizing a system template. The Name and Role are fixed, but you can add a default analysis request and modify output fields.
+                <div className="bg-muted/50 dark:bg-muted/20 border border-border rounded-lg p-4 mb-6 text-sm text-muted-foreground">
+                  You are customizing a system template. The name and role are fixed, but you can add a default analysis request and modify output fields.
                 </div>
               )}
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Preset Name *
+                    Preset Name <span className="text-destructive">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -413,12 +416,12 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="e.g., HR Manager, Sales Lead"
                       disabled={isSystemTemplate}
-                      className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${isSystemTemplate ? 'bg-muted text-muted-foreground border-border cursor-not-allowed' : 'border-border'
+                      className={`w-full px-3 py-2 border rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm ${isSystemTemplate ? 'bg-muted text-muted-foreground border-border cursor-not-allowed' : 'border-border'
                         }`}
                     />
                     {isSystemTemplate && (
                       <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                        <Lock className="w-4 h-4" />
+                        <Lock className="w-3.5 h-3.5" />
                       </div>
                     )}
                   </div>
@@ -426,7 +429,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
 
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Role *
+                    Role <span className="text-destructive">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -435,12 +438,12 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                       onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                       placeholder="e.g., HR, Sales, Project Manager"
                       disabled={isSystemTemplate}
-                      className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${isSystemTemplate ? 'bg-muted text-muted-foreground border-border cursor-not-allowed' : 'border-border'
+                      className={`w-full px-3 py-2 border rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm ${isSystemTemplate ? 'bg-muted text-muted-foreground border-border cursor-not-allowed' : 'border-border'
                         }`}
                     />
                     {isSystemTemplate && (
                       <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                        <Lock className="w-4 h-4" />
+                        <Lock className="w-3.5 h-3.5" />
                       </div>
                     )}
                   </div>
@@ -449,12 +452,12 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label className="block text-sm font-medium text-foreground">
-                      Default Analysis Request {formData.custom_field_only ? '(Required)' : '(Optional)'}
+                      Default Analysis Request {formData.custom_field_only ? <span className="text-destructive">*</span> : <span className="text-muted-foreground font-normal">(optional)</span>}
                     </label>
                     {formData.custom_field_only && !formData.user_input && (
-                      <span className="text-xs text-amber-600 flex items-center gap-1">
+                      <span className="text-xs text-destructive flex items-center gap-1">
                         <AlertCircle className="w-3 h-3" />
-                        Required when "Only process additional analysis" is checked
+                        Required when custom analysis is enabled
                       </span>
                     )}
                   </div>
@@ -465,7 +468,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                       ? "Enter the specific question or analysis instructions..."
                       : "Enter a default analysis request that will auto-fill when this preset is selected..."}
                     rows={3}
-                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all ${formData.custom_field_only && !formData.user_input ? 'border-amber-300 bg-amber-50' : 'border-border'
+                    className={`w-full px-3 py-2 border rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm ${formData.custom_field_only && !formData.user_input ? 'border-destructive/50 bg-destructive/5' : 'border-border'
                       }`}
                   />
 

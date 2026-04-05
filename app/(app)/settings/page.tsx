@@ -307,7 +307,19 @@ export default function SettingsPage() {
   };
 
   return (
-    <Skeleton name="settings-form" loading={loading} fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+    <Skeleton name="settings-form" loading={loading} fallback={
+      <div className="min-h-screen bg-background">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="h-9 w-32 bg-muted rounded-lg animate-pulse mb-8" />
+          <div className="bg-card rounded-xl border border-border p-6 space-y-6">
+            <div className="h-10 bg-muted/50 rounded-lg animate-pulse" />
+            <div className="h-10 bg-muted/50 rounded-lg animate-pulse" />
+            <div className="h-10 bg-muted/50 rounded-lg animate-pulse" />
+            <div className="h-10 bg-muted/50 rounded-lg animate-pulse" />
+          </div>
+        </div>
+      </div>
+    }>
       <div className="min-h-screen bg-background">
 
       <PageEntrance name="settings" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
