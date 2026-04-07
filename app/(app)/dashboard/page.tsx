@@ -15,6 +15,7 @@ import PageEntrance from '@/components/ui/page-entrance';
 import MorningBriefingCard from '@/components/MorningBriefingCard';
 import DashboardRecorder from '@/components/dashboard/DashboardRecorder';
 import DashboardRecentMeetings from '@/components/dashboard/DashboardRecentMeetings';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import { useElectronSync } from '@/hooks/useElectronSync';
 import { useWebSocketNotifications } from '@/hooks/useWebSocketNotifications';
 import { useDashboardData } from '@/hooks/useDashboardData';
@@ -123,6 +124,19 @@ export default function DashboardPage() {
     handleDeleteTask,
     handleDeleteEvent,
   } = useDashboardData(user, loading, isLoggingOut);
+
+  const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
+
+  const confirmDeleteTask = (taskId: number) => {
+    setConfirmDialog({
+      title: 'Delete task',
+      message: 'Are you sure you want to delete this task? This action cannot be undone.',
+      onConfirm: () => {
+        handleDeleteTask(taskId);
+        setConfirmDialog(null);
+      },
+    });
+  };
 
   // Auto-switch to record tab if recording is active
   useEffect(() => {
@@ -491,7 +505,7 @@ export default function DashboardPage() {
             tasks={tasks}
             router={router}
             onToggleTask={handleToggleTask}
-            onDeleteTask={handleDeleteTask}
+            onDeleteTask={confirmDeleteTask}
             onDeleteEvent={handleDeleteEvent}
           />
         </div>
@@ -528,6 +542,15 @@ export default function DashboardPage() {
             saveCustomQuery(defaultQuery, true, roleName);
           }}
         />
+        {confirmDialog && (
+          <ConfirmDialog
+            isOpen={!!confirmDialog}
+            title={confirmDialog.title}
+            message={confirmDialog.message}
+            onConfirm={confirmDialog.onConfirm}
+            onCancel={() => setConfirmDialog(null)}
+          />
+        )}
       </PageEntrance>
     </div>
     </Skeleton>

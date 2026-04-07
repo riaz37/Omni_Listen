@@ -172,16 +172,16 @@ export default function AnalyticsPage() {
 
   const getUrgencyLabel = (urgency?: string) => {
     if (urgency === 'yes' || urgency === 'high') {
-      return <span className="px-2.5 py-0.5 rounded text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">Urgent</span>;
+      return <span className="px-2.5 py-1 rounded text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/30">Urgent</span>;
     }
-    return <span className="px-2.5 py-0.5 rounded text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400">Normal</span>;
+    return <span className="px-2.5 py-1 rounded text-xs font-medium bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800/30">Normal</span>;
   };
 
   const getStatusBadge = (completed: boolean) => {
     if (completed) {
-      return <span className="px-2.5 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">Done</span>;
+      return <span className="px-2.5 py-1 rounded text-xs font-medium bg-primary/10 text-primary border border-primary/20">Done</span>;
     }
-    return <span className="px-2.5 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">To Do</span>;
+    return <span className="px-2.5 py-1 rounded text-xs font-medium bg-primary/10 text-primary border border-primary/20">To Do</span>;
   };
 
   if (!user) return null;

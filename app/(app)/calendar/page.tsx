@@ -231,27 +231,34 @@ export default function EventsPage() {
   };
 
   const filteredEvents = useMemo(() => {
-    return events.filter(event => filterType === 'all' || event.type === filterType);
-  }, [events, filterType]);
+    return events.filter(event => {
+      const matchesType = filterType === 'all' || event.type === filterType;
+      const matchesSearch = !searchTerm.trim() ||
+        event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (event.description || '').toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesType && matchesSearch;
+    });
+  }, [events, filterType, searchTerm]);
 
   const handleNavigate = (newDate: Date) => {
     setCurrentDate(newDate);
   };
 
   const getEventStyle = (event: CalendarEvent) => {
-    const colors: Record<string, { bg: string; border: string; text: string }> = {
-      meeting: { bg: 'hsl(var(--primary) / 0.15)', border: 'hsl(var(--primary))', text: 'hsl(var(--primary))' },
-      task: { bg: 'rgba(59, 130, 246, 0.15)', border: '#3b82f6', text: '#3b82f6' },
-      deadline: { bg: 'hsl(var(--destructive) / 0.15)', border: 'hsl(var(--destructive))', text: 'hsl(var(--destructive))' },
+    const colors: Record<string, { bg: string; text: string }> = {
+      meeting: { bg: 'hsl(var(--primary) / 0.15)', text: 'hsl(var(--primary))' },
+      task: { bg: 'rgba(59, 130, 246, 0.15)', text: '#3b82f6' },
+      deadline: { bg: 'hsl(var(--destructive) / 0.15)', text: 'hsl(var(--destructive))' },
     };
-    const c = colors[event.type] || { bg: 'hsl(var(--muted) / 0.5)', border: 'hsl(var(--muted-foreground))', text: 'hsl(var(--foreground))' };
+    const c = colors[event.type] || { bg: 'hsl(var(--muted) / 0.5)', text: 'hsl(var(--foreground))' };
     return {
       backgroundColor: c.bg,
-      borderLeft: `3px solid ${c.border}`,
       color: c.text,
-      borderRadius: '4px',
-      fontSize: '0.8125rem',
-      padding: '2px 6px',
+      borderRadius: '9999px',
+      fontSize: '12px',
+      fontWeight: 500,
+      padding: '2px 10px',
+      border: 'none',
     };
   };
 
@@ -297,8 +304,8 @@ export default function EventsPage() {
             <span className="text-sm text-muted-foreground">Sort By</span>
             <select
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value as any)}
-              className="px-4 py-2 border border-border rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+              onChange={(e) => setFilterType(e.target.value as 'all' | 'meeting' | 'task' | 'deadline')}
+              className="px-3 py-2 border border-border rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm font-medium cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
             >
               <option value="all">Events</option>
               <option value="meeting">Meetings</option>
@@ -309,7 +316,7 @@ export default function EventsPage() {
         </div>
 
         {/* Full-width Calendar */}
-        <div className="bg-card rounded-lg border border-border shadow-sm p-6">
+        <div className="bg-card rounded-xl border border-border p-6">
           <CalendarToolbar
             view={view}
             currentDate={currentDate}

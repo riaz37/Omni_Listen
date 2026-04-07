@@ -15,10 +15,10 @@ interface CalendarEventModalProps {
 export function CalendarEventModal({ event, calendarConnected, onClose, onSync, onNavigateToMeeting }: CalendarEventModalProps) {
   return (
     <AnimatedModal open onClose={onClose}>
-      <div className="bg-card rounded-lg border border-border shadow-xl max-w-lg w-full p-6">
+      <div className="bg-card rounded-lg border border-border shadow-xl max-w-lg w-full p-6 overflow-hidden">
         <div className="flex items-start justify-between mb-4">
-          <div>
-            <h2 className={`text-2xl font-bold text-foreground mb-2 ${event.completed ? 'line-through' : ''}`}>{event.title}</h2>
+          <div className="min-w-0 flex-1 mr-3">
+            <h2 className={`text-2xl font-bold text-foreground mb-2 break-words ${event.completed ? 'line-through' : ''}`}>{event.title}</h2>
             <div className="flex items-center gap-2">
               <span className={`px-3 py-1 text-sm rounded-full ${event.type === 'meeting' ? 'bg-primary/10 text-text-primary' :
                   event.type === 'task' ? 'bg-accent text-accent-foreground' :
@@ -61,7 +61,7 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
           {event.description && (
             <div>
               <p className="font-medium text-muted-foreground mb-1">Description</p>
-              <p className="text-foreground">{event.description}</p>
+              <p className="text-foreground text-sm break-words overflow-hidden">{event.description}</p>
             </div>
           )}
 

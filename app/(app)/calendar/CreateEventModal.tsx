@@ -17,6 +17,12 @@ interface CreateEventModalProps {
   onSubmit: () => void;
 }
 
+const inputClass =
+  'w-full px-3 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 text-sm';
+
+const selectClass =
+  'w-full px-3 py-2.5 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 text-sm cursor-pointer [&>option]:bg-card [&>option]:text-foreground';
+
 export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit }: CreateEventModalProps) {
   return (
     <AnimatedModal open onClose={onClose}>
@@ -39,25 +45,25 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
         <div className="space-y-4 mt-4">
           {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Title</label>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Title</label>
             <input
               type="text"
               value={newEvent.title}
               onChange={(e) => onNewEventChange({ ...newEvent, title: e.target.value })}
-              className="w-full px-3 py-2 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="I need help with..."
+              className={inputClass}
+              placeholder="Event title"
             />
           </div>
 
           {/* Type */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Type</label>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Type</label>
             <select
               value={newEvent.type}
-              onChange={(e) => onNewEventChange({ ...newEvent, type: e.target.value as any })}
-              className="w-full px-3 py-2 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              onChange={(e) => onNewEventChange({ ...newEvent, type: e.target.value as 'meeting' | 'task' | 'deadline' })}
+              className={selectClass}
             >
-              <option value="meeting">Metting</option>
+              <option value="meeting">Meeting</option>
               <option value="task">Task</option>
               <option value="deadline">Deadline</option>
             </select>
@@ -65,35 +71,33 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
 
           {/* Start Date & Time */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Start Date & Time</label>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Start Date & Time</label>
             <input
               type="datetime-local"
               value={newEvent.start}
               onChange={(e) => onNewEventChange({ ...newEvent, start: e.target.value })}
-              className="w-full px-3 py-2 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="Select Date"
+              className={inputClass}
             />
           </div>
 
           {/* End Date & Time */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">End Date & Time</label>
+            <label className="block text-sm font-medium text-foreground mb-1.5">End Date & Time</label>
             <input
               type="datetime-local"
               value={newEvent.end}
               onChange={(e) => onNewEventChange({ ...newEvent, end: e.target.value })}
-              className="w-full px-3 py-2 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="Select Date"
+              className={inputClass}
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Description</label>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Description</label>
             <textarea
               value={newEvent.description}
               onChange={(e) => onNewEventChange({ ...newEvent, description: e.target.value })}
-              className="w-full px-3 py-2 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className={inputClass}
               rows={3}
               placeholder="Event description"
             />
@@ -101,13 +105,13 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
 
           {/* Location */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Location</label>
+            <label className="block text-sm font-medium text-foreground mb-1.5">Location</label>
             <input
               type="text"
               value={newEvent.location}
               onChange={(e) => onNewEventChange({ ...newEvent, location: e.target.value })}
-              className="w-full px-3 py-2 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="I need help with..."
+              className={inputClass}
+              placeholder="Event location"
             />
           </div>
 
@@ -115,7 +119,7 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
           <div className="flex justify-between gap-3 pt-4">
             <button
               onClick={onClose}
-              className="px-6 py-2 border border-border text-foreground rounded-lg hover:bg-muted transition-colors"
+              className="px-6 py-2.5 border border-border text-foreground rounded-lg hover:bg-muted transition-colors text-sm font-medium"
             >
               Cancel
             </button>

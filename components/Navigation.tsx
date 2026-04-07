@@ -37,7 +37,7 @@ interface NavItem {
 // ─── PRIMARY: Always visible in top bar ──────────────────────────────────────
 
 const PRIMARY_ITEMS: readonly NavItem[] = [
-  { href: '/dashboard', label: 'Dashboard', icon: Home },
+  { href: '/dashboard', label: 'Room', icon: Home },
   { href: '/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/history', label: 'History', icon: History },
   { href: '/calendar', label: 'Calendar', icon: Calendar },

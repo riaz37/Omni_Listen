@@ -22,6 +22,7 @@ import { NoteCard } from './NoteCard';
 import { AddNoteModal } from './AddNoteModal';
 import { NoteQuickViewModal } from './NoteQuickViewModal';
 import PageEntrance from '@/components/ui/page-entrance';
+import Checkbox from '@/components/ui/checkbox';
 
 interface Note {
   id: string;
@@ -382,17 +383,12 @@ export default function NotesPage() {
 
               <div className="w-px h-5 bg-border/60" />
 
-              <label className="flex items-center gap-2 cursor-pointer select-none group">
-                <input
-                  type="checkbox"
-                  checked={allOnPageSelected}
-                  onChange={allOnPageSelected ? handleDeselectAll : handleSelectAll}
-                  className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
-                />
-                <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
-                  All
-                </span>
-              </label>
+              <Checkbox
+                checked={allOnPageSelected}
+                onChange={() => allOnPageSelected ? handleDeselectAll() : handleSelectAll()}
+                label="All"
+                size="sm"
+              />
 
               <div className="w-px h-5 bg-border/60" />
 

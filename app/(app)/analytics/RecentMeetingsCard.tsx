@@ -2,7 +2,6 @@ import { format } from 'date-fns';
 import {
   BarChart3,
   Calendar,
-  MoreVertical,
   Link2,
 } from 'lucide-react';
 
@@ -38,14 +37,9 @@ export function RecentMeetingsCard({ meetings, totalMeetings, onNavigate }: Rece
           >
             <div className="flex items-start justify-between mb-2">
               <h3 className="text-sm font-semibold text-foreground line-clamp-1">{meeting.title}</h3>
-              <div className="flex items-center gap-2 ml-2 flex-shrink-0">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                  <Link2 className="w-3 h-3" /> Sync to calendar
-                </span>
-                <button className="text-muted-foreground hover:text-foreground">
-                  <MoreVertical className="w-4 h-4" />
-                </button>
-              </div>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary ml-2 flex-shrink-0">
+                <Link2 className="w-3 h-3" /> Sync to calendar
+              </span>
             </div>
             <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
               {meeting.final_summary?.summary

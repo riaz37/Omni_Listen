@@ -1,7 +1,6 @@
 import { format } from 'date-fns';
 import {
   Calendar,
-  MoreVertical,
   Clock,
   Users,
   Link2,
@@ -42,24 +41,17 @@ export function EventListCard({ events, totalEvents }: EventListCardProps) {
           >
             <div className="flex items-start justify-between mb-2">
               <h3 className="text-sm font-semibold text-foreground line-clamp-1">{event.title}</h3>
-              <div className="flex items-center gap-2 ml-2 flex-shrink-0">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400">
-                  <Bell className="w-3 h-3" /> Notify
-                </span>
-                <button className="text-muted-foreground hover:text-foreground">
-                  <MoreVertical className="w-4 h-4" />
-                </button>
-              </div>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 ml-2 flex-shrink-0">
+                <Bell className="w-3 h-3" /> Notify
+              </span>
             </div>
             <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
               {event.description || 'No description available.'}
             </p>
             <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-              {event.assignee && (
-                <span className="inline-flex items-center gap-1">
-                  <Users className="w-3 h-3" /> Speaker
-                </span>
-              )}
+              <span className="inline-flex items-center gap-1">
+                <Users className="w-3 h-3" /> {event.assignee || 'Speaker'}
+              </span>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-muted">
                 <Link2 className="w-3 h-3" /> Sync
               </span>

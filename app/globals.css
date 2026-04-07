@@ -14,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
     --primary: 150 85% 47.1%;
-    --primary-foreground: 240 10% 3.9%;
+    --primary-foreground: 150 87% 22%;
     --primary-hover: 150 85% 38%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
@@ -113,7 +113,7 @@
     --popover: 0 0% 4%;
     --popover-foreground: 0 0% 98%;
     --primary: 150 91.9% 51.8%;
-    --primary-foreground: 0 0% 4%;
+    --primary-foreground: 150 87% 22%;
     --primary-hover: 150 85% 40%;
     --secondary: 240 4% 16%;
     --secondary-foreground: 0 0% 98%;
@@ -203,6 +203,28 @@
     opacity: 1 !important;
     transform: none !important;
   }
+}
+
+/* ─── Native datetime/date picker theming ──────────────────────────────── */
+input[type="datetime-local"],
+input[type="date"],
+input[type="time"] {
+  color-scheme: inherit;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: none;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+.dark input[type="date"]::-webkit-calendar-picker-indicator,
+.dark input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.6;
 }
 
 /* ─── Dot-grid pattern for empty states ──────────────────────────────────── */

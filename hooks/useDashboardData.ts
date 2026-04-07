@@ -131,9 +131,6 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
   };
 
   const handleDeleteTask = async (taskId: number) => {
-    if (!confirm('Are you sure you want to delete this task?')) {
-      return;
-    }
     try {
       await meetingsAPI.deleteEvent(taskId);
       setTasks(tasks.filter(task => task.id !== taskId));

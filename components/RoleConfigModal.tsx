@@ -6,6 +6,7 @@ import { useConfig } from '@/lib/config-context';
 import { presetsAPI, authAPI } from '@/lib/api';
 import { useToast } from './Toast';
 import AnimatedModal from '@/components/ui/animated-modal';
+import Checkbox from '@/components/ui/checkbox';
 
 // Predefined system presets
 import { SYSTEM_PRESETS } from '@/lib/presets';
@@ -320,11 +321,11 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
               </button>
             )}
             <h2 className="text-lg font-semibold text-foreground">
-              {view === 'list' ? 'Manage Presets' : (editingPreset ? 'Edit Preset' : (isSystemTemplate ? 'Customize Template' : 'New Preset'))}
+              {view === 'list' ? 'Manage Presets' : (editingPreset ? 'Edit Preset' : (isSystemTemplate ? 'Customize Template' : 'Create Preset'))}
             </h2>
           </div>
           <div className="flex items-center gap-2">
-            {view === 'edit' && (
+            {view === 'edit' && isSystemTemplate && (
               <button
                 onClick={handleSavePreset}
                 disabled={saving || !formData.name || !formData.role || (formData.custom_field_only && !formData.user_input)}
@@ -413,124 +414,200 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
           ) : (
             <>
               {/* Edit/Create Form */}
-              {isSystemTemplate && (
-                <div className="bg-muted/50 dark:bg-muted/20 border border-border rounded-lg p-4 mb-6 text-sm text-muted-foreground">
-                  You are customizing a system template. The name and role are fixed, but you can add a default analysis request and modify output fields.
-                </div>
-              )}
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Preset Name <span className="text-destructive">*</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="e.g., HR Manager, Sales Lead"
-                      disabled={isSystemTemplate}
-                      className={`w-full px-3 py-2 border rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm ${isSystemTemplate ? 'bg-muted text-muted-foreground border-border cursor-not-allowed' : 'border-border'
-                        }`}
-                    />
-                    {isSystemTemplate && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                        <Lock className="w-3.5 h-3.5" />
-                      </div>
-                    )}
+              {isSystemTemplate ? (
+                /* ── Customize Template (single-column layout) ── */
+                <>
+                  <div className="bg-muted/50 dark:bg-muted/20 border border-border rounded-lg p-4 mb-6 text-sm text-muted-foreground">
+                    You are customizing a system template. The name and role are fixed, but you can add a default analysis request and modify output fields.
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Role <span className="text-destructive">*</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={formData.role}
-                      onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                      placeholder="e.g., HR, Sales, Project Manager"
-                      disabled={isSystemTemplate}
-                      className={`w-full px-3 py-2 border rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm ${isSystemTemplate ? 'bg-muted text-muted-foreground border-border cursor-not-allowed' : 'border-border'
-                        }`}
-                    />
-                    {isSystemTemplate && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                        <Lock className="w-3.5 h-3.5" />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="block text-sm font-medium text-foreground">
-                      Default Analysis Request {formData.custom_field_only ? <span className="text-destructive">*</span> : <span className="text-muted-foreground font-normal">(optional)</span>}
-                    </label>
-                    {formData.custom_field_only && !formData.user_input && (
-                      <span className="text-xs text-destructive flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" />
-                        Required when custom analysis is enabled
-                      </span>
-                    )}
-                  </div>
-                  <textarea
-                    value={formData.user_input}
-                    onChange={(e) => setFormData({ ...formData, user_input: e.target.value })}
-                    placeholder={formData.custom_field_only
-                      ? "Enter the specific question or analysis instructions..."
-                      : "Enter a default analysis request that will auto-fill when this preset is selected..."}
-                    rows={3}
-                    className={`w-full px-3 py-2 border rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm ${formData.custom_field_only && !formData.user_input ? 'border-destructive/50 bg-destructive/5' : 'border-border'
-                      }`}
-                  />
-
-                  <div className="mt-3 flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="custom_field_only"
-                      checked={formData.custom_field_only}
-                      onChange={(e) => setFormData({ ...formData, custom_field_only: e.target.checked })}
-                      className="rounded border-border text-primary focus:ring-primary"
-                    />
-                    <label htmlFor="custom_field_only" className="text-sm text-foreground">
-                      Only process additional analysis (skip standard extraction)
-                    </label>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-3">
-                    Output Fields
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {Object.entries(formData.output_fields || {}).map(([key, value]) => (
-                      <label key={key} className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={value}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              output_fields: {
-                                ...formData.output_fields,
-                                [key]: e.target.checked,
-                              },
-                            })
-                          }
-                          className="w-4 h-4 text-primary rounded focus:ring-primary"
-                        />
-                        <span className="text-sm text-foreground capitalize">
-                          {key.replace(/_/g, ' ')}
-                        </span>
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Preset Name <span className="text-destructive">*</span>
                       </label>
-                    ))}
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={formData.name}
+                          disabled
+                          className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground border-border cursor-not-allowed text-sm"
+                        />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                          <Lock className="w-3.5 h-3.5" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Role <span className="text-destructive">*</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={formData.role}
+                          disabled
+                          className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground border-border cursor-not-allowed text-sm"
+                        />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                          <Lock className="w-3.5 h-3.5" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-sm font-medium text-foreground">
+                          Default Analysis Request {formData.custom_field_only ? <span className="text-destructive">*</span> : <span className="text-muted-foreground font-normal">(optional)</span>}
+                        </label>
+                        {formData.custom_field_only && !formData.user_input && (
+                          <span className="text-xs text-destructive flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" />
+                            Required when custom analysis is enabled
+                          </span>
+                        )}
+                      </div>
+                      <textarea
+                        value={formData.user_input}
+                        onChange={(e) => setFormData({ ...formData, user_input: e.target.value })}
+                        placeholder="Enter a default analysis request that will auto-fill when this preset is selected..."
+                        rows={3}
+                        className={`w-full px-3 py-2 border rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm ${formData.custom_field_only && !formData.user_input ? 'border-destructive/50 bg-destructive/5' : 'border-border'}`}
+                      />
+                      <div className="mt-3">
+                        <Checkbox
+                          id="custom_field_only"
+                          checked={formData.custom_field_only}
+                          onChange={(checked) => setFormData({ ...formData, custom_field_only: checked })}
+                          label="Only process additional analysis (skip standard extraction)"
+                          size="sm"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-3">
+                        Output Fields
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {Object.entries(formData.output_fields || {}).map(([key, value]) => (
+                          <Checkbox
+                            key={key}
+                            checked={value}
+                            onChange={(checked) =>
+                              setFormData({
+                                ...formData,
+                                output_fields: { ...formData.output_fields, [key]: checked },
+                              })
+                            }
+                            label={key.replace(/_/g, ' ')}
+                            size="sm"
+                            className="capitalize"
+                          />
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </>
+              ) : (
+                /* ── Create / Edit Preset (two-column layout matching Figma) ── */
+                <>
+                  <p className="text-base text-muted-foreground mb-8">What are you having problems with?</p>
+                  <div className="flex gap-12">
+                    {/* Left column — form fields */}
+                    <div className="flex-1 space-y-6">
+                      <div>
+                        <label className="block text-base font-bold text-foreground mb-2">
+                          Preset Name<span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          placeholder="I need help with..."
+                          className="w-full px-4 py-3 border border-border rounded-lg bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-base text-foreground placeholder:text-muted-foreground"
+                        />
+                      </div>
 
+                      <div>
+                        <label className="block text-base font-bold text-foreground mb-2">
+                          Preset Role
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.role}
+                          onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                          placeholder="I need help with..."
+                          className="w-full px-4 py-3 border border-border rounded-lg bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-base text-foreground placeholder:text-muted-foreground"
+                        />
+                      </div>
 
-              </div>
+                      <div>
+                        <label className="block text-base font-bold text-foreground mb-2">
+                          Description
+                        </label>
+                        <textarea
+                          value={formData.user_input}
+                          onChange={(e) => setFormData({ ...formData, user_input: e.target.value })}
+                          placeholder="Please include all information relevant to your issue."
+                          rows={5}
+                          className="w-full px-4 py-3 border border-border rounded-lg bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-base text-foreground placeholder:text-muted-foreground resize-y"
+                        />
+                      </div>
+
+                      <Checkbox
+                        id="custom_field_only_create"
+                        checked={formData.custom_field_only}
+                        onChange={(checked) => setFormData({ ...formData, custom_field_only: checked })}
+                        label="Only process additional analysis (skip standard extraction)"
+                      />
+
+                    </div>
+
+                    {/* Right column — output fields */}
+                    <div className="w-72 shrink-0">
+                      <label className="block text-base font-medium text-muted-foreground mb-4">
+                        Output Fields
+                      </label>
+                      <div className="space-y-3.5">
+                        {Object.entries(formData.output_fields || {}).map(([key, value]) => (
+                          <Checkbox
+                            key={key}
+                            checked={value}
+                            onChange={(checked) =>
+                              setFormData({
+                                ...formData,
+                                output_fields: { ...formData.output_fields, [key]: checked },
+                              })
+                            }
+                            label={key.replace(/_/g, ' ')}
+                            className="capitalize"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer buttons — full width, Cancel left, Submit right */}
+                  <div className="flex items-center justify-between pt-6">
+                    <button
+                      type="button"
+                      onClick={() => setView('list')}
+                      className="px-6 py-3 text-base font-medium border border-border text-foreground rounded-lg hover:bg-muted transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSavePreset}
+                      disabled={saving || !formData.name || !formData.role || (formData.custom_field_only && !formData.user_input)}
+                      className="px-8 py-3 text-base font-medium bg-[#4a7c59] text-white rounded-lg hover:bg-[#3d6a4b] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {saving ? 'Saving...' : 'Submit'}
+                    </button>
+                  </div>
+                </>
+              )}
             </>
           )}
         </div>

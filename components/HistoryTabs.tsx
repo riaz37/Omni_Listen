@@ -1,6 +1,5 @@
 'use client';
 
-import { Calendar, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface HistoryTabsProps {
@@ -9,37 +8,33 @@ interface HistoryTabsProps {
 }
 
 const tabs = [
-    { id: 'meetings' as const, label: 'Meetings', icon: FileText },
-    { id: 'days' as const, label: 'Days', icon: Calendar },
+    { id: 'meetings' as const, label: 'Meetings' },
+    { id: 'days' as const, label: 'Days' },
 ];
 
 export default function HistoryTabs({ activeView, onViewChange }: HistoryTabsProps) {
     return (
-        <div className="relative inline-flex p-1 bg-surface rounded-lg border border-border">
+        <div className="relative inline-flex border-b border-border">
             {tabs.map((tab) => {
-                const Icon = tab.icon;
                 const isActive = activeView === tab.id;
                 return (
                     <button
                         key={tab.id}
                         onClick={() => onViewChange(tab.id)}
-                        className={`relative z-10 flex items-center justify-center gap-2 px-5 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
+                        className={`relative px-5 pb-2.5 text-sm font-medium transition-colors duration-200 ${
                             isActive
                                 ? 'text-foreground'
                                 : 'text-muted-foreground hover:text-foreground'
                         }`}
                     >
+                        {tab.label}
                         {isActive && (
                             <motion.div
-                                layoutId="history-tab-bg"
-                                className="absolute inset-0 bg-background rounded-md shadow-sm border border-border/50"
+                                layoutId="history-tab-underline"
+                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
                                 transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                             />
                         )}
-                        <span className="relative z-10 flex items-center gap-2">
-                            <Icon className="w-4 h-4" />
-                            {tab.label}
-                        </span>
                     </button>
                 );
             })}

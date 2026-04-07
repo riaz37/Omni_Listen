@@ -2,7 +2,6 @@ import { ReactNode } from 'react';
 import { format } from 'date-fns';
 import {
   Calendar,
-  MoreVertical,
   Clock,
 } from 'lucide-react';
 
@@ -38,11 +37,8 @@ export function RecentNotesCard({ notes, totalNotes, getCategoryBadge }: RecentN
           >
             <div className="flex items-start justify-between mb-2">
               <h3 className="text-sm font-semibold text-foreground line-clamp-1">{note.title}</h3>
-              <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+              <div className="ml-2 flex-shrink-0">
                 {getCategoryBadge(note.category)}
-                <button className="text-muted-foreground hover:text-foreground">
-                  <MoreVertical className="w-4 h-4" />
-                </button>
               </div>
             </div>
             <p className="text-xs text-muted-foreground line-clamp-2 mb-3">

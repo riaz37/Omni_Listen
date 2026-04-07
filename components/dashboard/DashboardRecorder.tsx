@@ -18,6 +18,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import DashboardProcessing from './DashboardProcessing';
+import Checkbox from '@/components/ui/checkbox';
 
 interface RecorderConfig {
   user_input: string;
@@ -262,19 +263,15 @@ export default function DashboardRecorder({
               </div>
             </div>
 
-            <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
-              <input
-                type="checkbox"
+            <div className="mt-4 pt-4 border-t border-border">
+              <Checkbox
                 id={checkboxId}
                 checked={config.custom_field_only}
-                onChange={(e) =>
-                  updateConfig({ custom_field_only: e.target.checked })
+                onChange={(checked) =>
+                  updateConfig({ custom_field_only: checked })
                 }
-                className="rounded border-border text-primary focus:ring-primary"
+                label="Only process additional analysis (skip standard extraction)"
               />
-              <label htmlFor={checkboxId} className="text-sm text-foreground">
-                Only process additional analysis (skip standard extraction)
-              </label>
             </div>
           </div>
         )}
@@ -297,8 +294,8 @@ export default function DashboardRecorder({
             <button
               onClick={() => setInputMode('record')}
               className={`relative z-10 flex items-center justify-center gap-2 py-3 text-sm font-semibold rounded-md transition-colors duration-200 ${inputMode === 'record'
-                ? 'text-primary'
-                : 'text-muted-foreground hover:text-foreground'
+                ? 'text-red-500'
+                : 'text-red-400/70 hover:text-red-500'
                 }`}
             >
               <AudioLines className="w-4 h-4" />

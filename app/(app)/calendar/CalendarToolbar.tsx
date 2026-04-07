@@ -42,13 +42,13 @@ export function CalendarToolbar({ view, currentDate, onViewChange, onNavigate }:
         <div className="flex gap-1">
           <button
             onClick={handlePrev}
-            className="px-3 py-1.5 text-sm font-medium rounded border border-primary text-primary hover:bg-primary/10 transition-colors"
+            className="px-2.5 py-1.5 text-sm font-medium rounded-md border border-primary/30 text-primary hover:bg-primary/10 transition-colors"
           >
             &lt;
           </button>
           <button
             onClick={handleNext}
-            className="px-3 py-1.5 text-sm font-medium rounded border border-primary text-primary hover:bg-primary/10 transition-colors"
+            className="px-2.5 py-1.5 text-sm font-medium rounded-md border border-primary/30 text-primary hover:bg-primary/10 transition-colors"
           >
             &gt;
           </button>
@@ -59,12 +59,12 @@ export function CalendarToolbar({ view, currentDate, onViewChange, onNavigate }:
             : format(currentDate, 'MMMM yyyy')}
         </h2>
       </div>
-      <div className="flex gap-1">
+      <div className="flex p-1 bg-muted rounded-lg border border-border">
         {(['month', 'week', 'day', 'yearly'] as const).map((v) => (
           <button
             key={v}
             onClick={() => onViewChange(v)}
-            className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${view === v ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground hover:bg-accent'}`}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${view === v ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
           >
             {v.charAt(0).toUpperCase() + v.slice(1)}
           </button>

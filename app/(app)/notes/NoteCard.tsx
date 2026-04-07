@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import Checkbox from '@/components/ui/checkbox';
 import {
   Calendar,
   CheckCircle,
@@ -49,11 +50,10 @@ export function NoteCard({
       {/* Top row: checkbox + title + badge + menu */}
       <div className="flex items-start gap-2 mb-2">
         <div className="flex-shrink-0 pt-0.5">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={isSelected}
             onChange={() => onToggleSelect(note.id)}
-            className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
+            size="sm"
           />
         </div>
         {note.completed && (

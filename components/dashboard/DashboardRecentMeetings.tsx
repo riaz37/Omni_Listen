@@ -7,7 +7,7 @@ import {
   Calendar,
   Clock,
   CheckSquare,
-  MoreVertical,
+  Trash2,
   List,
   FileText,
 } from 'lucide-react';
@@ -129,10 +129,10 @@ export default function DashboardRecentMeetings({
                               e.stopPropagation();
                               onDeleteEvent(event.id);
                             }}
-                            className="p-1 text-muted-foreground hover:text-foreground rounded transition-colors"
-                            title="More options"
+                            className="p-1 text-red-400 hover:text-red-500 rounded transition-colors"
+                            title="Delete"
                           >
-                            <MoreVertical className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -241,10 +241,10 @@ export default function DashboardRecentMeetings({
                               e.stopPropagation();
                               onDeleteTask(task.id);
                             }}
-                            className="p-1 text-muted-foreground hover:text-foreground rounded transition-colors"
-                            title="More options"
+                            className="p-1 text-red-400 hover:text-red-500 rounded transition-colors"
+                            title="Delete"
                           >
-                            <MoreVertical className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>

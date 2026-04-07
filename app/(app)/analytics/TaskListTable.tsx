@@ -1,7 +1,9 @@
 import { ReactNode } from 'react';
+import Checkbox from '@/components/ui/checkbox';
 import {
-  MoreVertical,
+  MoreHorizontal,
   Users,
+  ArrowUpDown,
 } from 'lucide-react';
 
 interface Task {
@@ -37,22 +39,22 @@ export function TaskListTable({ tasks, getStatusBadge, getUrgencyLabel }: TaskLi
           <thead>
             <tr className="border-b border-border">
               <th className="text-left py-3 px-2 w-8">
-                <input type="checkbox" className="rounded border-border" disabled />
+                <Checkbox checked={false} onChange={() => {}} disabled size="sm" />
               </th>
               <th className="text-left py-3 px-2 text-xs font-medium text-muted-foreground">
-                Title
+                <span className="flex items-center gap-1">Title <ArrowUpDown className="w-3 h-3" /></span>
               </th>
               <th className="text-left py-3 px-2 text-xs font-medium text-muted-foreground">
-                Status
+                <span className="flex items-center gap-1">Status <ArrowUpDown className="w-3 h-3" /></span>
               </th>
               <th className="text-left py-3 px-2 text-xs font-medium text-muted-foreground">
-                Priority
+                <span className="flex items-center gap-1">Priority <ArrowUpDown className="w-3 h-3" /></span>
               </th>
               <th className="text-left py-3 px-2 text-xs font-medium text-muted-foreground">
-                Assign
+                <span className="flex items-center gap-1">Assign <ArrowUpDown className="w-3 h-3" /></span>
               </th>
               <th className="text-left py-3 px-2 text-xs font-medium text-muted-foreground">
-                Assign
+                <span className="flex items-center gap-1">Assign <ArrowUpDown className="w-3 h-3" /></span>
               </th>
               <th className="w-8"></th>
             </tr>
@@ -61,7 +63,7 @@ export function TaskListTable({ tasks, getStatusBadge, getUrgencyLabel }: TaskLi
             {tasks.length > 0 ? tasks.map((task) => (
               <tr key={task.id} className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors">
                 <td className="py-3 px-2">
-                  <input type="checkbox" className="rounded border-border" disabled />
+                  <Checkbox checked={false} onChange={() => {}} disabled size="sm" />
                 </td>
                 <td className="py-3 px-2">
                   <div>
@@ -71,10 +73,10 @@ export function TaskListTable({ tasks, getStatusBadge, getUrgencyLabel }: TaskLi
                     </p>
                   </div>
                 </td>
-                <td className="py-3 px-2">
+                <td className="py-3 px-2 whitespace-nowrap">
                   {getStatusBadge(task.completed)}
                 </td>
-                <td className="py-3 px-2">
+                <td className="py-3 px-2 whitespace-nowrap">
                   {getUrgencyLabel(task.urgency)}
                 </td>
                 <td className="py-3 px-2">
@@ -91,7 +93,7 @@ export function TaskListTable({ tasks, getStatusBadge, getUrgencyLabel }: TaskLi
                 </td>
                 <td className="py-3 px-2">
                   <button className="text-muted-foreground hover:text-foreground">
-                    <MoreVertical className="w-4 h-4" />
+                    <MoreHorizontal className="w-4 h-4" />
                   </button>
                 </td>
               </tr>

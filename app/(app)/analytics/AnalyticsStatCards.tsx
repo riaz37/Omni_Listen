@@ -45,7 +45,7 @@ export function AnalyticsStatCards({
         </button>
       </div>
 
-      <div className="bg-yellow-50 dark:bg-yellow-900/10 rounded-xl border border-yellow-200 dark:border-yellow-800/30 p-5 flex items-start justify-between">
+      <div className="bg-card-2 rounded-xl border border-border p-5 flex items-start justify-between">
         <div>
           <p className="text-sm text-muted-foreground font-medium">Avg Duration</p>
           <p className="text-3xl font-bold text-foreground mt-2">{avgDuration}</p>
