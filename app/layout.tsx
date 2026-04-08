@@ -18,8 +18,8 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: 'ESAPListen - AI Meeting Analysis',
-  description: 'Transform meetings into actionable insights',
+  title: 'Omini Listen — AI Personal Assistant',
+  description: 'Your AI assistant that listens, understands, and organizes everything you say',
   icons: {
     icon: '/esapai_logo.png',
   },
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'ESAPListen',
+    title: 'Omini Listen',
   },
 };
 

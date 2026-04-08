@@ -9,9 +9,9 @@ import Pagination from '@/components/Pagination';
 import EmptyState from '@/components/EmptyState';
 import HistoryTabs from '@/components/HistoryTabs';
 import DayHistoryView from '@/components/DayHistoryView';
-import { MeetingCard } from '@/components/MeetingCard';
-import { meetingsAPI } from '@/lib/api';
-import { exportMeetingsToCSV } from '@/lib/export';
+import { ConversationCard } from '@/components/ConversationCard';
+import { conversationsAPI } from '@/lib/api';
+import { exportConversationsToCSV } from '@/lib/export';
 import { Skeleton } from 'boneyard-js/react';
 import CustomDropdown from '@/components/ui/custom-dropdown';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -30,14 +30,14 @@ export default function HistoryPage() {
   const router = useRouter();
   const { user, loading } = useRequireAuth();
 
-  const [meetings, setMeetings] = useState<any[]>([]);
-  const [loadingMeetings, setLoadingMeetings] = useState(true);
+  const [conversations, setConversations] = useState<any[]>([]);
+  const [loadingConversations, setLoadingConversations] = useState(true);
   const [sortBy, setSortBy] = useState<'date' | 'events'>('date');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [selectedMeetingIds, setSelectedMeetingIds] = useState<number[]>([]);
+  const [selectedConversationIds, setSelectedConversationIds] = useState<number[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [historyView, setHistoryView] = useState<'meetings' | 'days'>('meetings');
+  const [historyView, setHistoryView] = useState<'conversations' | 'days'>('conversations');
   const [searchQuery, setSearchQuery] = useState('');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -49,7 +49,7 @@ export default function HistoryPage() {
 
   useEffect(() => {
     if (user) {
-      loadMeetings();
+      loadConversations();
     }
   }, [user]);
 
@@ -58,69 +58,69 @@ export default function HistoryPage() {
     setCurrentPage(1);
   }, [searchQuery]);
 
-  const loadMeetings = async () => {
+  const loadConversations = async () => {
     try {
-      const data = await meetingsAPI.getMeetings();
-      setMeetings(data.meetings);
+      const data = await conversationsAPI.getConversations();
+      setConversations(data.meetings);
     } catch (error) {
-      toast.error('Failed to load meetings');
+      toast.error('Failed to load conversations');
     } finally {
-      setLoadingMeetings(false);
+      setLoadingConversations(false);
     }
   };
 
   const handleDelete = (jobId: string) => {
     setConfirmDialog({
-      title: 'Delete meeting',
-      message: 'Are you sure you want to delete this meeting?',
+      title: 'Delete conversation',
+      message: 'Are you sure you want to delete this conversation?',
       confirmLabel: 'Delete',
       onConfirm: async () => {
         try {
-          await meetingsAPI.deleteMeeting(jobId);
-          setMeetings((prev) => prev.filter((m) => m.job_id !== jobId));
+          await conversationsAPI.deleteConversation(jobId);
+          setConversations((prev) => prev.filter((m) => m.job_id !== jobId));
         } catch (error) {
-          toast.error('Failed to delete meeting');
+          toast.error('Failed to delete conversation');
         }
       },
     });
   };
 
-  const handleToggleSelectMeeting = (meetingId: number) => {
-    setSelectedMeetingIds((prev) =>
-      prev.includes(meetingId)
-        ? prev.filter((id) => id !== meetingId)
-        : [...prev, meetingId]
+  const handleToggleSelectConversation = (conversationId: number) => {
+    setSelectedConversationIds((prev) =>
+      prev.includes(conversationId)
+        ? prev.filter((id) => id !== conversationId)
+        : [...prev, conversationId]
     );
   };
 
   const handleSelectAll = () => {
-    const allMeetingIds = paginatedMeetings.map((m) => m.id);
-    setSelectedMeetingIds(allMeetingIds);
+    const allIds = paginatedConversations.map((m) => m.id);
+    setSelectedConversationIds(allIds);
   };
 
   const handleDeselectAll = () => {
-    setSelectedMeetingIds([]);
+    setSelectedConversationIds([]);
   };
 
   const handleBulkDelete = async () => {
-    if (selectedMeetingIds.length === 0) {
-      toast.error('No meetings selected');
+    if (selectedConversationIds.length === 0) {
+      toast.error('No conversations selected');
       return;
     }
 
     setConfirmDialog({
-      title: 'Delete selected meetings',
-      message: `Are you sure you want to delete ${selectedMeetingIds.length} selected meeting(s)?`,
+      title: 'Delete selected conversations',
+      message: `Are you sure you want to delete ${selectedConversationIds.length} selected conversation(s)?`,
       confirmLabel: 'Delete',
       onConfirm: async () => {
         setIsDeleting(true);
         try {
-          const result = await meetingsAPI.bulkDeleteMeetings(selectedMeetingIds);
-          setMeetings((prev) => prev.filter((m) => !selectedMeetingIds.includes(m.id)));
-          setSelectedMeetingIds([]);
-          toast.success(`Deleted ${result.deleted_count} meeting(s)`);
+          const result = await conversationsAPI.bulkDeleteConversations(selectedConversationIds);
+          setConversations((prev) => prev.filter((m) => !selectedConversationIds.includes(m.id)));
+          setSelectedConversationIds([]);
+          toast.success(`Deleted ${result.deleted_count} conversation(s)`);
         } catch (error) {
-          toast.error('Failed to delete selected meetings');
+          toast.error('Failed to delete selected conversations');
         } finally {
           setIsDeleting(false);
         }
@@ -128,12 +128,12 @@ export default function HistoryPage() {
     });
   };
 
-  const handleViewMeeting = (jobId: string) => {
-    router.push(`/meeting?id=${jobId}`);
+  const handleViewConversation = (jobId: string) => {
+    router.push(`/conversation?id=${jobId}`);
   };
 
   // Sort
-  const sortedMeetings = [...meetings].sort((a, b) => {
+  const sortedConversations = [...conversations].sort((a, b) => {
     if (sortBy === 'date') {
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     }
@@ -141,7 +141,7 @@ export default function HistoryPage() {
   });
 
   // Filter by search
-  const filteredMeetings = sortedMeetings.filter((m) => {
+  const filteredConversations = sortedConversations.filter((m) => {
     if (!searchQuery.trim()) return true;
     const query = searchQuery.toLowerCase();
     return (
@@ -151,10 +151,10 @@ export default function HistoryPage() {
   });
 
   // Pagination
-  const totalPages = Math.ceil(filteredMeetings.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredConversations.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedMeetings = filteredMeetings.slice(startIndex, endIndex);
+  const paginatedConversations = filteredConversations.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -226,21 +226,21 @@ export default function HistoryPage() {
   };
 
   return (
-    <Skeleton name="history-groups" loading={loading || loadingMeetings} fallback={historySkeleton}>
+    <Skeleton name="history-groups" loading={loading || loadingConversations} fallback={historySkeleton}>
       <div className="min-h-screen bg-background">
         <PageEntrance name="history" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
           <div className="flex justify-between items-start mb-6">
             <div>
               <h1 className="text-2xl font-bold text-foreground tracking-tight">
-                Meeting History
+                Conversation History
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
-                {meetings.length} meeting{meetings.length !== 1 ? 's' : ''} analyzed
+                {conversations.length} conversation{conversations.length !== 1 ? 's' : ''} analyzed
               </p>
             </div>
             <button
-              onClick={() => exportMeetingsToCSV(meetings)}
+              onClick={() => exportConversationsToCSV(conversations)}
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-primary text-primary hover:bg-primary/10 rounded-lg transition-colors"
             >
               <Download className="w-4 h-4" />
@@ -255,10 +255,10 @@ export default function HistoryPage() {
 
           {/* Tab content */}
           <AnimatePresence mode="wait">
-            {historyView === 'meetings' && (
-              <motion.div key="meetings" {...tabContentVariants}>
+            {historyView === 'conversations' && (
+              <motion.div key="conversations" {...tabContentVariants}>
                 {/* Toolbar */}
-                {meetings.length > 0 && (
+                {conversations.length > 0 && (
                   <div className="flex items-center justify-between gap-4 mb-6">
                     {/* Search */}
                     <div className="relative flex-1 max-w-xs">
@@ -290,7 +290,7 @@ export default function HistoryPage() {
                       </button>
                       <button
                         onClick={handleBulkDelete}
-                        disabled={selectedMeetingIds.length === 0 || isDeleting}
+                        disabled={selectedConversationIds.length === 0 || isDeleting}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-destructive-foreground bg-destructive hover:bg-destructive/90 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -312,34 +312,34 @@ export default function HistoryPage() {
                   </div>
                 )}
 
-                {/* Meeting grid */}
-                {meetings.length === 0 ? (
+                {/* Conversation grid */}
+                {conversations.length === 0 ? (
                   <div className="bg-card rounded-lg border border-border shadow-sm">
                     <EmptyState
                       icon={FileText}
-                      title="No meetings yet"
-                      description="Upload your first meeting to get started"
+                      title="No conversations yet"
+                      description="Record your first conversation to get started"
                       action={{
-                        label: 'Go to Dashboard',
-                        onClick: () => router.push('/dashboard'),
+                        label: 'Go to Listen',
+                        onClick: () => router.push('/listen'),
                       }}
                     />
                   </div>
-                ) : filteredMeetings.length === 0 ? (
+                ) : filteredConversations.length === 0 ? (
                   <div className="text-center py-16 text-muted-foreground">
                     <Search className="w-8 h-8 mx-auto mb-3 opacity-40" />
-                    <p className="text-sm">No meetings match your search</p>
+                    <p className="text-sm">No conversations match your search</p>
                   </div>
                 ) : (
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {paginatedMeetings.map((meeting: any) => (
-                        <MeetingCard
-                          key={meeting.job_id}
-                          meeting={meeting}
-                          isSelected={selectedMeetingIds.includes(meeting.id)}
-                          onToggleSelect={handleToggleSelectMeeting}
-                          onView={handleViewMeeting}
+                      {paginatedConversations.map((conversation: any) => (
+                        <ConversationCard
+                          key={conversation.job_id}
+                          meeting={conversation}
+                          isSelected={selectedConversationIds.includes(conversation.id)}
+                          onToggleSelect={handleToggleSelectConversation}
+                          onView={handleViewConversation}
                           onDelete={handleDelete}
                           openMenuId={openMenuId}
                           onToggleMenu={setOpenMenuId}
@@ -347,12 +347,12 @@ export default function HistoryPage() {
                       ))}
                     </div>
 
-                    {filteredMeetings.length > itemsPerPage && (
+                    {filteredConversations.length > itemsPerPage && (
                       <div className="mt-8 bg-card rounded-lg border border-border">
                         <Pagination
                           currentPage={currentPage}
                           totalPages={totalPages}
-                          totalItems={filteredMeetings.length}
+                          totalItems={filteredConversations.length}
                           itemsPerPage={itemsPerPage}
                           onPageChange={handlePageChange}
                           onItemsPerPageChange={handleItemsPerPageChange}
@@ -367,7 +367,7 @@ export default function HistoryPage() {
             {/* Day History View */}
             {historyView === 'days' && (
               <motion.div key="days" {...tabContentVariants}>
-                <DayHistoryView meetings={meetings} />
+                <DayHistoryView meetings={conversations} />
               </motion.div>
             )}
           </AnimatePresence>

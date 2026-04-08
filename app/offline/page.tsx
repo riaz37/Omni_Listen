@@ -21,11 +21,11 @@ export default function OfflinePage() {
           <div className="inline-flex items-center gap-3 mb-6">
             <img
               src="/esapai_logo.png"
-              alt="ESAPListen"
+              alt="Omini Listen"
               className="h-12 w-12 rounded-xl shadow-lg"
             />
             <h1 className="text-2xl font-bold">
-              <span className="text-primary">ESAP</span>
+              <span className="text-primary">Omini</span>
               <span className="text-primary">Listen</span>
             </h1>
           </div>

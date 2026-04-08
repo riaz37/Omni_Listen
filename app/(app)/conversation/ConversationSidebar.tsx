@@ -1,13 +1,13 @@
 import { CheckCircle, AlertCircle } from 'lucide-react';
 import { getUrgencyStyles } from '@/lib/urgency-detector';
 
-interface MeetingSidebarProps {
+interface ConversationSidebarProps {
     datedEvents: any[];
     notes: any[];
     onToggleCompletion: (noteId: number, currentCompleted: boolean) => void;
 }
 
-export function MeetingSidebar({ datedEvents, notes, onToggleCompletion }: MeetingSidebarProps) {
+export function ConversationSidebar({ datedEvents, notes, onToggleCompletion }: ConversationSidebarProps) {
     return (
         <div className="space-y-6">
             {/* Events */}

@@ -21,9 +21,9 @@ export default function PrivacyPage() {
                     {/* Introduction */}
                     <section className="mb-10">
                         <p className="text-foreground text-lg leading-relaxed">
-                            ESAPAIListen (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy.
+                            Omini Listen (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy.
                             This Privacy Policy explains how we collect, use, disclose, and safeguard your information
-                            when you use our meeting transcription and analysis service, including our browser extension
+                            when you use our conversation transcription and analysis service, including our browser extension
                             and web application (collectively, the &quot;Service&quot;).
                         </p>
                     </section>
@@ -35,14 +35,14 @@ export default function PrivacyPage() {
                         <h3 className="text-xl font-medium text-foreground mt-6 mb-3">1.1 Information You Provide</h3>
                         <ul className="list-disc pl-6 text-foreground space-y-2">
                             <li><strong>Account Information:</strong> Email address, name, and profile picture when you sign in with Google</li>
-                            <li><strong>Meeting Audio:</strong> Audio recordings from meetings you choose to record using our browser extension</li>
+                            <li><strong>Conversation Audio:</strong> Audio recordings from conversations you choose to record using our browser extension</li>
                             <li><strong>User Preferences:</strong> Your configured presets, roles, and custom queries</li>
                         </ul>
 
                         <h3 className="text-xl font-medium text-foreground mt-6 mb-3">1.2 Information Collected Automatically</h3>
                         <ul className="list-disc pl-6 text-foreground space-y-2">
                             <li><strong>Device Information:</strong> Browser type, operating system, and timezone</li>
-                            <li><strong>Usage Data:</strong> Features used, meeting duration, and interaction patterns</li>
+                            <li><strong>Usage Data:</strong> Features used, conversation duration, and interaction patterns</li>
                         </ul>
                     </section>
 
@@ -51,7 +51,7 @@ export default function PrivacyPage() {
                         <h2 className="text-2xl font-semibold text-foreground mb-4">2. How We Use Your Information</h2>
                         <p className="text-foreground mb-4">We use the collected information solely for the following purposes:</p>
                         <ul className="list-disc pl-6 text-foreground space-y-2">
-                            <li><strong>Service Provision:</strong> To transcribe meeting audio, generate summaries, and extract action items</li>
+                            <li><strong>Service Provision:</strong> To transcribe conversation audio, generate summaries, and extract action items</li>
                             <li><strong>Personalization:</strong> To remember your preferences and provide customized experiences</li>
                             <li><strong>Calendar Integration:</strong> To sync extracted events with your Google Calendar (when authorized)</li>
                             <li><strong>Service Improvement:</strong> To analyze usage patterns and improve our features</li>
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
                             </div>
                             <div>
                                 <h4 className="font-semibold text-foreground">Google Gemini AI</h4>
-                                <p className="text-muted-foreground">For generating meeting summaries, extracting events, and analyzing content. Processed according to Google&apos;s <a href="https://policies.google.com/privacy" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</p>
+                                <p className="text-muted-foreground">For generating conversation summaries, extracting events, and analyzing content. Processed according to Google&apos;s <a href="https://policies.google.com/privacy" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</p>
                             </div>
                             <div>
                                 <h4 className="font-semibold text-foreground">Google OAuth</h4>
@@ -110,7 +110,7 @@ export default function PrivacyPage() {
                             <li><strong>Access:</strong> Request a copy of your personal data</li>
                             <li><strong>Correction:</strong> Update or correct inaccurate data</li>
                             <li><strong>Deletion:</strong> Request deletion of your account and associated data</li>
-                            <li><strong>Export:</strong> Download your meeting data</li>
+                            <li><strong>Export:</strong> Download your conversation data</li>
                             <li><strong>Opt-out:</strong> Disable optional features like calendar sync</li>
                         </ul>
                         <p className="text-foreground mt-4">
@@ -153,7 +153,7 @@ export default function PrivacyPage() {
 
                     {/* Footer */}
                     <footer className="mt-12 pt-8 border-t text-center text-muted-foreground">
-                        <p>© {new Date().getFullYear()} ESAPAIListen. All rights reserved.</p>
+                        <p>© {new Date().getFullYear()} Omini Listen. All rights reserved.</p>
                     </footer>
                 </article>
             </div>

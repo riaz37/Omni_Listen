@@ -44,7 +44,7 @@ export default function VerifyEmailContent() {
 
       // Redirect to dashboard after 2 seconds
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push('/listen');
       }, 2000);
     } catch (error: any) {
       const errorMsg = error.response?.data?.detail || 'Failed to verify email. The link may be invalid or expired.';
@@ -83,12 +83,11 @@ export default function VerifyEmailContent() {
           <Link href="/" className="inline-flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
             <img
               src="/esapai_logo.png"
-              alt="ESAPListen"
+              alt="Omini Listen"
               className="h-12 w-12 rounded-xl shadow-lg"
             />
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              <span className="text-primary">ESAP</span>
-              <span>AI</span>
+              <span className="text-primary">Omini</span>
               <span className="text-primary">Listen</span>
             </h1>
           </Link>

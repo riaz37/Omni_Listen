@@ -37,7 +37,7 @@ export default function CalendarConnectModal({
                 {/* Content */}
                 <div className="p-6">
                     <p className="text-muted-foreground text-center mb-6">
-                        Sync your meetings and automatically add action items to your Google Calendar.
+                        Sync your conversations and automatically add action items to your Google Calendar.
                         You can always connect later from Settings.
                     </p>
 

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { meetingsAPI } from '@/lib/api';
+import { conversationsAPI } from '@/lib/api';
 import { Send, Bot, User, Loader2 } from 'lucide-react';
 
 interface Message {
@@ -7,11 +7,11 @@ interface Message {
     content: string;
 }
 
-interface MeetingQueryProps {
+interface ConversationQueryProps {
     jobId: string;
 }
 
-export default function MeetingQuery({ jobId }: MeetingQueryProps) {
+export default function ConversationQuery({ jobId }: ConversationQueryProps) {
     const [query, setQuery] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +34,7 @@ export default function MeetingQuery({ jobId }: MeetingQueryProps) {
         setIsLoading(true);
 
         try {
-            const response = await meetingsAPI.queryMeeting(jobId, userMessage);
+            const response = await conversationsAPI.queryConversation(jobId, userMessage);
             setMessages(prev => [...prev, { role: 'assistant', content: response.answer }]);
         } catch (error) {
             setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error processing your request.' }]);
@@ -55,7 +55,7 @@ export default function MeetingQuery({ jobId }: MeetingQueryProps) {
             <div className="p-4 border-b border-border bg-muted rounded-t-lg">
                 <h3 className="font-semibold text-foreground flex items-center gap-2">
                     <Bot className="w-5 h-5 text-primary" />
-                    Ask AI about this meeting
+                    Ask AI about this conversation
                 </h3>
             </div>
 
@@ -114,7 +114,7 @@ export default function MeetingQuery({ jobId }: MeetingQueryProps) {
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="Ask a question about the meeting..."
+                        placeholder="Ask a question about the conversation..."
                         className="flex-1 px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                         disabled={isLoading}
                     />

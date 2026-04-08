@@ -22,7 +22,7 @@ const AVAILABLE_EVENTS = [
     { value: 'note.created', label: 'Note Created' },
     { value: 'note.updated', label: 'Note Updated' },
     { value: 'note.deleted', label: 'Note Deleted' },
-    { value: 'meeting.processed', label: 'Meeting Processed' },
+    { value: 'meeting.processed', label: 'Conversation Processed' },
     { value: 'daily_summary.generated', label: 'Daily Summary Generated' },
     { value: 'briefing.available', label: 'Briefing Available' },
 ];

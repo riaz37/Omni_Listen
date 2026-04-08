@@ -12,7 +12,7 @@ interface NewEventData {
   title: string;
   start: string;
   end: string;
-  type: 'meeting' | 'task' | 'deadline';
+  type: 'conversation' | 'task' | 'deadline';
   description: string;
   location: string;
 }
@@ -57,9 +57,9 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
             <label className="block text-sm font-medium text-foreground mb-1.5">Type</label>
             <CustomDropdown
               value={newEvent.type}
-              onChange={(val) => onNewEventChange({ ...newEvent, type: val as 'meeting' | 'task' | 'deadline' })}
+              onChange={(val) => onNewEventChange({ ...newEvent, type: val as 'conversation' | 'task' | 'deadline' })}
               options={[
-                { value: 'meeting', label: 'Meeting' },
+                { value: 'conversation', label: 'Conversation' },
                 { value: 'task', label: 'Task' },
                 { value: 'deadline', label: 'Deadline' },
               ]}

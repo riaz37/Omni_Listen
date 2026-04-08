@@ -10,11 +10,12 @@ import RoleConfigModal from '@/components/RoleConfigModal';
 import { presetsAPI, authAPI } from '@/lib/api';
 import { SYSTEM_PRESETS } from '@/lib/presets';
 import { Loader2, Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from 'boneyard-js/react';
 import PageEntrance from '@/components/ui/page-entrance';
 import MorningBriefingCard from '@/components/MorningBriefingCard';
 import DashboardRecorder from '@/components/dashboard/DashboardRecorder';
-import DashboardRecentMeetings from '@/components/dashboard/DashboardRecentMeetings';
+import DashboardRecentConversations from '@/components/dashboard/DashboardRecentConversations';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useElectronSync } from '@/hooks/useElectronSync';
 import { useWebSocketNotifications } from '@/hooks/useWebSocketNotifications';
@@ -43,7 +44,7 @@ const CHIP_QUERIES: Record<string, string> = {
   'budget': 'What were the main budget concerns discussed?',
   'actions': 'List all action items with assigned owners and deadlines',
   'technical': 'Summarize all technical decisions and their rationale',
-  'deadlines': 'List all deadlines and important dates mentioned in the meeting.',
+  'deadlines': 'List all deadlines and important dates mentioned in the conversation.',
 };
 
 export default function DashboardPage() {
@@ -119,7 +120,7 @@ export default function DashboardPage() {
   const {
     upcomingEvents,
     tasks,
-    recentMeetings,
+    recentConversations,
     handleToggleTask,
     handleDeleteTask,
     handleDeleteEvent,
@@ -348,8 +349,8 @@ export default function DashboardPage() {
 
       const checkInterval = setInterval(async () => {
         try {
-          const { meetingsAPI } = await import('@/lib/api');
-          const statusData = await meetingsAPI.getJobStatus(id);
+          const { conversationsAPI } = await import('@/lib/api');
+          const statusData = await conversationsAPI.getJobStatus(id);
           if (statusData.status === 'completed') {
             clearInterval(checkInterval);
             resetProcessing();
@@ -359,14 +360,14 @@ export default function DashboardPage() {
             const maxRetries = 5;
             const verifyMeeting = async () => {
               try {
-                await meetingsAPI.getMeetingDetails(id);
-                router.push(`/meeting?id=${id}`);
+                await conversationsAPI.getConversationDetails(id);
+                router.push(`/conversation?id=${id}`);
               } catch (error) {
                 retries++;
                 if (retries < maxRetries) {
                   setTimeout(verifyMeeting, 500);
                 } else {
-                  router.push(`/meeting?id=${id}`);
+                  router.push(`/conversation?id=${id}`);
                 }
               }
             };
@@ -418,7 +419,7 @@ export default function DashboardPage() {
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <div className="bg-card rounded-xl border border-border p-1">
+              <div className="bg-card rounded-lg border border-border p-1">
                 <div className="h-12 bg-muted/50 rounded-lg mx-1 mt-1 animate-pulse" />
                 <div className="px-6 pb-8 pt-6 space-y-6">
                   <div className="h-48 bg-muted/30 rounded-lg animate-pulse" />
@@ -427,7 +428,7 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-            <div className="bg-card rounded-xl border border-border p-6 space-y-4">
+            <div className="bg-card rounded-lg border border-border p-6 space-y-4">
               <div className="h-10 bg-muted/50 rounded-lg animate-pulse" />
               <div className="h-24 bg-muted/30 rounded-lg animate-pulse" />
               <div className="h-24 bg-muted/30 rounded-lg animate-pulse" />
@@ -443,24 +444,25 @@ export default function DashboardPage() {
         <div className="mb-10">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">Dashboard</h1>
-              <p className="text-base text-muted-foreground mt-2 font-light">
-                Capture and analyze your meetings with AI-powered precision
+              <h1 className="text-2xl font-semibold text-foreground tracking-tight leading-[1.3]">Dashboard</h1>
+              <p className="text-base text-muted-foreground mt-2">
+                Your personal AI assistant — always listening, always organized
               </p>
             </div>
-            <button
+            <Button
+              variant="outline"
               onClick={() => setShowRoleModal(true)}
-              className="group flex items-center gap-3 px-5 py-2.5 bg-card border border-border rounded-xl hover:border-primary/30 hover:shadow-md transition-all duration-200 shrink-0 self-start sm:self-auto"
+              className="group gap-3 px-5 py-2.5 h-auto rounded-xl hover:border-primary/30 hover:shadow-md shrink-0 self-start sm:self-auto"
             >
               <div className="flex items-center gap-2 text-foreground group-hover:text-primary transition-colors">
                 <Settings className="w-5 h-5" />
                 <span className="text-sm font-semibold">Roles & Presets</span>
               </div>
               <div className="h-5 w-px bg-border mx-1"></div>
-              <div className="text-xs font-medium bg-primary/5 text-text-primary px-3 py-1 rounded-lg group-hover:bg-primary/10 transition-colors truncate max-w-[150px]">
+              <div className="text-xs font-medium bg-primary/5 text-primary px-3 py-1 rounded-lg group-hover:bg-primary/10 transition-colors truncate max-w-[150px]">
                 {activeRole || 'Custom'}
               </div>
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -499,8 +501,8 @@ export default function DashboardPage() {
           />
 
           {/* Sidebar */}
-          <DashboardRecentMeetings
-            recentMeetings={recentMeetings}
+          <DashboardRecentConversations
+            recentConversations={recentConversations}
             upcomingEvents={upcomingEvents}
             tasks={tasks}
             router={router}

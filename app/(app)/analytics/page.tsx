@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { analyticsAPI, meetingsAPI } from '@/lib/api';
+import { analyticsAPI, conversationsAPI } from '@/lib/api';
 import { AnalyticsSkeleton } from './AnalyticsSkeleton';
 import { AnalyticsStatCards } from './AnalyticsStatCards';
-import { RecentMeetingsCard } from './RecentMeetingsCard';
+import { RecentConversationsCard } from './RecentConversationsCard';
 import { RecentNotesCard } from './RecentNotesCard';
 import { EventListCard } from './EventListCard';
 import { AnalysisHistoryCard } from './AnalysisHistoryCard';
@@ -14,7 +14,7 @@ import { TaskListTable } from './TaskListTable';
 import { Skeleton } from 'boneyard-js/react';
 import PageEntrance from '@/components/ui/page-entrance';
 
-interface Meeting {
+interface Conversation {
   job_id: string;
   title: string;
   created_at: string;
@@ -57,7 +57,7 @@ export default function AnalyticsPage() {
   const router = useRouter();
   const { user, loading } = useRequireAuth();
   const [analytics, setAnalytics] = useState<any>(null);
-  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -72,39 +72,39 @@ export default function AnalyticsPage() {
   const fetchAllData = async () => {
     setIsLoading(true);
     try {
-      const [analyticsData, meetingsData, eventsData, notesData] = await Promise.all([
+      const [analyticsData, conversationsData, eventsData, notesData] = await Promise.all([
         analyticsAPI.getAnalytics(),
-        meetingsAPI.getAllMeetings(),
-        meetingsAPI.getAllEvents(),
-        meetingsAPI.getAllNotes(),
+        conversationsAPI.getAllConversations(),
+        conversationsAPI.getAllEvents(),
+        conversationsAPI.getAllNotes(),
       ]);
 
       setAnalytics(analyticsData);
 
-      // Process meetings
-      const processedMeetings = (Array.isArray(meetingsData) ? meetingsData : []).map((m: any) => {
+      // Process conversations
+      const processedConversations = (Array.isArray(conversationsData) ? conversationsData : []).map((m: any) => {
         const summary = typeof m.final_summary === 'string'
           ? JSON.parse(m.final_summary)
           : m.final_summary;
         return {
           job_id: m.job_id,
-          title: summary?.title || 'Meeting Analysis',
+          title: summary?.title || 'Conversation Analysis',
           created_at: m.created_at,
           event_count: 0,
           final_summary: summary,
         };
       });
-      setMeetings(processedMeetings.slice(0, 2));
+      setConversations(processedConversations.slice(0, 2));
 
       // Process events
       const allEvents = eventsData.events || [];
       setEvents(allEvents.slice(0, 2));
 
-      // Count events per meeting
+      // Count events per conversation
       allEvents.forEach((ev: any) => {
-        const meeting = processedMeetings.find((m: Meeting) => m.job_id === ev.meeting_id);
-        if (meeting) {
-          meeting.event_count++;
+        const conv = processedConversations.find((m: Conversation) => m.job_id === ev.meeting_id);
+        if (conv) {
+          conv.event_count++;
         }
       });
 
@@ -156,9 +156,9 @@ export default function AnalyticsPage() {
     const cat = (category || 'general').toLowerCase();
     const styles: Record<string, string> = {
       general: 'bg-primary/10 text-primary',
-      decision: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400',
+      decision: 'bg-primary/10 text-primary',
       budget: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
-      action: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
+      action: 'bg-primary/10 text-primary',
       summary: 'bg-primary/10 text-primary',
     };
     const style = styles[cat] || styles.general;
@@ -174,7 +174,7 @@ export default function AnalyticsPage() {
     if (urgency === 'yes' || urgency === 'high') {
       return <span className="px-2.5 py-1 rounded text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/30">Urgent</span>;
     }
-    return <span className="px-2.5 py-1 rounded text-xs font-medium bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800/30">Normal</span>;
+    return <span className="px-2.5 py-1 rounded text-xs font-medium bg-muted text-muted-foreground border border-border">Normal</span>;
   };
 
   const getStatusBadge = (completed: boolean) => {
@@ -186,7 +186,7 @@ export default function AnalyticsPage() {
 
   if (!user) return null;
 
-  const totalMeetings = analytics?.total_meetings || 0;
+  const totalConversations = analytics?.total_meetings || 0;
   const totalEvents = analytics?.total_events || 0;
   const avgDuration = formatDuration(analytics?.avg_duration_seconds || 0);
   const last30Days = analytics?.meetings_last_30_days || 0;
@@ -195,29 +195,29 @@ export default function AnalyticsPage() {
     <Skeleton name="analytics-dashboard" loading={loading || isLoading} fallback={<AnalyticsSkeleton />}>
       <div className="min-h-screen bg-background">
 
-        <PageEntrance name="analytics" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <PageEntrance name="analytics" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Page Header */}
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
+            <h1 className="text-2xl font-semibold text-foreground">Analytics</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              View and manage all your meeting events and deadlines
+              View and manage all your conversation events and insights
             </p>
           </div>
 
           {/* Stat Cards */}
           <AnalyticsStatCards
-            totalMeetings={totalMeetings}
+            totalMeetings={totalConversations}
             totalEvents={totalEvents}
             avgDuration={avgDuration}
             last30Days={last30Days}
             onNavigate={(path) => router.push(path)}
           />
 
-          {/* Recent Meetings History + Recent Notes */}
+          {/* Recent Conversations + Recent Notes */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <RecentMeetingsCard
-              meetings={meetings}
-              totalMeetings={totalMeetings}
+            <RecentConversationsCard
+              conversations={conversations}
+              totalConversations={totalConversations}
               onNavigate={(path) => router.push(path)}
             />
             <RecentNotesCard

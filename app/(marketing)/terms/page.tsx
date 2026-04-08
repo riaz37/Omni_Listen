@@ -11,7 +11,7 @@ export default function TermsPage() {
                     <section>
                         <h2 className="text-2xl font-bold mb-4">1. Agreement to Terms</h2>
                         <p>
-                            By accessing or using the ESAPAIListen website, application, or services (collectively, the "Service"), provided by ESAPAI ("we," "us," or "our"),
+                            By accessing or using the Omini Listen website, application, or services (collectively, the "Service"), provided by Omini ("we," "us," or "our"),
                             you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you may not access or use the Service.
                         </p>
                     </section>
@@ -19,7 +19,7 @@ export default function TermsPage() {
                     <section>
                         <h2 className="text-2xl font-bold mb-4">2. Description of Service</h2>
                         <p>
-                            ESAPAIListen is an AI-powered meeting assistant that records, transcribes, and analyzes audio conversations to provide summaries, action items,
+                            Omini Listen is an AI-powered personal assistant that records, transcribes, and analyzes audio conversations to provide summaries, action items,
                             and insights. The Service uses third-party Artificial Intelligence (AI) technologies to process your data.
                         </p>
                     </section>
@@ -33,7 +33,7 @@ export default function TermsPage() {
                             <p className="mt-2 text-sm">
                                 Many jurisdictions require the consent of all parties to a conversation before it can be recorded ("Two-Party Consent" laws).
                                 By using the Service, you represent and warrant that you will obtain all necessary consents from meeting participants
-                                before recording. ESAPAIListen disclaims all liability for your failure to comply with these laws.
+                                before recording. Omini Listen disclaims all liability for your failure to comply with these laws.
                             </p>
                         </div>
                     </section>
@@ -47,7 +47,7 @@ export default function TermsPage() {
                         <p className="mt-2">
                             <strong>License to Us:</strong> By using the Service, you grant us a worldwide, non-exclusive, royalty-free license to use, reproduce,
                             and process your User Content solely for the purpose of providing and improving the Service for you. We do not sell your
-                            personal meeting data to third parties for advertising purposes.
+                            personal conversation data to third parties for advertising purposes.
                         </p>
                     </section>
 
@@ -83,7 +83,7 @@ export default function TermsPage() {
                     <section>
                         <h2 className="text-2xl font-bold mb-4">8. Limitation of Liability</h2>
                         <p>
-                            To the maximum extent permitted by law, ESAPAI shall not be liable for any indirect, incidental, special, consequential, or punitive damages,
+                            To the maximum extent permitted by law, Omini shall not be liable for any indirect, incidental, special, consequential, or punitive damages,
                             including without limitation, loss of profits, data, use, or goodwill, resulting from (i) your access to or use of the Service;
                             (ii) any conduct or content of any third party on the Service; or (iii) unauthorized access, use, or alteration of your transmissions or content.
                         </p>

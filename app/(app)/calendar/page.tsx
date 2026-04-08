@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { meetingsAPI } from '@/lib/api';
+import { conversationsAPI } from '@/lib/api';
 import { toast } from 'sonner';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay, parseISO, isFuture, isToday, isValid } from 'date-fns';
@@ -46,14 +46,14 @@ export default function EventsPage() {
   const [view, setView] = useState<'month' | 'week' | 'day' | 'yearly'>('month');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'meeting' | 'task' | 'deadline'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'conversation' | 'task' | 'deadline'>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEventList, setShowEventList] = useState(false);
   const [newEvent, setNewEvent] = useState({
     title: '',
     start: '',
     end: '',
-    type: 'meeting' as 'meeting' | 'task' | 'deadline',
+    type: 'conversation' as 'conversation' | 'task' | 'deadline',
     description: '',
     location: '',
   });
@@ -85,7 +85,7 @@ export default function EventsPage() {
   const fetchEvents = async () => {
     setIsLoading(true);
     try {
-      const eventsResponse = await meetingsAPI.getAllEvents();
+      const eventsResponse = await conversationsAPI.getAllEvents();
       const extractedEvents: CalendarEvent[] = [];
 
       if (eventsResponse.events && Array.isArray(eventsResponse.events)) {
@@ -113,15 +113,15 @@ export default function EventsPage() {
 
             const DEFAULT_EVENT_DURATION_MS = 60 * 60 * 1000;
 
-            let eventType: 'meeting' | 'task' | 'deadline' = 'task';
+            let eventType: 'conversation' | 'task' | 'deadline' = 'task';
 
             const daysUntil = Math.ceil((eventDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
             if (daysUntil < 0) {
               eventType = 'deadline';
             } else if (event.urgency === 'high' || daysUntil <= 3) {
               eventType = 'deadline';
-            } else if (event.category === 'MEETING' || event.type === 'meeting') {
-              eventType = 'meeting';
+            } else if (event.category === 'MEETING' || event.type === 'conversation') {
+              eventType = 'conversation';
             }
 
             const newEvent = {
@@ -134,7 +134,7 @@ export default function EventsPage() {
               location: event.location,
               attendees: event.assignee ? [event.assignee] : [],
               assignee: event.assignee || '',
-              meetingId: event.meeting_id || '',
+              conversationId: event.meeting_id || '',
               type: eventType,
               synced: true,
               completed: event.completed || false,
@@ -183,7 +183,7 @@ export default function EventsPage() {
       title: '',
       start: '',
       end: '',
-      type: 'meeting',
+      type: 'conversation',
       description: '',
       location: '',
     });
@@ -212,7 +212,7 @@ export default function EventsPage() {
 
     try {
       const newCompletedState = !event.completed;
-      await meetingsAPI.toggleTaskCompletion(event.eventItemId, newCompletedState);
+      await conversationsAPI.toggleTaskCompletion(event.eventItemId, newCompletedState);
 
       const updatedEvents = events.map(e =>
         e.id === event.id
@@ -272,7 +272,7 @@ export default function EventsPage() {
         <div className="mb-8 flex justify-between items-start">
           <div>
             <h1 className="text-2xl font-bold text-foreground mb-2">Event Calendar</h1>
-            <p className="text-muted-foreground">View and manage all your meeting events and deadlines</p>
+            <p className="text-muted-foreground">View and manage all your conversation events and deadlines</p>
           </div>
           <Button
             onClick={() => setShowCreateModal(true)}
@@ -311,10 +311,10 @@ export default function EventsPage() {
             <span className="text-sm text-muted-foreground">Sort By</span>
             <CustomDropdown
               value={filterType}
-              onChange={(val) => setFilterType(val as 'all' | 'meeting' | 'task' | 'deadline')}
+              onChange={(val) => setFilterType(val as 'all' | 'conversation' | 'task' | 'deadline')}
               options={[
                 { value: 'all', label: 'Events' },
-                { value: 'meeting', label: 'Meetings' },
+                { value: 'conversation', label: 'Conversations' },
                 { value: 'task', label: 'Tasks' },
                 { value: 'deadline', label: 'Deadlines' },
               ]}
@@ -376,7 +376,7 @@ export default function EventsPage() {
           calendarConnected={!!user?.calendar_connected}
           onClose={() => setSelectedEvent(null)}
           onSync={handleSyncEvent}
-          onNavigateToMeeting={(meetingId) => router.push(`/meeting?id=${meetingId}`)}
+          onNavigateToConversation={(conversationId) => router.push(`/conversation?id=${conversationId}`)}
         />
       )}
 

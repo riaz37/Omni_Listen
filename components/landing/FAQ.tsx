@@ -6,8 +6,8 @@ import { ChevronDown } from 'lucide-react';
 
 const faqs = [
   {
-    question: 'What is ESAPAIListen?',
-    answer: 'ESAPAIListen is an AI-powered meeting assistant that records, transcribes, and extracts actionable insights from your conversations. It automatically identifies tasks, events, decisions, and key notes, then syncs them to your calendar and dashboard.',
+    question: 'What is Omini Listen?',
+    answer: 'Omini Listen is your AI personal assistant that listens, transcribes, and extracts actionable insights from any conversation. It automatically identifies tasks, events, decisions, and key notes, then syncs them to your calendar and dashboard.',
   },
   {
     question: 'How accurate is the transcription?',
@@ -15,15 +15,15 @@ const faqs = [
   },
   {
     question: 'Does it work with my calendar?',
-    answer: 'Yes. ESAPAIListen integrates directly with Google Calendar. Events and deadlines detected in your meetings are automatically pushed to your calendar with full context.',
+    answer: 'Yes. Omini Listen integrates directly with Google Calendar. Events and deadlines detected in your conversations are automatically pushed to your calendar with full context.',
   },
   {
     question: 'Is my data secure?',
-    answer: 'Absolutely. All data is encrypted at rest and in transit. We follow industry best practices for data security and privacy. Your meeting recordings and transcripts are accessible only to you.',
+    answer: 'Absolutely. All data is encrypted at rest and in transit. We follow industry best practices for data security and privacy. Your recordings and transcripts are accessible only to you.',
   },
   {
     question: 'What languages are supported?',
-    answer: 'Currently, ESAPAIListen supports English and Arabic with full transcription and analysis capabilities. We are working on adding more languages.',
+    answer: 'Currently, Omini Listen supports English and Arabic with full transcription and analysis capabilities. We are working on adding more languages.',
   },
   {
     question: 'Is there a free plan?',
@@ -52,7 +52,7 @@ export default function FAQ() {
             Frequently Asked Questions
           </h2>
           <p className="text-lg text-muted-foreground">
-            Everything you need to know about ESAPAIListen.
+            Everything you need to know about Omini Listen.
           </p>
         </motion.div>
 

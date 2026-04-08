@@ -8,7 +8,7 @@ const steps = [
     number: '01',
     icon: Mic,
     title: 'Record',
-    description: 'Start recording your meeting in one click. Works with any audio source, any device.',
+    description: 'Start recording any conversation in one click. Works with any audio source, any device.',
     color: 'text-primary',
     bg: 'bg-primary/10',
     border: 'border-primary/20',
@@ -17,7 +17,7 @@ const steps = [
     number: '02',
     icon: Zap,
     title: 'Process',
-    description: 'AI transcribes, identifies speakers, extracts tasks, events, and key decisions in real time.',
+    description: 'AI transcribes, identifies speakers, extracts tasks, events, and key takeaways in real time.',
     color: 'text-primary',
     bg: 'bg-primary/10',
     border: 'border-primary/20',
@@ -26,7 +26,7 @@ const steps = [
     number: '03',
     icon: Calendar,
     title: 'Sync',
-    description: 'Tasks and events are pushed to your calendar and dashboard. Search any meeting, anytime.',
+    description: 'Tasks and events are pushed to your calendar and dashboard. Search any conversation, anytime.',
     color: 'text-primary',
     bg: 'bg-primary/10',
     border: 'border-primary/20',
@@ -48,7 +48,7 @@ export default function HowItWorks() {
             How It Works
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Three steps. Zero effort. All your meeting data, organized.
+            Three steps. Zero effort. All your conversations, organized.
           </p>
         </motion.div>
 

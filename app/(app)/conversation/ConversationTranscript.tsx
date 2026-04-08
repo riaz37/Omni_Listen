@@ -1,12 +1,12 @@
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
-interface MeetingTranscriptProps {
+interface ConversationTranscriptProps {
     transcript: string;
     isExpanded: boolean;
     onToggleExpand: () => void;
 }
 
-export function MeetingTranscript({ transcript, isExpanded, onToggleExpand }: MeetingTranscriptProps) {
+export function ConversationTranscript({ transcript, isExpanded, onToggleExpand }: ConversationTranscriptProps) {
     return (
         <div className="bg-card rounded-lg border border-border p-6">
             <button

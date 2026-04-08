@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useRef, useEffect, ReactNode } from 'react';
-import { meetingsAPI } from './api';
+import { conversationsAPI } from './api';
 
 interface GlobalStateContextType {
     // Recording State
@@ -186,7 +186,7 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         setProcessingProgress(0);
 
         try {
-            const result = await meetingsAPI.uploadAudio(file, config);
+            const result = await conversationsAPI.uploadAudio(file, config);
             setProcessingJobId(result.job_id);
             localStorage.setItem('processingJobId', result.job_id);
             pollJobStatus(result.job_id);
@@ -203,7 +203,7 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
 
         pollIntervalRef.current = setInterval(async () => {
             try {
-                const statusData = await meetingsAPI.getJobStatus(id);
+                const statusData = await conversationsAPI.getJobStatus(id);
                 setProcessingProgress(statusData.overall_progress);
 
                 const stages = statusData.stages || {};

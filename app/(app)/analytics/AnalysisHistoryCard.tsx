@@ -19,9 +19,9 @@ interface AnalysisHistoryCardProps {
 
 export function AnalysisHistoryCard({ notes }: AnalysisHistoryCardProps) {
   return (
-    <div className="bg-card-2 rounded-xl border border-border p-5">
+    <div className="bg-card-2 rounded-lg border border-border p-5">
       <div className="mb-4">
-        <h2 className="text-base font-semibold text-foreground">Recent Additional Analysis History</h2>
+        <h2 className="text-lg font-semibold text-foreground">Recent Additional Analysis History</h2>
         <p className="text-xs text-muted-foreground mt-0.5">
           {notes.length} total analysis &middot; {notes.length} shown
         </p>
@@ -33,11 +33,11 @@ export function AnalysisHistoryCard({ notes }: AnalysisHistoryCardProps) {
             className="bg-background rounded-lg border border-border p-4 hover:border-primary/30 transition-colors"
           >
             <div className="flex items-start justify-between mb-2">
-              <h3 className="text-sm font-semibold text-foreground line-clamp-1">
+              <h3 className="text-sm font-medium text-foreground line-clamp-1">
                 {note.title || 'Your Analysis Request'}
               </h3>
               <div className="flex items-center gap-2 ml-2 flex-shrink-0">
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                   Summary
                 </span>
               </div>
@@ -46,7 +46,7 @@ export function AnalysisHistoryCard({ notes }: AnalysisHistoryCardProps) {
               {note.description || 'Summarize all technical decisions and their rationale'}
             </p>
             <div className="mb-2">
-              <p className="text-xs font-semibold text-foreground mb-0.5">AI Analysis</p>
+              <p className="text-xs font-medium text-foreground mb-0.5">AI Analysis</p>
               <p className="text-xs text-muted-foreground line-clamp-1">
                 {note.description
                   ? note.description.substring(0, 80) + '...'

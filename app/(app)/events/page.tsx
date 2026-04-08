@@ -80,7 +80,7 @@ export default function EventsPage() {
           <div className="flex items-center justify-between mb-2">
             <div>
               <h1 className="text-2xl font-bold text-foreground">Events List</h1>
-              <p className="text-muted-foreground text-sm">All events from your meetings, sorted by date</p>
+              <p className="text-muted-foreground text-sm">All events from your conversations, sorted by date</p>
             </div>
             <div className="flex gap-2">
               <Button
@@ -201,13 +201,13 @@ export default function EventsPage() {
               description={
                 searchTerm || activeTab !== 'upcoming'
                   ? 'Try adjusting your search or switching tabs'
-                  : 'Upload and analyze meetings to see events here'
+                  : 'Upload and analyze conversations to see events here'
               }
               action={
                 !(searchTerm || activeTab !== 'upcoming')
                   ? {
-                    label: 'Go to Dashboard',
-                    onClick: () => router.push('/dashboard'),
+                    label: 'Go to Listen',
+                    onClick: () => router.push('/listen'),
                   }
                   : undefined
               }
@@ -262,7 +262,7 @@ export default function EventsPage() {
           onClose={() => setSelectedEvent(null)}
           onSyncEvent={handleSyncEvent}
           onDeleteEvent={handleDeleteEvent}
-          onNavigateToMeeting={(meetingId) => router.push(`/meeting?id=${meetingId}`)}
+          onNavigateToMeeting={(meetingId) => router.push(`/conversation?id=${meetingId}`)}
           getEventTypeColor={getEventTypeColor}
         />
       )}

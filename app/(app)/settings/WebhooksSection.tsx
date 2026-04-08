@@ -1,7 +1,9 @@
 'use client';
 
+import { createPortal } from 'react-dom';
 import { Webhook, Plus, Loader2, Bell, CheckCircle2, XCircle, RefreshCw, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 
 interface WebhookData {
   id: number;
@@ -83,14 +85,14 @@ export function WebhooksSection({
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-medium">{webhook.name || 'Unnamed'}</span>
-                      <span className={`px-2 py-0.5 rounded text-xs ${webhook.is_active ? 'bg-primary/10 text-text-primary' : 'bg-muted text-muted-foreground'}`}>
+                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${webhook.is_active ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
                         {webhook.is_active ? 'Active' : 'Paused'}
                       </span>
                     </div>
                     <div className="text-sm text-muted-foreground truncate">{webhook.url}</div>
-                    <div className="flex flex-wrap gap-1 mt-2">
+                    <div className="flex flex-wrap gap-1.5 mt-2">
                       {webhook.events.map(evt => (
-                        <span key={evt} className="px-1.5 py-0.5 bg-primary/5 text-text-primary rounded text-[10px] border border-primary/10 font-medium">
+                        <span key={evt} className="px-2.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs border border-primary/20 font-medium">
                           {evt === '*' ? 'All Events' : evt}
                         </span>
                       ))}
@@ -102,9 +104,10 @@ export function WebhooksSection({
                         testStatus[webhook.id] === 'success' ? <CheckCircle2 className="w-4 h-4 text-primary" /> :
                           testStatus[webhook.id] === 'error' ? <XCircle className="w-4 h-4 text-red-500" /> : <RefreshCw className="w-4 h-4" />}
                     </button>
-                    <button onClick={() => handleToggleWebhook(webhook.id, webhook.is_active)} className={`px-2 py-1 text-xs rounded ${webhook.is_active ? 'text-yellow-600' : 'text-primary'}`}>
-                      {webhook.is_active ? 'Pause' : 'Enable'}
-                    </button>
+                    <Switch
+                      checked={webhook.is_active}
+                      onCheckedChange={() => handleToggleWebhook(webhook.id, webhook.is_active)}
+                    />
                     <button onClick={() => handleDeleteWebhook(webhook.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -116,9 +119,9 @@ export function WebhooksSection({
         )}
       </div>
 
-      {/* Webhook Modal */}
-      {showWebhookModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50">
+      {/* Webhook Modal — portal to body to escape framer-motion transforms */}
+      {showWebhookModal && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="bg-card rounded-lg shadow-xl w-full max-w-lg p-6 m-4">
             <h3 className="text-xl font-bold mb-4">Create Webhook</h3>
             <div className="space-y-4">
@@ -134,7 +137,7 @@ export function WebhooksSection({
                 <label className="block text-sm font-medium text-foreground mb-2">Events</label>
                 <div className="flex flex-wrap gap-2">
                   {availableEvents.map(evt => (
-                    <button key={evt.value} type="button" onClick={() => toggleEvent(evt.value)} className={`px-2 py-1 text-xs rounded-full border ${selectedEvents.includes(evt.value) ? 'bg-primary/10 border-primary/30 text-text-primary' : 'bg-muted border-border text-muted-foreground'}`}>
+                    <button key={evt.value} type="button" onClick={() => toggleEvent(evt.value)} className={`px-2.5 py-1 text-xs rounded-full border font-medium ${selectedEvents.includes(evt.value) ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-muted border-border text-muted-foreground'}`}>
                       {evt.label}
                     </button>
                   ))}
@@ -152,7 +155,8 @@ export function WebhooksSection({
               </Button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

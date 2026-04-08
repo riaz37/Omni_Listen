@@ -21,17 +21,17 @@ export default function CallToAction() {
           <h2 className="text-3xl sm:text-5xl font-display font-normal text-foreground mb-4 tracking-tight">
             Ready to Transform
             <br />
-            <span className="text-primary">Your Meetings?</span>
+            <span className="text-primary">Your Conversations?</span>
           </h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
             Join thousands of professionals who never miss a detail. Start
             recording for free today.
           </p>
           <Link
-            href={user ? '/dashboard' : '/signup'}
+            href={user ? '/listen' : '/signup'}
             className="group inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold text-lg hover:bg-primary-hover transition-all shadow-lg shadow-primary/20 hover:shadow-primary/30"
           >
-            {user ? 'Go to Dashboard' : 'Start Recording Free'}
+            {user ? 'Go to Listen' : 'Start Recording Free'}
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           <p className="mt-4 text-sm text-muted-foreground">

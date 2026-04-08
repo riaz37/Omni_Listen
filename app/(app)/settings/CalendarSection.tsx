@@ -30,7 +30,7 @@ export function CalendarSection({
             <span className="font-medium">Calendar Connected</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            Meeting events will be automatically synced to your Google Calendar when you enable "Calendar Sync" in the output fields.
+            Conversation events will be automatically synced to your Google Calendar when you enable "Calendar Sync" in the output fields.
           </p>
           <button
             onClick={handleDisconnectCalendar}
@@ -46,7 +46,7 @@ export function CalendarSection({
             <span className="font-medium">Calendar Not Connected</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            Connect your Google Calendar to automatically create events from meeting
+            Connect your Google Calendar to automatically create events from conversation
             action items when you enable "Calendar Sync" in the output fields.
           </p>
           <Button

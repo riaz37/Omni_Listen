@@ -1,5 +1,6 @@
 'use client';
 
+import { createPortal } from 'react-dom';
 import { Key, Plus, Loader2, Trash2, X, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -85,9 +86,9 @@ export function ApiKeysSection({
         )}
       </div>
 
-      {/* API Key Modal */}
-      {showApiKeyModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50">
+      {/* API Key Modal — portal to body to escape framer-motion transforms */}
+      {showApiKeyModal && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="bg-card rounded-lg shadow-xl w-full max-w-lg p-6 m-4 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-xl font-bold">
@@ -158,7 +159,8 @@ export function ApiKeysSection({
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

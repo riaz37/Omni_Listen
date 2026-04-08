@@ -36,7 +36,7 @@ interface NavItem {
 // ─── PRIMARY: Always visible in top bar ──────────────────────────────────────
 
 const PRIMARY_ITEMS: readonly NavItem[] = [
-  { href: '/dashboard', label: 'Room', icon: Home },
+  { href: '/listen', label: 'Listen', icon: Home },
   { href: '/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/history', label: 'History', icon: History },
   { href: '/calendar', label: 'Calendar', icon: Calendar },
@@ -513,13 +513,13 @@ export default function Navigation() {
             <div className="flex items-center">
               {/* Logo */}
               <Link
-                href="/dashboard"
+                href="/listen"
                 className="flex items-center gap-2 flex-shrink-0"
               >
                 <div className="relative">
                   <img
                     src="/mainlogo.webp"
-                    alt="ESAPListen Logo"
+                    alt="Omini Listen Logo"
                     className="h-8 w-8 rounded-lg"
                   />
                   {isRecording && (

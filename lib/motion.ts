@@ -39,7 +39,7 @@ export const DISTANCES = {
 // ─── Navigation index map (for directional page transitions) ────────────────
 
 export const NAV_INDEX: Record<string, number> = {
-  '/dashboard': 0,
+  '/listen': 0,
   '/analytics': 1,
   '/history': 2,
   '/calendar': 3,

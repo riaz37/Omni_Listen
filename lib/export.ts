@@ -57,7 +57,7 @@ END:VEVENT`;
 
   const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//ESAPListen//Meeting Events//EN
+PRODID:-//OminiListen//Events//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 ${icsEvents}
@@ -101,9 +101,9 @@ function downloadBlob(blob: Blob, filename: string) {
   URL.revokeObjectURL(url);
 }
 
-// Export meetings to CSV
-export function exportMeetingsToCSV(meetings: any[]) {
-  const data = meetings.map(m => ({
+// Export conversations to CSV
+export function exportConversationsToCSV(conversations: any[]) {
+  const data = conversations.map(m => ({
     'Date Created': new Date(m.created_at).toLocaleDateString(),
     'Job ID': m.job_id,
     'Events Count': m.event_count || 0,
@@ -111,7 +111,7 @@ export function exportMeetingsToCSV(meetings: any[]) {
     'Has Additional Analysis': m.has_custom_query ? 'Yes' : 'No',
   }));
 
-  exportToCSV(data, `meetings_${new Date().toISOString().split('T')[0]}`);
+  exportToCSV(data, `conversations_${new Date().toISOString().split('T')[0]}`);
 }
 
 // Export events to CSV
@@ -140,31 +140,31 @@ export function exportNotesToCSV(notes: any[]) {
   exportToCSV(data, `notes_${new Date().toISOString().split('T')[0]}`);
 }
 
-// Export single meeting to PDF with all details (Direct Download)
-export async function exportMeetingToPDF(meeting: any) {
+// Export single conversation to PDF with all details (Direct Download)
+export async function exportConversationToPDF(conversation: any) {
   // Build HTML content
   const html = `
     <div style="font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto;">
       <!-- Header -->
       <div style="text-align: center; margin-bottom: 40px; border-bottom: 3px solid #4F46E5; padding-bottom: 20px;">
-        <h1 style="color: #4F46E5; margin: 0; font-size: 32px;">Meeting Analysis Report</h1>
+        <h1 style="color: #4F46E5; margin: 0; font-size: 32px;">Conversation Analysis Report</h1>
         <p style="color: #666; margin-top: 10px; font-size: 14px;">
           Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
         </p>
         <p style="color: #666; margin-top: 5px; font-size: 12px;">
-          Meeting Date: ${new Date(meeting.created_at).toLocaleDateString()}
+          Date: ${new Date(conversation.created_at).toLocaleDateString()}
         </p>
       </div>
 
       <!-- Key Takeaways / Summary -->
-      ${meeting.key_takeaways || meeting.final_summary ? `
+      ${conversation.key_takeaways || conversation.final_summary ? `
         <div style="margin-bottom: 30px;">
           <h2 style="color: #4F46E5; border-bottom: 2px solid #E5E7EB; padding-bottom: 10px; margin-bottom: 15px;">
             Key Takeaways
           </h2>
           <div style="background: #F9FAFB; padding: 20px; border-radius: 8px; border-left: 4px solid #4F46E5;">
             ${(() => {
-        const summary = meeting.key_takeaways || meeting.final_summary;
+        const summary = conversation.key_takeaways || conversation.final_summary;
         const englishText = summary?.english;
         const arabicText = summary?.arabic || summary?.original_language;
 
@@ -192,13 +192,13 @@ export async function exportMeetingToPDF(meeting: any) {
       ` : ''}
 
       <!-- Action Items / Events -->
-      ${meeting.dated_events && meeting.dated_events.length > 0 ? `
+      ${conversation.dated_events && conversation.dated_events.length > 0 ? `
         <div style="margin-bottom: 30px;">
           <h2 style="color: #4F46E5; border-bottom: 2px solid #E5E7EB; padding-bottom: 10px; margin-bottom: 15px;">
-            Action Items (${meeting.dated_events.length})
+            Action Items (${conversation.dated_events.length})
           </h2>
           <div style="display: grid; gap: 15px;">
-            ${meeting.dated_events.map((event: any) => {
+            ${conversation.dated_events.map((event: any) => {
         const title = event.title || event.task;
         const date = event.formatted_date || event.date || event.due_date;
         const description = event.description || event.context;
@@ -221,13 +221,13 @@ export async function exportMeetingToPDF(meeting: any) {
       ` : ''}
 
       <!-- Notes -->
-      ${meeting.notes && meeting.notes.length > 0 ? `
+      ${conversation.notes && conversation.notes.length > 0 ? `
         <div style="margin-bottom: 30px;">
           <h2 style="color: #4F46E5; border-bottom: 2px solid #E5E7EB; padding-bottom: 10px; margin-bottom: 15px;">
-            Notes (${meeting.notes.length})
+            Notes (${conversation.notes.length})
           </h2>
           <div style="display: grid; gap: 15px;">
-            ${meeting.notes.map((note: any) => {
+            ${conversation.notes.map((note: any) => {
         const category = note.category || note.note_type || 'GENERAL';
         const description = note.description || note.details;
         const borderColor = category === 'BUDGET' || category === 'BUDGET_REQUEST'
@@ -251,38 +251,38 @@ export async function exportMeetingToPDF(meeting: any) {
       ` : ''}
 
       <!-- Additional Analysis -->
-      ${meeting.user_input && meeting.user_input_result ? `
+      ${conversation.user_input && conversation.user_input_result ? `
         <div style="margin-bottom: 30px;">
           <h2 style="color: #4F46E5; border-bottom: 2px solid #E5E7EB; padding-bottom: 10px; margin-bottom: 15px;">
             Additional Analysis
           </h2>
           <div style="background: #EFF6FF; padding: 20px; border-radius: 8px; border-left: 4px solid #3B82F6;">
             <p style="color: #1E40AF; font-weight: 600; margin-bottom: 10px; font-size: 14px;">
-              Question: ${meeting.user_input}
+              Question: ${conversation.user_input}
             </p>
             <div style="color: #111827; white-space: pre-wrap; line-height: 1.6;">
-              ${meeting.user_input_result.content || meeting.user_input_result.description}
+              ${conversation.user_input_result.content || conversation.user_input_result.description}
             </div>
           </div>
         </div>
       ` : ''}
 
       <!-- Transcript -->
-      ${meeting.raw_transcript ? `
+      ${conversation.raw_transcript ? `
         <div style="margin-bottom: 30px;">
           <h2 style="color: #4F46E5; border-bottom: 2px solid #E5E7EB; padding-bottom: 10px; margin-bottom: 15px;">
             Full Transcript
           </h2>
           <div style="background: #F9FAFB; padding: 20px; border-radius: 8px; font-family: monospace; font-size: 12px; line-height: 1.6; white-space: pre-wrap; color: #374151;">
-            ${meeting.raw_transcript}
+            ${conversation.raw_transcript}
           </div>
         </div>
       ` : ''}
 
       <!-- Footer -->
       <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #E5E7EB; text-align: center; color: #9CA3AF; font-size: 12px;">
-        <p>Generated by ESAPListen - AI Meeting Analysis</p>
-        <p>Job ID: ${meeting.job_id}</p>
+        <p>Generated by Omini Listen — AI Personal Assistant</p>
+        <p>Job ID: ${conversation.job_id}</p>
       </div>
     </div>
   `;
@@ -290,7 +290,7 @@ export async function exportMeetingToPDF(meeting: any) {
   // PDF options for better quality
   const options = {
     margin: [10, 10, 10, 10] as [number, number, number, number],
-    filename: `meeting_${meeting.job_id}_${new Date().toISOString().split('T')[0]}.pdf`,
+    filename: `conversation_${conversation.job_id}_${new Date().toISOString().split('T')[0]}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2, useCORS: true, letterRendering: true },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -377,7 +377,7 @@ export async function exportQueriesToPDF(queries: any[]) {
 
       <!-- Footer -->
       <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #E5E7EB; text-align: center; color: #9CA3AF; font-size: 12px;">
-        <p>Generated by ESAPListen - AI Meeting Analysis</p>
+        <p>Generated by Omini Listen — AI Personal Assistant</p>
       </div>
     </div>
   `;

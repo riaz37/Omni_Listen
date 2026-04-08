@@ -18,23 +18,23 @@ const onboardingSteps: readonly OnboardingStep[] = [
     number: 1,
     icon: Calendar,
     title: 'Connect Calendar',
-    description: 'Sync your Google Calendar to automatically capture meetings.',
+    description: 'Sync your Google Calendar to automatically capture conversations.',
     href: '/settings',
     linkLabel: 'Go to Settings',
   },
   {
     number: 2,
     icon: Mic,
-    title: 'Record First Meeting',
+    title: 'Record First Conversation',
     description: 'Start recording or upload an audio file to get transcripts and insights.',
-    href: '/dashboard',
+    href: '/listen',
     linkLabel: 'Start Recording',
   },
   {
     number: 3,
     icon: BarChart3,
     title: 'Explore Insights',
-    description: 'View analytics, action items, and summaries from your meetings.',
+    description: 'View analytics, action items, and summaries from your conversations.',
     href: '/analytics',
     linkLabel: 'View Analytics',
   },
@@ -56,7 +56,7 @@ export default function WelcomeCard({ onDismiss }: WelcomeCardProps) {
       </button>
 
       <h2 className="text-lg font-semibold text-foreground mb-1">
-        Welcome to Esap Listen
+        Welcome to Omini Listen
       </h2>
       <p className="text-sm text-muted-foreground mb-6">
         Get started in three simple steps.

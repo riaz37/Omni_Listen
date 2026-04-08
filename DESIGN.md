@@ -1,9 +1,9 @@
-# Design System — ESAPAIListen
+# Design System — Omini Listen
 
 ## Product Context
-- **What this is:** AI meeting assistant that records, transcribes, and extracts actionable insights
-- **Who it's for:** Professionals and teams who want to stop taking notes in meetings
-- **Space/industry:** AI meeting intelligence (Otter, Fireflies, Granola, Read.ai)
+- **What this is:** AI personal assistant that listens, transcribes, and extracts actionable insights from all your conversations
+- **Who it's for:** Professionals who want every conversation captured and organized
+- **Space/industry:** AI listening & personal assistant
 - **Project type:** Web app + marketing landing page
 
 ## Aesthetic Direction

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { meetingsAPI } from '@/lib/api';
+import { conversationsAPI } from '@/lib/api';
 import { toast } from 'sonner';
 import { parseISO, format, isFuture, isPast, isToday, differenceInDays } from 'date-fns';
 
@@ -15,8 +15,8 @@ interface Event {
   location?: string;
   attendees?: string[];
   assignee?: string;
-  meetingId?: string;
-  type: 'meeting' | 'task' | 'deadline';
+  conversationId?: string;
+  type: 'conversation' | 'task' | 'deadline';
   synced?: boolean;
   calendarEventId?: string;
   isManual?: boolean;
@@ -60,7 +60,7 @@ export function useEventsData(user: unknown) {
   const fetchEvents = async () => {
     setIsLoading(true);
     try {
-      const eventsResponse = await meetingsAPI.getAllEvents();
+      const eventsResponse = await conversationsAPI.getAllEvents();
       const extractedEvents: Event[] = [];
 
       if (eventsResponse.events && Array.isArray(eventsResponse.events)) {
@@ -89,8 +89,8 @@ export function useEventsData(user: unknown) {
                 location: event.location,
                 attendees: event.assignee ? [event.assignee] : [],
                 assignee: event.assignee || '',
-                meetingId: event.meeting_id || '',
-                type: 'meeting',
+                conversationId: event.meeting_id || '',
+                type: 'conversation',
                 synced: true,
                 notificationsEnabled: true,
                 completed: event.completed || false,
@@ -149,7 +149,7 @@ export function useEventsData(user: unknown) {
 
     try {
       const newCompletedState = !event.completed;
-      await meetingsAPI.toggleTaskCompletion(event.eventItemId, newCompletedState);
+      await conversationsAPI.toggleTaskCompletion(event.eventItemId, newCompletedState);
 
       const updatedEvents = events.map(e =>
         e.id === event.id
@@ -175,7 +175,7 @@ export function useEventsData(user: unknown) {
 
   const handleSaveEvent = async (eventId: number, updates: any) => {
     try {
-      await meetingsAPI.updateEvent(eventId, updates);
+      await conversationsAPI.updateEvent(eventId, updates);
 
       const updatedEvents = events.map(e => {
         if (e.eventItemId === eventId) {
@@ -238,7 +238,7 @@ export function useEventsData(user: unknown) {
     }
     try {
       const numericId = parseInt(eventId.replace('event-', ''));
-      await meetingsAPI.deleteEvent(numericId);
+      await conversationsAPI.deleteEvent(numericId);
       setEvents(events.filter(e => e.id !== eventId));
       setSelectedEvent(null);
       toast.success('Event deleted successfully');
@@ -259,7 +259,7 @@ export function useEventsData(user: unknown) {
 
     setIsDeleting(true);
     try {
-      const result = await meetingsAPI.bulkDeleteEvents(selectedEventIds);
+      const result = await conversationsAPI.bulkDeleteEvents(selectedEventIds);
       setEvents(events.filter(e => !selectedEventIds.includes(e.eventItemId!)));
       setSelectedEventIds([]);
       toast.success(`Deleted ${result.deleted_count} event(s)`);
@@ -285,7 +285,7 @@ export function useEventsData(user: unknown) {
 
     setIsDeleting(true);
     try {
-      const result = await meetingsAPI.deleteAllEvents();
+      const result = await conversationsAPI.deleteAllEvents();
       setEvents([]);
       setSelectedEventIds([]);
       toast.success(`Deleted all ${result.deleted_count} event(s)`);
@@ -428,9 +428,9 @@ export function getTimeStatus(date: Date) {
 
 export function getEventTypeColor(type: string) {
   const colors: Record<string, string> = {
-    meeting: 'bg-primary/10 text-text-primary border-primary/30',
+    conversation: 'bg-primary/10 text-text-primary border-primary/30',
     task: 'bg-accent text-accent-foreground border-border',
     deadline: 'bg-destructive/10 text-destructive border-destructive/30',
   };
-  return colors[type] || colors.meeting;
+  return colors[type] || colors.conversation;
 }

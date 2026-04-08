@@ -2,8 +2,8 @@
  * TypeScript type definitions for the application
  */
 
-// Meeting-related types
-export interface Meeting {
+// Conversation-related types
+export interface Conversation {
   job_id: string;
   user_id?: number;
   created_at: string;
@@ -45,7 +45,7 @@ export interface Note {
 
 export interface EventData {
   id: number;
-  meeting_id: number;
+  conversation_id: number;
   event_type: 'dated_events' | 'notes';
   event_data: string | DatedEvent | Note;
 }
@@ -61,8 +61,8 @@ export interface CalendarEvent {
   location?: string;
   attendees?: string[];
   assignee?: string;
-  meetingId?: string;
-  type: 'meeting' | 'task' | 'deadline';
+  conversationId?: string;
+  type: 'conversation' | 'task' | 'deadline';
   synced?: boolean;
   calendarEventId?: string;
   isManual?: boolean;

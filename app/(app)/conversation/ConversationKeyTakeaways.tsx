@@ -35,7 +35,7 @@ const getLineStyle = (text: string) => {
     };
 };
 
-interface MeetingKeyTakeawaysProps {
+interface ConversationKeyTakeawaysProps {
     summary: {
         english?: string;
         arabic?: string;
@@ -43,7 +43,7 @@ interface MeetingKeyTakeawaysProps {
     };
 }
 
-export function MeetingKeyTakeaways({ summary }: MeetingKeyTakeawaysProps) {
+export function ConversationKeyTakeaways({ summary }: ConversationKeyTakeawaysProps) {
     const englishText = summary?.english;
     const arabicText = summary?.arabic || summary?.original_language;
 

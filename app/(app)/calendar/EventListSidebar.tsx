@@ -100,7 +100,7 @@ export function EventListSidebar({ events, onSelectEvent, onToggleCompletion, on
                     <span className={`px-2 py-0.5 text-xs rounded-full flex-shrink-0 ${
                       event.type === 'deadline'
                         ? 'bg-destructive/10 text-destructive'
-                        : event.type === 'meeting'
+                        : event.type === 'conversation'
                           ? 'bg-primary/10 text-primary'
                           : 'bg-accent text-accent-foreground'
                     }`}>

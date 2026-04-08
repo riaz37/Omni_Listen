@@ -1,7 +1,7 @@
 {
-  "name": "ESAPListen - AI Meeting Analysis",
-  "short_name": "ESAPListen",
-  "description": "Transform meetings into actionable insights with AI-powered analysis",
+  "name": "Omini Listen — AI Personal Assistant",
+  "short_name": "Omini Listen",
+  "description": "Your AI assistant that listens, understands, and organizes everything you say",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
@@ -39,7 +39,7 @@
     {
       "name": "Upload Audio",
       "short_name": "Upload",
-      "description": "Upload a new meeting recording",
+      "description": "Upload a new recording",
       "url": "/dashboard",
       "icons": [
         {

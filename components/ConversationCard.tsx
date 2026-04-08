@@ -9,17 +9,17 @@ import {
   Link2,
 } from 'lucide-react';
 
-interface MeetingCardProps {
+interface ConversationCardProps {
   meeting: any;
   isSelected: boolean;
-  onToggleSelect: (meetingId: number) => void;
+  onToggleSelect: (id: number) => void;
   onView: (jobId: string) => void;
   onDelete: (jobId: string) => void;
   openMenuId: string | null;
   onToggleMenu: (id: string | null) => void;
 }
 
-export function MeetingCard({
+export function ConversationCard({
   meeting,
   isSelected,
   onToggleSelect,
@@ -27,7 +27,7 @@ export function MeetingCard({
   onDelete,
   openMenuId,
   onToggleMenu,
-}: MeetingCardProps) {
+}: ConversationCardProps) {
   const isMenuOpen = openMenuId === meeting.job_id;
 
   return (
@@ -48,7 +48,7 @@ export function MeetingCard({
         </div>
 
         <h3 className="text-sm font-semibold text-foreground flex-1 truncate">
-          {meeting.title || 'Meeting Analysis'}
+          {meeting.title || 'Conversation Analysis'}
         </h3>
 
         {meeting.calendar_synced && (

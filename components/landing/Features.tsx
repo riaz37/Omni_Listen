@@ -43,13 +43,13 @@ const heroFeatures: readonly HeroFeature[] = [
     description:
       'Capture every word with 99% accuracy using advanced AI speech recognition. Works across accents, jargon, and multiple speakers.',
     detail:
-      'Powered by custom-trained models optimized for meeting contexts — not generic speech-to-text.',
+      'Powered by custom-trained models optimized for natural conversation — not generic speech-to-text.',
   },
   {
     icon: Search,
     title: 'Custom Query Engine',
     description:
-      'Ask anything about your meetings and get cited answers instantly. Search across all your transcripts with natural language.',
+      'Ask anything about your conversations and get cited answers instantly. Search across all your transcripts with natural language.',
     detail:
       'Every answer links back to the exact moment in the recording, so you can verify and share context.',
   },
@@ -60,19 +60,19 @@ const coreFeatures: readonly CoreFeature[] = [
     icon: Calendar,
     title: 'Auto Calendar Sync',
     description:
-      'Deadlines and events detected and pushed straight to Google Calendar.',
+      'Deadlines and events detected from any conversation, pushed straight to Google Calendar.',
   },
   {
     icon: CheckSquare,
     title: 'Task Extraction',
     description:
-      'Action items pulled from conversations and organized for your team.',
+      'Action items pulled from your conversations and organized so nothing slips through.',
   },
   {
     icon: BarChart3,
     title: 'Deep Insights',
     description:
-      'Track speaker time, sentiment, and key decisions automatically.',
+      'Track speaker time, sentiment, and key topics across every conversation automatically.',
   },
 ] as const;
 
@@ -81,13 +81,13 @@ const supportFeatures: readonly SupportFeature[] = [
     icon: Users,
     title: 'Speaker Identification',
     description:
-      'Know who said what with automatic speaker diarization across your entire team.',
+      'Know who said what with automatic speaker diarization across every conversation.',
   },
   {
     icon: Globe,
     title: 'Multi-Language Support',
     description:
-      'Transcribe meetings in English and Arabic with full accuracy and context.',
+      'Transcribe conversations in English and Arabic with full accuracy and context.',
   },
   {
     icon: Shield,
@@ -311,10 +311,10 @@ export default function Features() {
           <h2 className="text-3xl sm:text-5xl font-display font-normal text-foreground mb-4 tracking-tight">
             Everything You Need to
             <br />
-            <span className="text-primary">Master Your Meetings</span>
+            <span className="text-primary">Stay Organized</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Replace your notebook with an intelligent system that remembers
+            Replace your notebook with an intelligent assistant that remembers
             everything and organizes it for you.
           </p>
         </motion.div>

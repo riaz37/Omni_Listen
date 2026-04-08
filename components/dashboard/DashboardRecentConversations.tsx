@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { normalizeUrgency } from '@/lib/utils';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 
 import {
   Calendar,
@@ -36,14 +37,14 @@ interface Task {
   assignee?: string;
 }
 
-interface RecentMeeting {
+interface RecentConversation {
   job_id: string;
   title: string;
   created_at: Date;
 }
 
-interface DashboardRecentMeetingsProps {
-  recentMeetings: RecentMeeting[];
+interface DashboardRecentConversationsProps {
+  recentConversations: RecentConversation[];
   upcomingEvents: UpcomingEvent[];
   tasks: Task[];
   router: { push: (url: string) => void };
@@ -52,47 +53,36 @@ interface DashboardRecentMeetingsProps {
   onDeleteEvent: (eventId: number) => void;
 }
 
-export default function DashboardRecentMeetings({
-  recentMeetings,
+export default function DashboardRecentConversations({
+  recentConversations,
   upcomingEvents,
   tasks,
   router,
   onToggleTask,
   onDeleteTask,
   onDeleteEvent,
-}: DashboardRecentMeetingsProps) {
-  const [sidebarTab, setSidebarTab] = useState<'upcoming' | 'tasks' | 'meetings'>('upcoming');
-
+}: DashboardRecentConversationsProps) {
   return (
     <div className="lg:col-span-1">
       <div className="bg-card-2 rounded-lg shadow border border-border p-6 sticky top-4">
-        {/* Tab Switcher */}
-        <div className="flex gap-2 mb-4 bg-muted p-1 rounded-lg">
-          <button
-            onClick={() => setSidebarTab('upcoming')}
-            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${sidebarTab === 'upcoming'
-              ? 'bg-card-2 text-primary shadow'
-              : 'text-muted-foreground hover:text-foreground'
-              }`}
-          >
-            <List className="w-4 h-4" />
-            Upcoming
-          </button>
-          <button
-            onClick={() => setSidebarTab('tasks')}
-            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${sidebarTab === 'tasks'
-              ? 'bg-card-2 text-primary shadow'
-              : 'text-muted-foreground hover:text-foreground'
-              }`}
-          >
-            <CheckSquare className="w-4 h-4" />
-            Tasks
-          </button>
-        </div>
+        <Tabs defaultValue="upcoming">
+          <TabsList className="w-full mb-4">
+            <TabsTrigger value="upcoming" className="flex-1 gap-2 data-[state=active]:text-primary">
+              <List className="w-4 h-4" />
+              Upcoming
+            </TabsTrigger>
+            <TabsTrigger value="tasks" className="flex-1 gap-2 data-[state=active]:text-primary">
+              <CheckSquare className="w-4 h-4" />
+              Tasks
+            </TabsTrigger>
+            <TabsTrigger value="meetings" className="flex-1 gap-2 data-[state=active]:text-primary">
+              <FileText className="w-4 h-4" />
+              Conversations
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Upcoming Events Tab */}
-        {sidebarTab === 'upcoming' && (
-          <>
+          {/* Upcoming Events Tab */}
+          <TabsContent value="upcoming">
             {upcomingEvents.length > 0 ? (
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {upcomingEvents.map((event, index) => {
@@ -123,16 +113,18 @@ export default function DashboardRecentMeetings({
                               To Do
                             </span>
                           )}
-                          <button
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={(e) => {
                               e.stopPropagation();
                               onDeleteEvent(event.id);
                             }}
-                            className="p-1 text-red-400 hover:text-red-500 rounded transition-colors"
+                            className="h-auto w-auto p-1 text-destructive/60 hover:text-destructive"
                             title="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
-                          </button>
+                          </Button>
                         </div>
                       </div>
 
@@ -186,19 +178,18 @@ export default function DashboardRecentMeetings({
             )}
 
             {upcomingEvents.length > 0 && (
-              <button
+              <Button
+                variant="link"
                 onClick={() => router.push('/events')}
-                className="mt-4 w-full text-center text-sm text-primary dark:text-primary hover:text-text-primary dark:hover:text-primary font-medium"
+                className="mt-4 w-full text-primary"
               >
                 View all events →
-              </button>
+              </Button>
             )}
-          </>
-        )}
+          </TabsContent>
 
-        {/* Tasks Tab */}
-        {sidebarTab === 'tasks' && (
-          <>
+          {/* Tasks Tab */}
+          <TabsContent value="tasks">
             {tasks.length > 0 ? (
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {tasks.map((task) => {
@@ -220,9 +211,11 @@ export default function DashboardRecentMeetings({
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          <button
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => onToggleTask(task.id, !task.completed)}
-                            className="focus:outline-none"
+                            className="h-auto p-0"
                           >
                             {task.completed ? (
                               <span className="px-2 py-0.5 bg-primary text-primary-foreground text-xs font-medium rounded-full">
@@ -233,24 +226,26 @@ export default function DashboardRecentMeetings({
                                 To Do
                               </span>
                             )}
-                          </button>
-                          <button
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={(e) => {
                               e.stopPropagation();
                               onDeleteTask(task.id);
                             }}
-                            className="p-1 text-red-400 hover:text-red-500 rounded transition-colors"
+                            className="h-auto w-auto p-1 text-destructive/60 hover:text-destructive"
                             title="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
-                          </button>
+                          </Button>
                         </div>
                       </div>
 
                       {/* Title */}
                       <h3
                         className={`font-medium text-sm text-foreground mb-1 ${task.meetingId ? 'cursor-pointer' : ''}`}
-                        onClick={() => task.meetingId && router.push(`/meeting?id=${task.meetingId}`)}
+                        onClick={() => task.meetingId && router.push(`/conversation?id=${task.meetingId}`)}
                       >
                         {task.title}
                       </h3>
@@ -294,26 +289,24 @@ export default function DashboardRecentMeetings({
                   No tasks yet
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Tasks will appear here from your meetings
+                  Tasks will appear here from your conversations
                 </p>
               </div>
             )}
-          </>
-        )}
+          </TabsContent>
 
-        {/* Recent Meetings Tab */}
-        {sidebarTab === 'meetings' && (
-          <>
-            {recentMeetings.length > 0 ? (
+          {/* Recent Conversations Tab */}
+          <TabsContent value="meetings">
+            {recentConversations.length > 0 ? (
               <div className="space-y-2 max-h-96 overflow-y-auto">
-                {recentMeetings.map((meeting) => (
+                {recentConversations.map((meeting) => (
                   <div
                     key={meeting.job_id}
-                    onClick={() => router.push(`/meeting?id=${meeting.job_id}`)}
+                    onClick={() => router.push(`/conversation?id=${meeting.job_id}`)}
                     className="p-3 rounded-lg border border-border bg-card-2 hover:bg-muted cursor-pointer transition-colors"
                   >
                     <h3 className="font-medium text-sm text-foreground mb-1 line-clamp-1">
-                      {meeting.title || "Meeting Analysis"}
+                      {meeting.title || "Conversation Analysis"}
                     </h3>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Clock className="w-3 h-3" />
@@ -331,22 +324,23 @@ export default function DashboardRecentMeetings({
               <div className="text-center py-8">
                 <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
                 <p className="text-sm text-muted-foreground">
-                  No recent meetings
+                  No recent conversations
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Processed meetings will appear here
+                  Processed conversations will appear here
                 </p>
               </div>
             )}
 
-            <button
+            <Button
+              variant="link"
               onClick={() => router.push('/history')}
-              className="mt-4 w-full text-center text-sm text-primary dark:text-primary hover:text-text-primary dark:hover:text-primary font-medium"
+              className="mt-4 w-full text-primary"
             >
               View all history →
-            </button>
-          </>
-        )}
+            </Button>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

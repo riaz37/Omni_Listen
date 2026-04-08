@@ -5,38 +5,38 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --background-2: 0 0% 96.1%;
-    --foreground: 240 10% 3.9%;
+    --background-2: 0 0% 98%;
+    --foreground: 0 0% 4%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --card-2: 0 0% 100%;
+    --card-foreground: 0 0% 4%;
+    --card-2: 0 0% 98%;
     --card-border: 0 0% 89.8%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 0 0% 4%;
     --primary: 150 85% 47.1%;
-    --primary-foreground: 150 87% 22%;
+    --primary-foreground: 0 0% 4%;
     --primary-hover: 150 85% 38%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
     --secondary-hover: 240 5.9% 90%;
     --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted-foreground: 215 16% 47%;
     --accent: 240 4.8% 95.9%;
     --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 50.2%;
     --destructive-foreground: 0 0% 98%;
     --destructive-hover: 0 84.2% 60.2%;
     --destructive-bg-10: 0 84.2% 50.2%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
     --ring: 240 3.8% 46.1%;
     --radius: 0.75rem;
     --nav-bg: 0 0% 98%;
-    --surface: 0 0% 96.1%;
+    --surface: 210 40% 96%;
     --success: 142.1 76.2% 36.3%;
     --success-hover: 142.4 71.8% 29.2%;
     --neon-green: 76 96% 54.5%;
-    --text-primary: 153 86.4% 21.8%;
+    --text-primary: 150 85% 47%;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -51,6 +51,9 @@
 @layer base {
   * {
     @apply border-border;
+  }
+  html {
+    @apply bg-background;
   }
   body {
     @apply bg-background text-foreground;
@@ -108,12 +111,12 @@
     --foreground: 0 0% 98%;
     --card: 0 0% 10%;
     --card-foreground: 0 0% 98%;
-    --card-2: 0 0% 10%;
+    --card-2: 0 0% 8%;
     --card-border: 0 0% 16%;
     --popover: 0 0% 4%;
     --popover-foreground: 0 0% 98%;
     --primary: 150 91.9% 51.8%;
-    --primary-foreground: 150 87% 22%;
+    --primary-foreground: 0 0% 4%;
     --primary-hover: 150 85% 40%;
     --secondary: 240 4% 16%;
     --secondary-foreground: 0 0% 98%;
@@ -134,7 +137,7 @@
     --success: 142.1 70.6% 45.3%;
     --success-hover: 142.1 76.2% 36.3%;
     --neon-green: 76 96% 54.5%;
-    --text-primary: 141 78.9% 85.1%;
+    --text-primary: 150 92% 52%;
     --sidebar-background: 0 0% 10%;
     --sidebar-foreground: 0 0% 96%;
     --sidebar-primary: 150 85% 47%;

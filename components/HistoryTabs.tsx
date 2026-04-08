@@ -3,12 +3,12 @@
 import { motion } from 'framer-motion';
 
 interface HistoryTabsProps {
-    activeView: 'meetings' | 'days';
-    onViewChange: (view: 'meetings' | 'days') => void;
+    activeView: 'conversations' | 'days';
+    onViewChange: (view: 'conversations' | 'days') => void;
 }
 
 const tabs = [
-    { id: 'meetings' as const, label: 'Meetings' },
+    { id: 'conversations' as const, label: 'Conversations' },
     { id: 'days' as const, label: 'Days' },
 ];
 

@@ -43,41 +43,41 @@ interface VariantConfig {
 const variantConfigs: Record<EmptyStateVariant, VariantConfig> = {
   dashboard: {
     icon: Mic,
-    title: 'No meetings yet',
-    description: 'Record or upload your first meeting to get started',
-    cta: { label: 'Record Meeting', href: '/dashboard' },
+    title: 'No conversations yet',
+    description: 'Record or upload your first conversation to get started',
+    cta: { label: 'Record Conversation', href: '/listen' },
   },
   history: {
     icon: History,
-    title: 'No meeting history',
-    description: 'Your analyzed meetings will appear here',
-    cta: { label: 'Record a Meeting', href: '/dashboard' },
+    title: 'No conversation history',
+    description: 'Your analyzed conversations will appear here',
+    cta: { label: 'Record a Conversation', href: '/listen' },
   },
   events: {
     icon: Calendar,
     title: 'No events found',
-    description: 'Events will be extracted from your meetings automatically',
+    description: 'Events will be extracted from your conversations automatically',
   },
   tasks: {
     icon: CheckSquare,
     title: 'All caught up!',
-    description: 'Tasks from your meeting action items will show up here',
+    description: 'Tasks from your conversation action items will show up here',
   },
   notes: {
     icon: StickyNote,
     title: 'No notes yet',
-    description: 'Notes from your meetings will appear here',
+    description: 'Notes from your conversations will appear here',
   },
   analytics: {
     icon: BarChart3,
     title: 'No analytics data',
-    description: 'Upload your first meeting to see insights',
-    cta: { label: 'Go to Dashboard', href: '/dashboard' },
+    description: 'Upload your first conversation to see insights',
+    cta: { label: 'Go to Listen', href: '/listen' },
   },
   queries: {
     icon: MessageSquare,
     title: 'Ask anything',
-    description: 'Try asking a question about your meetings to get insights',
+    description: 'Try asking a question about your conversations to get insights',
   },
   calendar: {
     icon: CalendarDays,

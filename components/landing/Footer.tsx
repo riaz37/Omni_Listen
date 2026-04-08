@@ -5,7 +5,7 @@ import { Linkedin, Facebook, Instagram, Youtube } from 'lucide-react';
 const productLinks = [
   { label: 'Features', href: '#features' },
   { label: 'Pricing', href: '/pricing' },
-  { label: 'Dashboard', href: '/dashboard' },
+  { label: 'Listen', href: '/listen' },
 ];
 
 const companyLinks = [
@@ -60,11 +60,11 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Image src="/esapai_logo.png" alt="ESAPAIListen" width={28} height={28} className="rounded-md" />
-              <span className="font-bold text-foreground">ESAPAIListen</span>
+              <Image src="/esapai_logo.png" alt="Omini Listen" width={28} height={28} className="rounded-md" />
+              <span className="font-bold text-foreground">Omini Listen</span>
             </div>
             <p className="text-muted-foreground leading-relaxed">
-              Your intelligent meeting companion. Capture, analyze, and sync every conversation.
+              Your AI personal assistant. Capture, analyze, and organize every conversation.
             </p>
           </div>
 
@@ -122,7 +122,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4 text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} ESAPAIListen. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Omini Listen. All rights reserved.</p>
           <div className="flex gap-5">
             {socialLinks.map((social) => (
               <a

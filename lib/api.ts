@@ -12,7 +12,7 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 300000, // 5 minutes timeout (increased from 60s to handle large meetings)
+  timeout: 300000, // 5 minutes timeout (increased from 60s to handle large audio files)
 });
 
 // Request interceptor to add auth token and user timezone
@@ -202,8 +202,8 @@ export const authAPI = {
   },
 };
 
-// Meetings API
-export const meetingsAPI = {
+// Conversations API
+export const conversationsAPI = {
   uploadAudio: async (file: File, config: any) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -234,22 +234,22 @@ export const meetingsAPI = {
     return response.data;
   },
 
-  getMeetings: async (limit = 50, offset = 0) => {
+  getConversations: async (limit = 50, offset = 0) => {
     const response = await api.get('/api/meetings', { params: { limit, offset } });
     return response.data;
   },
 
-  getAllMeetings: async () => {
+  getAllConversations: async () => {
     const response = await api.get('/api/meetings', { params: { limit: 1000, offset: 0 } });
     return response.data.meetings || response.data;
   },
 
-  getMeetingDetails: async (jobId: string) => {
+  getConversationDetails: async (jobId: string) => {
     const response = await api.get(`/api/meetings/${jobId}`);
     return response.data;
   },
 
-  deleteMeeting: async (jobId: string) => {
+  deleteConversation: async (jobId: string) => {
     const response = await api.delete(`/api/meetings/${jobId}`);
     return response.data;
   },
@@ -341,17 +341,17 @@ export const meetingsAPI = {
     return response.data;
   },
 
-  bulkDeleteMeetings: async (ids: number[]) => {
+  bulkDeleteConversations: async (ids: number[]) => {
     const response = await api.post('/api/meetings/bulk-delete', { ids });
     return response.data;
   },
 
-  deleteAllMeetings: async () => {
+  deleteAllConversations: async () => {
     const response = await api.delete('/api/meetings/delete-all');
     return response.data;
   },
 
-  queryMeeting: async (jobId: string, query: string) => {
+  queryConversation: async (jobId: string, query: string) => {
     const response = await api.post(`/api/query/meeting/${jobId}`, { query });
     return response.data;
   },

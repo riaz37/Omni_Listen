@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { meetingsAPI } from '@/lib/api';
+import { conversationsAPI } from '@/lib/api';
 import { toast } from 'sonner';
 import EmptyState from '@/components/EmptyState';
 import { Button } from '@/components/ui/button';
@@ -81,9 +81,9 @@ export default function NotesPage() {
     setIsLoading(true);
     try {
       const [meetingsData, notesResponse, eventsResponse] = await Promise.all([
-        meetingsAPI.getAllMeetings(),
-        meetingsAPI.getAllNotes(),
-        meetingsAPI.getAllEvents(),
+        conversationsAPI.getAllConversations(),
+        conversationsAPI.getAllNotes(),
+        conversationsAPI.getAllEvents(),
       ]);
 
       setMeetings(meetingsData);
@@ -166,7 +166,7 @@ export default function NotesPage() {
     }
 
     try {
-      await meetingsAPI.createNote(newNoteData.meetingId, {
+      await conversationsAPI.createNote(newNoteData.meetingId, {
         title: newNoteData.title,
         description: newNoteData.description,
         category: newNoteData.category,
@@ -193,7 +193,7 @@ export default function NotesPage() {
       onConfirm: async () => {
         try {
           const numericId = parseInt(noteId.replace('note-', ''));
-          await meetingsAPI.deleteNote(numericId);
+          await conversationsAPI.deleteNote(numericId);
           setNotes(notes.filter((note) => note.id !== noteId));
           toast.success('Note deleted successfully');
         } catch (error) {
@@ -205,7 +205,7 @@ export default function NotesPage() {
 
   const handleSaveNote = async (noteId: number, updates: any) => {
     try {
-      await meetingsAPI.updateNote(noteId, updates);
+      await conversationsAPI.updateNote(noteId, updates);
 
       const updatedNotes = notes.map((n) => {
         const numericId = parseInt(n.id.replace('note-', ''));
@@ -257,7 +257,7 @@ export default function NotesPage() {
       onConfirm: async () => {
         setIsDeleting(true);
         try {
-          const result = await meetingsAPI.bulkDeleteNotes(selectedNoteIds);
+          const result = await conversationsAPI.bulkDeleteNotes(selectedNoteIds);
           setNotes(
             notes.filter((n) => {
               const numericId = parseInt(n.id.replace('note-', ''));
@@ -325,7 +325,7 @@ export default function NotesPage() {
             <div>
               <h1 className="text-2xl font-bold text-foreground tracking-tight">Notes</h1>
               <p className="text-sm text-muted-foreground mt-1">
-                {notes.length} note{notes.length !== 1 ? 's' : ''} captured from your meetings
+                {notes.length} note{notes.length !== 1 ? 's' : ''} captured from your conversations
               </p>
             </div>
             <Button onClick={() => setShowAddNoteModal(true)} iconLeft={<Plus className="w-4 h-4" />}>
@@ -477,13 +477,13 @@ export default function NotesPage() {
                 description={
                   searchTerm || selectedCategory !== 'all'
                     ? 'Try adjusting your search or filter criteria'
-                    : 'Upload and analyze meetings to see notes here'
+                    : 'Upload and analyze conversations to see notes here'
                 }
                 action={
                   !(searchTerm || selectedCategory !== 'all')
                     ? {
-                        label: 'Go to Dashboard',
-                        onClick: () => router.push('/dashboard'),
+                        label: 'Go to Listen',
+                        onClick: () => router.push('/listen'),
                       }
                     : undefined
                 }
@@ -521,7 +521,7 @@ export default function NotesPage() {
           <NoteQuickViewModal
             note={selectedNote}
             onClose={() => setSelectedNote(null)}
-            onViewDetails={(meetingId) => router.push(`/meeting?id=${meetingId}`)}
+            onViewDetails={(meetingId) => router.push(`/conversation?id=${meetingId}`)}
           />
         )}
 

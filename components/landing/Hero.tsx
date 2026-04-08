@@ -35,15 +35,14 @@ export default function Hero() {
             <div className="flex items-center gap-3">
               <Image
                 src="/esapai_logo.png"
-                alt="ESAPAIListen"
+                alt="Omini Listen"
                 width={36}
                 height={36}
                 className="rounded-lg"
               />
               <span className="text-lg font-bold tracking-tight">
-                <span className="text-foreground">ESAP</span>
-                <span className="text-primary">AI</span>
-                <span className="text-foreground">Listen</span>
+                <span className="text-foreground">Omini</span>
+                <span className="text-primary"> Listen</span>
               </span>
             </div>
 
@@ -65,10 +64,10 @@ export default function Hero() {
             <div className="flex items-center gap-3">
               {user ? (
                 <Link
-                  href="/dashboard"
+                  href="/listen"
                   className="px-5 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:bg-primary-hover transition-colors"
                 >
-                  Dashboard
+                  Listen
                 </Link>
               ) : (
                 <>
@@ -182,7 +181,7 @@ export default function Hero() {
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-display font-normal tracking-[-0.02em] text-foreground leading-[1.08] mb-6">
               Never Miss a Detail
               <br />
-              <span className="text-primary">From Your Meetings</span>
+              <span className="text-primary">From Any Conversation</span>
             </h1>
           </motion.div>
 
@@ -193,7 +192,7 @@ export default function Hero() {
             className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
           >
             AI that listens so you don&apos;t have to take notes. Record, transcribe,
-            and extract actionable insights from every conversation.
+            and extract actionable insights from every conversation you have.
           </motion.p>
 
           <motion.div
@@ -203,10 +202,10 @@ export default function Hero() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link
-              href={user ? '/dashboard' : '/signup'}
+              href={user ? '/listen' : '/signup'}
               className="group px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold text-lg flex items-center gap-2 hover:bg-primary-hover transition-all shadow-lg shadow-primary/20 hover:shadow-primary/30"
             >
-              Start Recording Free
+              Start Listening Free
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <a

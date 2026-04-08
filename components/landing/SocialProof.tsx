@@ -5,7 +5,7 @@ import { useRef, useEffect, useState } from 'react';
 import { Users, Headphones, Globe, Star } from 'lucide-react';
 
 const stats = [
-  { icon: Headphones, value: 10000, suffix: '+', label: 'Meetings Recorded' },
+  { icon: Headphones, value: 10000, suffix: '+', label: 'Conversations Captured' },
   { icon: Star, value: 99, suffix: '%', label: 'Transcription Accuracy' },
   { icon: Users, value: 50, suffix: '+', label: 'Teams Trust Us' },
   { icon: Globe, value: 2, suffix: '', label: 'Languages Supported' },

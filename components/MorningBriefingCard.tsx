@@ -38,6 +38,8 @@ function getSavedPosition(): { x: number; y: number } | null {
 }
 
 export default function MorningBriefingBubble() {
+    // DESIGN EXCEPTION: Amber/orange gradient is intentional for "morning sun" theming.
+    // See DESIGN.md for brand color rules (green-only accent).
     const [briefing, setBriefing] = useState<BriefingData | null>(null);
     const [loading, setLoading] = useState(true);
     const [regenerating, setRegenerating] = useState(false);

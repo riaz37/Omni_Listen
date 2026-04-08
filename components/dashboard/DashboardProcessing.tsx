@@ -15,7 +15,7 @@ export default function DashboardProcessing({ processingProgress }: DashboardPro
           <Loader2 className="w-12 h-12 text-primary animate-spin" />
         </div>
       </div>
-      <h3 className="text-2xl font-bold text-foreground mb-2">Processing Meeting</h3>
+      <h3 className="text-2xl font-semibold text-foreground mb-2">Processing Meeting</h3>
       <p className="text-muted-foreground mb-8 max-w-md mx-auto">
         We're transcribing and analyzing your audio. This usually takes less than a minute.
       </p>

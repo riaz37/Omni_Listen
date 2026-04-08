@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
 import {
   MoreHorizontal,
   Users,
@@ -25,9 +26,9 @@ interface TaskListTableProps {
 
 export function TaskListTable({ tasks, getStatusBadge, getUrgencyLabel }: TaskListTableProps) {
   return (
-    <div className="bg-card-2 rounded-xl border border-border p-5">
+    <div className="bg-card-2 rounded-lg border border-border p-5">
       <div className="mb-4">
-        <h2 className="text-base font-semibold text-foreground">Task List</h2>
+        <h2 className="text-lg font-semibold text-foreground">Task List</h2>
         <p className="text-xs text-muted-foreground mt-0.5">
           {tasks.length} total Task &middot; {tasks.length} shown
         </p>
@@ -51,10 +52,10 @@ export function TaskListTable({ tasks, getStatusBadge, getUrgencyLabel }: TaskLi
                 <span className="flex items-center gap-1">Priority <ArrowUpDown className="w-3 h-3" /></span>
               </th>
               <th className="text-left py-3 px-2 text-xs font-medium text-muted-foreground">
-                <span className="flex items-center gap-1">Assign <ArrowUpDown className="w-3 h-3" /></span>
+                <span className="flex items-center gap-1">Assignee <ArrowUpDown className="w-3 h-3" /></span>
               </th>
               <th className="text-left py-3 px-2 text-xs font-medium text-muted-foreground">
-                <span className="flex items-center gap-1">Assign <ArrowUpDown className="w-3 h-3" /></span>
+                <span className="flex items-center gap-1">Tags <ArrowUpDown className="w-3 h-3" /></span>
               </th>
               <th className="w-8"></th>
             </tr>
@@ -92,9 +93,9 @@ export function TaskListTable({ tasks, getStatusBadge, getUrgencyLabel }: TaskLi
                   </div>
                 </td>
                 <td className="py-3 px-2">
-                  <button className="text-muted-foreground hover:text-foreground">
+                  <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
                     <MoreHorizontal className="w-4 h-4" />
-                  </button>
+                  </Button>
                 </td>
               </tr>
             )) : (

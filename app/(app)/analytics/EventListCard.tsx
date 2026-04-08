@@ -26,9 +26,9 @@ interface EventListCardProps {
 
 export function EventListCard({ events, totalEvents }: EventListCardProps) {
   return (
-    <div className="bg-card-2 rounded-xl border border-border p-5">
+    <div className="bg-card-2 rounded-lg border border-border p-5">
       <div className="mb-4">
-        <h2 className="text-base font-semibold text-foreground">Event List</h2>
+        <h2 className="text-lg font-semibold text-foreground">Event List</h2>
         <p className="text-xs text-muted-foreground mt-0.5">
           {totalEvents} total analysis &middot; {events.length} shown
         </p>
@@ -40,7 +40,7 @@ export function EventListCard({ events, totalEvents }: EventListCardProps) {
             className="bg-background rounded-lg border border-border p-4 hover:border-primary/30 transition-colors"
           >
             <div className="flex items-start justify-between mb-2">
-              <h3 className="text-sm font-semibold text-foreground line-clamp-1">{event.title}</h3>
+              <h3 className="text-sm font-medium text-foreground line-clamp-1">{event.title}</h3>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 ml-2 flex-shrink-0">
                 <Bell className="w-3 h-3" /> Notify
               </span>

@@ -1,5 +1,5 @@
 // Extension connection utility
-// Handles communication between web app and ESAP Meeting Recorder extension
+// Handles communication between web app and Omini Listen recorder extension
 
 // Declare chrome as a global (it exists in Chrome/Edge browsers)
 declare const chrome: {

@@ -11,6 +11,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 // Predefined system presets
 import { SYSTEM_PRESETS } from '@/lib/presets';
@@ -45,6 +47,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
   const [view, setView] = useState<'list' | 'edit'>('list');
   const [editingPreset, setEditingPreset] = useState<Preset | null>(null);
   const [isSystemTemplate, setIsSystemTemplate] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<Preset | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     role: '',
@@ -179,9 +182,11 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
     }
   };
 
-  const handleDelete = async (preset: Preset) => {
-    if (!confirm(`Delete preset "${preset.name}"?`)) return;
+  const handleDelete = (preset: Preset) => {
+    setDeleteConfirm(preset);
+  };
 
+  const executeDelete = async (preset: Preset) => {
     try {
       await presetsAPI.deletePreset(preset.id);
       toast.success(`Deleted "${preset.name}"`, { duration: 2000 });
@@ -253,55 +258,51 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
 
         {/* Actions */}
         <div className="flex items-center gap-1.5 pt-3 border-t border-border">
-          <button
+          <Button
             onClick={() => handleSelectPreset(preset)}
             disabled={isActive || saving}
-            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+            loading={saving && !isActive}
+            className={`flex-1 ${
               isActive
-                ? 'bg-primary/10 text-primary cursor-default border border-primary/20'
-                : saving
-                  ? 'bg-primary/70 text-primary-foreground cursor-wait'
-                  : 'bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-hover'
+                ? 'bg-primary/10 text-primary cursor-default border border-primary/20 hover:bg-primary/10'
+                : ''
             }`}
           >
-            {saving ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                Saving...
-              </>
-            ) : isActive ? (
-              'Active'
-            ) : (
-              'Apply'
-            )}
-          </button>
+            {isActive ? 'Active' : (saving ? 'Saving...' : 'Apply')}
+          </Button>
 
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => handleEdit(preset)}
-            className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
+            className="h-auto w-auto p-2 text-muted-foreground hover:text-foreground"
             title={preset.is_system ? "Customize this template" : "Edit preset"}
           >
             <Edit2 className="w-3.5 h-3.5" />
-          </button>
+          </Button>
 
           {!preset.is_system && (
             <>
               {!preset.is_default && (
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => handleSetDefault(preset)}
-                  className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
+                  className="h-auto w-auto p-2 text-muted-foreground hover:text-foreground"
                   title="Set as default"
                 >
                   <Star className="w-3.5 h-3.5" />
-                </button>
+                </Button>
               )}
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => handleDelete(preset)}
-                className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+                className="h-auto w-auto p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                 title="Delete preset"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-              </button>
+              </Button>
             </>
           )}
         </div>
@@ -316,13 +317,15 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {view === 'edit' && (
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setView('list')}
-                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
+                className="h-auto w-auto p-1.5 text-muted-foreground hover:text-foreground"
                 title="Back to list"
               >
                 <ArrowLeft className="w-4 h-4" />
-              </button>
+              </Button>
             )}
             <DialogTitle>
               {view === 'list' ? 'Manage Presets' : (editingPreset ? 'Edit Preset' : (isSystemTemplate ? 'Customize Template' : 'Create Preset'))}
@@ -330,25 +333,24 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
           </div>
           <div className="flex items-center gap-2">
             {view === 'edit' && isSystemTemplate && (
-              <button
+              <Button
                 onClick={handleSavePreset}
                 disabled={saving || !formData.name || !formData.role || (formData.custom_field_only && !formData.user_input)}
-                className="flex items-center gap-2 px-3.5 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                loading={saving}
+                size="sm"
+                iconLeft={!saving ? <Save className="w-3.5 h-3.5" /> : undefined}
               >
-                {saving ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <Save className="w-3.5 h-3.5" />
-                )}
                 {saving ? 'Saving...' : 'Save'}
-              </button>
+              </Button>
             )}
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={onClose}
-              className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
+              className="h-auto w-auto p-1.5 text-muted-foreground hover:text-foreground"
             >
               <X className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -368,13 +370,13 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                       {userPresets.length}
                     </span>
                   </div>
-                  <button
+                  <Button
                     onClick={handleCreateNew}
-                    className="px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary-hover text-sm font-medium flex items-center gap-1.5 transition-colors"
+                    size="sm"
+                    iconLeft={<Plus className="w-3.5 h-3.5" />}
                   >
-                    <Plus className="w-3.5 h-3.5" />
                     Create new
-                  </button>
+                  </Button>
                 </div>
 
                 {loading ? (
@@ -606,21 +608,23 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
 
                   {/* Footer buttons — full width, Cancel left, Submit right */}
                   <div className="flex items-center justify-between pt-6">
-                    <button
-                      type="button"
+                    <Button
+                      variant="outline"
                       onClick={() => setView('list')}
-                      className="px-6 py-3 text-base font-medium border border-border text-foreground rounded-lg hover:bg-muted transition-colors"
+                      size="lg"
+                      className="px-6 py-3 rounded-lg"
                     >
                       Cancel
-                    </button>
-                    <button
-                      type="button"
+                    </Button>
+                    <Button
                       onClick={handleSavePreset}
                       disabled={saving || !formData.name || !formData.role || (formData.custom_field_only && !formData.user_input)}
-                      className="px-8 py-3 text-base font-medium bg-[#4a7c59] text-white rounded-lg hover:bg-[#3d6a4b] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      loading={saving}
+                      size="lg"
+                      className="px-8 py-3 rounded-lg"
                     >
-                      {saving ? 'Saving...' : 'Submit'}
-                    </button>
+                      Submit
+                    </Button>
                   </div>
                 </>
               )}
@@ -628,6 +632,20 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
           )}
         </div>
       </DialogContent>
+      {deleteConfirm && (
+        <ConfirmDialog
+          isOpen={!!deleteConfirm}
+          title="Delete Preset"
+          message={`Are you sure you want to delete "${deleteConfirm.name}"? This action cannot be undone.`}
+          confirmLabel="Delete"
+          variant="danger"
+          onConfirm={() => {
+            executeDelete(deleteConfirm);
+            setDeleteConfirm(null);
+          }}
+          onCancel={() => setDeleteConfirm(null)}
+        />
+      )}
     </MotionDialog>
   );
 }

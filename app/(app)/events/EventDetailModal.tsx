@@ -27,7 +27,7 @@ interface Event {
   attendees?: string[];
   assignee?: string;
   meetingId?: string;
-  type: 'meeting' | 'task' | 'deadline';
+  type: 'conversation' | 'task' | 'deadline';
   synced?: boolean;
   calendarEventId?: string;
   isManual?: boolean;

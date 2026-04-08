@@ -76,7 +76,7 @@ export default function SignInPage() {
       }
 
       if (user) {
-        router.push('/dashboard');
+        router.push('/listen');
         return;
       }
 
@@ -187,7 +187,7 @@ export default function SignInPage() {
       setShowCalendarModal(true);
     } else {
       // Calendar already connected, go to dashboard
-      router.push('/dashboard');
+      router.push('/listen');
     }
   };
 
@@ -199,7 +199,7 @@ export default function SignInPage() {
     } catch (error) {
       toast.error('Failed to connect calendar. Please try again from Settings.');
       setShowCalendarModal(false);
-      router.push('/dashboard');
+      router.push('/listen');
     } finally {
       setIsConnectingCalendarModal(false);
     }
@@ -207,7 +207,7 @@ export default function SignInPage() {
 
   const handleSkipCalendar = () => {
     setShowCalendarModal(false);
-    router.push('/dashboard');
+    router.push('/listen');
   };
 
   const handleGoogleResponse = async (response: any) => {
@@ -242,8 +242,8 @@ export default function SignInPage() {
       await calendarAPI.handleCallback(code, state);
       await refreshUser();
       toast.success('Calendar connected successfully!');
-      window.history.replaceState({}, document.title, '/dashboard');
-      router.push('/dashboard');
+      window.history.replaceState({}, document.title, '/listen');
+      router.push('/listen');
     } catch (error) {
       const errorMsg = 'Failed to connect calendar';
       setError(errorMsg);
@@ -323,12 +323,11 @@ export default function SignInPage() {
           <Link href="/" className="inline-flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
             <img
               src="/esapai_logo.png"
-              alt="ESAPListen"
+              alt="Omini Listen"
               className="h-12 w-12 rounded-xl shadow-lg"
             />
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              <span className="text-primary">ESAP</span>
-              <span>AI</span>
+              <span className="text-primary">Omini</span>
               <span className="text-primary">Listen</span>
             </h1>
           </Link>

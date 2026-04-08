@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
-import { meetingsAPI, analyticsAPI } from '@/lib/api';
+import { conversationsAPI, analyticsAPI } from '@/lib/api';
+
 import { sortByUrgencyThenDate } from '@/lib/utils';
 
 export function useDashboardData(user: any, loading: boolean, isLoggingOut: boolean) {
   const [analytics, setAnalytics] = useState<any>(null);
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
   const [tasks, setTasks] = useState<any[]>([]);
-  const [recentMeetings, setRecentMeetings] = useState<any[]>([]);
+  const [recentConversations, setRecentConversations] = useState<any[]>([]);
 
   const fetchUpcomingEvents = async () => {
     try {
-      const eventsResponse = await meetingsAPI.getAllEvents();
+      const eventsResponse = await conversationsAPI.getAllEvents();
       const now = new Date();
       const allEvents: any[] = [];
 
@@ -28,7 +29,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
                   description: event.description || '',
                   urgency: event.urgency || 'no',
                   completed: event.completed || false,
-                  meetingId: event.meeting_id || '',
+                  conversationId: event.meeting_id || '',
                 });
               }
             }
@@ -51,8 +52,8 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
   const fetchTasks = async () => {
     try {
       const [eventsResponse, notesResponse] = await Promise.all([
-        meetingsAPI.getAllEvents(),
-        meetingsAPI.getAllNotes()
+        conversationsAPI.getAllEvents(),
+        conversationsAPI.getAllNotes()
       ]);
 
       const allTasks: any[] = [];
@@ -69,7 +70,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
               category: event.category,
               description: event.description || '',
               urgency: event.urgency || 'no',
-              meetingId: event.meeting_id || '',
+              conversationId: event.meeting_id || '',
               assignee: event.assignee,
             });
           } catch (err) {
@@ -89,7 +90,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
               category: note.category || note.note_type,
               description: note.description || '',
               urgency: note.urgency || 'no',
-              meetingId: note.meeting_id || '',
+              conversationId: note.meeting_id || '',
               assignee: note.assignee,
             });
           } catch (err) {
@@ -103,16 +104,16 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
     }
   };
 
-  const fetchRecentMeetings = async () => {
+  const fetchRecentConversations = async () => {
     try {
-      const response = await meetingsAPI.getMeetings(5, 0);
+      const response = await conversationsAPI.getConversations(5, 0);
       if (response.meetings && Array.isArray(response.meetings)) {
-        const meetings = response.meetings.map((meeting: any) => ({
-          job_id: meeting.job_id,
-          title: meeting.title || 'Meeting Analysis',
-          created_at: new Date(meeting.created_at),
+        const conversations = response.meetings.map((item: any) => ({
+          job_id: item.job_id,
+          title: item.title || 'Conversation Analysis',
+          created_at: new Date(item.created_at),
         }));
-        setRecentMeetings(meetings);
+        setRecentConversations(conversations);
       }
     } catch (error) {
     }
@@ -120,7 +121,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
 
   const handleToggleTask = async (taskId: number, completed: boolean) => {
     try {
-      await meetingsAPI.toggleTaskCompletion(taskId, completed);
+      await conversationsAPI.toggleTaskCompletion(taskId, completed);
       setTasks(tasks.map(task =>
         task.id === taskId ? { ...task, completed } : task
       ));
@@ -132,7 +133,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
 
   const handleDeleteTask = async (taskId: number) => {
     try {
-      await meetingsAPI.deleteEvent(taskId);
+      await conversationsAPI.deleteEvent(taskId);
       setTasks(tasks.filter(task => task.id !== taskId));
       fetchUpcomingEvents();
     } catch (error) {
@@ -144,7 +145,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
       return;
     }
     try {
-      await meetingsAPI.deleteEvent(eventId);
+      await conversationsAPI.deleteEvent(eventId);
       setUpcomingEvents(upcomingEvents.filter(event => event.id !== eventId));
     } catch (error) {
     }
@@ -158,7 +159,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
       analyticsAPI.getAnalytics().then(setAnalytics).catch(() => {});
       fetchUpcomingEvents();
       fetchTasks();
-      fetchRecentMeetings();
+      fetchRecentConversations();
     }
   }, [user, loading, isLoggingOut]);
 
@@ -166,7 +167,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
     analytics,
     upcomingEvents,
     tasks,
-    recentMeetings,
+    recentConversations,
     handleToggleTask,
     handleDeleteTask,
     handleDeleteEvent,

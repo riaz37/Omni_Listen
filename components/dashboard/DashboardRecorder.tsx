@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import DashboardProcessing from './DashboardProcessing';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
 
 interface RecorderConfig {
   user_input: string;
@@ -142,9 +143,10 @@ export default function DashboardRecorder({
 
     return (
       <div className="rounded-lg text-left border border-border">
-        <button
+        <Button
+          variant="ghost"
           onClick={() => setShowAnalysisBox(!showAnalysisBox)}
-          className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left rounded-lg"
+          className="w-full flex items-center justify-between p-4 h-auto text-left rounded-lg"
         >
           <div className="flex items-center gap-2">
             <span className="font-semibold text-foreground">
@@ -153,7 +155,7 @@ export default function DashboardRecorder({
                 : 'Additional Analysis (Optional)'}
             </span>
             {config.user_input && (
-              <span className="text-xs bg-primary/10 text-text-primary px-2 py-0.5 rounded-full font-medium">
+              <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
                 Active
               </span>
             )}
@@ -161,7 +163,7 @@ export default function DashboardRecorder({
           <div className="text-muted-foreground">
             {showAnalysisBox ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </div>
-        </button>
+        </Button>
 
         {showAnalysisBox && (
           <div className={`p-4 border-t ${config.custom_field_only
@@ -179,45 +181,45 @@ export default function DashboardRecorder({
               <div className="mb-3">
                 <p className="text-xs font-medium text-muted-foreground mb-2">Quick Access</p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
                     onClick={() => handleChipClick("What were the main budget concerns discussed?")}
-                    className={`p-3 rounded-lg border text-left transition-colors ${
+                    className={`p-3 h-auto rounded-lg border text-left flex flex-col items-start overflow-hidden min-w-0 ${
                       isChipActive("What were the main budget concerns discussed?")
                         ? 'border-primary bg-primary/5'
                         : 'border-border bg-card hover:border-primary/50'
                     }`}
                   >
-                    <Landmark className="w-4 h-4 text-muted-foreground mb-2" />
-                    <p className="text-sm font-semibold text-foreground truncate">Budget concerns</p>
-                    <p className="text-xs text-muted-foreground truncate">What were the main budget concerns discuss...</p>
-                  </button>
-                  <button
-                    type="button"
+                    <Landmark className="w-4 h-4 text-muted-foreground mb-2 shrink-0" />
+                    <p className="text-sm font-semibold text-foreground truncate w-full">Budget concerns</p>
+                    <p className="text-xs text-muted-foreground truncate w-full">What were the main budget concerns discuss...</p>
+                  </Button>
+                  <Button
+                    variant="ghost"
                     onClick={() => handleChipClick("List all action items with assigned owners and deadlines")}
-                    className={`p-3 rounded-lg border text-left transition-colors ${
+                    className={`p-3 h-auto rounded-lg border text-left flex flex-col items-start overflow-hidden min-w-0 ${
                       isChipActive("List all action items with assigned owners and deadlines")
                         ? 'border-primary bg-primary/5'
                         : 'border-border bg-card hover:border-primary/50'
                     }`}
                   >
-                    <ListChecks className="w-4 h-4 text-muted-foreground mb-2" />
-                    <p className="text-sm font-semibold text-foreground truncate">Action Items</p>
-                    <p className="text-xs text-muted-foreground truncate">List all action items with assigned owners and dea...</p>
-                  </button>
-                  <button
-                    type="button"
+                    <ListChecks className="w-4 h-4 text-muted-foreground mb-2 shrink-0" />
+                    <p className="text-sm font-semibold text-foreground truncate w-full">Action Items</p>
+                    <p className="text-xs text-muted-foreground truncate w-full">List all action items with assigned owners and dea...</p>
+                  </Button>
+                  <Button
+                    variant="ghost"
                     onClick={() => handleChipClick("Summarize all technical decisions and their rationale")}
-                    className={`p-3 rounded-lg border text-left transition-colors ${
+                    className={`p-3 h-auto rounded-lg border text-left flex flex-col items-start overflow-hidden min-w-0 ${
                       isChipActive("Summarize all technical decisions and their rationale")
                         ? 'border-primary bg-primary/5'
                         : 'border-border bg-card hover:border-primary/50'
                     }`}
                   >
-                    <Settings className="w-4 h-4 text-muted-foreground mb-2" />
-                    <p className="text-sm font-semibold text-foreground truncate">Technical decisions</p>
-                    <p className="text-xs text-muted-foreground truncate">Summarize all technical decisions and their ratio...</p>
-                  </button>
+                    <Settings className="w-4 h-4 text-muted-foreground mb-2 shrink-0" />
+                    <p className="text-sm font-semibold text-foreground truncate w-full">Technical decisions</p>
+                    <p className="text-xs text-muted-foreground truncate w-full">Summarize all technical decisions and their ratio...</p>
+                  </Button>
                 </div>
               </div>
 
@@ -237,12 +239,12 @@ export default function DashboardRecorder({
                 }}
                 placeholder={
                   config.custom_field_only
-                    ? "Custom analysis active.\n\nDescribe what you want to extract from the meeting:\n• Focus on specific topics\n• Ask targeted questions\n• Request particular formats"
+                    ? "Custom analysis active.\n\nDescribe what you want to extract from the conversation:\n• Focus on specific topics\n• Ask targeted questions\n• Request particular formats"
                     : mode === 'upload'
-                      ? "describe what you want to extract...\n\nExamples:\n• List the risks indentified.\n• Who is assigned to each task?\n• What follow-up meetings were scheduled?"
-                      : "Describe what you want to extract...\n\nExamples:\n• What risks were identified?\n• Who is assigned to each task?\n• What follow-up meetings were scheduled?"
+                      ? "describe what you want to extract...\n\nExamples:\n• List the risks indentified.\n• Who is assigned to each task?\n• What follow-ups were scheduled?"
+                      : "Describe what you want to extract...\n\nExamples:\n• What risks were identified?\n• Who is assigned to each task?\n• What follow-ups were scheduled?"
                 }
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm ${config.custom_field_only
+                className={`w-full px-4 py-3 border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm ${config.custom_field_only
                   ? 'border-primary/30 bg-card'
                   : 'border-border bg-card'
                   }`}
@@ -286,7 +288,7 @@ export default function DashboardRecorder({
   return (
     <div className="lg:col-span-2">
       <div>
-        <div className="bg-card rounded-xl shadow-sm border border-border p-1">
+        <div className="bg-card rounded-lg shadow-sm border border-border p-1">
           {/* Segmented Control Tabs */}
           <div className="relative grid grid-cols-2 p-1 bg-muted/50 rounded-lg mb-6 border border-border">
             {/* Sliding indicator */}
@@ -295,26 +297,28 @@ export default function DashboardRecorder({
               animate={{ x: inputMode === 'record' ? 4 : 'calc(100% + 4px)' }}
               transition={{ type: 'spring', stiffness: 300, damping: 24, mass: 0.8 }}
             />
-            <button
+            <Button
+              variant="ghost"
               onClick={() => setInputMode('record')}
-              className={`relative z-10 flex items-center justify-center gap-2 py-3 text-sm font-semibold rounded-md transition-colors duration-200 ${inputMode === 'record'
-                ? 'text-red-500'
-                : 'text-red-400/70 hover:text-red-500'
+              className={`relative z-10 gap-2 py-3 h-auto text-sm font-semibold rounded-md ${inputMode === 'record'
+                ? 'text-primary hover:text-primary'
+                : 'text-muted-foreground hover:text-foreground'
                 }`}
             >
               <AudioLines className="w-4 h-4" />
               Voice
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
               onClick={() => setInputMode('upload')}
-              className={`relative z-10 flex items-center justify-center gap-2 py-3 text-sm font-semibold rounded-md transition-colors duration-200 ${inputMode === 'upload'
-                ? 'text-primary'
+              className={`relative z-10 gap-2 py-3 h-auto text-sm font-semibold rounded-md ${inputMode === 'upload'
+                ? 'text-primary hover:text-primary'
                 : 'text-muted-foreground hover:text-foreground'
                 }`}
             >
               <Upload className="w-4 h-4" />
               File Upload
-            </button>
+            </Button>
           </div>
 
           <div className="px-6 pb-8">
@@ -356,13 +360,15 @@ export default function DashboardRecorder({
                               {(file.size / (1024 * 1024)).toFixed(2)} MB
                             </p>
                           </div>
-                          <button
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={onClearFile}
-                            className="ml-3 p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex-shrink-0"
+                            className="ml-3 h-auto w-auto p-1.5 text-muted-foreground hover:text-foreground flex-shrink-0"
                             title="Remove file"
                           >
                             <X className="w-4 h-4" />
-                          </button>
+                          </Button>
                         </div>
                       )}
                     </label>
@@ -371,13 +377,13 @@ export default function DashboardRecorder({
                     {renderAnalysisBox('upload')}
 
                     {/* Process Button */}
-                    <button
+                    <Button
                       onClick={inputMode === 'upload' ? onUpload : onUploadRecording}
                       disabled={inputMode === 'upload' ? !file : !audioUrl}
-                      className="w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 disabled:bg-primary/20 disabled:text-primary/40 disabled:cursor-not-allowed bg-primary text-primary-foreground hover:bg-primary-hover hover:shadow-md"
+                      className="w-full py-3 px-4 rounded-lg font-medium disabled:bg-primary/20 disabled:text-primary/40"
                     >
                       {(inputMode === 'upload' && !file) ? 'Select a file to process' : 'Process Audio'}
-                    </button>
+                    </Button>
                   </>
                 )}
 
@@ -428,38 +434,40 @@ export default function DashboardRecorder({
                     {/* Controls */}
                     <div className="flex items-center gap-8">
                       {!isRecording ? (
-                        <button
+                        <Button
                           onClick={onStartRecording}
-                          className="group relative flex items-center justify-center w-20 h-20 rounded-full bg-primary text-primary-foreground shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-primary/20"
+                          className="group relative w-20 h-20 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 focus:ring-4 focus:ring-primary/20"
                         >
                           <Mic className="w-8 h-8 group-hover:scale-110 transition-transform duration-300" />
-                        </button>
+                        </Button>
                       ) : (
                         <>
-                          <button
+                          <Button
+                            variant="secondary"
                             onClick={isPaused ? onResumeRecording : onPauseRecording}
-                            className="flex items-center justify-center w-16 h-16 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-all duration-200 shadow-sm hover:shadow-md"
+                            className="w-16 h-16 rounded-full shadow-sm hover:shadow-md"
                             title={isPaused ? "Resume recording" : "Pause recording"}
                           >
                             {isPaused ? <Play className="w-6 h-6 fill-current" /> : <Pause className="w-6 h-6 fill-current" />}
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             onClick={() => {
                               onSetAutoProcess(true);
                               onStopRecording();
                             }}
-                            className="group flex items-center justify-center w-20 h-20 rounded-full bg-foreground text-background hover:bg-foreground/90 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105"
+                            className="group w-20 h-20 rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-xl hover:shadow-2xl hover:scale-105"
                             title="Stop and process"
                           >
                             <Square className="w-8 h-8 fill-current group-hover:scale-90 transition-transform duration-200" />
-                          </button>
-                          <button
+                          </Button>
+                          <Button
+                            variant="secondary"
                             onClick={onCancelRecording}
-                            className="flex items-center justify-center w-16 h-16 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-all duration-200 shadow-sm hover:shadow-md"
+                            className="w-16 h-16 rounded-full shadow-sm hover:shadow-md"
                             title="Cancel recording"
                           >
                             <X className="w-6 h-6" />
-                          </button>
+                          </Button>
                         </>
                       )}
                     </div>

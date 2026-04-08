@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { meetingsAPI } from '@/lib/api';
+import { conversationsAPI } from '@/lib/api';
 import { Send, Bot, User, Loader2, MessageSquare, X, ChevronDown } from 'lucide-react';
 
 interface Message {
@@ -37,7 +37,7 @@ export default function FloatingChat({ jobId }: FloatingChatProps) {
         setIsLoading(true);
 
         try {
-            const response = await meetingsAPI.queryMeeting(jobId, userMessage);
+            const response = await conversationsAPI.queryConversation(jobId, userMessage);
             setMessages(prev => [...prev, { role: 'assistant', content: response.answer }]);
         } catch (error) {
             setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error processing your request.' }]);
@@ -62,7 +62,7 @@ export default function FloatingChat({ jobId }: FloatingChatProps) {
                     <div className="p-4 bg-primary text-primary-foreground flex justify-between items-center">
                         <div className="flex items-center gap-2">
                             <Bot className="w-5 h-5" />
-                            <h3 className="font-semibold">Meeting Assistant</h3>
+                            <h3 className="font-semibold">Omini Assistant</h3>
                         </div>
                         <button
                             onClick={() => setIsOpen(false)}
@@ -80,7 +80,7 @@ export default function FloatingChat({ jobId }: FloatingChatProps) {
                                     <Bot className="w-6 h-6 text-primary" />
                                 </div>
                                 <p className="font-medium text-foreground">How can I help?</p>
-                                <p className="text-sm mt-1">Ask me anything about this meeting.</p>
+                                <p className="text-sm mt-1">Ask me anything about this conversation.</p>
                                 <div className="mt-4 space-y-2">
                                     <button
                                         onClick={() => setQuery("What were the key decisions?")}

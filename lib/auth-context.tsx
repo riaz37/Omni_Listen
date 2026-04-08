@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Extension communication is optional, ignore errors
     }
 
-    // Navigate first to avoid protected route redirects (like /dashboard -> /signin)
+    // Navigate first to avoid protected route redirects (like /listen -> /signin)
     router.push('/');
 
     // Clear state after a brief delay to allow navigation to start

@@ -1,13 +1,11 @@
-import { MessageSquare } from 'lucide-react';
-
 export function QueriesSkeleton() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header Skeleton */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <MessageSquare className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold text-foreground">Additional Analysis History</h1>
+          <div className="w-8 h-8 bg-muted rounded animate-pulse" />
+          <div className="h-8 w-72 bg-muted rounded animate-pulse" />
         </div>
         <div className="h-4 w-48 bg-muted rounded animate-pulse mt-2" />
       </div>

@@ -7,7 +7,7 @@ import { Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 const testimonials = [
   {
     quote:
-      'ESAPAIListen changed how our team runs meetings. We used to lose track of action items constantly. Now everything is captured and synced automatically.',
+      'Omini Listen changed how I handle conversations. I used to lose track of action items constantly. Now everything is captured and synced automatically.',
     name: 'Sarah Chen',
     role: 'Product Manager',
     company: 'TechFlow Inc.',
@@ -23,7 +23,7 @@ const testimonials = [
   },
   {
     quote:
-      'I run 6-8 meetings a day. Having every decision, task, and deadline automatically extracted saves me at least an hour of manual note-taking.',
+      'I have 6-8 conversations a day. Having every decision, task, and deadline automatically extracted saves me at least an hour of manual note-taking.',
     name: 'Maria Rodriguez',
     role: 'VP of Operations',
     company: 'GrowthLab',
@@ -60,7 +60,7 @@ export default function Testimonials() {
               Loved by Teams
             </h2>
             <p className="text-lg text-muted-foreground">
-              See what people are saying about ESAPAIListen.
+              See what people are saying about Omini Listen.
             </p>
           </motion.div>
 

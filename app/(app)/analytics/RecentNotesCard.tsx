@@ -22,9 +22,9 @@ interface RecentNotesCardProps {
 
 export function RecentNotesCard({ notes, totalNotes, getCategoryBadge }: RecentNotesCardProps) {
   return (
-    <div className="bg-card-2 rounded-xl border border-border p-5">
+    <div className="bg-card-2 rounded-lg border border-border p-5">
       <div className="mb-4">
-        <h2 className="text-base font-semibold text-foreground">Recent Notes</h2>
+        <h2 className="text-lg font-semibold text-foreground">Recent Notes</h2>
         <p className="text-xs text-muted-foreground mt-0.5">
           {totalNotes} total Notes &middot; {notes.length} shown
         </p>
@@ -36,7 +36,7 @@ export function RecentNotesCard({ notes, totalNotes, getCategoryBadge }: RecentN
             className="bg-background rounded-lg border border-border p-4 hover:border-primary/30 transition-colors"
           >
             <div className="flex items-start justify-between mb-2">
-              <h3 className="text-sm font-semibold text-foreground line-clamp-1">{note.title}</h3>
+              <h3 className="text-sm font-medium text-foreground line-clamp-1">{note.title}</h3>
               <div className="ml-2 flex-shrink-0">
                 {getCategoryBadge(note.category)}
               </div>

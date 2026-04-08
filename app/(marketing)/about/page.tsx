@@ -8,10 +8,10 @@ export default function AboutPage() {
             <div className="bg-primary/5 border-b border-primary/10">
                 <div className="max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8 text-center">
                     <h1 className="text-4xl md:text-6xl font-extrabold text-foreground mb-6">
-                        Empowering <span className="text-primary">Conversations</span>
+                        Your Personal <span className="text-primary">AI Listener</span>
                     </h1>
                     <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                        We are building the intelligence layer for your meetings, turning ephemeral words into lasting knowledge.
+                        We are building the AI assistant that captures every conversation, turning spoken words into organized, actionable knowledge.
                     </p>
                 </div>
             </div>
@@ -26,10 +26,10 @@ export default function AboutPage() {
                                 It started with a simple problem: <strong>Where did that note go?</strong>
                             </p>
                             <p>
-                                We realized that millions of brilliant ideas, critical decisions, and action items were being lost every day in the chaos of back-to-back meetings. Notebooks get lost, memories fade, and manual transcription is a chore that no one enjoys.
+                                We realized that millions of brilliant ideas, critical decisions, and action items were being lost every day in the chaos of conversations. Notebooks get lost, memories fade, and manual transcription is a chore that no one enjoys.
                             </p>
                             <p>
-                                ESAPAIListen was born from the desire to capture that value. We wanted to build a tool that didn't just record audio, but actually <em>understood</em> it—giving you back the context and clarity you need to move forward.
+                                Omini Listen was born from the desire to capture that value. We wanted to build a personal AI assistant that didn't just record audio, but actually <em>understood</em> it—giving you back the context and clarity you need to move forward.
                             </p>
                         </div>
                     </div>
@@ -37,7 +37,7 @@ export default function AboutPage() {
                         {/* Placeholder for Team Image or Illustration */}
                         <div className="text-center">
                             <Users className="w-24 h-24 text-muted-foreground/50 mx-auto mb-4" />
-                            <p className="text-muted-foreground font-medium">ESAPAI Team at work</p>
+                            <p className="text-muted-foreground font-medium">Omini Listen Team at work</p>
                         </div>
                     </div>
                 </div>

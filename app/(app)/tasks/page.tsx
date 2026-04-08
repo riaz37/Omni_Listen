@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { meetingsAPI } from '@/lib/api';
+import { conversationsAPI } from '@/lib/api';
 import { toast } from 'sonner';
 import { normalizeUrgency, sortByUrgencyThenDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -65,8 +65,8 @@ export default function TasksPage() {
     setIsLoading(true);
     try {
       const [eventsResponse, notesResponse] = await Promise.all([
-        meetingsAPI.getAllEvents(),
-        meetingsAPI.getAllNotes()
+        conversationsAPI.getAllEvents(),
+        conversationsAPI.getAllNotes()
       ]);
 
       const allTasks: Task[] = [];
@@ -123,7 +123,7 @@ export default function TasksPage() {
 
   const handleToggleTask = async (taskId: number, completed: boolean) => {
     try {
-      await meetingsAPI.toggleTaskCompletion(taskId, completed);
+      await conversationsAPI.toggleTaskCompletion(taskId, completed);
       setTasks(tasks.map(task =>
         task.id === taskId ? { ...task, completed } : task
       ));
@@ -140,7 +140,7 @@ export default function TasksPage() {
       message: 'Are you sure you want to delete this task?',
       onConfirm: async () => {
         try {
-          await meetingsAPI.deleteEvent(taskId);
+          await conversationsAPI.deleteEvent(taskId);
           setTasks(tasks.filter(task => task.id !== taskId));
           toast.success('Task deleted successfully');
         } catch (error) {
@@ -157,7 +157,7 @@ export default function TasksPage() {
     }
 
     try {
-      const createdTask = await meetingsAPI.createTask({
+      const createdTask = await conversationsAPI.createTask({
         title: newTask.title,
         description: newTask.description,
         date: newTask.date || new Date().toISOString().split('T')[0],
@@ -268,7 +268,7 @@ export default function TasksPage() {
           <div className="flex items-center justify-between mb-1">
             <div>
               <h1 className="text-2xl font-bold text-foreground">Task List</h1>
-              <p className="text-muted-foreground text-sm">All tasks extracted from your meetings</p>
+              <p className="text-muted-foreground text-sm">All tasks extracted from your conversations</p>
             </div>
             <Button
               onClick={() => setShowAddTaskModal(true)}

@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { meetingsAPI } from '@/lib/api';
+import { conversationsAPI } from '@/lib/api';
 import Pagination from '@/components/Pagination';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, Search, Filter, Download, ArrowUpDown, TrendingUp, FileText } from 'lucide-react';
@@ -47,7 +47,7 @@ export default function QueriesPage() {
   const fetchQueries = async () => {
     setLoading(true);
     try {
-      const meetings = await meetingsAPI.getAllMeetings();
+      const meetings = await conversationsAPI.getAllConversations();
       const allQueries: QueryResult[] = [];
 
       meetings.forEach((meeting: any) => {
@@ -152,10 +152,7 @@ export default function QueriesPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <MessageSquare className="w-8 h-8 text-primary" />
-                <h1 className="text-2xl font-bold text-foreground">Additional Analysis History</h1>
-              </div>
+              <h1 className="text-2xl font-bold text-foreground mb-2">Additional Analysis History</h1>
               <p className="text-muted-foreground">
                 {queries.length} total analysis • {filteredQueries.length} shown
               </p>
@@ -211,55 +208,55 @@ export default function QueriesPage() {
         </div>
 
         {/* Filters & Search */}
-        <div className="mb-6 space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search additional analysis..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-background text-foreground border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary placeholder:text-muted-foreground"
-              />
-            </div>
+          <div className="mb-6 space-y-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* Search */}
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search additional analysis..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 bg-card text-foreground text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/40 placeholder:text-muted-foreground"
+                />
+              </div>
 
-            {/* Filter by Type */}
-            <div className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-muted-foreground" />
-              <CustomDropdown
-                value={filterType}
-                onChange={(val) => {
-                  setFilterType(val);
-                  setCurrentPage(1);
-                }}
-                options={[
-                  { value: 'all', label: 'All Types' },
-                  { value: 'summary', label: 'Summary' },
-                  { value: 'analysis', label: 'Analysis' },
-                  { value: 'list', label: 'List' },
-                  { value: 'comparison', label: 'Comparison' },
-                  { value: 'search', label: 'Search' },
-                  { value: 'question', label: 'Question' },
-                ]}
-              />
-            </div>
+              {/* Filter by Type */}
+              <div className="flex items-center gap-2">
+                <Filter className="w-5 h-5 text-muted-foreground" />
+                <CustomDropdown
+                  value={filterType}
+                  onChange={(val) => {
+                    setFilterType(val);
+                    setCurrentPage(1);
+                  }}
+                  options={[
+                    { value: 'all', label: 'All Types' },
+                    { value: 'summary', label: 'Summary' },
+                    { value: 'analysis', label: 'Analysis' },
+                    { value: 'list', label: 'List' },
+                    { value: 'comparison', label: 'Comparison' },
+                    { value: 'search', label: 'Search' },
+                    { value: 'question', label: 'Question' },
+                  ]}
+                />
+              </div>
 
-            {/* Sort */}
-            <div className="flex items-center gap-2">
-              <ArrowUpDown className="w-5 h-5 text-muted-foreground" />
-              <CustomDropdown
-                value={sortBy}
-                onChange={(val) => setSortBy(val as 'newest' | 'oldest')}
-                options={[
-                  { value: 'newest', label: 'Newest First' },
-                  { value: 'oldest', label: 'Oldest First' },
-                ]}
-              />
+              {/* Sort */}
+              <div className="flex items-center gap-2">
+                <ArrowUpDown className="w-5 h-5 text-muted-foreground" />
+                <CustomDropdown
+                  value={sortBy}
+                  onChange={(val) => setSortBy(val as 'newest' | 'oldest')}
+                  options={[
+                    { value: 'newest', label: 'Newest First' },
+                    { value: 'oldest', label: 'Oldest First' },
+                  ]}
+                />
+              </div>
             </div>
           </div>
-        </div>
 
         {/* Queries List */}
         {filteredQueries.length === 0 ? (
@@ -274,15 +271,15 @@ export default function QueriesPage() {
               <p className="text-muted-foreground mb-6">
                 {searchTerm || filterType !== 'all'
                   ? 'Try adjusting your search or filter criteria'
-                  : 'Start asking questions when processing meetings to see them here'}
+                  : 'Start asking questions when processing conversations to see them here'}
               </p>
               {!searchTerm && filterType === 'all' && (
                 <Button
-                  onClick={() => router.push('/dashboard')}
+                  onClick={() => router.push('/listen')}
                   iconLeft={<MessageSquare className="w-4 h-4" />}
                   size="lg"
                 >
-                  Go to Dashboard
+                  Go to Listen
                 </Button>
               )}
             </div>
@@ -301,7 +298,7 @@ export default function QueriesPage() {
                     copiedIndex={copiedIndex}
                     onToggleExpand={setExpandedIndex}
                     onCopy={copyToClipboard}
-                    onNavigateToMeeting={(meetingId) => router.push(`/meeting?id=${meetingId}`)}
+                    onNavigateToMeeting={(meetingId) => router.push(`/conversation?id=${meetingId}`)}
                   />
                 );
               })}

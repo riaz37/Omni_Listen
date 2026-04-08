@@ -14,10 +14,10 @@ interface CalendarEventModalProps {
   calendarConnected: boolean;
   onClose: () => void;
   onSync: (event: CalendarEvent) => void;
-  onNavigateToMeeting: (meetingId: string) => void;
+  onNavigateToConversation: (conversationId: string) => void;
 }
 
-export function CalendarEventModal({ event, calendarConnected, onClose, onSync, onNavigateToMeeting }: CalendarEventModalProps) {
+export function CalendarEventModal({ event, calendarConnected, onClose, onSync, onNavigateToConversation }: CalendarEventModalProps) {
   return (
     <MotionDialog open onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-lg">
@@ -25,7 +25,7 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
           <DialogTitle className={event.completed ? 'line-through' : ''}>{event.title}</DialogTitle>
         </DialogHeader>
         <div className="flex items-center gap-2 mb-4">
-          <span className={`px-3 py-1 text-sm rounded-full ${event.type === 'meeting' ? 'bg-primary/10 text-text-primary' :
+          <span className={`px-3 py-1 text-sm rounded-full ${event.type === 'conversation' ? 'bg-primary/10 text-text-primary' :
               event.type === 'task' ? 'bg-accent text-accent-foreground' :
                 'bg-destructive/10 text-destructive'
             }`}>
@@ -114,14 +114,14 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
             </div>
           </div>
 
-          {event.meetingId && (
+          {event.conversationId && (
             <div className="pt-4 border-t border-border">
               <Button
-                onClick={() => onNavigateToMeeting(event.meetingId!)}
+                onClick={() => onNavigateToConversation(event.conversationId!)}
                 iconRight={<ChevronRight className="w-4 h-4" />}
                 className="w-full"
               >
-                View Meeting Details
+                View Conversation Details
               </Button>
             </div>
           )}
