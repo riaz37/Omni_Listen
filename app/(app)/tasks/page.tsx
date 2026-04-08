@@ -9,6 +9,7 @@ import PrimaryButton from '@/components/PrimaryButton';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { Search, Plus } from 'lucide-react';
 import { Skeleton } from 'boneyard-js/react';
+import CustomDropdown from '@/components/ui/custom-dropdown';
 import { TasksSkeleton } from './TasksSkeleton';
 import { TaskStatsCards } from './TaskStatsCards';
 import { TaskTable } from './TaskTable';
@@ -320,25 +321,25 @@ export default function TasksPage() {
           </div>
           <div className="flex items-center gap-3 ml-auto">
             <span className="text-sm text-muted-foreground">Status</span>
-            <select
+            <CustomDropdown
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value as 'all' | 'pending' | 'completed')}
-              className="px-3 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-            >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
-            </select>
+              onChange={(val) => setFilterType(val as 'all' | 'pending' | 'completed')}
+              options={[
+                { value: 'all', label: 'All Status' },
+                { value: 'pending', label: 'Pending' },
+                { value: 'completed', label: 'Completed' },
+              ]}
+            />
             <span className="text-sm text-muted-foreground">Priority</span>
-            <select
+            <CustomDropdown
               value={filterUrgency}
-              onChange={(e) => setFilterUrgency(e.target.value as 'all' | 'yes' | 'no')}
-              className="px-3 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-            >
-              <option value="all">All Priority</option>
-              <option value="yes">Urgent</option>
-              <option value="no">Normal</option>
-            </select>
+              onChange={(val) => setFilterUrgency(val as 'all' | 'yes' | 'no')}
+              options={[
+                { value: 'all', label: 'All Priority' },
+                { value: 'yes', label: 'Urgent' },
+                { value: 'no', label: 'Normal' },
+              ]}
+            />
           </div>
         </div>
 

@@ -7,6 +7,7 @@ import { meetingsAPI } from '@/lib/api';
 import { useToast } from '@/components/Toast';
 import EmptyState from '@/components/EmptyState';
 import PrimaryButton from '@/components/PrimaryButton';
+import CustomDropdown from '@/components/ui/custom-dropdown';
 import {
   StickyNote,
   Search,
@@ -430,14 +431,14 @@ export default function NotesPage() {
             {/* Right: sort */}
             <div className="flex items-center gap-2">
               <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground" />
-              <select
+              <CustomDropdown
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as 'date' | 'type')}
-                className="text-xs font-medium bg-transparent text-muted-foreground hover:text-foreground border-none focus:ring-0 cursor-pointer pr-6 py-1"
-              >
-                <option value="date">Date</option>
-                <option value="type">Type</option>
-              </select>
+                onChange={(val) => setSortBy(val as 'date' | 'type')}
+                options={[
+                  { value: 'date', label: 'Date' },
+                  { value: 'type', label: 'Type' },
+                ]}
+              />
             </div>
           </div>
 

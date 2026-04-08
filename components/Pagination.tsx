@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import CustomDropdown from '@/components/ui/custom-dropdown';
 
 interface PaginationProps {
   currentPage: number;
@@ -51,18 +52,17 @@ export default function Pagination({
         </div>
 
         <div className="flex items-center gap-2">
-          <label htmlFor="items-per-page" className="text-sm text-foreground">Items per page:</label>
-          <select
-            id="items-per-page"
-            value={itemsPerPage}
-            onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-            className="border border-border rounded-md text-sm py-1 px-2 bg-card text-foreground focus:ring-primary focus:border-primary"
-          >
-            <option value={10}>10</option>
-            <option value={25}>25</option>
-            <option value={50}>50</option>
-            <option value={100}>100</option>
-          </select>
+          <label className="text-sm text-foreground">Items per page:</label>
+          <CustomDropdown
+            value={String(itemsPerPage)}
+            onChange={(val) => onItemsPerPageChange(Number(val))}
+            options={[
+              { value: '10', label: '10' },
+              { value: '25', label: '25' },
+              { value: '50', label: '50' },
+              { value: '100', label: '100' },
+            ]}
+          />
         </div>
       </div>
 

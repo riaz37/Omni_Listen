@@ -1,4 +1,5 @@
 import { normalizeUrgency } from '@/lib/utils';
+import CustomDropdown from '@/components/ui/custom-dropdown';
 import {
   CheckCircle2,
   Trash2,
@@ -222,15 +223,15 @@ export function TaskTable({
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-sm">
             <span className="text-muted-foreground">Rows per page</span>
-            <select
-              value={rowsPerPage}
-              onChange={(e) => { onSetRowsPerPage(Number(e.target.value)); onSetCurrentPage(1); }}
-              className="px-2 py-1 bg-card text-foreground border border-border rounded focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-            >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-            </select>
+            <CustomDropdown
+              value={String(rowsPerPage)}
+              onChange={(val) => { onSetRowsPerPage(Number(val)); onSetCurrentPage(1); }}
+              options={[
+                { value: '10', label: '10' },
+                { value: '25', label: '25' },
+                { value: '50', label: '50' },
+              ]}
+            />
           </div>
           <span className="text-sm text-muted-foreground">
             Page {currentPage} of {totalPages || 1}

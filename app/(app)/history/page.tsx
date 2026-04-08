@@ -13,6 +13,7 @@ import { MeetingCard } from '@/components/MeetingCard';
 import { meetingsAPI } from '@/lib/api';
 import { exportMeetingsToCSV } from '@/lib/export';
 import { Skeleton } from 'boneyard-js/react';
+import CustomDropdown from '@/components/ui/custom-dropdown';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DURATIONS, EASINGS } from '@/lib/motion';
@@ -299,14 +300,14 @@ export default function HistoryPage() {
                       <div className="w-px h-5 bg-border/60 mx-1" />
 
                       <span className="text-sm text-muted-foreground">Sort By</span>
-                      <select
+                      <CustomDropdown
                         value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value as 'date' | 'events')}
-                        className="text-sm font-medium bg-card text-foreground border border-border rounded-lg focus:ring-0 focus:border-primary/40 cursor-pointer py-1.5 pl-2 pr-7"
-                      >
-                        <option value="events">Events</option>
-                        <option value="date">Date</option>
-                      </select>
+                        onChange={(val) => setSortBy(val as 'date' | 'events')}
+                        options={[
+                          { value: 'events', label: 'Events' },
+                          { value: 'date', label: 'Date' },
+                        ]}
+                      />
                     </div>
                   </div>
                 )}

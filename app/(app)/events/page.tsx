@@ -12,6 +12,7 @@ import RescheduleEventModal from '@/components/RescheduleEventModal';
 import { DateGroupedList } from '@/components/DateGroupedList';
 import PageEntrance from '@/components/ui/page-entrance';
 import PrimaryButton from '@/components/PrimaryButton';
+import CustomDropdown from '@/components/ui/custom-dropdown';
 import { EventsSkeleton } from './EventsSkeleton';
 import { Skeleton } from 'boneyard-js/react';
 import { EventDetailModal } from './EventDetailModal';
@@ -142,14 +143,14 @@ export default function EventsPage() {
             <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
               Sort By
             </div>
-            <select
+            <CustomDropdown
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'date' | 'type')}
-              className="px-3 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-            >
-              <option value="date">Events</option>
-              <option value="type">Type</option>
-            </select>
+              onChange={(val) => setSortBy(val as 'date' | 'type')}
+              options={[
+                { value: 'date', label: 'Events' },
+                { value: 'type', label: 'Type' },
+              ]}
+            />
           </div>
         </div>
 

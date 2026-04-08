@@ -13,7 +13,7 @@ export function EventListSidebar({ events, onSelectEvent, onToggleCompletion, on
   return (
     <>
       <div
-        className="fixed inset-0 bg-foreground/30 z-40"
+        className="fixed inset-0 bg-black/50 z-40"
         onClick={onClose}
       />
       <div className="fixed right-0 top-0 h-full w-96 bg-card border-l border-border shadow-xl z-50 flex flex-col">

@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import { X } from 'lucide-react';
 import PrimaryButton from '@/components/PrimaryButton';
 import AnimatedModal from '@/components/ui/animated-modal';
+import CustomDropdown from '@/components/ui/custom-dropdown';
 
 interface NewNoteData {
   title: string;
@@ -49,18 +50,18 @@ export function AddNoteModal({
             <label className="block text-sm font-medium text-foreground mb-1.5">
               Select Meting
             </label>
-            <select
+            <CustomDropdown
               value={newNoteData.meetingId}
-              onChange={(e) => setNewNoteData({ ...newNoteData, meetingId: e.target.value })}
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-            >
-              <option value="">Select a meeting...</option>
-              {meetings.map((meeting) => (
-                <option key={meeting.job_id} value={meeting.job_id}>
-                  {format(new Date(meeting.created_at), 'MMM dd, yyyy')} - Meeting
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setNewNoteData({ ...newNoteData, meetingId: val })}
+              options={[
+                { value: '', label: 'Select a meeting...' },
+                ...meetings.map((meeting) => ({
+                  value: meeting.job_id,
+                  label: `${format(new Date(meeting.created_at), 'MMM dd, yyyy')} - Meeting`,
+                })),
+              ]}
+              className="w-full"
+            />
           </div>
 
           {/* Category */}
@@ -68,15 +69,16 @@ export function AddNoteModal({
             <label className="block text-sm font-medium text-foreground mb-1.5">
               Category
             </label>
-            <select
+            <CustomDropdown
               value={newNoteData.category}
-              onChange={(e) => setNewNoteData({ ...newNoteData, category: e.target.value })}
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-            >
-              <option value="GENERAL">General</option>
-              <option value="BUDGET">Budget</option>
-              <option value="DECISION">Decision</option>
-            </select>
+              onChange={(val) => setNewNoteData({ ...newNoteData, category: val })}
+              options={[
+                { value: 'GENERAL', label: 'General' },
+                { value: 'BUDGET', label: 'Budget' },
+                { value: 'DECISION', label: 'Decision' },
+              ]}
+              className="w-full"
+            />
           </div>
 
           {/* Title */}

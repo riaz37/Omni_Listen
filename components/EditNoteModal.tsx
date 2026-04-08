@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X, FileText, AlignLeft, Tag, Save } from 'lucide-react';
 import AnimatedModal from '@/components/ui/animated-modal';
+import CustomDropdown from '@/components/ui/custom-dropdown';
 
 interface Note {
   id: number;
@@ -82,16 +83,16 @@ export default function EditNoteModal({ note, isOpen, onClose, onSave }: EditNot
               <Tag className="w-4 h-4 inline-block mr-2" />
               Category
             </label>
-            <select
+            <CustomDropdown
               value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-              required
-            >
-              <option value="GENERAL">General</option>
-              <option value="BUDGET">Budget</option>
-              <option value="DECISION">Decision</option>
-            </select>
+              onChange={(val) => setFormData({ ...formData, category: val })}
+              options={[
+                { value: 'GENERAL', label: 'General' },
+                { value: 'BUDGET', label: 'Budget' },
+                { value: 'DECISION', label: 'Decision' },
+              ]}
+              className="w-full"
+            />
           </div>
 
           {/* Title */}

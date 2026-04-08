@@ -1,5 +1,6 @@
 import PrimaryButton from '@/components/PrimaryButton';
 import AnimatedModal from '@/components/ui/animated-modal';
+import CustomDropdown from '@/components/ui/custom-dropdown';
 
 interface NewEventData {
   title: string;
@@ -58,15 +59,16 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
           {/* Type */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-1.5">Type</label>
-            <select
+            <CustomDropdown
               value={newEvent.type}
-              onChange={(e) => onNewEventChange({ ...newEvent, type: e.target.value as 'meeting' | 'task' | 'deadline' })}
-              className={selectClass}
-            >
-              <option value="meeting">Meeting</option>
-              <option value="task">Task</option>
-              <option value="deadline">Deadline</option>
-            </select>
+              onChange={(val) => onNewEventChange({ ...newEvent, type: val as 'meeting' | 'task' | 'deadline' })}
+              options={[
+                { value: 'meeting', label: 'Meeting' },
+                { value: 'task', label: 'Task' },
+                { value: 'deadline', label: 'Deadline' },
+              ]}
+              className="w-full"
+            />
           </div>
 
           {/* Start Date & Time */}

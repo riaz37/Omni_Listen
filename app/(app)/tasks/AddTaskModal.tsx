@@ -3,6 +3,7 @@
 import { X } from 'lucide-react';
 import PrimaryButton from '@/components/PrimaryButton';
 import AnimatedModal from '@/components/ui/animated-modal';
+import CustomDropdown from '@/components/ui/custom-dropdown';
 
 interface NewTaskData {
   title: string;
@@ -72,14 +73,15 @@ export function AddTaskModal({ show, newTask, onNewTaskChange, onClose, onSubmit
             <label className="block text-sm font-medium text-foreground mb-1.5">
               Select Urgency
             </label>
-            <select
+            <CustomDropdown
               value={newTask.urgency}
-              onChange={(e) => onNewTaskChange({ ...newTask, urgency: e.target.value as 'yes' | 'no' })}
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-            >
-              <option value="yes">Urgent</option>
-              <option value="no">Normal</option>
-            </select>
+              onChange={(val) => onNewTaskChange({ ...newTask, urgency: val as 'yes' | 'no' })}
+              options={[
+                { value: 'yes', label: 'Urgent' },
+                { value: 'no', label: 'Normal' },
+              ]}
+              className="w-full"
+            />
           </div>
 
           {/* Description */}

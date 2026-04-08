@@ -13,6 +13,7 @@ import { QueriesSkeleton } from './QueriesSkeleton';
 import { Skeleton } from 'boneyard-js/react';
 import { QueryCard } from './QueryCard';
 import PageEntrance from '@/components/ui/page-entrance';
+import CustomDropdown from '@/components/ui/custom-dropdown';
 
 interface QueryResult {
   meetingId: string;
@@ -227,35 +228,35 @@ export default function QueriesPage() {
             {/* Filter by Type */}
             <div className="flex items-center gap-2">
               <Filter className="w-5 h-5 text-muted-foreground" />
-              <select
+              <CustomDropdown
                 value={filterType}
-                onChange={(e) => {
-                  setFilterType(e.target.value);
+                onChange={(val) => {
+                  setFilterType(val);
                   setCurrentPage(1);
                 }}
-                className="px-4 py-3 bg-background text-foreground border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-              >
-                <option value="all">All Types</option>
-                <option value="summary">Summary</option>
-                <option value="analysis">Analysis</option>
-                <option value="list">List</option>
-                <option value="comparison">Comparison</option>
-                <option value="search">Search</option>
-                <option value="question">Question</option>
-              </select>
+                options={[
+                  { value: 'all', label: 'All Types' },
+                  { value: 'summary', label: 'Summary' },
+                  { value: 'analysis', label: 'Analysis' },
+                  { value: 'list', label: 'List' },
+                  { value: 'comparison', label: 'Comparison' },
+                  { value: 'search', label: 'Search' },
+                  { value: 'question', label: 'Question' },
+                ]}
+              />
             </div>
 
             {/* Sort */}
             <div className="flex items-center gap-2">
               <ArrowUpDown className="w-5 h-5 text-muted-foreground" />
-              <select
+              <CustomDropdown
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest')}
-                className="px-4 py-3 bg-background text-foreground border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-              >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-              </select>
+                onChange={(val) => setSortBy(val as 'newest' | 'oldest')}
+                options={[
+                  { value: 'newest', label: 'Newest First' },
+                  { value: 'oldest', label: 'Oldest First' },
+                ]}
+              />
             </div>
           </div>
         </div>

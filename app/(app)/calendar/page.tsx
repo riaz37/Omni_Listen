@@ -11,7 +11,8 @@ import { enUS } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './calendar-styles.css';
 import PrimaryButton from '@/components/PrimaryButton';
-import { Search, Plus } from 'lucide-react';
+import { Search, Plus, List } from 'lucide-react';
+import CustomDropdown from '@/components/ui/custom-dropdown';
 import type { CalendarEvent } from '@/lib/types';
 import { CalendarSkeleton } from './CalendarSkeleton';
 import { Skeleton } from 'boneyard-js/react';
@@ -297,21 +298,27 @@ export default function EventsPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowEventList(true)}
-              className="px-4 py-2 border border-border rounded-lg text-foreground hover:bg-muted transition-colors text-sm font-medium"
+              className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-foreground hover:bg-muted hover:border-primary/50 transition-colors text-sm font-medium"
             >
-              Event List
+              <List className="w-4 h-4" />
+              <span>All Events</span>
+              {events.length > 0 && (
+                <span className="ml-0.5 px-1.5 py-0.5 text-xs font-semibold rounded-full bg-primary/10 text-primary min-w-[20px] text-center">
+                  {events.length}
+                </span>
+              )}
             </button>
             <span className="text-sm text-muted-foreground">Sort By</span>
-            <select
+            <CustomDropdown
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value as 'all' | 'meeting' | 'task' | 'deadline')}
-              className="px-3 py-2 border border-border rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm font-medium cursor-pointer [&>option]:bg-card [&>option]:text-foreground"
-            >
-              <option value="all">Events</option>
-              <option value="meeting">Meetings</option>
-              <option value="task">Tasks</option>
-              <option value="deadline">Deadlines</option>
-            </select>
+              onChange={(val) => setFilterType(val as 'all' | 'meeting' | 'task' | 'deadline')}
+              options={[
+                { value: 'all', label: 'Events' },
+                { value: 'meeting', label: 'Meetings' },
+                { value: 'task', label: 'Tasks' },
+                { value: 'deadline', label: 'Deadlines' },
+              ]}
+            />
           </div>
         </div>
 

@@ -65,7 +65,7 @@ export default function DashboardRecentMeetings({
 
   return (
     <div className="lg:col-span-1">
-      <div className="bg-card-2 rounded-lg shadow p-6 sticky top-4">
+      <div className="bg-card-2 rounded-lg shadow border border-border p-6 sticky top-4">
         {/* Tab Switcher */}
         <div className="flex gap-2 mb-4 bg-muted p-1 rounded-lg">
           <button
@@ -101,9 +101,8 @@ export default function DashboardRecentMeetings({
                   return (
                     <div
                       key={index}
-                      className={`p-4 rounded-lg border border-border transition-colors relative ${
-                        event.completed ? 'bg-muted/50 opacity-70' : 'bg-card'
-                      }`}
+                      className={`p-4 rounded-lg border border-border transition-colors relative ${event.completed ? 'bg-muted/50 opacity-70' : 'bg-card'
+                        }`}
                     >
                       {/* Top row: Urgent badge + Status + Menu */}
                       <div className="flex items-center justify-between mb-2">
@@ -208,9 +207,8 @@ export default function DashboardRecentMeetings({
                   return (
                     <div
                       key={task.id}
-                      className={`p-4 rounded-lg border border-border transition-all ${
-                        task.completed ? 'bg-muted/50 opacity-70' : 'bg-card'
-                      } relative`}
+                      className={`p-4 rounded-lg border border-border transition-all ${task.completed ? 'bg-muted/50 opacity-70' : 'bg-card'
+                        } relative`}
                     >
                       {/* Top row: Urgent badge + Status pill + Menu */}
                       <div className="flex items-center justify-between mb-2">
