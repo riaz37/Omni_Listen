@@ -1,8 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, FileText, AlignLeft, Tag, Save } from 'lucide-react';
-import AnimatedModal from '@/components/ui/animated-modal';
+import { FileText, AlignLeft, Tag, Save } from 'lucide-react';
+import {
+  MotionDialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import CustomDropdown from '@/components/ui/custom-dropdown';
 
 interface Note {
@@ -60,23 +65,14 @@ export default function EditNoteModal({ note, isOpen, onClose, onSave }: EditNot
   };
 
   return (
-    <AnimatedModal open={isOpen} onClose={onClose}>
-      <div className="bg-card rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-2xl font-bold text-foreground">
-            Edit Note
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <MotionDialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Edit Note</DialogTitle>
+        </DialogHeader>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Category */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
@@ -147,7 +143,7 @@ export default function EditNoteModal({ note, isOpen, onClose, onSave }: EditNot
             </button>
           </div>
         </form>
-      </div>
-    </AnimatedModal>
+      </DialogContent>
+    </MotionDialog>
   );
 }

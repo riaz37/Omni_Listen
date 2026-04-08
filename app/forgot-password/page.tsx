@@ -3,12 +3,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { authAPI } from '@/lib/api';
-import { useToast } from '@/components/Toast';
+import { toast } from 'sonner';
 import { Loader2, Mail, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function ForgotPasswordPage() {
-  const toast = useToast();
+
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);

@@ -6,7 +6,7 @@ import './globals.css';
 import { AuthProvider } from '@/lib/auth-context';
 import { ConfigProvider } from '@/lib/config-context';
 import { ThemeProvider } from '@/lib/theme-context';
-import { ToastProvider } from '@/components/Toast';
+import { Toaster } from '@/components/ui/sonner';
 import { GlobalStateProvider } from '@/lib/global-state-context';
 import FloatingStatusIndicator from '@/components/FloatingStatusIndicator';
 
@@ -47,16 +47,15 @@ export default function RootLayout({
     <html lang="en" className="h-full" suppressHydrationWarning>
       <body className={`${GeistSans.variable} ${GeistSans.className} ${GeistMono.variable} ${instrumentSerif.variable} h-full`} suppressHydrationWarning>
         <ThemeProvider>
-          <ToastProvider>
-            <AuthProvider>
-              <ConfigProvider>
-                <GlobalStateProvider>
-                  {children}
-                  <FloatingStatusIndicator />
-                </GlobalStateProvider>
-              </ConfigProvider>
-            </AuthProvider>
-          </ToastProvider>
+          <AuthProvider>
+            <ConfigProvider>
+              <GlobalStateProvider>
+                {children}
+                <FloatingStatusIndicator />
+                <Toaster />
+              </GlobalStateProvider>
+            </ConfigProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

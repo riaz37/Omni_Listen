@@ -3,9 +3,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { meetingsAPI } from '@/lib/api';
-import { useToast } from '@/components/Toast';
+import { toast } from 'sonner';
 import { normalizeUrgency, sortByUrgencyThenDate } from '@/lib/utils';
-import PrimaryButton from '@/components/PrimaryButton';
+import { Button } from '@/components/ui/button';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { Search, Plus } from 'lucide-react';
 import { Skeleton } from 'boneyard-js/react';
@@ -31,7 +31,6 @@ interface Task {
 
 export default function TasksPage() {
   const { user, loading } = useRequireAuth();
-  const toast = useToast();
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -271,12 +270,12 @@ export default function TasksPage() {
               <h1 className="text-2xl font-bold text-foreground">Task List</h1>
               <p className="text-muted-foreground text-sm">All tasks extracted from your meetings</p>
             </div>
-            <PrimaryButton
+            <Button
               onClick={() => setShowAddTaskModal(true)}
-              icon={Plus}
+              iconLeft={<Plus className="w-4 h-4" />}
             >
               Add Task
-            </PrimaryButton>
+            </Button>
           </div>
         </div>
 

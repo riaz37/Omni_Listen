@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { authAPI, calendarAPI } from '@/lib/api';
 import CalendarConnectModal from '@/components/CalendarConnectModal';
-import { useToast } from '@/components/Toast';
+import { toast } from 'sonner';
 import FeatureHighlights from '@/components/FeatureHighlights';
 import Link from 'next/link';
 import { Loader2, Mail, Lock, User, AlertCircle, Eye, EyeOff, CheckCircle2, XCircle } from 'lucide-react';
@@ -14,7 +14,7 @@ import { motion } from 'framer-motion';
 export default function SignUpPage() {
   const router = useRouter();
   const { login } = useAuth();
-  const toast = useToast();
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);

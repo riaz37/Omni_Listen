@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Webhook, Plus, Loader2, Trash2, CheckCircle2, XCircle, RefreshCw, Bell } from 'lucide-react';
 import { webhooksAPI } from '@/lib/api';
-import { useToast } from '@/components/Toast';
+import { toast } from 'sonner';
 
 interface WebhookData {
     id: number;
@@ -28,7 +28,7 @@ const AVAILABLE_EVENTS = [
 ];
 
 export default function WebhooksCard() {
-    const toast = useToast();
+
     const [webhooks, setWebhooks] = useState<WebhookData[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);

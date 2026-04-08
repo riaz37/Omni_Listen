@@ -18,7 +18,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import DashboardProcessing from './DashboardProcessing';
-import Checkbox from '@/components/ui/checkbox';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface RecorderConfig {
   user_input: string;
@@ -264,14 +264,18 @@ export default function DashboardRecorder({
             </div>
 
             <div className="mt-4 pt-4 border-t border-border">
-              <Checkbox
-                id={checkboxId}
-                checked={config.custom_field_only}
-                onChange={(checked) =>
-                  updateConfig({ custom_field_only: checked })
-                }
-                label="Only process additional analysis (skip standard extraction)"
-              />
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id={checkboxId}
+                  checked={config.custom_field_only}
+                  onCheckedChange={(checked) =>
+                    updateConfig({ custom_field_only: checked === true })
+                  }
+                />
+                <label htmlFor={checkboxId} className="text-sm cursor-pointer">
+                  Only process additional analysis (skip standard extraction)
+                </label>
+              </div>
             </div>
           </div>
         )}

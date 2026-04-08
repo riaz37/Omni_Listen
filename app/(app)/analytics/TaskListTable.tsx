@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import Checkbox from '@/components/ui/checkbox';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   MoreHorizontal,
   Users,
@@ -39,7 +39,7 @@ export function TaskListTable({ tasks, getStatusBadge, getUrgencyLabel }: TaskLi
           <thead>
             <tr className="border-b border-border">
               <th className="text-left py-3 px-2 w-8">
-                <Checkbox checked={false} onChange={() => {}} disabled size="sm" />
+                <Checkbox checked={false} onCheckedChange={() => {}} disabled />
               </th>
               <th className="text-left py-3 px-2 text-xs font-medium text-muted-foreground">
                 <span className="flex items-center gap-1">Title <ArrowUpDown className="w-3 h-3" /></span>
@@ -63,7 +63,7 @@ export function TaskListTable({ tasks, getStatusBadge, getUrgencyLabel }: TaskLi
             {tasks.length > 0 ? tasks.map((task) => (
               <tr key={task.id} className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors">
                 <td className="py-3 px-2">
-                  <Checkbox checked={false} onChange={() => {}} disabled size="sm" />
+                  <Checkbox checked={false} onCheckedChange={() => {}} disabled />
                 </td>
                 <td className="py-3 px-2">
                   <div>

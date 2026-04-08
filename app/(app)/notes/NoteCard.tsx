@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import Checkbox from '@/components/ui/checkbox';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Calendar,
   CheckCircle,
@@ -52,8 +52,7 @@ export function NoteCard({
         <div className="flex-shrink-0 pt-0.5">
           <Checkbox
             checked={isSelected}
-            onChange={() => onToggleSelect(note.id)}
-            size="sm"
+            onCheckedChange={() => onToggleSelect(note.id)}
           />
         </div>
         {note.completed && (

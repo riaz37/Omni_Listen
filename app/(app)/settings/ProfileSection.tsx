@@ -1,7 +1,7 @@
 'use client';
 
 import { Edit2 } from 'lucide-react';
-import PrimaryButton from '@/components/PrimaryButton';
+import { Button } from '@/components/ui/button';
 
 interface ProfileSectionProps {
   user: { name: string; email: string; picture?: string } | null;
@@ -42,9 +42,9 @@ export function ProfileSection({
                 placeholder="Enter new name"
               />
               <div className="flex gap-2">
-                <PrimaryButton onClick={handleUpdateName} size="sm">
+                <Button onClick={handleUpdateName} size="sm">
                   Save
-                </PrimaryButton>
+                </Button>
                 <button
                   onClick={() => {
                     setEditingName(false);

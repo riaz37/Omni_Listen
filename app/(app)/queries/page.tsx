@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { meetingsAPI } from '@/lib/api';
 import Pagination from '@/components/Pagination';
-import PrimaryButton from '@/components/PrimaryButton';
+import { Button } from '@/components/ui/button';
 import { MessageSquare, Search, Filter, Download, ArrowUpDown, TrendingUp, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { exportQueriesToPDF } from '@/lib/export';
@@ -162,21 +162,21 @@ export default function QueriesPage() {
             </div>
             {queries.length > 0 && (
               <div className="flex gap-2">
-                <PrimaryButton
+                <Button
                   onClick={() => exportQueriesToPDF(filteredQueries)}
                   variant="secondary"
-                  icon={FileText}
+                  iconLeft={<FileText className="w-4 h-4" />}
                   title="Download PDF"
                 >
                   <span className="hidden sm:inline">PDF</span>
-                </PrimaryButton>
-                <PrimaryButton
+                </Button>
+                <Button
                   onClick={exportToCSV}
-                  icon={Download}
+                  iconLeft={<Download className="w-4 h-4" />}
                   title="Export CSV"
                 >
                   <span className="hidden sm:inline">CSV</span>
-                </PrimaryButton>
+                </Button>
               </div>
             )}
           </div>
@@ -277,13 +277,13 @@ export default function QueriesPage() {
                   : 'Start asking questions when processing meetings to see them here'}
               </p>
               {!searchTerm && filterType === 'all' && (
-                <PrimaryButton
+                <Button
                   onClick={() => router.push('/dashboard')}
-                  icon={MessageSquare}
+                  iconLeft={<MessageSquare className="w-4 h-4" />}
                   size="lg"
                 >
                   Go to Dashboard
-                </PrimaryButton>
+                </Button>
               )}
             </div>
           </div>

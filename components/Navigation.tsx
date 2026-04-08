@@ -22,7 +22,6 @@ import {
 import { useTheme } from '@/lib/theme-context';
 import { useGlobalState } from '@/lib/global-state-context';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { flushSync } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DURATIONS, EASINGS, SPRINGS } from '@/lib/motion';
 
@@ -447,48 +446,11 @@ function MobileMoreSheet({
 
 function SegmentedThemeToggle() {
   const { actualTheme, setTheme } = useTheme();
-  const lightRef = useRef<HTMLButtonElement>(null);
-  const darkRef = useRef<HTMLButtonElement>(null);
 
   const handleSwitch = useCallback(
     (target: 'light' | 'dark') => {
       if (actualTheme === target) return;
-      const button = target === 'light' ? lightRef.current : darkRef.current;
-      if (!button) return;
-
-      const applyTheme = () => setTheme(target);
-
-      if (typeof document.startViewTransition !== 'function') {
-        applyTheme();
-        return;
-      }
-
-      const { top, left, width, height } = button.getBoundingClientRect();
-      const x = left + width / 2;
-      const y = top + height / 2;
-      const vw = window.visualViewport?.width ?? window.innerWidth;
-      const vh = window.visualViewport?.height ?? window.innerHeight;
-      const maxRadius = Math.hypot(Math.max(x, vw - x), Math.max(y, vh - y));
-
-      const transition = document.startViewTransition(() => {
-        flushSync(applyTheme);
-      });
-
-      transition?.ready?.then(() => {
-        document.documentElement.animate(
-          {
-            clipPath: [
-              `circle(0px at ${x}px ${y}px)`,
-              `circle(${maxRadius}px at ${x}px ${y}px)`,
-            ],
-          },
-          {
-            duration: 400,
-            easing: 'ease-in-out',
-            pseudoElement: '::view-transition-new(root)',
-          },
-        );
-      });
+      setTheme(target);
     },
     [actualTheme, setTheme],
   );
@@ -496,7 +458,6 @@ function SegmentedThemeToggle() {
   return (
     <div className="flex items-center bg-muted rounded-lg p-0.5">
       <button
-        ref={lightRef}
         onClick={() => handleSwitch('light')}
         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
           actualTheme === 'light'
@@ -508,7 +469,6 @@ function SegmentedThemeToggle() {
         Light
       </button>
       <button
-        ref={darkRef}
         onClick={() => handleSwitch('dark')}
         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
           actualTheme === 'dark'
@@ -558,7 +518,7 @@ export default function Navigation() {
               >
                 <div className="relative">
                   <img
-                    src="/esapai_logo.png"
+                    src="/mainlogo.webp"
                     alt="ESAPListen Logo"
                     className="h-8 w-8 rounded-lg"
                   />
@@ -570,7 +530,7 @@ export default function Navigation() {
                   )}
                 </div>
                 <span className="text-lg font-bold whitespace-nowrap hidden md:block text-foreground">
-                  <span className="text-primary">ESAP</span>
+                  <span className="text-primary">Omini</span> Listen
                 </span>
               </Link>
 

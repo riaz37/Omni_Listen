@@ -5,10 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { meetingsAPI, calendarAPI } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
-import PrimaryButton from '@/components/PrimaryButton';
+import { Button } from '@/components/ui/button';
 import { Calendar, FileText, Loader2, Download, Check, ArrowLeft } from 'lucide-react';
 import { exportMeetingToPDF } from '@/lib/export';
-import { useToast } from '@/components/Toast';
+import { toast } from 'sonner';
 import FloatingChat from '@/components/FloatingChat';
 import { Skeleton } from 'boneyard-js/react';
 import { MeetingKeyTakeaways } from './MeetingKeyTakeaways';
@@ -22,7 +22,7 @@ export default function MeetingDetailClient() {
     const jobId = searchParams.get('id');
 
     const { user, loading, isLoggingOut } = useAuth();
-    const toast = useToast();
+
     const [meeting, setMeeting] = useState<any>(null);
     const [loadingMeeting, setLoadingMeeting] = useState(true);
     const [syncing, setSyncing] = useState(false);
@@ -182,28 +182,28 @@ export default function MeetingDetailClient() {
                             <p className="text-sm text-muted-foreground mt-1">{formatDate(meeting.created_at)}</p>
                         </div>
                         <div className="flex gap-3">
-                            <PrimaryButton
+                            <Button
                                 onClick={() => exportMeetingToPDF(meeting)}
                                 variant="secondary"
-                                icon={Download}
+                                iconLeft={<Download className="w-4 h-4" />}
                                 title="Export to PDF"
                             >
                                 Download Pdf
-                            </PrimaryButton>
+                            </Button>
                             {meeting?.calendar_synced ? (
                                 <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-text-primary rounded-lg border border-primary/30 text-sm">
                                     <Check className="w-4 h-4" />
                                     Synced to Calendar
                                 </div>
                             ) : (
-                                <PrimaryButton
+                                <Button
                                     onClick={handleSyncCalendar}
                                     disabled={syncing || !user?.calendar_connected}
                                     loading={syncing}
-                                    icon={Calendar}
+                                    iconLeft={<Calendar className="w-4 h-4" />}
                                 >
                                     Sync to Calendar
-                                </PrimaryButton>
+                                </Button>
                             )}
                         </div>
                     </div>

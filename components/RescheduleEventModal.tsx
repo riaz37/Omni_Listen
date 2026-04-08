@@ -1,9 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Calendar, Clock, Save } from 'lucide-react';
+import { Calendar, Clock, Save } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
-import AnimatedModal from '@/components/ui/animated-modal';
+import {
+  MotionDialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 
 interface Event {
   id: number;
@@ -110,28 +116,15 @@ export default function RescheduleEventModal({ event, isOpen, onClose, onSave }:
   };
 
   return (
-    <AnimatedModal open={isOpen} onClose={onClose}>
-      <div className="bg-card rounded-2xl shadow-xl max-w-md w-full">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground">
-              Reschedule Event
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              {event.title}
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <MotionDialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Reschedule Event</DialogTitle>
+          <DialogDescription>{event.title}</DialogDescription>
+        </DialogHeader>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Current Schedule Info */}
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
             <p className="text-sm text-blue-700 dark:text-blue-300">
@@ -191,7 +184,7 @@ export default function RescheduleEventModal({ event, isOpen, onClose, onSave }:
             </button>
           </div>
         </form>
-      </div>
-    </AnimatedModal>
+      </DialogContent>
+    </MotionDialog>
   );
 }

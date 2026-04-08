@@ -1,4 +1,4 @@
-import Checkbox from '@/components/ui/checkbox';
+import { Checkbox } from '@/components/ui/checkbox';
 import { formatDate, truncate } from '@/lib/utils';
 import {
   Calendar,
@@ -43,8 +43,7 @@ export function MeetingCard({
         >
           <Checkbox
             checked={isSelected}
-            onChange={() => onToggleSelect(meeting.id)}
-            size="sm"
+            onCheckedChange={() => onToggleSelect(meeting.id)}
           />
         </div>
 

@@ -1,8 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Calendar, MapPin, FileText, User, Save } from 'lucide-react';
-import AnimatedModal from '@/components/ui/animated-modal';
+import { Calendar, MapPin, FileText, User, Save } from 'lucide-react';
+import {
+  MotionDialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface Event {
   id: number;
@@ -69,23 +74,14 @@ export default function EditEventModal({ event, isOpen, onClose, onSave }: EditE
   };
 
   return (
-    <AnimatedModal open={isOpen} onClose={onClose}>
-      <div className="bg-card rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-2xl font-bold text-foreground">
-            Edit Event
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <MotionDialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Edit Event</DialogTitle>
+        </DialogHeader>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
@@ -180,7 +176,7 @@ export default function EditEventModal({ event, isOpen, onClose, onSave }: EditE
             </button>
           </div>
         </form>
-      </div>
-    </AnimatedModal>
+      </DialogContent>
+    </MotionDialog>
   );
 }

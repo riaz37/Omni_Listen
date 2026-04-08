@@ -12,7 +12,7 @@ import {
   Users,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import Checkbox from '@/components/ui/checkbox';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface Task {
   id: number;
@@ -84,8 +84,7 @@ export function TaskTable({
             <th className="w-10 p-3">
               <Checkbox
                 checked={paginatedTasks.length > 0 && paginatedTasks.every(t => selectedIds.includes(t.id))}
-                onChange={() => onSelectAllOnPage()}
-                size="sm"
+                onCheckedChange={() => onSelectAllOnPage()}
               />
             </th>
             <th className="text-left p-3 font-medium text-muted-foreground">
@@ -134,8 +133,7 @@ export function TaskTable({
                   <td className="p-3">
                     <Checkbox
                       checked={selectedIds.includes(task.id)}
-                      onChange={() => onToggleSelect(task.id)}
-                      size="sm"
+                      onCheckedChange={() => onToggleSelect(task.id)}
                     />
                   </td>
                   <td className="p-3 max-w-[300px]">

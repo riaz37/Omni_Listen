@@ -1,6 +1,10 @@
-import { X } from 'lucide-react';
-import PrimaryButton from '@/components/PrimaryButton';
-import AnimatedModal from '@/components/ui/animated-modal';
+import { Button } from '@/components/ui/button';
+import {
+  MotionDialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface Note {
   id: string;
@@ -27,17 +31,11 @@ export function NoteQuickViewModal({
   onViewDetails,
 }: NoteQuickViewModalProps) {
   return (
-    <AnimatedModal open onClose={onClose}>
-      <div className="bg-card rounded-lg shadow-xl max-w-lg w-full p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-semibold text-foreground">Note Quick View</h2>
-          <button
-            onClick={onClose}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <MotionDialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Note Quick View</DialogTitle>
+        </DialogHeader>
 
         <div className="space-y-4">
           <div>
@@ -60,13 +58,13 @@ export function NoteQuickViewModal({
               Cancel
             </button>
             {note.meetingId && (
-              <PrimaryButton onClick={() => onViewDetails(note.meetingId)}>
+              <Button onClick={() => onViewDetails(note.meetingId)}>
                 View Details
-              </PrimaryButton>
+              </Button>
             )}
           </div>
         </div>
-      </div>
-    </AnimatedModal>
+      </DialogContent>
+    </MotionDialog>
   );
 }

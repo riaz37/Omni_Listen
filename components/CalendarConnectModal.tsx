@@ -1,8 +1,11 @@
 'use client';
 
-import { Calendar, X } from 'lucide-react';
-import { motion } from 'framer-motion';
-import AnimatedModal from '@/components/ui/animated-modal';
+import { Calendar } from 'lucide-react';
+import {
+  MotionDialog,
+  DialogContent,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface CalendarConnectModalProps {
     isOpen: boolean;
@@ -18,13 +21,9 @@ export default function CalendarConnectModal({
     isConnecting = false,
 }: CalendarConnectModalProps) {
     return (
-        <AnimatedModal open={isOpen} onClose={onSkip}>
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.2 }}
-                className="bg-card rounded-2xl shadow-xl max-w-md w-full overflow-hidden"
-            >
+        <MotionDialog open={isOpen} onOpenChange={(open) => { if (!open) onSkip(); }}>
+            <DialogContent className="max-w-md overflow-hidden p-0" hideClose>
+                <DialogTitle className="sr-only">Connect Google Calendar</DialogTitle>
                 {/* Header */}
                 <div className="bg-gradient-to-r from-primary to-primary px-6 py-8 text-center">
                     <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -70,7 +69,7 @@ export default function CalendarConnectModal({
                         </button>
                     </div>
                 </div>
-            </motion.div>
-        </AnimatedModal>
+            </DialogContent>
+        </MotionDialog>
     );
 }

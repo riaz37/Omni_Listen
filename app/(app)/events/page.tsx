@@ -11,7 +11,7 @@ import EditEventModal from '@/components/EditEventModal';
 import RescheduleEventModal from '@/components/RescheduleEventModal';
 import { DateGroupedList } from '@/components/DateGroupedList';
 import PageEntrance from '@/components/ui/page-entrance';
-import PrimaryButton from '@/components/PrimaryButton';
+import { Button } from '@/components/ui/button';
 import CustomDropdown from '@/components/ui/custom-dropdown';
 import { EventsSkeleton } from './EventsSkeleton';
 import { Skeleton } from 'boneyard-js/react';
@@ -83,23 +83,23 @@ export default function EventsPage() {
               <p className="text-muted-foreground text-sm">All events from your meetings, sorted by date</p>
             </div>
             <div className="flex gap-2">
-              <PrimaryButton
+              <Button
                 onClick={() => exportEventsToCSV(filteredEvents)}
                 disabled={filteredEvents.length === 0}
                 variant="secondary"
-                icon={Download}
+                iconLeft={<Download className="w-4 h-4" />}
                 title="Export to CSV"
               >
                 CSV
-              </PrimaryButton>
-              <PrimaryButton
+              </Button>
+              <Button
                 onClick={() => exportToICS(filteredEvents, `events_${new Date().toISOString().split('T')[0]}`)}
                 disabled={filteredEvents.length === 0}
-                icon={Download}
+                iconLeft={<Download className="w-4 h-4" />}
                 title="Export to Calendar (ICS)"
               >
                 Export
-              </PrimaryButton>
+              </Button>
             </div>
           </div>
         </div>

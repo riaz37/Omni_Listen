@@ -1,7 +1,7 @@
 'use client';
 
 import { Key, Plus, Loader2, Trash2, X, CheckCircle2 } from 'lucide-react';
-import PrimaryButton from '@/components/PrimaryButton';
+import { Button } from '@/components/ui/button';
 
 interface ApiKeyData {
   id: number;
@@ -45,9 +45,9 @@ export function ApiKeysSection({
             <Key className="w-5 h-5 text-primary" />
             API Keys
           </h2>
-          <PrimaryButton onClick={() => setShowApiKeyModal(true)} icon={Plus} size="sm">
+          <Button onClick={() => setShowApiKeyModal(true)} iconLeft={<Plus className="w-4 h-4" />} size="sm">
             Create Key
-          </PrimaryButton>
+          </Button>
         </div>
 
         {apiKeysLoading ? (
@@ -147,13 +147,13 @@ export function ApiKeysSection({
 
                 <div className="flex justify-end gap-3 mt-6">
                   <button onClick={closeApiKeyModal} className="px-4 py-2 text-muted-foreground hover:bg-muted rounded-md">Cancel</button>
-                  <PrimaryButton
+                  <Button
                     onClick={handleCreateApiKey}
                     disabled={!newApiKeyName.trim() || apiKeyCreating}
                     loading={apiKeyCreating}
                   >
                     Create Key
-                  </PrimaryButton>
+                  </Button>
                 </div>
               </div>
             )}

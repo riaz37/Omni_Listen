@@ -1,7 +1,7 @@
 'use client';
 
 import { Calendar, Check, X } from 'lucide-react';
-import PrimaryButton from '@/components/PrimaryButton';
+import { Button } from '@/components/ui/button';
 
 interface CalendarSectionProps {
   user: { calendar_connected?: boolean } | null;
@@ -49,13 +49,13 @@ export function CalendarSection({
             Connect your Google Calendar to automatically create events from meeting
             action items when you enable "Calendar Sync" in the output fields.
           </p>
-          <PrimaryButton
+          <Button
             onClick={handleConnectCalendar}
             disabled={connectingCalendar}
             loading={connectingCalendar}
           >
             Connect Google Calendar
-          </PrimaryButton>
+          </Button>
         </div>
       )}
     </div>

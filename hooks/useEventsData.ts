@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { meetingsAPI } from '@/lib/api';
-import { useToast } from '@/components/Toast';
+import { toast } from 'sonner';
 import { parseISO, format, isFuture, isPast, isToday, differenceInDays } from 'date-fns';
 
 interface Event {
@@ -26,7 +26,6 @@ interface Event {
 }
 
 export function useEventsData(user: unknown) {
-  const toast = useToast();
 
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);

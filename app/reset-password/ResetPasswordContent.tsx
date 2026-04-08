@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { authAPI } from '@/lib/api';
-import { useToast } from '@/components/Toast';
+import { toast } from 'sonner';
 import { Loader2, Lock, AlertCircle, CheckCircle2, XCircle, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -12,7 +12,6 @@ import { motion } from 'framer-motion';
 export default function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const toast = useToast();
 
   const [token, setToken] = useState('');
   const [password, setPassword] = useState('');

@@ -1,6 +1,11 @@
 import { format } from 'date-fns';
-import PrimaryButton from '@/components/PrimaryButton';
-import AnimatedModal from '@/components/ui/animated-modal';
+import { Button } from '@/components/ui/button';
+import {
+  MotionDialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   Clock,
   MapPin,
@@ -51,38 +56,28 @@ export function EventDetailModal({
   getEventTypeColor,
 }: EventDetailModalProps) {
   return (
-    <AnimatedModal open onClose={onClose}>
-      <div className="bg-card rounded-lg shadow-xl border border-border max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <span className={`px-3 py-1 rounded-full text-sm font-medium capitalize border ${getEventTypeColor(selectedEvent.type)}`}>
-                {selectedEvent.type}
+    <MotionDialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <div className="flex items-center gap-2 mb-2">
+            <span className={`px-3 py-1 rounded-full text-sm font-medium capitalize border ${getEventTypeColor(selectedEvent.type)}`}>
+              {selectedEvent.type}
+            </span>
+            {selectedEvent.completed && (
+              <span className="px-3 py-1 bg-primary/10 text-text-primary rounded-full text-sm flex items-center gap-1">
+                <CheckCircle2 className="w-4 h-4" />
+                Completed
               </span>
-              {selectedEvent.completed && (
-                <span className="px-3 py-1 bg-primary/10 text-text-primary rounded-full text-sm flex items-center gap-1">
-                  <CheckCircle2 className="w-4 h-4" />
-                  Completed
-                </span>
-              )}
-              {selectedEvent.synced && (
-                <span className="px-3 py-1 bg-primary/10 text-text-primary rounded-full text-sm flex items-center gap-1">
-                  <CheckCircle className="w-4 h-4" />
-                  Synced
-                </span>
-              )}
-            </div>
-            <h2 className={`text-2xl font-bold text-foreground ${selectedEvent.completed ? 'line-through' : ''}`}>{selectedEvent.title}</h2>
+            )}
+            {selectedEvent.synced && (
+              <span className="px-3 py-1 bg-primary/10 text-text-primary rounded-full text-sm flex items-center gap-1">
+                <CheckCircle className="w-4 h-4" />
+                Synced
+              </span>
+            )}
           </div>
-          <button
-            onClick={onClose}
-            className="text-muted-foreground hover:text-muted-foreground ml-4"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+          <DialogTitle className={selectedEvent.completed ? 'line-through' : ''}>{selectedEvent.title}</DialogTitle>
+        </DialogHeader>
 
         <div className="space-y-4">
           <div>
@@ -145,14 +140,13 @@ export function EventDetailModal({
             )}
 
             {selectedEvent.meetingId && (
-              <PrimaryButton
+              <Button
                 onClick={() => onNavigateToMeeting(selectedEvent.meetingId!)}
-                icon={ChevronRight}
-                iconPosition="right"
-                fullWidth
+                iconRight={<ChevronRight className="w-4 h-4" />}
+                className="w-full"
               >
                 View Meeting Details
-              </PrimaryButton>
+              </Button>
             )}
 
             <button
@@ -166,7 +160,7 @@ export function EventDetailModal({
             </button>
           </div>
         </div>
-      </div>
-    </AnimatedModal>
+      </DialogContent>
+    </MotionDialog>
   );
 }

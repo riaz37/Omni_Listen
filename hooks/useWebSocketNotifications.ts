@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useToast } from '@/components/Toast';
+import { toast } from 'sonner';
 
 interface UseWebSocketNotificationsProps {
   user: any;
@@ -9,7 +9,6 @@ interface UseWebSocketNotificationsProps {
 
 export function useWebSocketNotifications({ user, refreshUser }: UseWebSocketNotificationsProps) {
   const router = useRouter();
-  const toast = useToast();
 
   useEffect(() => {
     if (!user) return;
@@ -30,7 +29,7 @@ export function useWebSocketNotifications({ user, refreshUser }: UseWebSocketNot
         const data = JSON.parse(event.data);
         if (data.type === 'calendar.disconnected') {
           await refreshUser();
-          toast.error("⚠️ Calendar Disconnected! Please sign in again.", 5000);
+          toast.error("Calendar Disconnected! Please sign in again.", { duration: 5000 });
           router.push('/settings');
         }
       } catch (e) {

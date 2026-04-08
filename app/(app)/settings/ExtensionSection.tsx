@@ -1,7 +1,7 @@
 'use client';
 
 import { Chrome, CheckCircle2, AlertCircle } from 'lucide-react';
-import PrimaryButton from '@/components/PrimaryButton';
+import { Button } from '@/components/ui/button';
 
 interface ExtensionSectionProps {
   extensionSyncing: boolean;
@@ -59,14 +59,14 @@ export function ExtensionSection({
           </div>
         )}
 
-        <PrimaryButton
+        <Button
           onClick={handleSyncExtension}
           disabled={extensionSyncing}
           loading={extensionSyncing}
-          icon={Chrome}
+          iconLeft={<Chrome className="w-4 h-4" />}
         >
           Connect Extension
-        </PrimaryButton>
+        </Button>
       </div>
     </div>
   );

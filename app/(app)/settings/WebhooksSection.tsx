@@ -1,7 +1,7 @@
 'use client';
 
 import { Webhook, Plus, Loader2, Bell, CheckCircle2, XCircle, RefreshCw, Trash2 } from 'lucide-react';
-import PrimaryButton from '@/components/PrimaryButton';
+import { Button } from '@/components/ui/button';
 
 interface WebhookData {
   id: number;
@@ -64,9 +64,9 @@ export function WebhooksSection({
             <Webhook className="w-5 h-5" />
             Webhooks
           </h2>
-          <PrimaryButton onClick={() => setShowWebhookModal(true)} icon={Plus} size="sm">
+          <Button onClick={() => setShowWebhookModal(true)} iconLeft={<Plus className="w-4 h-4" />} size="sm">
             Add Webhook
-          </PrimaryButton>
+          </Button>
         </div>
         {webhooksLoading ? (
           <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
@@ -143,13 +143,13 @@ export function WebhooksSection({
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button onClick={() => setShowWebhookModal(false)} className="px-4 py-2 text-muted-foreground hover:bg-muted rounded-md">Cancel</button>
-              <PrimaryButton
+              <Button
                 onClick={handleCreateWebhook}
                 disabled={!newWebhookUrl.trim() || webhookCreating}
                 loading={webhookCreating}
               >
                 Create
-              </PrimaryButton>
+              </Button>
             </div>
           </div>
         </div>

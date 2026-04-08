@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useConfig } from '@/lib/config-context';
 import { useGlobalState } from '@/lib/global-state-context';
-import { useToast } from '@/components/Toast';
+import { toast } from 'sonner';
 import RoleConfigModal from '@/components/RoleConfigModal';
 import { presetsAPI, authAPI } from '@/lib/api';
 import { SYSTEM_PRESETS } from '@/lib/presets';
@@ -50,7 +50,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { user, loading, refreshUser, isLoggingOut } = useAuth();
   const { config, updateConfig } = useConfig();
-  const toast = useToast();
+
   const {
     isRecording,
     startRecording,
@@ -190,7 +190,7 @@ export default function DashboardPage() {
             }
             refreshUser();
             if (immediate) {
-              toast.success('Saved!', 1500);
+              toast.success('Saved!', { duration: 1500 });
             }
           })
           .catch(() => {

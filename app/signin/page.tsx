@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { authAPI, calendarAPI } from '@/lib/api';
-import { useToast } from '@/components/Toast';
+import { toast } from 'sonner';
 import FeatureHighlights from '@/components/FeatureHighlights';
 import LoadingScreen from '@/components/LoadingScreen';
 import CalendarConnectModal from '@/components/CalendarConnectModal';
@@ -20,7 +20,7 @@ import { motion } from 'framer-motion';
 export default function SignInPage() {
   const router = useRouter();
   const { user, login, refreshUser } = useAuth();
-  const toast = useToast();
+
   const [isConnectingCalendar, setIsConnectingCalendar] = useState(false);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [isConnectingCalendarModal, setIsConnectingCalendarModal] = useState(false);

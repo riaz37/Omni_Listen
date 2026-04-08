@@ -4,9 +4,9 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { meetingsAPI } from '@/lib/api';
-import { useToast } from '@/components/Toast';
+import { toast } from 'sonner';
 import EmptyState from '@/components/EmptyState';
-import PrimaryButton from '@/components/PrimaryButton';
+import { Button } from '@/components/ui/button';
 import CustomDropdown from '@/components/ui/custom-dropdown';
 import {
   StickyNote,
@@ -23,7 +23,7 @@ import { NoteCard } from './NoteCard';
 import { AddNoteModal } from './AddNoteModal';
 import { NoteQuickViewModal } from './NoteQuickViewModal';
 import PageEntrance from '@/components/ui/page-entrance';
-import Checkbox from '@/components/ui/checkbox';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface Note {
   id: string;
@@ -43,7 +43,6 @@ const CATEGORIES = ['all', 'general', 'decision', 'budget'] as const;
 export default function NotesPage() {
   const router = useRouter();
   const { user, loading } = useRequireAuth();
-  const toast = useToast();
 
   const [notes, setNotes] = useState<Note[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -329,9 +328,9 @@ export default function NotesPage() {
                 {notes.length} note{notes.length !== 1 ? 's' : ''} captured from your meetings
               </p>
             </div>
-            <PrimaryButton onClick={() => setShowAddNoteModal(true)} icon={Plus}>
+            <Button onClick={() => setShowAddNoteModal(true)} iconLeft={<Plus className="w-4 h-4" />}>
               Add Note
-            </PrimaryButton>
+            </Button>
           </div>
 
           {/* ── Category tabs ── */}
@@ -384,12 +383,16 @@ export default function NotesPage() {
 
               <div className="w-px h-5 bg-border/60" />
 
-              <Checkbox
-                checked={allOnPageSelected}
-                onChange={() => allOnPageSelected ? handleDeselectAll() : handleSelectAll()}
-                label="All"
-                size="sm"
-              />
+              <div className="flex items-center gap-1.5">
+                <Checkbox
+                  id="select-all-notes"
+                  checked={allOnPageSelected}
+                  onCheckedChange={() => allOnPageSelected ? handleDeselectAll() : handleSelectAll()}
+                />
+                <label htmlFor="select-all-notes" className="text-xs cursor-pointer">
+                  All
+                </label>
+              </div>
 
               <div className="w-px h-5 bg-border/60" />
 

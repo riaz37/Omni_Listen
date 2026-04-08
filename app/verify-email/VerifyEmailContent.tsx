@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { authAPI } from '@/lib/api';
-import { useToast } from '@/components/Toast';
+import { toast } from 'sonner';
 import { useAuth } from '@/lib/auth-context';
 import { Loader2, CheckCircle2, AlertCircle, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -12,7 +12,7 @@ import { motion } from 'framer-motion';
 export default function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const toast = useToast();
+
   const { refreshUser } = useAuth();
 
   const [token, setToken] = useState('');

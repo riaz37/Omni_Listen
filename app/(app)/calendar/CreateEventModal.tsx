@@ -1,5 +1,11 @@
-import PrimaryButton from '@/components/PrimaryButton';
-import AnimatedModal from '@/components/ui/animated-modal';
+import { Button } from '@/components/ui/button';
+import {
+  MotionDialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import CustomDropdown from '@/components/ui/custom-dropdown';
 
 interface NewEventData {
@@ -26,24 +32,14 @@ const selectClass =
 
 export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit }: CreateEventModalProps) {
   return (
-    <AnimatedModal open onClose={onClose}>
-      <div className="bg-card rounded-lg border border-border shadow-xl max-w-lg w-full p-6">
-        <div className="flex items-start justify-between mb-1">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground">Add Event</h2>
-            <p className="text-sm text-muted-foreground">Add new task</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+    <MotionDialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Add Event</DialogTitle>
+          <DialogDescription>Add new task</DialogDescription>
+        </DialogHeader>
 
-        <div className="space-y-4 mt-4">
+        <div className="space-y-4">
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-1.5">Title</label>
@@ -125,12 +121,12 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
             >
               Cancel
             </button>
-            <PrimaryButton onClick={onSubmit}>
+            <Button onClick={onSubmit}>
               Add
-            </PrimaryButton>
+            </Button>
           </div>
         </div>
-      </div>
-    </AnimatedModal>
+      </DialogContent>
+    </MotionDialog>
   );
 }

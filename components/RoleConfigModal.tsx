@@ -4,9 +4,13 @@ import { useState, useEffect } from 'react';
 import { X, User, Settings, Plus, Edit2, Trash2, Star, Copy, Lock, AlertCircle, Loader2, ArrowLeft, Save } from 'lucide-react';
 import { useConfig } from '@/lib/config-context';
 import { presetsAPI, authAPI } from '@/lib/api';
-import { useToast } from './Toast';
-import AnimatedModal from '@/components/ui/animated-modal';
-import Checkbox from '@/components/ui/checkbox';
+import { toast } from 'sonner';
+import {
+  MotionDialog,
+  DialogContent,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 
 // Predefined system presets
 import { SYSTEM_PRESETS } from '@/lib/presets';
@@ -34,7 +38,7 @@ interface RoleConfigModalProps {
 
 export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activeRoleName }: RoleConfigModalProps) {
   const { config, setConfig } = useConfig();
-  const toast = useToast();
+
   const [userPresets, setUserPresets] = useState<Preset[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -90,7 +94,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
       }
 
       // Show success toast
-      toast.success(`Switched to ${preset.name}`, 2000);
+      toast.success(`Switched to ${preset.name}`, { duration: 2000 });
 
       // Small delay to ensure state updates propagate before closing
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -159,11 +163,11 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
       if (editingPreset) {
         // Update existing
         await presetsAPI.updatePreset(editingPreset.id, data);
-        toast.success('Preset updated successfully!', 2000);
+        toast.success('Preset updated successfully!', { duration: 2000 });
       } else {
         // Create new
         await presetsAPI.createPreset(data);
-        toast.success('Preset created successfully!', 2000);
+        toast.success('Preset created successfully!', { duration: 2000 });
       }
 
       await loadPresets();
@@ -180,7 +184,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
 
     try {
       await presetsAPI.deletePreset(preset.id);
-      toast.success(`Deleted "${preset.name}"`, 2000);
+      toast.success(`Deleted "${preset.name}"`, { duration: 2000 });
       await loadPresets();
     } catch (error) {
       toast.error('Failed to delete preset. Please try again.');
@@ -190,7 +194,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
   const handleSetDefault = async (preset: Preset) => {
     try {
       await presetsAPI.setDefaultPreset(preset.id);
-      toast.success(`Set "${preset.name}" as default`, 2000);
+      toast.success(`Set "${preset.name}" as default`, { duration: 2000 });
       await loadPresets();
     } catch (error) {
       toast.error('Failed to set default. Please try again.');
@@ -306,10 +310,10 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
   };
 
   return (
-    <AnimatedModal open={isOpen} onClose={onClose} className="max-w-4xl">
-      <div className="bg-card rounded-xl border border-border max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <MotionDialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col" hideClose>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {view === 'edit' && (
               <button
@@ -320,9 +324,9 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                 <ArrowLeft className="w-4 h-4" />
               </button>
             )}
-            <h2 className="text-lg font-semibold text-foreground">
+            <DialogTitle>
               {view === 'list' ? 'Manage Presets' : (editingPreset ? 'Edit Preset' : (isSystemTemplate ? 'Customize Template' : 'Create Preset'))}
-            </h2>
+            </DialogTitle>
           </div>
           <div className="flex items-center gap-2">
             {view === 'edit' && isSystemTemplate && (
@@ -349,7 +353,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
         </div>
 
         {/* Body */}
-        <div className="p-6 overflow-y-auto custom-scrollbar">
+        <div className="overflow-y-auto custom-scrollbar">
 
           {view === 'list' ? (
             <div className="space-y-8">
@@ -475,13 +479,16 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                         className={`w-full px-3 py-2 border rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm ${formData.custom_field_only && !formData.user_input ? 'border-destructive/50 bg-destructive/5' : 'border-border'}`}
                       />
                       <div className="mt-3">
-                        <Checkbox
-                          id="custom_field_only"
-                          checked={formData.custom_field_only}
-                          onChange={(checked) => setFormData({ ...formData, custom_field_only: checked })}
-                          label="Only process additional analysis (skip standard extraction)"
-                          size="sm"
-                        />
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            id="custom_field_only"
+                            checked={formData.custom_field_only}
+                            onCheckedChange={(checked) => setFormData({ ...formData, custom_field_only: checked === true })}
+                          />
+                          <label htmlFor="custom_field_only" className="text-sm cursor-pointer">
+                            Only process additional analysis (skip standard extraction)
+                          </label>
+                        </div>
                       </div>
                     </div>
 
@@ -491,19 +498,21 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                       </label>
                       <div className="grid grid-cols-2 gap-3">
                         {Object.entries(formData.output_fields || {}).map(([key, value]) => (
-                          <Checkbox
-                            key={key}
-                            checked={value}
-                            onChange={(checked) =>
-                              setFormData({
-                                ...formData,
-                                output_fields: { ...formData.output_fields, [key]: checked },
-                              })
-                            }
-                            label={key.replace(/_/g, ' ')}
-                            size="sm"
-                            className="capitalize"
-                          />
+                          <div key={key} className="flex items-center gap-2 capitalize">
+                            <Checkbox
+                              id={`output-field-${key}`}
+                              checked={value}
+                              onCheckedChange={(checked) =>
+                                setFormData({
+                                  ...formData,
+                                  output_fields: { ...formData.output_fields, [key]: checked === true },
+                                })
+                              }
+                            />
+                            <label htmlFor={`output-field-${key}`} className="text-sm cursor-pointer">
+                              {key.replace(/_/g, ' ')}
+                            </label>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -555,12 +564,16 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                         />
                       </div>
 
-                      <Checkbox
-                        id="custom_field_only_create"
-                        checked={formData.custom_field_only}
-                        onChange={(checked) => setFormData({ ...formData, custom_field_only: checked })}
-                        label="Only process additional analysis (skip standard extraction)"
-                      />
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="custom_field_only_create"
+                          checked={formData.custom_field_only}
+                          onCheckedChange={(checked) => setFormData({ ...formData, custom_field_only: checked === true })}
+                        />
+                        <label htmlFor="custom_field_only_create" className="text-sm cursor-pointer">
+                          Only process additional analysis (skip standard extraction)
+                        </label>
+                      </div>
 
                     </div>
 
@@ -571,18 +584,21 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                       </label>
                       <div className="space-y-3.5">
                         {Object.entries(formData.output_fields || {}).map(([key, value]) => (
-                          <Checkbox
-                            key={key}
-                            checked={value}
-                            onChange={(checked) =>
-                              setFormData({
-                                ...formData,
-                                output_fields: { ...formData.output_fields, [key]: checked },
-                              })
-                            }
-                            label={key.replace(/_/g, ' ')}
-                            className="capitalize"
-                          />
+                          <div key={key} className="flex items-center gap-2 capitalize">
+                            <Checkbox
+                              id={`output-field-create-${key}`}
+                              checked={value}
+                              onCheckedChange={(checked) =>
+                                setFormData({
+                                  ...formData,
+                                  output_fields: { ...formData.output_fields, [key]: checked === true },
+                                })
+                              }
+                            />
+                            <label htmlFor={`output-field-create-${key}`} className="text-sm cursor-pointer">
+                              {key.replace(/_/g, ' ')}
+                            </label>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -611,7 +627,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
             </>
           )}
         </div>
-      </div>
-    </AnimatedModal>
+      </DialogContent>
+    </MotionDialog>
   );
 }

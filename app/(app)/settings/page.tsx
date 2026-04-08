@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { useToast } from '@/components/Toast';
+import { toast } from 'sonner';
 import { calendarAPI, authAPI, webhooksAPI, apiKeysAPI } from '@/lib/api';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { Loader2 } from 'lucide-react';
@@ -42,7 +42,7 @@ const AVAILABLE_EVENTS = [
 
 export default function SettingsPage() {
   const { user, loading, refreshUser } = useRequireAuth();
-  const toast = useToast();
+
   const [connectingCalendar, setConnectingCalendar] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState('');

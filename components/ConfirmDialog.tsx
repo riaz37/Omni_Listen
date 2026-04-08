@@ -1,8 +1,16 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import { AlertTriangle } from 'lucide-react';
-import AnimatedModal from '@/components/ui/animated-modal';
+import {
+  MotionAlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -23,17 +31,6 @@ export default function ConfirmDialog({
   confirmLabel = 'Delete',
   variant = 'danger',
 }: ConfirmDialogProps) {
-  const confirmRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (isOpen) {
-      const timer = setTimeout(() => {
-        confirmRef.current?.focus();
-      }, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
-
   const confirmButtonClass =
     variant === 'danger'
       ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
@@ -45,38 +42,35 @@ export default function ConfirmDialog({
       : 'bg-amber-500/10 text-amber-600';
 
   return (
-    <AnimatedModal open={isOpen} onClose={onCancel} className="max-w-sm">
-      <div className="rounded-2xl bg-card p-6">
-        <div className="flex items-start gap-4">
-          <div
-            className={`flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full ${iconContainerClass}`}
-          >
-            <AlertTriangle className="w-5 h-5" />
+    <MotionAlertDialog open={isOpen} onOpenChange={(open) => { if (!open) onCancel(); }}>
+      <AlertDialogContent className="max-w-sm">
+        <AlertDialogHeader>
+          <div className="flex items-start gap-4">
+            <div
+              className={`flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full ${iconContainerClass}`}
+            >
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <AlertDialogTitle>{title}</AlertDialogTitle>
+              <AlertDialogDescription className="mt-1">
+                {message}
+              </AlertDialogDescription>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">{message}</p>
-          </div>
-        </div>
-
-        <div className="flex gap-3 mt-6">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="flex-1 px-4 py-2.5 text-sm font-medium border border-border text-foreground rounded-lg hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          >
+        </AlertDialogHeader>
+        <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
+          <AlertDialogCancel className="flex-1 mt-0" onClick={onCancel}>
             Cancel
-          </button>
-          <button
-            ref={confirmRef}
-            type="button"
+          </AlertDialogCancel>
+          <AlertDialogAction
+            className={`flex-1 ${confirmButtonClass}`}
             onClick={onConfirm}
-            className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${confirmButtonClass}`}
           >
             {confirmLabel}
-          </button>
-        </div>
-      </div>
-    </AnimatedModal>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </MotionAlertDialog>
   );
 }

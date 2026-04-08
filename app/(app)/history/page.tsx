@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { useToast } from '@/components/Toast';
+import { toast } from 'sonner';
 import PageEntrance from '@/components/ui/page-entrance';
 import Pagination from '@/components/Pagination';
 import EmptyState from '@/components/EmptyState';
@@ -29,7 +29,7 @@ import {
 export default function HistoryPage() {
   const router = useRouter();
   const { user, loading } = useRequireAuth();
-  const toast = useToast();
+
   const [meetings, setMeetings] = useState<any[]>([]);
   const [loadingMeetings, setLoadingMeetings] = useState(true);
   const [sortBy, setSortBy] = useState<'date' | 'events'>('date');

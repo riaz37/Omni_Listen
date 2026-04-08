@@ -1,7 +1,12 @@
 import { format } from 'date-fns';
 import { Clock, MapPin, Users, ChevronRight, CheckCircle2 } from 'lucide-react';
-import PrimaryButton from '@/components/PrimaryButton';
-import AnimatedModal from '@/components/ui/animated-modal';
+import { Button } from '@/components/ui/button';
+import {
+  MotionDialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import type { CalendarEvent } from '@/lib/types';
 
 interface CalendarEventModalProps {
@@ -14,34 +19,24 @@ interface CalendarEventModalProps {
 
 export function CalendarEventModal({ event, calendarConnected, onClose, onSync, onNavigateToMeeting }: CalendarEventModalProps) {
   return (
-    <AnimatedModal open onClose={onClose}>
-      <div className="bg-card rounded-lg border border-border shadow-xl max-w-lg w-full p-6 overflow-hidden">
-        <div className="flex items-start justify-between mb-4">
-          <div className="min-w-0 flex-1 mr-3">
-            <h2 className={`text-2xl font-bold text-foreground mb-2 break-words ${event.completed ? 'line-through' : ''}`}>{event.title}</h2>
-            <div className="flex items-center gap-2">
-              <span className={`px-3 py-1 text-sm rounded-full ${event.type === 'meeting' ? 'bg-primary/10 text-text-primary' :
-                  event.type === 'task' ? 'bg-accent text-accent-foreground' :
-                    'bg-destructive/10 text-destructive'
-                }`}>
-                {event.type}
-              </span>
-              {event.completed && (
-                <span className="px-3 py-1 bg-primary/10 text-text-primary rounded-full text-sm flex items-center gap-1">
-                  <CheckCircle2 className="w-4 h-4" />
-                  Completed
-                </span>
-              )}
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+    <MotionDialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className={event.completed ? 'line-through' : ''}>{event.title}</DialogTitle>
+        </DialogHeader>
+        <div className="flex items-center gap-2 mb-4">
+          <span className={`px-3 py-1 text-sm rounded-full ${event.type === 'meeting' ? 'bg-primary/10 text-text-primary' :
+              event.type === 'task' ? 'bg-accent text-accent-foreground' :
+                'bg-destructive/10 text-destructive'
+            }`}>
+            {event.type}
+          </span>
+          {event.completed && (
+            <span className="px-3 py-1 bg-primary/10 text-text-primary rounded-full text-sm flex items-center gap-1">
+              <CheckCircle2 className="w-4 h-4" />
+              Completed
+            </span>
+          )}
         </div>
 
         <div className="space-y-4">
@@ -109,30 +104,29 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
                 </span>
               </div>
               {!event.synced && calendarConnected && (
-                <PrimaryButton
+                <Button
                   onClick={() => onSync(event)}
                   size="sm"
                 >
                   Sync Now
-                </PrimaryButton>
+                </Button>
               )}
             </div>
           </div>
 
           {event.meetingId && (
             <div className="pt-4 border-t border-border">
-              <PrimaryButton
+              <Button
                 onClick={() => onNavigateToMeeting(event.meetingId!)}
-                icon={ChevronRight}
-                iconPosition="right"
-                fullWidth
+                iconRight={<ChevronRight className="w-4 h-4" />}
+                className="w-full"
               >
                 View Meeting Details
-              </PrimaryButton>
+              </Button>
             </div>
           )}
         </div>
-      </div>
-    </AnimatedModal>
+      </DialogContent>
+    </MotionDialog>
   );
 }

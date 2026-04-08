@@ -4,13 +4,13 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { meetingsAPI } from '@/lib/api';
-import { useToast } from '@/components/Toast';
+import { toast } from 'sonner';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay, parseISO, isFuture, isToday, isValid } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './calendar-styles.css';
-import PrimaryButton from '@/components/PrimaryButton';
+import { Button } from '@/components/ui/button';
 import { Search, Plus, List } from 'lucide-react';
 import CustomDropdown from '@/components/ui/custom-dropdown';
 import type { CalendarEvent } from '@/lib/types';
@@ -38,7 +38,7 @@ const localizer = dateFnsLocalizer({
 export default function EventsPage() {
   const router = useRouter();
   const { user, loading } = useRequireAuth();
-  const toast = useToast();
+
 
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
@@ -274,12 +274,12 @@ export default function EventsPage() {
             <h1 className="text-2xl font-bold text-foreground mb-2">Event Calendar</h1>
             <p className="text-muted-foreground">View and manage all your meeting events and deadlines</p>
           </div>
-          <PrimaryButton
+          <Button
             onClick={() => setShowCreateModal(true)}
-            icon={Plus}
+            iconLeft={<Plus className="w-4 h-4" />}
           >
             Add Event
-          </PrimaryButton>
+          </Button>
         </div>
 
         {/* Search & Actions Row */}

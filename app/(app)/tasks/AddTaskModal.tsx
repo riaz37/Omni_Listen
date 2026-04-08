@@ -1,8 +1,13 @@
 'use client';
 
-import { X } from 'lucide-react';
-import PrimaryButton from '@/components/PrimaryButton';
-import AnimatedModal from '@/components/ui/animated-modal';
+import { Button } from '@/components/ui/button';
+import {
+  MotionDialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import CustomDropdown from '@/components/ui/custom-dropdown';
 
 interface NewTaskData {
@@ -22,20 +27,12 @@ interface AddTaskModalProps {
 
 export function AddTaskModal({ show, newTask, onNewTaskChange, onClose, onSubmit }: AddTaskModalProps) {
   return (
-    <AnimatedModal open={show} onClose={onClose}>
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-5">
-          <div>
-            <h2 className="text-lg font-semibold text-foreground">Add task</h2>
-            <p className="text-sm text-muted-foreground">Add new task</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <MotionDialog open={show} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add task</DialogTitle>
+          <DialogDescription>Add new task</DialogDescription>
+        </DialogHeader>
 
         <div className="space-y-4">
           {/* Title */}
@@ -106,12 +103,12 @@ export function AddTaskModal({ show, newTask, onNewTaskChange, onClose, onSubmit
             >
               Cancel
             </button>
-            <PrimaryButton onClick={onSubmit}>
+            <Button onClick={onSubmit}>
               Add
-            </PrimaryButton>
+            </Button>
           </div>
         </div>
-      </div>
-    </AnimatedModal>
+      </DialogContent>
+    </MotionDialog>
   );
 }
