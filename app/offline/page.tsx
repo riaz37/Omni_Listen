@@ -20,7 +20,7 @@ export default function OfflinePage() {
           {/* Logo */}
           <div className="inline-flex items-center gap-3 mb-6">
             <img
-              src="/esapai_logo.png"
+              src="/mainlogo.webp"
               alt="Omini Listen"
               className="h-12 w-12 rounded-xl shadow-lg"
             />

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   title: 'Omini Listen — AI Personal Assistant',
   description: 'Your AI assistant that listens, understands, and organizes everything you say',
   icons: {
-    icon: '/esapai_logo.png',
+    icon: '/mainlogo.webp',
   },
   manifest: '/manifest.json',
   appleWebApp: {

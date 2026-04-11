@@ -60,7 +60,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Image src="/esapai_logo.png" alt="Omini Listen" width={28} height={28} className="rounded-md" />
+              <Image src="/mainlogo.webp" alt="Omini Listen" width={28} height={28} className="rounded-md" />
               <span className="font-bold text-foreground">Omini Listen</span>
             </div>
             <p className="text-muted-foreground leading-relaxed">

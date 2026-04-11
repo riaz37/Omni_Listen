@@ -119,7 +119,7 @@ export function useEventsData(user: unknown) {
           setTimeout(() => {
             new Notification(`Upcoming Event Tomorrow: ${event.title}`, {
               body: `${event.title} is scheduled for ${format(event.start, 'PPP p')}`,
-              icon: '/esapai_logo.png',
+              icon: '/mainlogo.webp',
               tag: event.id,
             });
           }, 100);

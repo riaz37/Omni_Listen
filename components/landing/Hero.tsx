@@ -34,7 +34,7 @@ export default function Hero() {
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center gap-3">
               <Image
-                src="/esapai_logo.png"
+                src="/mainlogo.webp"
                 alt="Omini Listen"
                 width={36}
                 height={36}

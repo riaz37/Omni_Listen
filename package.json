@@ -24,12 +24,12 @@
       "dist-electron/**/*",
       "package.json"
     ],
-    "icon": "public/esapai_logo.png",
+    "icon": "public/mainlogo.webp",
     "directories": {
       "output": "dist"
     },
     "win": {
-      "icon": "public/esapai_logo.png",
+      "icon": "public/mainlogo.webp",
       "target": "nsis"
     },
     "protocols": [

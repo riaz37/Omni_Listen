@@ -76,9 +76,9 @@ function getIconPath() {
     // In production (app.isPackaged), assets are usually in resources path or relative to binary.
     // In dev (from dist/main/index.js), the source public is two levels up.
     if (app.isPackaged) {
-        return path.join(process.resourcesPath, 'public/esapai_logo.png');
+        return path.join(process.resourcesPath, 'public/mainlogo.webp');
     }
-    return path.join(__dirname, '../../public/esapai_logo.png');
+    return path.join(__dirname, '../../public/mainlogo.webp');
 }
 
 let miniWindow: BrowserWindow | null = null;

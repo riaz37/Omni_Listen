@@ -183,7 +183,7 @@ export default function SignUpPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
             <img
-              src="/esapai_logo.png"
+              src="/mainlogo.webp"
               alt="Omini Listen"
               className="h-12 w-12 rounded-xl shadow-lg"
             />
