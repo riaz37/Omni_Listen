@@ -2,10 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { FileText, AlignLeft, Tag, Save } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import {
   MotionDialog,
   DialogContent,
   DialogHeader,
+  DialogFooter,
   DialogTitle,
 } from '@/components/ui/dialog';
 import CustomDropdown from '@/components/ui/custom-dropdown';
@@ -36,7 +41,6 @@ export default function EditNoteModal({ note, isOpen, onClose, onSave }: EditNot
   });
   const [isSaving, setIsSaving] = useState(false);
 
-  // Update form data when note changes
   useEffect(() => {
     setFormData({
       title: note.title || '',
@@ -50,7 +54,6 @@ export default function EditNoteModal({ note, isOpen, onClose, onSave }: EditNot
     setIsSaving(true);
 
     try {
-      // Only send fields that have changed
       const updates: any = {};
       if (formData.title !== note.title) updates.title = formData.title;
       if (formData.description !== note.description) updates.description = formData.description;
@@ -71,14 +74,13 @@ export default function EditNoteModal({ note, isOpen, onClose, onSave }: EditNot
           <DialogTitle>Edit Note</DialogTitle>
         </DialogHeader>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5 py-1">
           {/* Category */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              <Tag className="w-4 h-4 inline-block mr-2" />
+          <div className="space-y-2">
+            <Label className="flex items-center gap-1.5">
+              <Tag className="w-3.5 h-3.5 text-muted-foreground" />
               Category
-            </label>
+            </Label>
             <CustomDropdown
               value={formData.category}
               onChange={(val) => setFormData({ ...formData, category: val })}
@@ -92,56 +94,50 @@ export default function EditNoteModal({ note, isOpen, onClose, onSave }: EditNot
           </div>
 
           {/* Title */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              <FileText className="w-4 h-4 inline-block mr-2" />
+          <div className="space-y-2">
+            <Label htmlFor="edit-note-title" className="flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-muted-foreground" />
               Title
-            </label>
-            <input
-              type="text"
+            </Label>
+            <Input
+              id="edit-note-title"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
               required
               placeholder="Enter note title"
             />
           </div>
 
           {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              <AlignLeft className="w-4 h-4 inline-block mr-2" />
+          <div className="space-y-2">
+            <Label htmlFor="edit-note-description" className="flex items-center gap-1.5">
+              <AlignLeft className="w-3.5 h-3.5 text-muted-foreground" />
               Description
-            </label>
-            <textarea
+            </Label>
+            <Textarea
+              id="edit-note-description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={6}
-              className="w-full px-4 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:border-transparent transition-colors resize-none"
               required
               placeholder="Enter note description"
+              className="resize-none"
             />
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isSaving}
-              className="px-5 py-2.5 text-sm font-medium text-foreground bg-muted border border-border rounded-lg hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+          <DialogFooter className="gap-2 pt-2 border-t border-border sm:justify-between">
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSaving}>
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={isSaving}
-              className="px-5 py-2.5 text-sm font-medium text-primary-foreground bg-primary rounded-lg hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              loading={isSaving}
+              iconLeft={<Save className="w-4 h-4" />}
             >
-              <Save className="w-4 h-4" />
               {isSaving ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
+            </Button>
+          </DialogFooter>
         </form>
       </DialogContent>
     </MotionDialog>

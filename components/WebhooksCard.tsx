@@ -1,9 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Webhook, Plus, Loader2, Trash2, CheckCircle2, XCircle, RefreshCw, Bell } from 'lucide-react';
+import { Webhook, Plus, Trash2, CheckCircle2, XCircle, RefreshCw, Bell, Globe } from 'lucide-react';
 import { webhooksAPI } from '@/lib/api';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  MotionDialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 interface WebhookData {
     id: number;
@@ -37,6 +49,7 @@ export default function WebhooksCard() {
     const [newName, setNewName] = useState('');
     const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
     const [testStatus, setTestStatus] = useState<Record<number, 'testing' | 'success' | 'error'>>({});
+    const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 
     useEffect(() => {
         loadWebhooks();
@@ -73,12 +86,13 @@ export default function WebhooksCard() {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!confirm('Delete this webhook?')) return;
+    const executeDelete = async (id: number) => {
         try {
             await webhooksAPI.delete(id);
             setWebhooks(webhooks.filter(w => w.id !== id));
+            toast.success('Webhook deleted');
         } catch (error) {
+            toast.error('Failed to delete webhook');
         }
     };
 
@@ -123,18 +137,18 @@ export default function WebhooksCard() {
                         <Webhook className="w-5 h-5" />
                         Webhooks
                     </h2>
-                    <button
+                    <Button
                         onClick={() => setShowModal(true)}
-                        className="px-3 py-1 bg-primary text-primary-foreground rounded-md hover:bg-primary-hover text-sm flex items-center gap-1"
+                        size="sm"
+                        iconLeft={<Plus className="w-4 h-4" />}
                     >
-                        <Plus className="w-4 h-4" />
                         Add Webhook
-                    </button>
+                    </Button>
                 </div>
 
                 {loading ? (
                     <div className="flex justify-center py-8">
-                        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                        <div className="w-6 h-6 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin" />
                     </div>
                 ) : webhooks.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
@@ -159,15 +173,16 @@ export default function WebhooksCard() {
                                             Events: {webhook.events.includes('*') ? 'All' : webhook.events.join(', ')}
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <button
+                                    <div className="flex items-center gap-1">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
                                             onClick={() => handleTest(webhook.id)}
                                             disabled={testStatus[webhook.id] === 'testing'}
-                                            className="p-2 text-muted-foreground hover:text-primary rounded"
                                             title="Test webhook"
                                         >
                                             {testStatus[webhook.id] === 'testing' ? (
-                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                <div className="w-4 h-4 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin" />
                                             ) : testStatus[webhook.id] === 'success' ? (
                                                 <CheckCircle2 className="w-4 h-4 text-primary" />
                                             ) : testStatus[webhook.id] === 'error' ? (
@@ -175,19 +190,23 @@ export default function WebhooksCard() {
                                             ) : (
                                                 <RefreshCw className="w-4 h-4" />
                                             )}
-                                        </button>
-                                        <button
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
                                             onClick={() => handleToggle(webhook.id, webhook.is_active)}
-                                            className={`px-2 py-1 text-xs rounded ${webhook.is_active ? 'text-yellow-600 hover:bg-yellow-50' : 'text-primary hover:bg-primary/5'}`}
+                                            className={webhook.is_active ? 'text-yellow-600' : 'text-primary'}
                                         >
                                             {webhook.is_active ? 'Pause' : 'Enable'}
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(webhook.id)}
-                                            className="p-2 text-destructive hover:bg-destructive/10 rounded"
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => setDeleteConfirm(webhook.id)}
+                                            className="text-destructive hover:bg-destructive/10"
                                         >
                                             <Trash2 className="w-4 h-4" />
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
@@ -196,72 +215,93 @@ export default function WebhooksCard() {
                 )}
             </div>
 
-            {/* Modal */}
-            {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50">
-                    <div className="bg-card rounded-lg shadow-xl w-full max-w-lg p-6 m-4">
-                        <h3 className="text-xl font-bold mb-4">Create Webhook</h3>
+            {/* Create Webhook Modal */}
+            <MotionDialog open={showModal} onOpenChange={(open) => { if (!open) setShowModal(false); }}>
+                <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>Create Webhook</DialogTitle>
+                        <DialogDescription>Set up a webhook to receive real-time event notifications</DialogDescription>
+                    </DialogHeader>
 
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-foreground mb-1">Name (optional)</label>
-                                <input
-                                    type="text"
-                                    value={newName}
-                                    onChange={e => setNewName(e.target.value)}
-                                    className="w-full px-3 py-2 border border-border rounded-md"
-                                    placeholder="My Webhook"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-foreground mb-1">URL *</label>
-                                <input
-                                    type="url"
-                                    value={newUrl}
-                                    onChange={e => setNewUrl(e.target.value)}
-                                    className="w-full px-3 py-2 border border-border rounded-md"
-                                    placeholder="https://example.com/webhook"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-foreground mb-2">Events</label>
-                                <div className="flex flex-wrap gap-2">
-                                    {AVAILABLE_EVENTS.map(evt => (
-                                        <button
-                                            key={evt.value}
-                                            type="button"
-                                            onClick={() => toggleEvent(evt.value)}
-                                            className={`px-2 py-1 text-xs rounded-full border ${selectedEvents.includes(evt.value)
-                                                    ? 'bg-primary/10 border-primary/30 text-text-primary'
-                                                    : 'bg-muted border-border text-muted-foreground'
-                                                }`}
-                                        >
-                                            {evt.label}
-                                        </button>
-                                    ))}
-                                </div>
-                                <p className="text-xs text-muted-foreground mt-1">Leave empty to subscribe to all events</p>
-                            </div>
+                    <div className="space-y-5 py-1">
+                        <div className="space-y-2">
+                            <Label htmlFor="webhook-name" className="flex items-center gap-1.5">
+                                <Webhook className="w-3.5 h-3.5 text-muted-foreground" />
+                                Name
+                                <span className="text-muted-foreground font-normal">(optional)</span>
+                            </Label>
+                            <Input
+                                id="webhook-name"
+                                value={newName}
+                                onChange={e => setNewName(e.target.value)}
+                                placeholder="My Webhook"
+                            />
                         </div>
 
-                        <div className="flex justify-end gap-3 mt-6">
-                            <button
-                                onClick={() => setShowModal(false)}
-                                className="px-4 py-2 text-muted-foreground hover:bg-muted rounded-md"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleCreate}
-                                disabled={!newUrl.trim() || creating}
-                                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary-hover disabled:opacity-50 flex items-center gap-2"
-                            >
-                                {creating && <Loader2 className="w-4 h-4 animate-spin" />}
-                                Create
-                            </button>
+                        <div className="space-y-2">
+                            <Label htmlFor="webhook-url" className="flex items-center gap-1.5">
+                                <Globe className="w-3.5 h-3.5 text-muted-foreground" />
+                                URL <span className="text-destructive">*</span>
+                            </Label>
+                            <Input
+                                id="webhook-url"
+                                type="url"
+                                value={newUrl}
+                                onChange={e => setNewUrl(e.target.value)}
+                                placeholder="https://example.com/webhook"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label>Events</Label>
+                            <div className="flex flex-wrap gap-2">
+                                {AVAILABLE_EVENTS.map(evt => (
+                                    <button
+                                        key={evt.value}
+                                        type="button"
+                                        onClick={() => toggleEvent(evt.value)}
+                                        className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${selectedEvents.includes(evt.value)
+                                                ? 'bg-primary/10 border-primary/30 text-text-primary'
+                                                : 'bg-muted border-border text-muted-foreground hover:border-muted-foreground/30'
+                                            }`}
+                                    >
+                                        {evt.label}
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-xs text-muted-foreground">Leave empty to subscribe to all events</p>
                         </div>
                     </div>
-                </div>
+
+                    <DialogFooter className="gap-2 pt-2 border-t border-border sm:justify-between">
+                        <Button variant="outline" onClick={() => setShowModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleCreate}
+                            disabled={!newUrl.trim() || creating}
+                            loading={creating}
+                        >
+                            Create
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </MotionDialog>
+
+            {/* Delete Confirmation */}
+            {deleteConfirm !== null && (
+                <ConfirmDialog
+                    isOpen
+                    title="Delete Webhook"
+                    message="Are you sure you want to delete this webhook? This action cannot be undone."
+                    confirmLabel="Delete"
+                    variant="danger"
+                    onConfirm={() => {
+                        executeDelete(deleteConfirm);
+                        setDeleteConfirm(null);
+                    }}
+                    onCancel={() => setDeleteConfirm(null)}
+                />
             )}
         </>
     );

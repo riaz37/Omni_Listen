@@ -4,6 +4,7 @@ import {
   MotionDialog,
   DialogContent,
   DialogHeader,
+  DialogFooter,
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
@@ -79,87 +80,86 @@ export function EventDetailModal({
           <DialogTitle className={selectedEvent.completed ? 'line-through' : ''}>{selectedEvent.title}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 py-1">
           <div>
             <div className="flex items-center gap-2 text-muted-foreground mb-1">
-              <Clock className="w-5 h-5" />
-              <span className="font-medium">Date & Time</span>
+              <Clock className="w-4 h-4" />
+              <span className="text-sm font-medium">Date & Time</span>
             </div>
-            <p className="text-foreground ml-7">
+            <p className="text-foreground ml-6 text-sm">
               {format(selectedEvent.start, 'EEEE, MMMM dd, yyyy')}
             </p>
-            <p className="text-muted-foreground ml-7">
+            <p className="text-muted-foreground ml-6 text-sm">
               {format(selectedEvent.start, 'h:mm a')} - {format(selectedEvent.end, 'h:mm a')}
             </p>
           </div>
 
           {selectedEvent.description && (
             <div>
-              <p className="font-medium text-muted-foreground mb-1">Description</p>
-              <p className="text-foreground">{selectedEvent.description}</p>
+              <p className="text-sm font-medium text-muted-foreground mb-1">Description</p>
+              <p className="text-foreground text-sm [overflow-wrap:anywhere] whitespace-pre-wrap line-clamp-6">{selectedEvent.description}</p>
             </div>
           )}
 
           {selectedEvent.location && (
             <div>
               <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                <MapPin className="w-5 h-5" />
-                <span className="font-medium">Location</span>
+                <MapPin className="w-4 h-4" />
+                <span className="text-sm font-medium">Location</span>
               </div>
-              <p className="text-foreground ml-7">{selectedEvent.location}</p>
+              <p className="text-foreground ml-6 text-sm">{selectedEvent.location}</p>
             </div>
           )}
 
           {selectedEvent.attendees && selectedEvent.attendees.length > 0 && (
             <div>
               <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                <Users className="w-5 h-5" />
-                <span className="font-medium">Attendees</span>
+                <Users className="w-4 h-4" />
+                <span className="text-sm font-medium">Attendees</span>
               </div>
-              <div className="ml-7 space-y-1">
+              <div className="ml-6 space-y-1">
                 {selectedEvent.attendees.map((attendee, index) => (
-                  <p key={index} className="text-foreground">{attendee}</p>
+                  <p key={index} className="text-foreground text-sm">{attendee}</p>
                 ))}
               </div>
             </div>
           )}
-
-          {/* Actions */}
-          <div className="pt-4 border-t border-border space-y-3">
-            {!selectedEvent.synced && user?.calendar_connected && (
-              <button
-                onClick={() => {
-                  onSyncEvent(selectedEvent);
-                  onClose();
-                }}
-                className="w-full px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/80 transition-colors flex items-center justify-center gap-2"
-              >
-                <CheckCircle className="w-5 h-5" />
-                <span>Sync to Calendar</span>
-              </button>
-            )}
-
-            {selectedEvent.meetingId && (
-              <Button
-                onClick={() => onNavigateToMeeting(selectedEvent.meetingId!)}
-                iconRight={<ChevronRight className="w-4 h-4" />}
-                className="w-full"
-              >
-                View Meeting Details
-              </Button>
-            )}
-
-            <button
-              onClick={() => {
-                onDeleteEvent(selectedEvent.id);
-              }}
-              className="w-full px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive-hover transition-colors flex items-center justify-center gap-2"
-            >
-              <Trash2 className="w-5 h-5" />
-              <span>Delete Event</span>
-            </button>
-          </div>
         </div>
+
+        <DialogFooter className="flex-col gap-2 pt-2 border-t border-border sm:flex-col">
+          {!selectedEvent.synced && user?.calendar_connected && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                onSyncEvent(selectedEvent);
+                onClose();
+              }}
+              iconLeft={<CheckCircle className="w-4 h-4" />}
+              className="w-full"
+            >
+              Sync to Calendar
+            </Button>
+          )}
+
+          {selectedEvent.meetingId && (
+            <Button
+              onClick={() => onNavigateToMeeting(selectedEvent.meetingId!)}
+              iconRight={<ChevronRight className="w-4 h-4" />}
+              className="w-full"
+            >
+              View Meeting Details
+            </Button>
+          )}
+
+          <Button
+            variant="destructive"
+            onClick={() => onDeleteEvent(selectedEvent.id)}
+            iconLeft={<Trash2 className="w-4 h-4" />}
+            className="w-full"
+          >
+            Delete Event
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </MotionDialog>
   );

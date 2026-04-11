@@ -1,15 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Clock, Save } from 'lucide-react';
+import { CalendarDays, Clock, Save, Info } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import {
   MotionDialog,
   DialogContent,
   DialogHeader,
+  DialogFooter,
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import DatePicker from '@/components/ui/date-picker';
+import TimePicker from '@/components/ui/time-picker';
 
 interface Event {
   id: number;
@@ -29,15 +34,12 @@ interface RescheduleEventModalProps {
 }
 
 export default function RescheduleEventModal({ event, isOpen, onClose, onSave }: RescheduleEventModalProps) {
-  // Extract current date and time from event
   const getInitialDate = () => {
     if (!event.date) return '';
     try {
-      // If date is ISO string with time
       if (event.date.includes('T')) {
         return event.date.split('T')[0];
       }
-      // If date is already in YYYY-MM-DD format
       return event.date;
     } catch {
       return '';
@@ -45,10 +47,7 @@ export default function RescheduleEventModal({ event, isOpen, onClose, onSave }:
   };
 
   const getInitialTime = () => {
-    // First check if event has a separate time field
     if (event.time) return event.time;
-
-    // Otherwise try to extract from date string
     if (!event.date) return '';
     try {
       if (event.date.includes('T')) {
@@ -67,7 +66,6 @@ export default function RescheduleEventModal({ event, isOpen, onClose, onSave }:
   });
   const [isSaving, setIsSaving] = useState(false);
 
-  // Update form data when event changes
   useEffect(() => {
     setFormData({
       date: getInitialDate(),
@@ -80,9 +78,7 @@ export default function RescheduleEventModal({ event, isOpen, onClose, onSave }:
     setIsSaving(true);
 
     try {
-      // Only send fields that have changed
       const updates: any = {};
-
       const initialDate = getInitialDate();
       const initialTime = getInitialTime();
 
@@ -99,15 +95,14 @@ export default function RescheduleEventModal({ event, isOpen, onClose, onSave }:
     }
   };
 
-  // Format current schedule for display
   const getCurrentSchedule = () => {
     try {
       if (event.date) {
         if (event.date.includes('T')) {
           const parsed = parseISO(event.date);
-          return format(parsed, 'PPP p'); // "Jan 1, 2025 at 10:00 AM"
+          return format(parsed, 'PPP p');
         }
-        return format(parseISO(event.date), 'PPP'); // "Jan 1, 2025"
+        return format(parseISO(event.date), 'PPP');
       }
     } catch {
       return 'Unknown';
@@ -123,66 +118,58 @@ export default function RescheduleEventModal({ event, isOpen, onClose, onSave }:
           <DialogDescription>{event.title}</DialogDescription>
         </DialogHeader>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5 py-1">
           {/* Current Schedule Info */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <div className="flex items-start gap-3 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-3">
+            <Info className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
             <p className="text-sm text-blue-700 dark:text-blue-300">
-              <strong>Current schedule:</strong> {getCurrentSchedule()}
+              Currently scheduled for <strong>{getCurrentSchedule()}</strong>
             </p>
           </div>
 
-          {/* Date Input */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              <Calendar className="w-4 h-4 inline-block mr-2" />
-              New Date
-            </label>
-            <input
-              type="date"
-              value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-muted text-foreground"
-              required
-            />
+          {/* New Date & Time */}
+          <div className="space-y-4 rounded-lg border border-border bg-muted/30 p-4">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1.5">
+                <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
+                New Date
+              </Label>
+              <DatePicker
+                value={formData.date}
+                onChange={(date) => setFormData({ ...formData, date })}
+                placeholder="Pick a new date"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                Time
+              </Label>
+              <TimePicker
+                value={formData.time}
+                onChange={(time) => setFormData({ ...formData, time })}
+                placeholder="Leave empty for all-day"
+              />
+              <p className="text-xs text-muted-foreground">
+                Leave empty for an all-day event
+              </p>
+            </div>
           </div>
 
-          {/* Time Input */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
-              <Clock className="w-4 h-4 inline-block mr-2" />
-              Time (optional)
-            </label>
-            <input
-              type="time"
-              value={formData.time}
-              onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-muted text-foreground"
-              placeholder="Leave empty for all-day event"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              Leave empty for an all-day event
-            </p>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2 border border-border text-foreground rounded-lg hover:bg-muted transition-colors"
-            >
+          <DialogFooter className="gap-2 pt-2 border-t border-border sm:justify-between">
+            <Button type="button" variant="outline" onClick={onClose}>
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={isSaving}
-              className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              loading={isSaving}
+              iconLeft={<Save className="w-4 h-4" />}
             >
-              <Save className="w-4 h-4" />
               {isSaving ? 'Saving...' : 'Reschedule'}
-            </button>
-          </div>
+            </Button>
+          </DialogFooter>
         </form>
       </DialogContent>
     </MotionDialog>

@@ -147,7 +147,7 @@ export default function CustomDropdown({
           id={listboxId}
           role="listbox"
           aria-activedescendant={focusIndex >= 0 ? `dropdown-option-${focusIndex}` : undefined}
-          className="absolute right-0 top-full mt-2 min-w-[10rem] bg-card border border-border rounded-lg shadow-lg z-50 py-1 overflow-hidden"
+          className="absolute left-0 top-full mt-2 min-w-[10rem] bg-card border border-border rounded-lg shadow-lg z-50 py-1 overflow-hidden"
         >
           {options.map((option, index) => (
             <button

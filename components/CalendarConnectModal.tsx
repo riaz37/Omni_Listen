@@ -1,6 +1,7 @@
 'use client';
 
 import { Calendar } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   MotionDialog,
   DialogContent,
@@ -35,38 +36,33 @@ export default function CalendarConnectModal({
                 </div>
 
                 {/* Content */}
-                <div className="p-6">
-                    <p className="text-muted-foreground text-center mb-6">
+                <div className="p-6 space-y-6">
+                    <p className="text-muted-foreground text-center">
                         Sync your conversations and automatically add action items to your Google Calendar.
                         You can always connect later from Settings.
                     </p>
 
                     <div className="space-y-3">
-                        <button
+                        <Button
                             onClick={onConnect}
                             disabled={isConnecting}
-                            className="w-full py-3 bg-primary hover:bg-primary-hover text-primary-foreground font-semibold rounded-xl shadow-lg hover:shadow-green-500/30 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            loading={isConnecting}
+                            iconLeft={!isConnecting ? <Calendar className="w-5 h-5" /> : undefined}
+                            size="lg"
+                            className="w-full rounded-xl shadow-lg hover:shadow-green-500/30"
                         >
-                            {isConnecting ? (
-                                <>
-                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    <span>Connecting...</span>
-                                </>
-                            ) : (
-                                <>
-                                    <Calendar className="w-5 h-5" />
-                                    <span>Connect Now</span>
-                                </>
-                            )}
-                        </button>
+                            {isConnecting ? 'Connecting...' : 'Connect Now'}
+                        </Button>
 
-                        <button
+                        <Button
+                            variant="outline"
                             onClick={onSkip}
                             disabled={isConnecting}
-                            className="w-full py-3 border border-border text-muted-foreground font-medium rounded-xl hover:bg-muted transition-colors disabled:opacity-50"
+                            size="lg"
+                            className="w-full rounded-xl"
                         >
                             Maybe Later
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </DialogContent>

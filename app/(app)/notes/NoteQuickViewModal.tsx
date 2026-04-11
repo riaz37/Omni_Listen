@@ -1,8 +1,10 @@
+import { ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   MotionDialog,
   DialogContent,
   DialogHeader,
+  DialogFooter,
   DialogTitle,
 } from '@/components/ui/dialog';
 
@@ -37,33 +39,33 @@ export function NoteQuickViewModal({
           <DialogTitle>Note Quick View</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 py-1">
           <div>
             <h3 className="font-semibold text-foreground mb-2">{note.title}</h3>
             <p className="text-sm text-muted-foreground whitespace-pre-wrap">{note.description}</p>
           </div>
 
           {note.meetingId && (
-            <div>
-              <p className="font-semibold text-foreground text-sm">From Meeting</p>
+            <div className="rounded-lg border border-border bg-muted/30 px-4 py-3">
+              <p className="text-sm font-medium text-foreground">From Meeting</p>
               <p className="text-sm text-muted-foreground">{note.meetingTitle}</p>
             </div>
           )}
-
-          <div className="flex justify-between pt-4">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 text-sm text-foreground hover:bg-muted rounded-lg transition-colors"
-            >
-              Cancel
-            </button>
-            {note.meetingId && (
-              <Button onClick={() => onViewDetails(note.meetingId)}>
-                View Details
-              </Button>
-            )}
-          </div>
         </div>
+
+        <DialogFooter className="gap-2 pt-2 border-t border-border sm:justify-between">
+          <Button variant="outline" onClick={onClose}>
+            Close
+          </Button>
+          {note.meetingId && (
+            <Button
+              onClick={() => onViewDetails(note.meetingId)}
+              iconRight={<ChevronRight className="w-4 h-4" />}
+            >
+              View Details
+            </Button>
+          )}
+        </DialogFooter>
       </DialogContent>
     </MotionDialog>
   );

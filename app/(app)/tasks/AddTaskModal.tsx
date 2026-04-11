@@ -1,14 +1,20 @@
 'use client';
 
+import { ListTodo, CalendarDays, AlertTriangle, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import {
   MotionDialog,
   DialogContent,
   DialogHeader,
+  DialogFooter,
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
 import CustomDropdown from '@/components/ui/custom-dropdown';
+import DatePicker from '@/components/ui/date-picker';
 
 interface NewTaskData {
   title: string;
@@ -30,46 +36,46 @@ export function AddTaskModal({ show, newTask, onNewTaskChange, onClose, onSubmit
     <MotionDialog open={show} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Add task</DialogTitle>
-          <DialogDescription>Add new task</DialogDescription>
+          <DialogTitle>Add Task</DialogTitle>
+          <DialogDescription>Create a new task to track</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-5 py-1">
           {/* Title */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">
+          <div className="space-y-2">
+            <Label htmlFor="task-title" className="flex items-center gap-1.5">
+              <ListTodo className="w-3.5 h-3.5 text-muted-foreground" />
               Title
-            </label>
-            <input
-              type="text"
+            </Label>
+            <Input
+              id="task-title"
               value={newTask.title}
               onChange={(e) => onNewTaskChange({ ...newTask, title: e.target.value })}
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground text-sm"
-              placeholder="I need help with..."
+              placeholder="What needs to be done?"
+              maxLength={100}
+              autoFocus
             />
           </div>
 
           {/* Due Date */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">
+          <div className="space-y-2">
+            <Label className="flex items-center gap-1.5">
+              <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
               Due Date
-            </label>
-            <div className="relative">
-              <input
-                type="date"
-                value={newTask.date}
-                onChange={(e) => onNewTaskChange({ ...newTask, date: e.target.value })}
-                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-                placeholder="Select Date"
-              />
-            </div>
+            </Label>
+            <DatePicker
+              value={newTask.date}
+              onChange={(date) => onNewTaskChange({ ...newTask, date })}
+              placeholder="Pick a due date"
+            />
           </div>
 
-          {/* Select Urgency */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">
-              Select Urgency
-            </label>
+          {/* Urgency */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-1.5">
+              <AlertTriangle className="w-3.5 h-3.5 text-muted-foreground" />
+              Urgency
+            </Label>
             <CustomDropdown
               value={newTask.urgency}
               onChange={(val) => onNewTaskChange({ ...newTask, urgency: val as 'yes' | 'no' })}
@@ -82,32 +88,30 @@ export function AddTaskModal({ show, newTask, onNewTaskChange, onClose, onSubmit
           </div>
 
           {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">
+          <div className="space-y-2">
+            <Label htmlFor="task-description" className="flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-muted-foreground" />
               Description
-            </label>
-            <textarea
+            </Label>
+            <Textarea
+              id="task-description"
               value={newTask.description}
               onChange={(e) => onNewTaskChange({ ...newTask, description: e.target.value })}
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground text-sm"
-              placeholder="Please include all information relevant to your issue."
+              placeholder="Add any relevant details..."
+              maxLength={500}
               rows={4}
             />
           </div>
-
-          {/* Actions */}
-          <div className="flex justify-between pt-2">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 text-sm text-foreground hover:bg-muted rounded-lg transition-colors"
-            >
-              Cancel
-            </button>
-            <Button onClick={onSubmit}>
-              Add
-            </Button>
-          </div>
         </div>
+
+        <DialogFooter className="gap-2 pt-2 border-t border-border sm:justify-between">
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={onSubmit}>
+            Add Task
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </MotionDialog>
   );

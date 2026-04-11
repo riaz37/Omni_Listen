@@ -1,15 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, User, Settings, Plus, Edit2, Trash2, Star, Copy, Lock, AlertCircle, Loader2, ArrowLeft, Save } from 'lucide-react';
+import { X, User, Plus, Edit2, Trash2, Star, Lock, AlertCircle, ArrowLeft, Save } from 'lucide-react';
 import { useConfig } from '@/lib/config-context';
 import { presetsAPI, authAPI } from '@/lib/api';
 import { toast } from 'sonner';
 import {
   MotionDialog,
   DialogContent,
+  DialogFooter,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -59,7 +63,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
   // Load presets when modal opens - reset view to list
   useEffect(() => {
     if (isOpen) {
-      setView('list'); // Always start with list view when opening
+      setView('list');
       loadPresets();
     }
   }, [isOpen]);
@@ -79,10 +83,8 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
     try {
       setSaving(true);
 
-      // Save active role to backend for cross-device persistence
       await authAPI.setActiveRole(preset.name);
 
-      // Apply preset to current config
       setConfig({
         ...config,
         role: preset.config.role,
@@ -91,15 +93,12 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
         custom_field_only: preset.config.custom_field_only || false,
       });
 
-      // Notify parent and wait for state update
       if (onRoleSelected) {
         onRoleSelected(preset);
       }
 
-      // Show success toast
       toast.success(`Switched to ${preset.name}`, { duration: 2000 });
 
-      // Small delay to ensure state updates propagate before closing
       await new Promise(resolve => setTimeout(resolve, 50));
 
       onClose();
@@ -125,18 +124,16 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
 
   const handleEdit = (preset: Preset) => {
     if (preset.is_system) {
-      // For system presets, we create a copy but keep the name/role locked
-      setEditingPreset(null); // null means create new (in DB)
+      setEditingPreset(null);
       setIsSystemTemplate(true);
       setFormData({
-        name: preset.name, // Keep original name
+        name: preset.name,
         role: preset.config.role,
         output_fields: preset.config.output_fields as any,
         user_input: preset.config.user_input || '',
         custom_field_only: preset.config.custom_field_only || false,
       });
     } else {
-      // For user presets, we edit the existing one
       setEditingPreset(preset);
       setIsSystemTemplate(false);
       setFormData({
@@ -164,11 +161,9 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
       };
 
       if (editingPreset) {
-        // Update existing
         await presetsAPI.updatePreset(editingPreset.id, data);
         toast.success('Preset updated successfully!', { duration: 2000 });
       } else {
-        // Create new
         await presetsAPI.createPreset(data);
         toast.success('Preset created successfully!', { duration: 2000 });
       }
@@ -421,22 +416,21 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
             <>
               {/* Edit/Create Form */}
               {isSystemTemplate ? (
-                /* ── Customize Template (single-column layout) ── */
+                /* Customize Template (single-column layout) */
                 <>
                   <div className="bg-muted/50 dark:bg-muted/20 border border-border rounded-lg p-4 mb-6 text-sm text-muted-foreground">
                     You are customizing a system template. The name and role are fixed, but you can add a default analysis request and modify output fields.
                   </div>
-                  <div className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
+                  <div className="space-y-5">
+                    <div className="space-y-2">
+                      <Label>
                         Preset Name <span className="text-destructive">*</span>
-                      </label>
+                      </Label>
                       <div className="relative">
-                        <input
-                          type="text"
+                        <Input
                           value={formData.name}
                           disabled
-                          className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground border-border cursor-not-allowed text-sm"
+                          className="pr-10"
                         />
                         <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                           <Lock className="w-3.5 h-3.5" />
@@ -444,16 +438,15 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
+                    <div className="space-y-2">
+                      <Label>
                         Role <span className="text-destructive">*</span>
-                      </label>
+                      </Label>
                       <div className="relative">
-                        <input
-                          type="text"
+                        <Input
                           value={formData.role}
                           disabled
-                          className="w-full px-3 py-2 border rounded-md bg-muted text-muted-foreground border-border cursor-not-allowed text-sm"
+                          className="pr-10"
                         />
                         <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                           <Lock className="w-3.5 h-3.5" />
@@ -461,11 +454,11 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                       </div>
                     </div>
 
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <label className="block text-sm font-medium text-foreground">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label>
                           Default Analysis Request {formData.custom_field_only ? <span className="text-destructive">*</span> : <span className="text-muted-foreground font-normal">(optional)</span>}
-                        </label>
+                        </Label>
                         {formData.custom_field_only && !formData.user_input && (
                           <span className="text-xs text-destructive flex items-center gap-1">
                             <AlertCircle className="w-3 h-3" />
@@ -473,12 +466,12 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                           </span>
                         )}
                       </div>
-                      <textarea
+                      <Textarea
                         value={formData.user_input}
                         onChange={(e) => setFormData({ ...formData, user_input: e.target.value })}
                         placeholder="Enter a default analysis request that will auto-fill when this preset is selected..."
                         rows={3}
-                        className={`w-full px-3 py-2 border rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm ${formData.custom_field_only && !formData.user_input ? 'border-destructive/50 bg-destructive/5' : 'border-border'}`}
+                        className={formData.custom_field_only && !formData.user_input ? 'border-destructive/50 bg-destructive/5' : ''}
                       />
                       <div className="mt-3">
                         <div className="flex items-center gap-2">
@@ -494,10 +487,8 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-3">
-                        Output Fields
-                      </label>
+                    <div className="space-y-3">
+                      <Label>Output Fields</Label>
                       <div className="grid grid-cols-2 gap-3">
                         {Object.entries(formData.output_fields || {}).map(([key, value]) => (
                           <div key={key} className="flex items-center gap-2 capitalize">
@@ -521,48 +512,43 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                   </div>
                 </>
               ) : (
-                /* ── Create / Edit Preset (two-column layout matching Figma) ── */
+                /* Create / Edit Preset (two-column layout) */
                 <>
                   <p className="text-base text-muted-foreground mb-8">What are you having problems with?</p>
                   <div className="flex gap-12">
-                    {/* Left column — form fields */}
-                    <div className="flex-1 space-y-6">
-                      <div>
-                        <label className="block text-base font-bold text-foreground mb-2">
-                          Preset Name<span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
+                    {/* Left column - form fields */}
+                    <div className="flex-1 space-y-5">
+                      <div className="space-y-2">
+                        <Label htmlFor="preset-name">
+                          Preset Name <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="preset-name"
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          placeholder="I need help with..."
-                          className="w-full px-4 py-3 border border-border rounded-lg bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-base text-foreground placeholder:text-muted-foreground"
+                          placeholder="Give your preset a name"
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-base font-bold text-foreground mb-2">
-                          Preset Role
-                        </label>
-                        <input
-                          type="text"
+                      <div className="space-y-2">
+                        <Label htmlFor="preset-role">Preset Role</Label>
+                        <Input
+                          id="preset-role"
                           value={formData.role}
                           onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                          placeholder="I need help with..."
-                          className="w-full px-4 py-3 border border-border rounded-lg bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-base text-foreground placeholder:text-muted-foreground"
+                          placeholder="Define the AI role"
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-base font-bold text-foreground mb-2">
-                          Description
-                        </label>
-                        <textarea
+                      <div className="space-y-2">
+                        <Label htmlFor="preset-description">Description</Label>
+                        <Textarea
+                          id="preset-description"
                           value={formData.user_input}
                           onChange={(e) => setFormData({ ...formData, user_input: e.target.value })}
-                          placeholder="Please include all information relevant to your issue."
+                          placeholder="Describe what this preset should do..."
                           rows={5}
-                          className="w-full px-4 py-3 border border-border rounded-lg bg-muted/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-base text-foreground placeholder:text-muted-foreground resize-y"
+                          className="resize-y"
                         />
                       </div>
 
@@ -576,14 +562,11 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                           Only process additional analysis (skip standard extraction)
                         </label>
                       </div>
-
                     </div>
 
-                    {/* Right column — output fields */}
+                    {/* Right column - output fields */}
                     <div className="w-72 shrink-0">
-                      <label className="block text-base font-medium text-muted-foreground mb-4">
-                        Output Fields
-                      </label>
+                      <Label className="mb-4 block">Output Fields</Label>
                       <div className="space-y-3.5">
                         {Object.entries(formData.output_fields || {}).map(([key, value]) => (
                           <div key={key} className="flex items-center gap-2 capitalize">
@@ -606,14 +589,8 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                     </div>
                   </div>
 
-                  {/* Footer buttons — full width, Cancel left, Submit right */}
-                  <div className="flex items-center justify-between pt-6">
-                    <Button
-                      variant="outline"
-                      onClick={() => setView('list')}
-                      size="lg"
-                      className="px-6 py-3 rounded-lg"
-                    >
+                  <DialogFooter className="gap-2 pt-6 border-t border-border sm:justify-between">
+                    <Button variant="outline" size="lg" onClick={() => setView('list')}>
                       Cancel
                     </Button>
                     <Button
@@ -621,11 +598,10 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                       disabled={saving || !formData.name || !formData.role || (formData.custom_field_only && !formData.user_input)}
                       loading={saving}
                       size="lg"
-                      className="px-8 py-3 rounded-lg"
                     >
                       Submit
                     </Button>
-                  </div>
+                  </DialogFooter>
                 </>
               )}
             </>

@@ -1,9 +1,14 @@
 import { format } from 'date-fns';
+import { MessageSquare, Tag, FileText, AlignLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import {
   MotionDialog,
   DialogContent,
   DialogHeader,
+  DialogFooter,
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
@@ -38,15 +43,16 @@ export function AddNoteModal({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Add Note</DialogTitle>
-          <DialogDescription>Add new task</DialogDescription>
+          <DialogDescription>Create a new note linked to a conversation</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-5 py-1">
           {/* Select Meeting */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">
-              Select Meting
-            </label>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-1.5">
+              <MessageSquare className="w-3.5 h-3.5 text-muted-foreground" />
+              Select Meeting
+            </Label>
             <CustomDropdown
               value={newNoteData.meetingId}
               onChange={(val) => setNewNoteData({ ...newNoteData, meetingId: val })}
@@ -62,10 +68,11 @@ export function AddNoteModal({
           </div>
 
           {/* Category */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">
+          <div className="space-y-2">
+            <Label className="flex items-center gap-1.5">
+              <Tag className="w-3.5 h-3.5 text-muted-foreground" />
               Category
-            </label>
+            </Label>
             <CustomDropdown
               value={newNoteData.category}
               onChange={(val) => setNewNoteData({ ...newNoteData, category: val })}
@@ -79,46 +86,45 @@ export function AddNoteModal({
           </div>
 
           {/* Title */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">
+          <div className="space-y-2">
+            <Label htmlFor="note-title" className="flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-muted-foreground" />
               Title
-            </label>
-            <input
-              type="text"
+            </Label>
+            <Input
+              id="note-title"
               value={newNoteData.title}
               onChange={(e) => setNewNoteData({ ...newNoteData, title: e.target.value })}
-              placeholder="I need help with..."
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground text-sm"
+              placeholder="Give your note a title"
+              maxLength={100}
             />
           </div>
 
           {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">
+          <div className="space-y-2">
+            <Label htmlFor="note-description" className="flex items-center gap-1.5">
+              <AlignLeft className="w-3.5 h-3.5 text-muted-foreground" />
               Description
-            </label>
-            <textarea
+            </Label>
+            <Textarea
+              id="note-description"
               value={newNoteData.description}
               onChange={(e) => setNewNoteData({ ...newNoteData, description: e.target.value })}
-              placeholder="Please include all information relevant to your issue."
+              placeholder="Add details about this note..."
+              maxLength={500}
               rows={4}
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground text-sm"
             />
           </div>
-
-          {/* Actions */}
-          <div className="flex justify-between pt-2">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 text-sm text-foreground hover:bg-muted rounded-lg transition-colors"
-            >
-              Cancel
-            </button>
-            <Button onClick={onSubmit}>
-              Add
-            </Button>
-          </div>
         </div>
+
+        <DialogFooter className="gap-2 pt-2 border-t border-border sm:justify-between">
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={onSubmit}>
+            Add Note
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </MotionDialog>
   );

@@ -246,20 +246,21 @@ export default function EventsPage() {
   };
 
   const getEventStyle = (event: CalendarEvent) => {
-    const colors: Record<string, { bg: string; text: string }> = {
-      meeting: { bg: 'hsl(var(--primary) / 0.15)', text: 'hsl(var(--primary))' },
-      task: { bg: 'rgba(59, 130, 246, 0.15)', text: '#3b82f6' },
-      deadline: { bg: 'hsl(var(--destructive) / 0.15)', text: 'hsl(var(--destructive))' },
+    const colors: Record<string, { bg: string; text: string; border: string }> = {
+      conversation: { bg: 'hsl(var(--primary) / 0.20)', text: 'hsl(var(--primary))', border: 'hsl(var(--primary) / 0.4)' },
+      meeting: { bg: 'hsl(var(--primary) / 0.20)', text: 'hsl(var(--primary))', border: 'hsl(var(--primary) / 0.4)' },
+      task: { bg: 'rgba(59, 130, 246, 0.20)', text: '#3b82f6', border: 'rgba(59, 130, 246, 0.4)' },
+      deadline: { bg: 'hsl(var(--destructive) / 0.20)', text: 'hsl(var(--destructive))', border: 'hsl(var(--destructive) / 0.4)' },
     };
-    const c = colors[event.type] || { bg: 'hsl(var(--muted) / 0.5)', text: 'hsl(var(--foreground))' };
+    const c = colors[event.type] || { bg: 'hsl(var(--muted) / 0.5)', text: 'hsl(var(--foreground))', border: 'hsl(var(--border))' };
     return {
       backgroundColor: c.bg,
       color: c.text,
-      borderRadius: '9999px',
+      borderRadius: '6px',
       fontSize: '12px',
-      fontWeight: 500,
-      padding: '2px 10px',
-      border: 'none',
+      fontWeight: 600,
+      padding: '3px 10px',
+      border: `1px solid ${c.border}`,
     };
   };
 
