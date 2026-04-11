@@ -29,7 +29,7 @@ export function EventListCard({ events, totalEvents }: EventListCardProps) {
     <div className="bg-card-2 rounded-lg border border-border p-5">
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-foreground">Event List</h2>
-        <p className="text-xs text-muted-foreground mt-0.5">
+        <p className="text-sm text-muted-foreground mt-0.5">
           {totalEvents} total analysis &middot; {events.length} shown
         </p>
       </div>
@@ -45,10 +45,10 @@ export function EventListCard({ events, totalEvents }: EventListCardProps) {
                 <Bell className="w-3 h-3" /> Notify
               </span>
             </div>
-            <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
+            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
               {event.description || 'No description available.'}
             </p>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
               <span className="inline-flex items-center gap-1">
                 <Users className="w-3 h-3" /> {event.assignee || 'Speaker'}
               </span>

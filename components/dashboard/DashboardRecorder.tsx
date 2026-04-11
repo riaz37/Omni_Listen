@@ -438,7 +438,7 @@ export default function DashboardRecorder({
                           onClick={onStartRecording}
                           className="group relative w-20 h-20 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 focus:ring-4 focus:ring-primary/20"
                         >
-                          <Mic className="w-8 h-8 group-hover:scale-110 transition-transform duration-300" />
+                          <Mic className="w-12 h-12 group-hover:scale-110 transition-transform duration-300" />
                         </Button>
                       ) : (
                         <>

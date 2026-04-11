@@ -21,9 +21,17 @@ import {
 } from 'lucide-react';
 import { useTheme } from '@/lib/theme-context';
 import { useGlobalState } from '@/lib/global-state-context';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DURATIONS, EASINGS, SPRINGS } from '@/lib/motion';
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownContent,
+  DropdownItem,
+  DropdownSeparator,
+  DropdownHeader,
+} from '@/components/ui/dropdown';
 
 // ─── Navigation item types ───────────────────────────────────────────────────
 
@@ -61,101 +69,6 @@ const TERTIARY_NAV_ITEMS: readonly NavItem[] = [
   { href: '/settings', label: 'Settings', icon: Settings },
 ] as const;
 
-// ─── Hook: close on outside click or Escape ──────────────────────────────────
-
-function useDropdown() {
-  const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  const close = useCallback(() => setIsOpen(false), []);
-  const toggle = useCallback(() => setIsOpen((prev) => !prev), []);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        close();
-      }
-    }
-
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
-        close();
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, close]);
-
-  return { isOpen, toggle, close, ref };
-}
-
-// ─── Hook: keyboard navigation within dropdown ──────────────────────────────
-
-function useDropdownKeyboard(
-  isOpen: boolean,
-  close: () => void,
-  itemCount: number,
-) {
-  const [focusIndex, setFocusIndex] = useState(-1);
-  const itemsRef = useRef<(HTMLElement | null)[]>([]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      setFocusIndex(-1);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (focusIndex >= 0 && itemsRef.current[focusIndex]) {
-      itemsRef.current[focusIndex]?.focus();
-    }
-  }, [focusIndex]);
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      switch (e.key) {
-        case 'ArrowDown':
-          e.preventDefault();
-          setFocusIndex((prev) => (prev + 1) % itemCount);
-          break;
-        case 'ArrowUp':
-          e.preventDefault();
-          setFocusIndex((prev) => (prev - 1 + itemCount) % itemCount);
-          break;
-        case 'Home':
-          e.preventDefault();
-          setFocusIndex(0);
-          break;
-        case 'End':
-          e.preventDefault();
-          setFocusIndex(itemCount - 1);
-          break;
-        case 'Escape':
-          e.preventDefault();
-          close();
-          break;
-      }
-    },
-    [close, itemCount],
-  );
-
-  const setItemRef = useCallback(
-    (index: number) => (el: HTMLElement | null) => {
-      itemsRef.current[index] = el;
-    },
-    [],
-  );
-
-  return { handleKeyDown, setItemRef, focusIndex };
-}
-
 // ─── Desktop nav link ────────────────────────────────────────────────────────
 
 function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
@@ -188,22 +101,11 @@ function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
 // ─── User avatar menu (TERTIARY) ─────────────────────────────────────────────
 
 function UserAvatarMenu({
-  pathname,
   onLogout,
 }: {
-  pathname: string;
   onLogout: () => void;
 }) {
   const { user } = useAuth();
-  const { isOpen, toggle, close, ref } = useDropdown();
-
-  // TERTIARY_NAV_ITEMS + theme toggle + logout = itemCount
-  const totalItems = TERTIARY_NAV_ITEMS.length + 1; // logout button
-  const { handleKeyDown, setItemRef } = useDropdownKeyboard(
-    isOpen,
-    close,
-    totalItems,
-  );
 
   const initials =
     user?.name?.charAt(0).toUpperCase() ||
@@ -211,15 +113,8 @@ function UserAvatarMenu({
     'U';
 
   return (
-    <div ref={ref} className="relative">
-      <button
-        onClick={toggle}
-        onKeyDown={handleKeyDown}
-        className="flex items-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        aria-expanded={isOpen}
-        aria-haspopup="true"
-        aria-label="User menu"
-      >
+    <Dropdown>
+      <DropdownTrigger className="flex items-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
         {user?.picture ? (
           <img
             src={user.picture}
@@ -231,80 +126,39 @@ function UserAvatarMenu({
             {initials}
           </div>
         )}
-      </button>
+      </DropdownTrigger>
+      <DropdownContent align="end" className="w-56">
+        {/* User info header */}
+        {(user?.name || user?.email) && (
+          <DropdownHeader>
+            {user?.name && (
+              <p className="text-sm font-medium text-popover-foreground truncate">
+                {user.name}
+              </p>
+            )}
+            {user?.email && (
+              <p className="text-xs text-muted-foreground truncate">
+                {user.email}
+              </p>
+            )}
+          </DropdownHeader>
+        )}
 
-      <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          className="absolute right-0 top-full mt-1 w-56 rounded-lg border border-border bg-popover shadow-lg z-50 py-1"
-          role="menu"
-          aria-label="User menu items"
-          onKeyDown={handleKeyDown}
-          initial={{ opacity: 0, scale: 0.95, y: -4 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: -4 }}
-          transition={{ duration: DURATIONS.fast, ease: EASINGS.easeOut }}
-        >
-          {/* User info header */}
-          {(user?.name || user?.email) && (
-            <div className="px-4 py-3 border-b border-border">
-              {user?.name && (
-                <p className="text-sm font-medium text-popover-foreground truncate">
-                  {user.name}
-                </p>
-              )}
-              {user?.email && (
-                <p className="text-xs text-muted-foreground truncate">
-                  {user.email}
-                </p>
-              )}
-            </div>
-          )}
+        {/* Nav items */}
+        {TERTIARY_NAV_ITEMS.map((item) => (
+          <DropdownItem key={item.href} href={item.href} icon={item.icon}>
+            {item.label}
+          </DropdownItem>
+        ))}
 
-          {/* Nav items */}
-          {TERTIARY_NAV_ITEMS.map((item, index) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                ref={setItemRef(index) as React.Ref<HTMLAnchorElement>}
-                href={item.href}
-                onClick={close}
-                role="menuitem"
-                tabIndex={-1}
-                className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
-                  isActive
-                    ? 'bg-primary/10 text-primary font-medium'
-                    : 'text-popover-foreground hover:bg-muted'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {item.label}
-              </Link>
-            );
-          })}
+        <DropdownSeparator />
 
-          {/* Logout */}
-          <div className="border-t border-border mt-1 pt-1">
-            <button
-              ref={setItemRef(TERTIARY_NAV_ITEMS.length) as React.Ref<HTMLButtonElement>}
-              onClick={() => {
-                close();
-                onLogout();
-              }}
-              role="menuitem"
-              tabIndex={-1}
-              className="flex items-center gap-3 px-4 py-2.5 text-sm w-full text-destructive hover:bg-destructive/10 transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
-          </div>
-        </motion.div>
-      )}
-      </AnimatePresence>
-    </div>
+        {/* Logout */}
+        <DropdownItem icon={LogOut} destructive onClick={onLogout}>
+          Logout
+        </DropdownItem>
+      </DropdownContent>
+    </Dropdown>
   );
 }
 
@@ -555,12 +409,12 @@ export default function Navigation() {
 
               {/* User avatar menu (TERTIARY) — desktop */}
               <div className="hidden md:block">
-                <UserAvatarMenu pathname={pathname} onLogout={handleLogout} />
+                <UserAvatarMenu onLogout={handleLogout} />
               </div>
 
               {/* Mobile: just the avatar linking to settings */}
               <div className="md:hidden">
-                <UserAvatarMenu pathname={pathname} onLogout={handleLogout} />
+                <UserAvatarMenu onLogout={handleLogout} />
               </div>
             </div>
           </div>

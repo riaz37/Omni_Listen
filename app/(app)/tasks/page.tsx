@@ -43,7 +43,6 @@ export default function TasksPage() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [sortColumn, setSortColumn] = useState<'title' | 'status' | 'priority' | 'assign'>('title');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
-  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{title: string; message: string; onConfirm: () => void} | null>(null);
 
   // Add task modal state
@@ -351,7 +350,6 @@ export default function TasksPage() {
           searchTerm={searchTerm}
           filterType={filterType}
           filterUrgency={filterUrgency}
-          openMenuId={openMenuId}
           currentPage={currentPage}
           totalPages={totalPages}
           rowsPerPage={rowsPerPage}
@@ -360,7 +358,6 @@ export default function TasksPage() {
           onSelectAllOnPage={handleSelectAllOnPage}
           onToggleTask={handleToggleTask}
           onDeleteTask={handleDeleteTask}
-          onSetOpenMenuId={setOpenMenuId}
           onSetCurrentPage={setCurrentPage}
           onSetRowsPerPage={(rows) => { setRowsPerPage(rows); setCurrentPage(1); }}
         />

@@ -22,7 +22,7 @@ export function AnalyticsStatCards({
         <div>
           <p className="text-sm text-muted-foreground font-medium">Total Meetings</p>
           <p className="text-3xl font-semibold text-foreground mt-2">{totalMeetings}</p>
-          <p className="text-xs text-muted-foreground mt-1">All time</p>
+          <p className="text-sm text-muted-foreground mt-1">All time</p>
         </div>
         <Button
           variant="ghost"
@@ -38,7 +38,7 @@ export function AnalyticsStatCards({
         <div>
           <p className="text-sm text-muted-foreground font-medium">Total Events</p>
           <p className="text-3xl font-semibold text-foreground mt-2">{totalEvents}</p>
-          <p className="text-xs text-muted-foreground mt-1">All time</p>
+          <p className="text-sm text-muted-foreground mt-1">All time</p>
         </div>
         <Button
           variant="ghost"
@@ -54,7 +54,7 @@ export function AnalyticsStatCards({
         <div>
           <p className="text-sm text-muted-foreground font-medium">Avg Duration</p>
           <p className="text-3xl font-semibold text-foreground mt-2">{avgDuration}</p>
-          <p className="text-xs text-muted-foreground mt-1">Per Meeting</p>
+          <p className="text-sm text-muted-foreground mt-1">Per Meeting</p>
         </div>
       </div>
 
@@ -62,7 +62,7 @@ export function AnalyticsStatCards({
         <div>
           <p className="text-sm text-muted-foreground font-medium">Last 30 Days</p>
           <p className="text-3xl font-semibold text-foreground mt-2">{last30Days}</p>
-          <p className="text-xs text-muted-foreground mt-1">Recent Meetings</p>
+          <p className="text-sm text-muted-foreground mt-1">Recent Meetings</p>
         </div>
         <Button
           variant="ghost"

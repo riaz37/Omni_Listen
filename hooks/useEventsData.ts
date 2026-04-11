@@ -31,7 +31,6 @@ export function useEventsData(user: unknown) {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'today' | 'upcoming' | 'past'>('all');
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'date' | 'type'>('date');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
@@ -369,8 +368,7 @@ export function useEventsData(user: unknown) {
 
     // Selection
     selectedEventIds,
-    openMenuId,
-    setOpenMenuId,
+    setSelectedEventIds,
     handleSelectAll,
     handleDeselectAll,
 

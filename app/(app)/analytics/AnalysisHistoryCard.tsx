@@ -22,7 +22,7 @@ export function AnalysisHistoryCard({ notes }: AnalysisHistoryCardProps) {
     <div className="bg-card-2 rounded-lg border border-border p-5">
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-foreground">Recent Additional Analysis History</h2>
-        <p className="text-xs text-muted-foreground mt-0.5">
+        <p className="text-sm text-muted-foreground mt-0.5">
           {notes.length} total analysis &middot; {notes.length} shown
         </p>
       </div>
@@ -42,18 +42,18 @@ export function AnalysisHistoryCard({ notes }: AnalysisHistoryCardProps) {
                 </span>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground line-clamp-1 mb-2">
+            <p className="text-sm text-muted-foreground line-clamp-1 mb-2">
               {note.description || 'Summarize all technical decisions and their rationale'}
             </p>
             <div className="mb-2">
-              <p className="text-xs font-medium text-foreground mb-0.5">AI Analysis</p>
-              <p className="text-xs text-muted-foreground line-clamp-1">
+              <p className="text-sm font-medium text-foreground mb-0.5">AI Analysis</p>
+              <p className="text-sm text-muted-foreground line-clamp-1">
                 {note.description
                   ? note.description.substring(0, 80) + '...'
                   : 'The transcript is empty, so there are no technical decisions or ratio...'}
               </p>
             </div>
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
                 {note.created_at ? format(new Date(note.created_at), 'MMM dd, yyyy') : 'No date'}

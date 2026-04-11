@@ -155,39 +155,53 @@ export default function EventsPage() {
     }
   };
 
-  const handleCreateEvent = () => {
+  const handleCreateEvent = async () => {
     if (!newEvent.title || !newEvent.start) {
       toast.error('Please fill in all required fields');
       return;
     }
 
-    const startDate = new Date(newEvent.start);
-    const DEFAULT_EVENT_DURATION_MS = 60 * 60 * 1000;
-    const endDate = newEvent.end ? new Date(newEvent.end) : new Date(startDate.getTime() + DEFAULT_EVENT_DURATION_MS);
+    try {
+      const createdEvent = await conversationsAPI.createTask({
+        title: newEvent.title,
+        description: newEvent.description,
+        date: newEvent.start,
+        urgency: newEvent.type === 'deadline' ? 'high' : 'no'
+      });
 
-    const manualEvent: CalendarEvent = {
-      id: `manual-${Date.now()}`,
-      title: newEvent.title,
-      start: startDate,
-      end: endDate,
-      type: newEvent.type,
-      description: newEvent.description,
-      location: newEvent.location,
-      isManual: true,
-      synced: false,
-    };
+      const startDate = new Date(createdEvent.date || newEvent.start);
+      const endDate = createdEvent.end ? new Date(createdEvent.end) : new Date(startDate.getTime() + 60 * 60 * 1000);
 
-    setEvents([...events, manualEvent]);
-    setShowCreateModal(false);
-    setNewEvent({
-      title: '',
-      start: '',
-      end: '',
-      type: 'conversation',
-      description: '',
-      location: '',
-    });
-    toast.success('Event created successfully!');
+      const persistedEvent: CalendarEvent = {
+        id: `event-${createdEvent.id}`,
+        eventItemId: createdEvent.id,
+        title: createdEvent.title,
+        start: startDate,
+        end: endDate,
+        type: createdEvent.type || newEvent.type,
+        description: createdEvent.description,
+        location: createdEvent.location,
+        synced: false,
+        completed: false,
+        conversationId: '',
+        urgency: createdEvent.urgency || (newEvent.type === 'deadline' ? 'high' : 'no'),
+      };
+
+      setEvents([...events, persistedEvent]);
+      setShowCreateModal(false);
+      setNewEvent({
+        title: '',
+        start: '',
+        end: '',
+        type: 'conversation',
+        description: '',
+        location: '',
+      });
+      toast.success('Event created successfully!');
+    } catch (error) {
+      console.error('Failed to create event:', error);
+      toast.error('Failed to create event');
+    }
   };
 
   const handleSyncEvent = async (event: CalendarEvent) => {

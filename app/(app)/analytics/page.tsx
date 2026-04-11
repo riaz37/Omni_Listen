@@ -181,7 +181,7 @@ export default function AnalyticsPage() {
     if (completed) {
       return <span className="px-2.5 py-1 rounded text-xs font-medium bg-primary/10 text-primary border border-primary/20">Done</span>;
     }
-    return <span className="px-2.5 py-1 rounded text-xs font-medium bg-primary/10 text-primary border border-primary/20">To Do</span>;
+    return <span className="px-2.5 py-1 rounded text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800/30">To Do</span>;
   };
 
   if (!user) return null;
@@ -195,7 +195,7 @@ export default function AnalyticsPage() {
     <Skeleton name="analytics-dashboard" loading={loading || isLoading} fallback={<AnalyticsSkeleton />}>
       <div className="min-h-screen bg-background">
 
-        <PageEntrance name="analytics" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <PageEntrance name="analytics" className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-12">
           {/* Page Header */}
           <div className="mb-8">
             <h1 className="text-2xl font-semibold text-foreground">Analytics</h1>

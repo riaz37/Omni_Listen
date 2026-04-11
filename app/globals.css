@@ -20,7 +20,7 @@
     --secondary-foreground: 240 5.9% 10%;
     --secondary-hover: 240 5.9% 90%;
     --muted: 240 4.8% 95.9%;
-    --muted-foreground: 215 16% 47%;
+    --muted-foreground: 215 20% 35%;
     --accent: 240 4.8% 95.9%;
     --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 50.2%;
@@ -51,6 +51,22 @@
 @layer base {
   * {
     @apply border-border;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
   }
   html {
     @apply bg-background;
@@ -122,7 +138,7 @@
     --secondary-foreground: 0 0% 98%;
     --secondary-hover: 240 4% 26%;
     --muted: 240 4% 16%;
-    --muted-foreground: 215 16% 65%;
+    --muted-foreground: 215 20% 75%;
     --accent: 240 4% 16%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84.2% 60.2%;

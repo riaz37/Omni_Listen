@@ -1,59 +1,79 @@
 'use client';
 
-import { Edit2 } from 'lucide-react';
+import { useState } from 'react';
+import { User, Edit2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { authAPI } from '@/lib/api';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { SettingsSection } from './SettingsSection';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 
-interface ProfileSectionProps {
-  user: { name: string; email: string; picture?: string } | null;
-  editingName: boolean;
-  newName: string;
-  setNewName: (name: string) => void;
-  setEditingName: (editing: boolean) => void;
-  handleUpdateName: () => void;
-}
+export function ProfileSection() {
+  const { user, refreshUser } = useRequireAuth();
+  const [editing, setEditing] = useState(false);
+  const [newName, setNewName] = useState('');
 
-export function ProfileSection({
-  user,
-  editingName,
-  newName,
-  setNewName,
-  setEditingName,
-  handleUpdateName,
-}: ProfileSectionProps) {
+  const handleUpdateName = async () => {
+    if (!newName.trim()) {
+      toast.error('Please enter a name');
+      return;
+    }
+
+    try {
+      await authAPI.updateProfile(newName);
+      await refreshUser();
+      setEditing(false);
+      setNewName('');
+    } catch {
+      toast.error('Failed to update name');
+    }
+  };
+
   return (
-    <div className="bg-card rounded-lg shadow p-6">
-      <h2 className="text-xl font-semibold mb-4">Profile</h2>
+    <SettingsSection
+      id="profile"
+      icon={<User className="w-5 h-5" />}
+      title="Profile"
+    >
       <div className="flex items-center gap-4">
         {user?.picture && (
           <img
             src={user.picture}
             alt={user.name}
-            className="w-16 h-16 rounded-full"
+            className="w-14 h-14 rounded-full border border-border"
           />
         )}
         <div className="flex-1">
-          {editingName ? (
-            <div className="space-y-2">
-              <input
-                type="text"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                className="w-full px-3 py-2 border border-border rounded-md"
-                placeholder="Enter new name"
-              />
+          {editing ? (
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="profile-name">Display name</Label>
+                <Input
+                  id="profile-name"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="Enter new name"
+                  className="mt-1.5"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleUpdateName();
+                    if (e.key === 'Escape') { setEditing(false); setNewName(''); }
+                  }}
+                />
+              </div>
               <div className="flex gap-2">
                 <Button onClick={handleUpdateName} size="sm">
                   Save
                 </Button>
-                <button
-                  onClick={() => {
-                    setEditingName(false);
-                    setNewName('');
-                  }}
-                  className="px-3 py-1 border border-border text-foreground rounded-md hover:bg-muted text-sm"
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => { setEditing(false); setNewName(''); }}
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
             </div>
           ) : (
@@ -62,21 +82,18 @@ export function ProfileSection({
                 <p className="font-medium text-foreground">{user?.name}</p>
                 <p className="text-sm text-muted-foreground">{user?.email}</p>
               </div>
-              <button
-                onClick={() => {
-                  setEditingName(true);
-                  setNewName(user?.name || '');
-                }}
-                className="px-3 py-1.5 bg-muted hover:bg-muted rounded-md flex items-center gap-2 text-sm text-foreground transition-colors"
-                title="Edit name"
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => { setEditing(true); setNewName(user?.name || ''); }}
               >
-                <Edit2 className="w-4 h-4" />
+                <Edit2 className="w-3.5 h-3.5" />
                 Edit
-              </button>
+              </Button>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </SettingsSection>
   );
 }

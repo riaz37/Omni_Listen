@@ -24,7 +24,7 @@ export function RecentConversationsCard({ conversations, totalConversations, onN
     <div className="bg-card-2 rounded-lg border border-border p-5">
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-foreground">Recent Conversations</h2>
-        <p className="text-xs text-muted-foreground mt-0.5">
+        <p className="text-sm text-muted-foreground mt-0.5">
           {totalConversations} total conversations &middot; {conversations.length} shown
         </p>
       </div>
@@ -41,12 +41,12 @@ export function RecentConversationsCard({ conversations, totalConversations, onN
                 <Link2 className="w-3 h-3" /> Sync to calendar
               </span>
             </div>
-            <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
+            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
               {conversation.final_summary?.summary
                 ? conversation.final_summary.summary.substring(0, 120) + '...'
                 : 'Conversation analysis summary available.'}
             </p>
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-muted">
                 <Calendar className="w-3 h-3" /> {conversation.event_count} Events
               </span>

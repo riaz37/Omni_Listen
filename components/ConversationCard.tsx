@@ -8,6 +8,12 @@ import {
   Trash2,
   Link2,
 } from 'lucide-react';
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownContent,
+  DropdownItem,
+} from '@/components/ui/dropdown';
 
 interface ConversationCardProps {
   meeting: any;
@@ -15,8 +21,6 @@ interface ConversationCardProps {
   onToggleSelect: (id: number) => void;
   onView: (jobId: string) => void;
   onDelete: (jobId: string) => void;
-  openMenuId: string | null;
-  onToggleMenu: (id: string | null) => void;
 }
 
 export function ConversationCard({
@@ -25,11 +29,7 @@ export function ConversationCard({
   onToggleSelect,
   onView,
   onDelete,
-  openMenuId,
-  onToggleMenu,
 }: ConversationCardProps) {
-  const isMenuOpen = openMenuId === meeting.job_id;
-
   return (
     <div
       className="bg-card rounded-lg border border-border p-5 hover:shadow-md transition-all cursor-pointer"
@@ -62,45 +62,22 @@ export function ConversationCard({
         )}
 
         <div
-          className="relative flex-shrink-0"
+          className="flex-shrink-0"
           onClick={(e) => e.stopPropagation()}
         >
-          <button
-            onClick={() => onToggleMenu(isMenuOpen ? null : meeting.job_id)}
-            className="p-0.5 text-muted-foreground hover:text-foreground rounded transition-colors"
-          >
-            <MoreVertical className="w-4 h-4" />
-          </button>
-          {isMenuOpen && (
-            <>
-              <div
-                className="fixed inset-0 z-40"
-                onClick={() => onToggleMenu(null)}
-              />
-              <div className="absolute right-0 top-full mt-1 w-36 bg-card border border-border rounded-lg shadow-lg z-50 py-1">
-                <button
-                  onClick={() => {
-                    onView(meeting.job_id);
-                    onToggleMenu(null);
-                  }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
-                >
-                  <Eye className="w-4 h-4" />
-                  View Details
-                </button>
-                <button
-                  onClick={() => {
-                    onDelete(meeting.job_id);
-                    onToggleMenu(null);
-                  }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-destructive hover:bg-destructive/5 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Delete
-                </button>
-              </div>
-            </>
-          )}
+          <Dropdown>
+            <DropdownTrigger className="p-0.5 text-muted-foreground hover:text-foreground rounded transition-colors">
+              <MoreVertical className="w-4 h-4" />
+            </DropdownTrigger>
+            <DropdownContent align="end">
+              <DropdownItem icon={Eye} onClick={() => onView(meeting.job_id)}>
+                View Details
+              </DropdownItem>
+              <DropdownItem icon={Trash2} destructive onClick={() => onDelete(meeting.job_id)}>
+                Delete
+              </DropdownItem>
+            </DropdownContent>
+          </Dropdown>
         </div>
       </div>
 

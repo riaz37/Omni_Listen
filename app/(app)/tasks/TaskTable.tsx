@@ -1,6 +1,12 @@
 import { normalizeUrgency } from '@/lib/utils';
 import CustomDropdown from '@/components/ui/custom-dropdown';
 import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownContent,
+  DropdownItem,
+} from '@/components/ui/dropdown';
+import {
   CheckCircle2,
   Trash2,
   MoreHorizontal,
@@ -38,7 +44,6 @@ interface TaskTableProps {
   searchTerm: string;
   filterType: 'all' | 'pending' | 'completed';
   filterUrgency: 'all' | 'yes' | 'no';
-  openMenuId: number | null;
   currentPage: number;
   totalPages: number;
   rowsPerPage: number;
@@ -47,7 +52,6 @@ interface TaskTableProps {
   onSelectAllOnPage: () => void;
   onToggleTask: (taskId: number, completed: boolean) => void;
   onDeleteTask: (taskId: number) => void;
-  onSetOpenMenuId: (id: number | null) => void;
   onSetCurrentPage: (page: number | ((prev: number) => number)) => void;
   onSetRowsPerPage: (rows: number) => void;
 }
@@ -61,7 +65,6 @@ export function TaskTable({
   searchTerm,
   filterType,
   filterUrgency,
-  openMenuId,
   currentPage,
   totalPages,
   rowsPerPage,
@@ -70,7 +73,6 @@ export function TaskTable({
   onSelectAllOnPage,
   onToggleTask,
   onDeleteTask,
-  onSetOpenMenuId,
   onSetCurrentPage,
   onSetRowsPerPage,
 }: TaskTableProps) {
@@ -176,35 +178,19 @@ export function TaskTable({
                     </div>
                   </td>
                   <td className="p-3">
-                    <div className="relative">
-                      <button
-                        onClick={() => onSetOpenMenuId(openMenuId === task.id ? null : task.id)}
-                        className="p-1 text-muted-foreground hover:text-foreground rounded transition-colors"
-                      >
+                    <Dropdown>
+                      <DropdownTrigger className="p-1 text-muted-foreground hover:text-foreground rounded transition-colors">
                         <MoreHorizontal className="w-4 h-4" />
-                      </button>
-                      {openMenuId === task.id && (
-                        <>
-                          <div className="fixed inset-0 z-40" onClick={() => onSetOpenMenuId(null)} />
-                          <div className="absolute right-0 top-full mt-1 w-40 bg-card border border-border rounded-lg shadow-lg z-50 py-1">
-                            <button
-                              onClick={() => { onToggleTask(task.id, !task.completed); onSetOpenMenuId(null); }}
-                              className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
-                            >
-                              <CheckCircle2 className="w-4 h-4" />
-                              {task.completed ? 'Mark Incomplete' : 'Mark Done'}
-                            </button>
-                            <button
-                              onClick={() => { onDeleteTask(task.id); onSetOpenMenuId(null); }}
-                              className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-destructive hover:bg-destructive/5 transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                              Delete
-                            </button>
-                          </div>
-                        </>
-                      )}
-                    </div>
+                      </DropdownTrigger>
+                      <DropdownContent align="end">
+                        <DropdownItem icon={CheckCircle2} onClick={() => onToggleTask(task.id, !task.completed)}>
+                          {task.completed ? 'Mark Incomplete' : 'Mark Done'}
+                        </DropdownItem>
+                        <DropdownItem icon={Trash2} destructive onClick={() => onDeleteTask(task.id)}>
+                          Delete
+                        </DropdownItem>
+                      </DropdownContent>
+                    </Dropdown>
                   </td>
                 </tr>
               );

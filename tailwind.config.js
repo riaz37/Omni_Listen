@@ -88,6 +88,9 @@ module.exports = {
           to: { height: 0 },
         },
       },
+      boxShadow: {
+        dropdown: '0 4px 12px rgba(0,0,0,0.08)',
+      },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',

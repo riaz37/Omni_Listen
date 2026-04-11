@@ -8,6 +8,12 @@ import {
   Eye,
   Trash2,
 } from 'lucide-react';
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownContent,
+  DropdownItem,
+} from '@/components/ui/dropdown';
 
 interface Note {
   id: string;
@@ -28,8 +34,6 @@ interface NoteCardProps {
   onToggleSelect: (noteId: string) => void;
   onView: (note: Note) => void;
   onDelete: (noteId: string) => void;
-  openMenuId: string | null;
-  onToggleMenu: (noteId: string | null) => void;
   getCategoryBadgeColor: (category: string) => string;
 }
 
@@ -39,8 +43,6 @@ export function NoteCard({
   onToggleSelect,
   onView,
   onDelete,
-  openMenuId,
-  onToggleMenu,
   getCategoryBadgeColor,
 }: NoteCardProps) {
   return (
@@ -64,34 +66,20 @@ export function NoteCard({
         <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 capitalize ${getCategoryBadgeColor(note.category)}`}>
           {note.category}
         </span>
-        <div className="relative flex-shrink-0">
-          <button
-            onClick={() => onToggleMenu(openMenuId === note.id ? null : note.id)}
-            className="p-0.5 text-muted-foreground hover:text-foreground rounded transition-colors"
-          >
-            <MoreVertical className="w-4 h-4" />
-          </button>
-          {openMenuId === note.id && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => onToggleMenu(null)} />
-              <div className="absolute right-0 top-full mt-1 w-36 bg-card border border-border rounded-lg shadow-lg z-50 py-1">
-                <button
-                  onClick={() => { onView(note); onToggleMenu(null); }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
-                >
-                  <Eye className="w-4 h-4" />
-                  View Details
-                </button>
-                <button
-                  onClick={() => { onDelete(note.id); onToggleMenu(null); }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-destructive hover:bg-destructive/5 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Delete
-                </button>
-              </div>
-            </>
-          )}
+        <div className="flex-shrink-0">
+          <Dropdown>
+            <DropdownTrigger className="p-0.5 text-muted-foreground hover:text-foreground rounded transition-colors">
+              <MoreVertical className="w-4 h-4" />
+            </DropdownTrigger>
+            <DropdownContent align="end">
+              <DropdownItem icon={Eye} onClick={() => onView(note)}>
+                View Details
+              </DropdownItem>
+              <DropdownItem icon={Trash2} destructive onClick={() => onDelete(note.id)}>
+                Delete
+              </DropdownItem>
+            </DropdownContent>
+          </Dropdown>
         </div>
       </div>
 

@@ -1,167 +1,206 @@
 'use client';
 
-import { createPortal } from 'react-dom';
-import { Key, Plus, Loader2, Trash2, X, CheckCircle2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Key, Plus, Loader2, Trash2, Copy, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  MotionDialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { apiKeysAPI } from '@/lib/api';
+import { SettingsSection } from './SettingsSection';
+import { useConfirmDialog } from './ConfirmDialogContext';
+import type { ApiKeyData } from './types';
 
-interface ApiKeyData {
-  id: number;
-  name: string | null;
-  key_prefix: string;
-  created_at: string;
-}
+export function ApiKeysSection() {
+  const { confirm } = useConfirmDialog();
+  const [apiKeys, setApiKeys] = useState<ApiKeyData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newSecret, setNewSecret] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
-interface ApiKeysSectionProps {
-  apiKeys: ApiKeyData[];
-  apiKeysLoading: boolean;
-  showApiKeyModal: boolean;
-  apiKeyCreating: boolean;
-  newApiKeyName: string;
-  newKeySecret: string | null;
-  setShowApiKeyModal: (show: boolean) => void;
-  setNewApiKeyName: (name: string) => void;
-  handleCreateApiKey: () => void;
-  handleRevokeApiKey: (id: number) => void;
-  closeApiKeyModal: () => void;
-}
+  useEffect(() => {
+    loadKeys();
+  }, []);
 
-export function ApiKeysSection({
-  apiKeys,
-  apiKeysLoading,
-  showApiKeyModal,
-  apiKeyCreating,
-  newApiKeyName,
-  newKeySecret,
-  setShowApiKeyModal,
-  setNewApiKeyName,
-  handleCreateApiKey,
-  handleRevokeApiKey,
-  closeApiKeyModal,
-}: ApiKeysSectionProps) {
+  const loadKeys = async () => {
+    try {
+      const data = await apiKeysAPI.list();
+      const list = Array.isArray(data) ? data : (data.keys || []);
+      setApiKeys(list);
+    } catch {
+      // silent
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreate = async () => {
+    if (!newName.trim()) return;
+    setCreating(true);
+    try {
+      const data = await apiKeysAPI.create(newName);
+      setNewSecret(data.key);
+      await loadKeys();
+      setNewName('');
+    } catch {
+      // silent
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleRevoke = (id: number) => {
+    confirm({
+      title: 'Revoke API key',
+      message: 'Are you sure you want to revoke this API key? This cannot be undone.',
+      confirmLabel: 'Revoke',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await apiKeysAPI.revoke(id);
+          await loadKeys();
+        } catch {
+          // silent
+        }
+      },
+    });
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setNewName('');
+    setNewSecret(null);
+    setCopied(false);
+  };
+
+  const copySecret = async () => {
+    if (!newSecret) return;
+    await navigator.clipboard.writeText(newSecret);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <>
-      <div className="bg-card rounded-lg shadow p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <Key className="w-5 h-5 text-primary" />
-            API Keys
-          </h2>
-          <Button onClick={() => setShowApiKeyModal(true)} iconLeft={<Plus className="w-4 h-4" />} size="sm">
+      <SettingsSection
+        id="api-keys"
+        icon={<Key className="w-5 h-5 text-primary" />}
+        title="API Keys"
+        action={
+          <Button onClick={() => setModalOpen(true)} iconLeft={<Plus className="w-4 h-4" />} size="sm">
             Create Key
           </Button>
-        </div>
-
-        {apiKeysLoading ? (
-          <div className="text-center py-8">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
-            <p className="mt-2 text-muted-foreground">Loading API keys...</p>
+        }
+      >
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
         ) : apiKeys.length === 0 ? (
-          <div className="text-center py-8 bg-muted rounded-lg border border-dashed border-border">
+          <div className="text-center py-8 bg-muted/50 rounded-lg border border-dashed border-border">
             <Key className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-            <p className="text-muted-foreground">No API keys found.</p>
-            <p className="text-sm text-muted-foreground">Create a key to access the API programmatically.</p>
+            <p className="text-muted-foreground text-sm">No API keys found.</p>
+            <p className="text-xs text-muted-foreground mt-1">Create a key to access the API programmatically.</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {apiKeys.map(key => (
-              <div key={key.id} className="p-4 border rounded-lg hover:shadow-sm transition-all flex items-center justify-between">
+              <div key={key.id} className="p-4 rounded-lg bg-muted/50 border border-border flex items-center justify-between">
                 <div>
-                  <div className="font-medium text-foreground">{key.name || 'Unnamed Key'}</div>
-                  <code className="text-xs bg-muted px-2 py-1 rounded mt-1 block w-fit text-muted-foreground font-mono">
+                  <div className="font-medium text-sm text-foreground">{key.name || 'Unnamed Key'}</div>
+                  <code className="text-xs bg-muted px-2 py-0.5 rounded mt-1 block w-fit text-muted-foreground font-mono">
                     {key.key_prefix}...
                   </code>
                 </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-muted-foreground">
-                    Created: {new Date(key.created_at).toLocaleDateString()}
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(key.created_at).toLocaleDateString()}
                   </span>
-                  <button onClick={() => handleRevokeApiKey(key.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded hover:scale-105 transition-transform" title="Revoke Key">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleRevoke(key.id)}
+                    className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                  >
                     <Trash2 className="w-4 h-4" />
-                  </button>
+                  </Button>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </SettingsSection>
 
-      {/* API Key Modal — portal to body to escape framer-motion transforms */}
-      {showApiKeyModal && createPortal(
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-card rounded-lg shadow-xl w-full max-w-lg p-6 m-4 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="text-xl font-bold">
-                {newKeySecret ? 'API Key Created' : 'Create API Key'}
-              </h3>
-              <button onClick={closeApiKeyModal} className="text-muted-foreground hover:text-muted-foreground">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      <MotionDialog open={modalOpen} onOpenChange={(open) => { if (!open) closeModal(); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{newSecret ? 'API Key Created' : 'Create API Key'}</DialogTitle>
+            {!newSecret && (
+              <DialogDescription>Give your key a name to identify it later.</DialogDescription>
+            )}
+          </DialogHeader>
 
-            {newKeySecret ? (
-              <div className="space-y-4">
-                <div className="bg-primary/5 border border-primary/20 rounded-md p-4">
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary mt-0.5" />
-                    <div>
-                      <h4 className="font-semibold text-success">Key generated successfully!</h4>
-                      <p className="text-sm text-text-primary mt-1">
-                        Copy this key now. You won't be able to see it again!
-                      </p>
-                    </div>
+          {newSecret ? (
+            <div className="space-y-4">
+              <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-semibold text-sm text-foreground">Key generated successfully!</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Copy this key now. You won&apos;t be able to see it again.
+                    </p>
                   </div>
                 </div>
-
-                <div className="bg-muted p-3 rounded-md border font-mono text-sm break-all flex items-center justify-between gap-2">
-                  <span>{newKeySecret}</span>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(newKeySecret);
-                    }}
-                    className="p-2 text-muted-foreground hover:text-primary hover:bg-card rounded transition-colors"
-                    title="Copy to clipboard"
-                  >
-                    <Key className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="flex justify-end mt-6">
-                  <button onClick={closeApiKeyModal} className="px-4 py-2 bg-foreground text-white rounded-md hover:bg-foreground/90">
-                    Done
-                  </button>
-                </div>
               </div>
-            ) : (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Key Name</label>
-                  <input
-                    type="text"
-                    value={newApiKeyName}
-                    onChange={e => setNewApiKeyName(e.target.value)}
-                    className="w-full px-3 py-2 border border-border rounded-md focus:ring-2 focus:ring-primary focus:border-primary"
-                    placeholder="e.g. My Script"
-                    autoFocus
-                  />
-                </div>
-
-                <div className="flex justify-end gap-3 mt-6">
-                  <button onClick={closeApiKeyModal} className="px-4 py-2 text-muted-foreground hover:bg-muted rounded-md">Cancel</button>
-                  <Button
-                    onClick={handleCreateApiKey}
-                    disabled={!newApiKeyName.trim() || apiKeyCreating}
-                    loading={apiKeyCreating}
-                  >
-                    Create Key
-                  </Button>
-                </div>
+              <div className="bg-muted p-3 rounded-lg border border-border font-mono text-sm break-all flex items-center justify-between gap-2">
+                <span className="text-foreground">{newSecret}</span>
+                <Button variant="ghost" size="icon" onClick={copySecret} className="shrink-0">
+                  {copied ? <CheckCircle2 className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
+                </Button>
               </div>
-            )}
-          </div>
-        </div>,
-        document.body
-      )}
+              <DialogFooter>
+                <Button onClick={closeModal}>Done</Button>
+              </DialogFooter>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="api-key-name">Key Name</Label>
+                <Input
+                  id="api-key-name"
+                  value={newName}
+                  onChange={e => setNewName(e.target.value)}
+                  placeholder="e.g. My Script"
+                  className="mt-1.5"
+                  autoFocus
+                  onKeyDown={(e) => { if (e.key === 'Enter' && newName.trim()) handleCreate(); }}
+                />
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={closeModal}>Cancel</Button>
+                <Button
+                  onClick={handleCreate}
+                  disabled={!newName.trim() || creating}
+                  loading={creating}
+                >
+                  Create Key
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </MotionDialog>
     </>
   );
 }

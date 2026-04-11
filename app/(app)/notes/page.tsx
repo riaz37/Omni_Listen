@@ -13,17 +13,16 @@ import {
   Search,
   Plus,
   Trash2,
-  ArrowUpDown,
 } from 'lucide-react';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import EditNoteModal from '@/components/EditNoteModal';
 import { NotesSkeleton } from './NotesSkeleton';
 import { Skeleton } from 'boneyard-js/react';
-import { NoteCard } from './NoteCard';
+import { NoteStatsCards } from './NoteStatsCards';
+import { NoteTable } from './NoteTable';
 import { AddNoteModal } from './AddNoteModal';
 import { NoteQuickViewModal } from './NoteQuickViewModal';
 import PageEntrance from '@/components/ui/page-entrance';
-import { Checkbox } from '@/components/ui/checkbox';
 
 interface Note {
   id: string;
@@ -38,7 +37,7 @@ interface Note {
   urgency?: 'yes' | 'no';
 }
 
-const CATEGORIES = ['all', 'general', 'decision', 'budget'] as const;
+type SortColumn = 'title' | 'category' | 'source' | 'date';
 
 export default function NotesPage() {
   const router = useRouter();
@@ -61,15 +60,16 @@ export default function NotesPage() {
   const [meetings, setMeetings] = useState<any[]>([]);
   const [selectedNoteIds, setSelectedNoteIds] = useState<number[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'date' | 'type'>('date');
+  const [sortColumn, setSortColumn] = useState<SortColumn>('date');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [activeTab, setActiveTab] = useState<'all' | 'completed'>('all');
   const [confirmDialog, setConfirmDialog] = useState<{
     title: string;
     message: string;
     onConfirm: () => void;
   } | null>(null);
-
-  const hasSelection = selectedNoteIds.length > 0;
 
   useEffect(() => {
     if (user) {
@@ -236,13 +236,14 @@ export default function NotesPage() {
     );
   };
 
-  const handleSelectAll = () => {
-    const allNoteIds = filteredNotes.map((n) => parseInt(n.id.replace('note-', '')));
-    setSelectedNoteIds(allNoteIds);
-  };
-
-  const handleDeselectAll = () => {
-    setSelectedNoteIds([]);
+  const handleSelectAllOnPage = () => {
+    const pageIds = paginatedNotes.map((n) => parseInt(n.id.replace('note-', '')));
+    const allSelected = pageIds.every((id) => selectedNoteIds.includes(id));
+    if (allSelected) {
+      setSelectedNoteIds((prev) => prev.filter((id) => !pageIds.includes(id)));
+    } else {
+      setSelectedNoteIds((prev) => [...new Set([...prev, ...pageIds])]);
+    }
   };
 
   const handleBulkDelete = async () => {
@@ -275,27 +276,50 @@ export default function NotesPage() {
     });
   };
 
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDir('asc');
+    }
+  };
+
   const filteredNotes = useMemo(() => {
-    return notes
+    let result = notes
+      .filter((note) => {
+        if (activeTab === 'completed') return note.completed;
+        return true;
+      })
       .filter((note) => selectedCategory === 'all' || note.category === selectedCategory)
       .filter(
         (note) =>
           searchTerm === '' ||
           note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           note.description.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-      .sort((a, b) => {
-        if (sortBy === 'type') {
-          return a.category.localeCompare(b.category);
-        }
-        if (a.date && b.date) {
-          return b.date.getTime() - a.date.getTime();
-        }
-        if (a.date) return -1;
-        if (b.date) return 1;
-        return 0;
-      });
-  }, [notes, selectedCategory, searchTerm, sortBy]);
+      );
+
+    result.sort((a, b) => {
+      const dir = sortDir === 'asc' ? 1 : -1;
+      if (sortColumn === 'title') return a.title.localeCompare(b.title) * dir;
+      if (sortColumn === 'category') return a.category.localeCompare(b.category) * dir;
+      if (sortColumn === 'source') return (a.meetingTitle || '').localeCompare(b.meetingTitle || '') * dir;
+      if (sortColumn === 'date') {
+        const aTime = a.date?.getTime() || 0;
+        const bTime = b.date?.getTime() || 0;
+        return (bTime - aTime) * dir;
+      }
+      return 0;
+    });
+
+    return result;
+  }, [notes, activeTab, selectedCategory, searchTerm, sortColumn, sortDir]);
+
+  const totalPages = Math.ceil(filteredNotes.length / rowsPerPage);
+  const paginatedNotes = filteredNotes.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
 
   const getCategoryBadgeColor = (category: string) => {
     const colors: Record<string, string> = {
@@ -307,205 +331,126 @@ export default function NotesPage() {
     return colors[category] || colors.general;
   };
 
-  const getCategoryCount = (cat: string) => {
-    if (cat === 'all') return notes.length;
-    return notes.filter((n) => n.category === cat).length;
-  };
-
-  const allOnPageSelected =
-    filteredNotes.length > 0 &&
-    filteredNotes.every((n) => selectedNoteIds.includes(parseInt(n.id.replace('note-', ''))));
+  const stats = useMemo(() => {
+    const total = notes.length;
+    const general = notes.filter((n) => n.category === 'general').length;
+    const decision = notes.filter((n) => n.category === 'decision').length;
+    const budget = notes.filter((n) => n.category === 'budget').length;
+    return { total, general, decision, budget };
+  }, [notes]);
 
   return (
     <Skeleton name="notes-grid" loading={loading} fallback={<NotesSkeleton />}>
       <div className="min-h-screen bg-background">
-        <PageEntrance name="notes" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* ── Header ── */}
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground tracking-tight">Notes</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {notes.length} note{notes.length !== 1 ? 's' : ''} captured from your conversations
-              </p>
+        <PageEntrance name="notes" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-1">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground tracking-tight">Notes</h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  All notes captured from your conversations
+                </p>
+              </div>
+              <Button onClick={() => setShowAddNoteModal(true)} iconLeft={<Plus className="w-4 h-4" />}>
+                Add Note
+              </Button>
             </div>
-            <Button onClick={() => setShowAddNoteModal(true)} iconLeft={<Plus className="w-4 h-4" />}>
-              Add Note
-            </Button>
           </div>
 
-          {/* ── Category tabs ── */}
-          <div className="flex items-center gap-1 mb-6 border-b border-border">
-            {CATEGORIES.map((tab) => {
-              const count = getCategoryCount(tab);
-              const isActive = selectedCategory === tab;
-              return (
-                <button
-                  key={tab}
-                  onClick={() => setSelectedCategory(tab)}
-                  className={`relative px-4 py-2.5 text-sm font-medium transition-colors capitalize ${
-                    isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    {tab === 'all' ? 'All' : tab}
-                    <span
-                      className={`text-xs tabular-nums px-1.5 py-0.5 rounded-full ${
-                        isActive
-                          ? 'bg-primary/10 text-primary'
-                          : 'bg-muted text-muted-foreground'
-                      }`}
-                    >
-                      {count}
-                    </span>
-                  </span>
-                  {isActive && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t" />
-                  )}
-                </button>
-              );
-            })}
+          <NoteStatsCards
+            stats={stats}
+            onFilterChange={(cat) => { setSelectedCategory(cat); setCurrentPage(1); }}
+          />
+
+          {/* Tabs */}
+          <div className="flex border-b border-border mb-6">
+            <button
+              onClick={() => { setActiveTab('all'); setCurrentPage(1); }}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'all'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => { setActiveTab('completed'); setCurrentPage(1); }}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'completed'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Completed
+            </button>
           </div>
 
-          {/* ── Toolbar ── */}
-          <div className="flex items-center justify-between gap-3 mb-6 py-2.5 px-4 bg-surface/50 rounded-lg border border-border/60">
-            {/* Left: search + select */}
-            <div className="flex items-center gap-3 flex-1">
-              <div className="relative w-full max-w-[220px]">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search notes..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-8 pr-3 py-1.5 bg-background text-foreground border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground text-xs"
-                />
-              </div>
+          {/* Search & Filters */}
+          <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <div className="relative w-full sm:w-auto sm:min-w-[240px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Filter notes..."
+                value={searchTerm}
+                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                className="w-full pl-9 pr-4 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground text-sm"
+              />
+            </div>
+            <div className="flex items-center gap-3 ml-auto">
+              <span className="text-sm text-muted-foreground">Category</span>
+              <CustomDropdown
+                value={selectedCategory}
+                onChange={(val) => { setSelectedCategory(val); setCurrentPage(1); }}
+                options={[
+                  { value: 'all', label: 'All Categories' },
+                  { value: 'general', label: 'General' },
+                  { value: 'decision', label: 'Decision' },
+                  { value: 'budget', label: 'Budget' },
+                ]}
+              />
 
-              <div className="w-px h-5 bg-border/60" />
-
-              <div className="flex items-center gap-1.5">
-                <Checkbox
-                  id="select-all-notes"
-                  checked={allOnPageSelected}
-                  onCheckedChange={() => allOnPageSelected ? handleDeselectAll() : handleSelectAll()}
-                />
-                <label htmlFor="select-all-notes" className="text-xs cursor-pointer">
-                  All
-                </label>
-              </div>
-
-              <div className="w-px h-5 bg-border/60" />
-
-              {/* Selection-aware actions — grid-stack crossfade */}
-              <div className="grid [grid-template-areas:'stack'] h-8 items-center">
-                <div
-                  className="flex items-center gap-2 [grid-area:stack] transition-opacity duration-200"
-                  style={{
-                    opacity: hasSelection ? 0 : 1,
-                    pointerEvents: hasSelection ? 'none' : 'auto',
-                  }}
-                >
-                  <span className="text-xs text-muted-foreground">
-                    {filteredNotes.length} note{filteredNotes.length !== 1 ? 's' : ''}
-                  </span>
-                </div>
-                <div
-                  className="flex items-center gap-2 [grid-area:stack] transition-opacity duration-200"
-                  style={{
-                    opacity: hasSelection ? 1 : 0,
-                    pointerEvents: hasSelection ? 'auto' : 'none',
-                  }}
-                >
-                  <span className="text-xs font-medium text-primary tabular-nums">
+              {selectedNoteIds.length > 0 && (
+                <>
+                  <div className="w-px h-5 bg-border/60" />
+                  <span className="text-sm text-muted-foreground tabular-nums">
                     {selectedNoteIds.length} selected
                   </span>
                   <button
                     onClick={handleBulkDelete}
                     disabled={isDeleting}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-destructive-foreground bg-destructive hover:bg-destructive/90 rounded-md transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-destructive-foreground bg-destructive hover:bg-destructive/90 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-4 h-4" />
                     Delete
                   </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: sort */}
-            <div className="flex items-center gap-2">
-              <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground" />
-              <CustomDropdown
-                value={sortBy}
-                onChange={(val) => setSortBy(val as 'date' | 'type')}
-                options={[
-                  { value: 'date', label: 'Date' },
-                  { value: 'type', label: 'Type' },
-                ]}
-              />
+                </>
+              )}
             </div>
           </div>
 
-          {/* ── Notes Grid ── */}
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="bg-card rounded-lg border border-border p-4 space-y-3 animate-pulse">
-                  <div className="flex items-start gap-2">
-                    <div className="w-4 h-4 bg-muted rounded flex-shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <div className="h-4 bg-muted rounded w-3/4 mb-1" />
-                      <div className="h-3.5 bg-muted rounded w-1/2" />
-                    </div>
-                    <div className="h-5 w-16 bg-muted rounded-full flex-shrink-0" />
-                  </div>
-                  <div className="ml-6">
-                    <div className="h-3.5 bg-muted rounded w-full mb-1.5" />
-                    <div className="h-3.5 bg-muted rounded w-4/5" />
-                  </div>
-                  <div className="flex items-center gap-3 ml-6 pt-1">
-                    <div className="h-3 bg-muted rounded w-24" />
-                    <div className="h-3 bg-muted rounded w-16" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : filteredNotes.length === 0 ? (
-            <div className="bg-card rounded-lg shadow-sm">
-              <EmptyState
-                icon={StickyNote}
-                title="No notes found"
-                description={
-                  searchTerm || selectedCategory !== 'all'
-                    ? 'Try adjusting your search or filter criteria'
-                    : 'Upload and analyze conversations to see notes here'
-                }
-                action={
-                  !(searchTerm || selectedCategory !== 'all')
-                    ? {
-                        label: 'Go to Listen',
-                        onClick: () => router.push('/listen'),
-                      }
-                    : undefined
-                }
-              />
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredNotes.map((note) => (
-                <NoteCard
-                  key={note.id}
-                  note={note}
-                  isSelected={selectedNoteIds.includes(parseInt(note.id.replace('note-', '')))}
-                  onToggleSelect={handleToggleSelectNote}
-                  onView={setSelectedNote}
-                  onDelete={handleDeleteNote}
-                  openMenuId={openMenuId}
-                  onToggleMenu={(id) => setOpenMenuId(openMenuId === id ? null : id)}
-                  getCategoryBadgeColor={getCategoryBadgeColor}
-                />
-              ))}
-            </div>
-          )}
+          <NoteTable
+            paginatedNotes={paginatedNotes}
+            filteredNotesCount={filteredNotes.length}
+            selectedIds={selectedNoteIds}
+            sortColumn={sortColumn}
+            sortDir={sortDir}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            rowsPerPage={rowsPerPage}
+            onSort={handleSort}
+            onToggleSelect={handleToggleSelectNote}
+            onSelectAllOnPage={handleSelectAllOnPage}
+            onView={setSelectedNote}
+            onDelete={handleDeleteNote}
+            onSetCurrentPage={setCurrentPage}
+            onSetRowsPerPage={(rows) => { setRowsPerPage(rows); setCurrentPage(1); }}
+            getCategoryBadgeColor={getCategoryBadgeColor}
+            isEmpty={notes.length === 0}
+            hasFilters={searchTerm !== '' || selectedCategory !== 'all'}
+          />
         </PageEntrance>
 
         <AddNoteModal

@@ -14,6 +14,12 @@ import {
   Eye,
   Calendar,
 } from 'lucide-react';
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownContent,
+  DropdownItem,
+} from '@/components/ui/dropdown';
 
 interface Event {
   id: string;
@@ -37,7 +43,6 @@ interface Event {
 
 interface EventListItemProps {
   event: Event;
-  openMenuId: string | null;
   timeStatus: { text: string; color: string };
   onToggleCompletion: (event: Event) => void;
   onToggleNotification: (eventId: string) => void;
@@ -45,7 +50,6 @@ interface EventListItemProps {
   onReschedule: (event: Event) => void;
   onViewDetails: (event: Event) => void;
   onDelete: (eventId: string) => void;
-  onSetOpenMenuId: (id: string | null) => void;
 }
 
 function getStatusBadge(event: Event, timeStatusText: string) {
@@ -63,7 +67,6 @@ function getStatusBadge(event: Event, timeStatusText: string) {
 
 export function EventListItem({
   event,
-  openMenuId,
   timeStatus,
   onToggleCompletion,
   onToggleNotification,
@@ -71,7 +74,6 @@ export function EventListItem({
   onReschedule,
   onViewDetails,
   onDelete,
-  onSetOpenMenuId,
 }: EventListItemProps) {
   return (
     <div
@@ -117,49 +119,25 @@ export function EventListItem({
               </button>
 
               {/* Three-dot Menu */}
-              <div className="relative">
-                <button
-                  onClick={() => onSetOpenMenuId(openMenuId === event.id ? null : event.id)}
-                  className="p-1 text-muted-foreground hover:text-foreground rounded transition-colors"
-                >
+              <Dropdown>
+                <DropdownTrigger className="p-1 text-muted-foreground hover:text-foreground rounded transition-colors">
                   <MoreVertical className="w-4 h-4" />
-                </button>
-                {openMenuId === event.id && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => onSetOpenMenuId(null)} />
-                    <div className="absolute right-0 top-full mt-1 w-44 bg-card border border-border rounded-lg shadow-lg z-50 py-1">
-                      <button
-                        onClick={() => { onEdit(event); onSetOpenMenuId(null); }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => { onReschedule(event); onSetOpenMenuId(null); }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
-                      >
-                        <Clock className="w-4 h-4" />
-                        Reschedule
-                      </button>
-                      <button
-                        onClick={() => { onViewDetails(event); onSetOpenMenuId(null); }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
-                      >
-                        <Eye className="w-4 h-4" />
-                        View Details
-                      </button>
-                      <button
-                        onClick={() => { onDelete(event.id); onSetOpenMenuId(null); }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-destructive hover:bg-destructive/5 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        Delete
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
+                </DropdownTrigger>
+                <DropdownContent align="end">
+                  <DropdownItem icon={Edit2} onClick={() => onEdit(event)}>
+                    Edit
+                  </DropdownItem>
+                  <DropdownItem icon={Clock} onClick={() => onReschedule(event)}>
+                    Reschedule
+                  </DropdownItem>
+                  <DropdownItem icon={Eye} onClick={() => onViewDetails(event)}>
+                    View Details
+                  </DropdownItem>
+                  <DropdownItem icon={Trash2} destructive onClick={() => onDelete(event.id)}>
+                    Delete
+                  </DropdownItem>
+                </DropdownContent>
+              </Dropdown>
             </div>
           </div>
 
