@@ -5,102 +5,180 @@ export default function TermsPage() {
         <div className="min-h-screen bg-background py-20 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto prose dark:prose-invert">
                 <h1 className="text-4xl font-bold mb-2">Terms of Service</h1>
-                <p className="lead text-muted-foreground mb-8">Last updated: December 16, 2025</p>
+                <p className="lead text-muted-foreground mb-2">
+                    <strong>Product:</strong> Omni Listen &mdash; Intelligent Audio Processing and Data Extraction System
+                </p>
+                <p className="lead text-muted-foreground mb-2">
+                    <strong>Legal Entity:</strong> Empowering Energy (trading as ESAP AI)
+                </p>
+                <p className="lead text-muted-foreground mb-8">Last updated: April 12, 2026</p>
 
                 <div className="space-y-8">
                     <section>
-                        <h2 className="text-2xl font-bold mb-4">1. Agreement to Terms</h2>
+                        <h2 className="text-2xl font-bold mb-4">1. Agreement</h2>
                         <p>
-                            By accessing or using the Omini Listen website, application, or services (collectively, the "Service"), provided by Omini ("we," "us," or "our"),
-                            you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you may not access or use the Service.
+                            These Terms govern access to Omni Listen at{' '}
+                            <a href="https://esap-listen-web.vercel.app" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
+                                esap-listen-web.vercel.app
+                            </a>
+                            , operated by <strong>Empowering Energy (trading as ESAP AI)</strong> (CR No. [Insert CR Number]). Apply to the
+                            Client organization and all Authorized Users. Operate alongside MSA, SOW, and DPA &mdash; MSA/DPA takes
+                            precedence in conflicts.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-2xl font-bold mb-4">2. Description of Service</h2>
+                        <ul className="list-disc pl-5 mt-2 space-y-1">
+                            <li>Bilingual Arabic/English transcription (real-time and post-session)</li>
+                            <li>AI-powered speaker identification and labeling</li>
+                            <li>Automated action item extraction and task assignment</li>
+                            <li>Role-based meeting analysis (PM, HR, Executive)</li>
+                            <li>Meeting history, search, and knowledge archiving</li>
+                            <li>Calendar integration and session management</li>
+                            <li>Usage analytics and organizational dashboards</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4">3. Access and Authorized Users</h2>
                         <p>
-                            Omini Listen is an AI-powered personal assistant that records, transcribes, and analyzes audio conversations to provide summaries, action items,
-                            and insights. The Service uses third-party Artificial Intelligence (AI) technologies to process your data.
+                            Access exclusively to Client and designated Authorized Users per signed MSA. Client is responsible for
+                            credentials, authorized access, compliance, and ensuring all meeting participants are informed and have
+                            consented before recording.
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-bold mb-4">3. Recording Laws and Consent (IMPORTANT)</h2>
+                        <h2 className="text-2xl font-bold mb-4">4. Participant Recording Consent</h2>
                         <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
                             <p className="font-semibold text-yellow-800 dark:text-yellow-200">
-                                You are solely responsible for complying with all applicable laws regarding the recording of conversations.
+                                Client bears full responsibility for:
                             </p>
-                            <p className="mt-2 text-sm">
-                                Many jurisdictions require the consent of all parties to a conversation before it can be recorded ("Two-Party Consent" laws).
-                                By using the Service, you represent and warrant that you will obtain all necessary consents from meeting participants
-                                before recording. Omini Listen disclaims all liability for your failure to comply with these laws.
+                            <ul className="list-disc pl-5 mt-2 space-y-1">
+                                <li>Notifying all participants before recording begins</li>
+                                <li>Obtaining explicit, informed consent</li>
+                                <li>Ensuring participants are not penalized for declining</li>
+                                <li>Maintaining consent records per session</li>
+                            </ul>
+                            <p className="mt-3 text-sm">
+                                Omni Listen provides in-platform recording notifications and session start prompts. Legal responsibility
+                                rests with the Client as Data Controller. Failure to obtain consent = violation of PDPL and these Terms.
+                                Omni Listen is not liable for the Client&apos;s failure to consent.
                             </p>
                         </div>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-bold mb-4">4. User Content and Data Ownership</h2>
-                        <p>
-                            <strong>Your Data:</strong> You retain full ownership of all audio recordings, transcripts, summaries, and other content you upload or
-                            generate via the Service ("User Content").
-                        </p>
-                        <p className="mt-2">
-                            <strong>License to Us:</strong> By using the Service, you grant us a worldwide, non-exclusive, royalty-free license to use, reproduce,
-                            and process your User Content solely for the purpose of providing and improving the Service for you. We do not sell your
-                            personal conversation data to third parties for advertising purposes.
-                        </p>
-                    </section>
-
-                    <section>
-                        <h2 className="text-2xl font-bold mb-4">5. Accuracy of AI Outputs</h2>
-                        <p>
-                            The Service utilizes generative AI, which may occasionally produce incorrect, misleading, or "hallucinated" information.
-                            Transcripts and summaries may not be 100% accurate. You acknowledge that you should verify the accuracy of any critical
-                            information generated by the Service before relying on it or taking action based upon it. We govern no warranty regarding
-                            the accuracy of the AI analysis.
-                        </p>
-                    </section>
-
-                    <section>
-                        <h2 className="text-2xl font-bold mb-4">6. Acceptable Use</h2>
-                        <p>You agree not to use the Service to:</p>
+                        <h2 className="text-2xl font-bold mb-4">5. Acceptable Use</h2>
+                        <p>Prohibited:</p>
                         <ul className="list-disc pl-5 mt-2 space-y-1">
-                            <li>Record conversations in violation of applicable privacy or wiretapping laws.</li>
-                            <li>Process sensitive personal data (e.g., health information, financial data) without appropriate safeguards.</li>
-                            <li>Reverse engineer, decompile, or attempt to extract the source code of the Service.</li>
-                            <li>Use the Service for any illegal, harmful, or abusive purpose.</li>
+                            <li>Recording without participant consent</li>
+                            <li>Personal/non-business recording context</li>
+                            <li>Reverse engineering platform or AI models</li>
+                            <li>Using outputs for competing products</li>
+                            <li>Sharing/reselling access</li>
+                            <li>Using AI outputs as the sole basis for formal HR decisions, disciplinary actions, and legal proceedings without human review</li>
                         </ul>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-bold mb-4">7. Privacy Policy</h2>
+                        <h2 className="text-2xl font-bold mb-4">6. AI-Generated Content Disclaimer</h2>
+                        <ul className="list-disc pl-5 mt-2 space-y-1">
+                            <li>Transcription may contain errors (noisy environments, accents, technical language)</li>
+                            <li>Speaker ID is AI-generated, not 100% accurate &mdash; human review required</li>
+                            <li>Role-based outputs are decision-support only, not professional advice</li>
+                            <li>All outputs labeled: <strong>&quot;AI-generated &mdash; review before using in formal decisions.&quot;</strong></li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4">7. Client Data and Content</h2>
+                        <p>Client retains full ownership. Omni Listen commits to:</p>
+                        <ul className="list-disc pl-5 mt-2 space-y-1">
+                            <li>Never selling, licensing, or sharing Client Content</li>
+                            <li>Never use Client Content to train AI models without explicit written consent</li>
+                            <li>Accessing only for contracted service delivery, security, or legal compliance</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4">8. Data Processing and Privacy</h2>
                         <p>
-                            Your use of the Service is also governed by our <Link href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>,
-                            which describes how we collect, use, and share your information.
+                            Governed by our{' '}
+                            <Link href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>{' '}
+                            and signed DPA. Complies with PDPL Royal Decree M/19, including Sensitive Personal Data provisions under
+                            Article 23.
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-bold mb-4">8. Limitation of Liability</h2>
+                        <h2 className="text-2xl font-bold mb-4">9. Pricing and Commercial Terms</h2>
                         <p>
-                            To the maximum extent permitted by law, Omini shall not be liable for any indirect, incidental, special, consequential, or punitive damages,
-                            including without limitation, loss of profits, data, use, or goodwill, resulting from (i) your access to or use of the Service;
-                            (ii) any conduct or content of any third party on the Service; or (iii) unauthorized access, use, or alteration of your transmissions or content.
+                            Defined exclusively in a signed MSA or SOW. These Terms do not govern billing independently.
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-bold mb-4">9. Termination</h2>
+                        <h2 className="text-2xl font-bold mb-4">10. Intellectual Property</h2>
                         <p>
-                            We reserve the right to suspend or terminate your account at our sole discretion, without notice, for conduct that we believe violates
-                            these Terms or is harmful to other users of the Service, us, or third parties, or for any other reason.
+                            All platform technology, AI models, software, documentation, and trademarks are the exclusive intellectual
+                            property of Empowering Energy. Client receives a limited, non-exclusive, non-transferable license to use the
+                            Service per the MSA.
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-bold mb-4">10. Contact Information</h2>
+                        <h2 className="text-2xl font-bold mb-4">11. Confidentiality</h2>
                         <p>
-                            If you have any questions about these Terms, please contact us at: <a href="mailto:legal@esap.ai" className="text-blue-600 hover:underline">legal@esap.ai</a>
+                            Each party agrees to protect the other&apos;s confidential information for the duration of the agreement and
+                            for 3 years post-termination.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4">12. Service Availability</h2>
+                        <p>
+                            Empowering Energy targets 99.5% service availability, excluding scheduled maintenance and force majeure events.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4">13. Limitation of Liability</h2>
+                        <p>
+                            To the maximum extent permitted by law, Empowering Energy&apos;s aggregate liability is capped at 3 months&apos;
+                            fees paid by the Client. We shall not be liable for any indirect, incidental, special, consequential, or
+                            punitive damages.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4">14. Termination</h2>
+                        <p>
+                            Either party may terminate per the MSA. On termination, Client has a 30-day data export window. Permanent
+                            deletion is confirmed in writing.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4">15. Governing Law</h2>
+                        <p>
+                            These Terms are governed by the laws of the Kingdom of Saudi Arabia. Disputes are subject to the exclusive
+                            jurisdiction of the courts of Riyadh.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4">16. Changes</h2>
+                        <p>
+                            Empowering Energy may update these Terms with 14 days&apos; written notice to the Client.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4">17. Contact</h2>
+                        <p>
+                            Questions about these Terms: <a href="mailto:legal@esap.ai" className="text-blue-600 hover:underline">legal@esap.ai</a>
                         </p>
                     </section>
                 </div>

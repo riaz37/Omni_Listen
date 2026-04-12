@@ -9,151 +9,217 @@ export default function PrivacyPage() {
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <article className="bg-card rounded-xl shadow-lg p-8 md:p-12">
-                    {/* Header */}
                     <header className="mb-10 border-b pb-8">
                         <h1 className="text-4xl font-bold text-foreground mb-4">Privacy Policy</h1>
                         <p className="text-muted-foreground">
-                            <strong>Effective Date:</strong> December 7, 2024<br />
-                            <strong>Last Updated:</strong> December 7, 2024
+                            <strong>Product:</strong> Omni Listen &mdash; Intelligent Audio Processing and Data Extraction System<br />
+                            <strong>Legal Entity:</strong> Empowering Energy (trading as ESAP AI)<br />
+                            <strong>Last Updated:</strong> April 12, 2026
                         </p>
                     </header>
 
-                    {/* Introduction */}
                     <section className="mb-10">
-                        <p className="text-foreground text-lg leading-relaxed">
-                            Omini Listen (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy.
-                            This Privacy Policy explains how we collect, use, disclose, and safeguard your information
-                            when you use our conversation transcription and analysis service, including our browser extension
-                            and web application (collectively, the &quot;Service&quot;).
+                        <h2 className="text-2xl font-semibold text-foreground mb-4">Who We Are</h2>
+                        <p className="text-foreground leading-relaxed">
+                            Omni Listen is an AI-powered meeting transcription and intelligence platform developed and operated by{' '}
+                            <strong>Empowering Energy (trading as ESAP AI)</strong> (CR No. [Insert CR Number]). We help enterprise teams
+                            capture, transcribe, and extract actionable insights from Arabic and English meetings with speaker
+                            identification, role-based analysis, and automated action item generation.
                         </p>
                     </section>
 
-                    {/* Section 1 */}
                     <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">1. Information We Collect</h2>
-
-                        <h3 className="text-xl font-medium text-foreground mt-6 mb-3">1.1 Information You Provide</h3>
-                        <ul className="list-disc pl-6 text-foreground space-y-2">
-                            <li><strong>Account Information:</strong> Email address, name, and profile picture when you sign in with Google</li>
-                            <li><strong>Conversation Audio:</strong> Audio recordings from conversations you choose to record using our browser extension</li>
-                            <li><strong>User Preferences:</strong> Your configured presets, roles, and custom queries</li>
-                        </ul>
-
-                        <h3 className="text-xl font-medium text-foreground mt-6 mb-3">1.2 Information Collected Automatically</h3>
-                        <ul className="list-disc pl-6 text-foreground space-y-2">
-                            <li><strong>Device Information:</strong> Browser type, operating system, and timezone</li>
-                            <li><strong>Usage Data:</strong> Features used, conversation duration, and interaction patterns</li>
-                        </ul>
-                    </section>
-
-                    {/* Section 2 */}
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">2. How We Use Your Information</h2>
-                        <p className="text-foreground mb-4">We use the collected information solely for the following purposes:</p>
-                        <ul className="list-disc pl-6 text-foreground space-y-2">
-                            <li><strong>Service Provision:</strong> To transcribe conversation audio, generate summaries, and extract action items</li>
-                            <li><strong>Personalization:</strong> To remember your preferences and provide customized experiences</li>
-                            <li><strong>Calendar Integration:</strong> To sync extracted events with your Google Calendar (when authorized)</li>
-                            <li><strong>Service Improvement:</strong> To analyze usage patterns and improve our features</li>
-                            <li><strong>Communication:</strong> To send important service updates and respond to your requests</li>
-                        </ul>
-                    </section>
-
-                    {/* Section 3 */}
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">3. Third-Party Services</h2>
-                        <p className="text-foreground mb-4">We use the following third-party services to process your data:</p>
-
-                        <div className="bg-muted rounded-lg p-6 space-y-4">
-                            <div>
-                                <h4 className="font-semibold text-foreground">AssemblyAI</h4>
-                                <p className="text-muted-foreground">For audio transcription and speaker detection. Audio is transmitted securely and processed according to their <a href="https://www.assemblyai.com/legal/privacy-policy" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</p>
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-foreground">Google Gemini AI</h4>
-                                <p className="text-muted-foreground">For generating conversation summaries, extracting events, and analyzing content. Processed according to Google&apos;s <a href="https://policies.google.com/privacy" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</p>
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-foreground">Google OAuth</h4>
-                                <p className="text-muted-foreground">For secure authentication. We only request necessary scopes for login and calendar access.</p>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Section 4 */}
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">4. Data Retention</h2>
-                        <ul className="list-disc pl-6 text-foreground space-y-2">
-                            <li><strong>Audio Files:</strong> Immediately deleted after transcription is complete (typically within minutes)</li>
-                            <li><strong>Transcriptions & Summaries:</strong> Stored in your account until you delete them</li>
-                            <li><strong>Account Data:</strong> Retained until you request account deletion</li>
-                        </ul>
-                    </section>
-
-                    {/* Section 5 */}
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">5. Data Security</h2>
-                        <p className="text-foreground mb-4">We implement industry-standard security measures to protect your data:</p>
-                        <ul className="list-disc pl-6 text-foreground space-y-2">
-                            <li>All data transmission is encrypted using TLS/SSL</li>
-                            <li>Audio is streamed over secure WebSocket connections (WSS)</li>
-                            <li>Authentication tokens are securely stored and regularly rotated</li>
-                            <li>Database access is restricted and monitored</li>
-                        </ul>
-                    </section>
-
-                    {/* Section 6 */}
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">6. Your Rights</h2>
-                        <p className="text-foreground mb-4">You have the right to:</p>
-                        <ul className="list-disc pl-6 text-foreground space-y-2">
-                            <li><strong>Access:</strong> Request a copy of your personal data</li>
-                            <li><strong>Correction:</strong> Update or correct inaccurate data</li>
-                            <li><strong>Deletion:</strong> Request deletion of your account and associated data</li>
-                            <li><strong>Export:</strong> Download your conversation data</li>
-                            <li><strong>Opt-out:</strong> Disable optional features like calendar sync</li>
-                        </ul>
-                        <p className="text-foreground mt-4">
-                            To exercise these rights, please contact us at <a href="mailto:esaplisten@gmail.com" className="text-primary hover:underline">esaplisten@gmail.com</a>.
+                        <h2 className="text-2xl font-semibold text-foreground mb-4">Our Role: Data Processor</h2>
+                        <p className="text-foreground leading-relaxed">
+                            Omni Listen operates exclusively in a B2B enterprise context. Your organization is the{' '}
+                            <strong>Data Controller</strong> &mdash; you determine who uses the platform and for what purpose.
+                            Empowering Energy (Omni Listen) acts solely as a <strong>Data Processor</strong>, processing meeting data
+                            only on your organization&apos;s behalf and strictly under your documented instructions.
                         </p>
                     </section>
 
-                    {/* Section 7 */}
                     <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">7. Children&apos;s Privacy</h2>
-                        <p className="text-foreground">
-                            Our Service is not intended for users under 13 years of age. We do not knowingly collect
-                            personal information from children under 13. If you become aware that a child has provided
-                            us with personal information, please contact us.
-                        </p>
-                    </section>
-
-                    {/* Section 8 */}
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">8. Changes to This Policy</h2>
-                        <p className="text-foreground">
-                            We may update this Privacy Policy from time to time. We will notify you of any changes by
-                            posting the new Privacy Policy on this page and updating the &quot;Last Updated&quot; date. We
-                            encourage you to review this Privacy Policy periodically.
-                        </p>
-                    </section>
-
-                    {/* Section 9 */}
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">9. Contact Us</h2>
+                        <h2 className="text-2xl font-semibold text-foreground mb-4">Important: Sensitive Personal Data</h2>
                         <p className="text-foreground mb-4">
-                            If you have any questions about this Privacy Policy or our data practices, please contact us:
+                            Omni Listen processes voice recordings and performs speaker identification &mdash; both classified as{' '}
+                            <strong>Sensitive Personal Data</strong> under PDPL Article 23.
                         </p>
-                        <div className="bg-muted rounded-lg p-6">
+                        <p className="text-foreground mb-2">This means:</p>
+                        <ul className="list-disc pl-6 text-foreground space-y-2">
+                            <li>Your organization must obtain <strong>explicit, informed consent</strong> from all meeting participants before any recording begins</li>
+                            <li>Participants must be clearly informed that their voice is being recorded, transcribed, and analyzed by AI</li>
+                            <li>Sensitive data is subject to stricter processing, storage, and transfer rules</li>
+                            <li>Empowering Energy will process voice and speaker data only within the scope defined in your signed DPA</li>
+                        </ul>
+                    </section>
+
+                    <section className="mb-10">
+                        <h2 className="text-2xl font-semibold text-foreground mb-4">What Data We Process</h2>
+                        <ul className="list-disc pl-6 text-foreground space-y-2">
+                            <li><strong>Authorized User Identity Data</strong> &mdash; Names, work emails, job titles, employee IDs</li>
+                            <li><strong>Voice and Audio Data</strong> &mdash; Audio recordings of meetings (Sensitive Personal Data)</li>
+                            <li><strong>Transcription Data</strong> &mdash; Text transcriptions in Arabic and English</li>
+                            <li><strong>Speaker Identification Data</strong> &mdash; AI-powered voice analysis labels (biometric-adjacent, treated as Sensitive Personal Data)</li>
+                            <li><strong>Meeting Metadata</strong> &mdash; Title, date, time, duration, participant count, language, platform source</li>
+                            <li><strong>Role-Based Analysis Outputs</strong> &mdash; Summaries, action items, decisions for PM/HR/Executive roles</li>
+                            <li><strong>Technical and Security Data</strong> &mdash; IP addresses, device types, session timestamps, access logs</li>
+                            <li><strong>Support Communications</strong> &mdash; Messages exchanged with the support team</li>
+                        </ul>
+                    </section>
+
+                    <section className="mb-10">
+                        <h2 className="text-2xl font-semibold text-foreground mb-4">Why We Process Your Data</h2>
+                        <div className="overflow-x-auto">
+                            <table className="w-full border-collapse">
+                                <thead>
+                                    <tr className="border-b">
+                                        <th className="text-left py-3 px-4 font-semibold text-foreground">Purpose</th>
+                                        <th className="text-left py-3 px-4 font-semibold text-foreground">Lawful Basis</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-foreground">
+                                    <tr className="border-b"><td className="py-3 px-4">Meeting transcription and AI analysis</td><td className="py-3 px-4">Performance of contract</td></tr>
+                                    <tr className="border-b"><td className="py-3 px-4">Speaker identification and role-based outputs</td><td className="py-3 px-4">Explicit consent (via your organization)</td></tr>
+                                    <tr className="border-b"><td className="py-3 px-4">User authentication and access</td><td className="py-3 px-4">Performance of contract</td></tr>
+                                    <tr className="border-b"><td className="py-3 px-4">Platform security</td><td className="py-3 px-4">Legitimate interest</td></tr>
+                                    <tr className="border-b"><td className="py-3 px-4">Service quality improvement</td><td className="py-3 px-4">Legitimate interest</td></tr>
+                                    <tr><td className="py-3 px-4">Legal and regulatory compliance</td><td className="py-3 px-4">Legal obligation</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p className="text-foreground mt-4">
+                            We never process data for advertising, profiling, or any purpose outside the contracted scope.
+                        </p>
+                    </section>
+
+                    <section className="mb-10">
+                        <h2 className="text-2xl font-semibold text-foreground mb-4">How We Use AI</h2>
+                        <ul className="list-disc pl-6 text-foreground space-y-2">
+                            <li>All outputs are assistance tools &mdash; not final records or legal documents</li>
+                            <li>Every AI output is labeled: <strong>&quot;AI-generated &mdash; review before using in formal decisions.&quot;</strong></li>
+                            <li>Speaker identification accuracy is high but not infallible &mdash; human review required</li>
+                            <li>Role-based analysis is for decision-support only &mdash; does not constitute HR advice, legal opinion, or management instruction</li>
+                            <li>We do not use your meeting recordings or transcriptions to train AI models without explicit written consent</li>
+                            <li>We maintain full documentation of AI models, language capabilities, and processing logic</li>
+                        </ul>
+                    </section>
+
+                    <section className="mb-10">
+                        <h2 className="text-2xl font-semibold text-foreground mb-4">Participant Consent Obligation</h2>
+                        <p className="text-foreground mb-4">
+                            Because Omni Listen records voices of all participants &mdash; including non-registered users &mdash; your
+                            organization must:
+                        </p>
+                        <ol className="list-decimal pl-6 text-foreground space-y-2">
+                            <li>Inform all participants before the recording begins</li>
+                            <li>Obtain explicit consent, particularly for sensitive topics (HR, legal, financial)</li>
+                            <li>Provide the ability to opt out without professional consequences</li>
+                            <li>Maintain records of consent for each session</li>
+                        </ol>
+                    </section>
+
+                    <section className="mb-10">
+                        <h2 className="text-2xl font-semibold text-foreground mb-4">Data Sharing and Sub-Processors</h2>
+                        <div className="overflow-x-auto">
+                            <table className="w-full border-collapse">
+                                <thead>
+                                    <tr className="border-b">
+                                        <th className="text-left py-3 px-4 font-semibold text-foreground">Provider</th>
+                                        <th className="text-left py-3 px-4 font-semibold text-foreground">Purpose</th>
+                                        <th className="text-left py-3 px-4 font-semibold text-foreground">Location</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-foreground">
+                                    <tr className="border-b"><td className="py-3 px-4">Cloud Hosting Provider</td><td className="py-3 px-4">Infrastructure and encrypted audio storage</td><td className="py-3 px-4">USA</td></tr>
+                                    <tr className="border-b"><td className="py-3 px-4">AI Transcription / NLP Provider</td><td className="py-3 px-4">Speech-to-text and language processing</td><td className="py-3 px-4">USA</td></tr>
+                                    <tr className="border-b"><td className="py-3 px-4">AI Model Provider</td><td className="py-3 px-4">Meeting analysis and output generation</td><td className="py-3 px-4">USA</td></tr>
+                                    <tr><td className="py-3 px-4">Analytics Platform</td><td className="py-3 px-4">Anonymous usage analytics</td><td className="py-3 px-4">USA</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p className="text-foreground mt-4">
+                            30 days&apos; advance notice for any sub-processor changes. Right to object included.
+                        </p>
+                    </section>
+
+                    <section className="mb-10">
+                        <h2 className="text-2xl font-semibold text-foreground mb-4">Cross-Border Data Transfers</h2>
+                        <p className="text-foreground mb-2">All transfers are protected by:</p>
+                        <ul className="list-disc pl-6 text-foreground space-y-2">
+                            <li>SDAIA-approved Standard Contractual Clauses (SCCs)</li>
+                            <li>Encrypted transmission and storage at all international points</li>
+                            <li>Contractual prohibition on secondary use</li>
+                        </ul>
+                    </section>
+
+                    <section className="mb-10">
+                        <h2 className="text-2xl font-semibold text-foreground mb-4">Your Organization&apos;s Rights Under PDPL</h2>
+                        <ul className="list-disc pl-6 text-foreground space-y-2">
+                            <li><strong>Access</strong> &mdash; Copy of all personal and sensitive data</li>
+                            <li><strong>Correction</strong> &mdash; Fix inaccurate metadata, speaker labels, and identity data</li>
+                            <li><strong>Deletion</strong> &mdash; Specific recordings, transcriptions, or all data</li>
+                            <li><strong>Portability</strong> &mdash; JSON or CSV export</li>
+                            <li><strong>Objection</strong> &mdash; Object to processing not in DPA</li>
+                            <li><strong>Restriction</strong> &mdash; Restrict processing during dispute</li>
+                            <li><strong>Audit</strong> &mdash; Evidence of PDPL compliance</li>
+                        </ul>
+                    </section>
+
+                    <section className="mb-10">
+                        <h2 className="text-2xl font-semibold text-foreground mb-4">Data Retention</h2>
+                        <div className="overflow-x-auto">
+                            <table className="w-full border-collapse">
+                                <thead>
+                                    <tr className="border-b">
+                                        <th className="text-left py-3 px-4 font-semibold text-foreground">Data Type</th>
+                                        <th className="text-left py-3 px-4 font-semibold text-foreground">Retention Period</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-foreground">
+                                    <tr className="border-b"><td className="py-3 px-4">Voice recordings (audio files)</td><td className="py-3 px-4">90 days, then auto-deleted</td></tr>
+                                    <tr className="border-b"><td className="py-3 px-4">Transcription text</td><td className="py-3 px-4">Contract duration + 6 months</td></tr>
+                                    <tr className="border-b"><td className="py-3 px-4">Speaker identification labels</td><td className="py-3 px-4">Contract duration + 6 months</td></tr>
+                                    <tr className="border-b"><td className="py-3 px-4">Role-based analysis outputs</td><td className="py-3 px-4">Contract duration + 6 months</td></tr>
+                                    <tr className="border-b"><td className="py-3 px-4">Meeting metadata</td><td className="py-3 px-4">Contract duration + 1 year</td></tr>
+                                    <tr className="border-b"><td className="py-3 px-4">User account data</td><td className="py-3 px-4">Contract duration + 1 year</td></tr>
+                                    <tr className="border-b"><td className="py-3 px-4">Support communications</td><td className="py-3 px-4">2 years</td></tr>
+                                    <tr><td className="py-3 px-4">Security and access logs</td><td className="py-3 px-4">6 months</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p className="text-foreground mt-4">
+                            30-day data export window on termination. Permanent deletion confirmed in writing.
+                        </p>
+                    </section>
+
+                    <section className="mb-10">
+                        <h2 className="text-2xl font-semibold text-foreground mb-4">Data Security</h2>
+                        <ul className="list-disc pl-6 text-foreground space-y-2">
+                            <li>AES-256 encryption at rest for all audio and transcriptions</li>
+                            <li>TLS 1.3 encryption in transit</li>
+                            <li>Audio files in isolated, access-controlled storage buckets</li>
+                            <li>Role-based access controls &mdash; only authorized personnel</li>
+                            <li>No employee access to raw audio without a logged reason</li>
+                            <li>Regular security audits and vulnerability assessments</li>
+                            <li>72-hour SDAIA breach notification + immediate client notification</li>
+                        </ul>
+                    </section>
+
+                    <section className="mb-10">
+                        <h2 className="text-2xl font-semibold text-foreground mb-4">Contact and Complaints</h2>
+                        <div className="bg-muted rounded-lg p-6 space-y-2">
+                            <p className="text-foreground"><strong>Empowering Energy &mdash; Data Privacy Team</strong></p>
                             <p className="text-foreground">
-                                <strong>Email:</strong> <a href="mailto:esaplisten@gmail.com" className="text-primary hover:underline">esaplisten@gmail.com</a>
+                                Complaints: SDAIA at{' '}
+                                <a href="https://sdaia.gov.sa" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                                    sdaia.gov.sa
+                                </a>
                             </p>
                         </div>
                     </section>
 
-                    {/* Footer */}
                     <footer className="mt-12 pt-8 border-t text-center text-muted-foreground">
-                        <p>© {new Date().getFullYear()} Omini Listen. All rights reserved.</p>
+                        <p>&copy; {new Date().getFullYear()} Empowering Energy (trading as ESAP AI). All rights reserved.</p>
                     </footer>
                 </article>
             </div>
