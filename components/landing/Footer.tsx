@@ -61,7 +61,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Image src="/mainlogo.webp" alt="Omni Listen" width={28} height={28} className="rounded-md" />
+              <Image src="/logo.png" alt="Omni Listen" width={28} height={28} className="rounded-md" />
               <span className="font-bold text-foreground">Omni Listen</span>
             </div>
             <p className="text-muted-foreground leading-relaxed">

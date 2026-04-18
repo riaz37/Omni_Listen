@@ -119,7 +119,7 @@ export function useEventsData(user: unknown) {
           setTimeout(() => {
             new Notification(`Upcoming Event Tomorrow: ${event.title}`, {
               body: `${event.title} is scheduled for ${format(event.start, 'PPP p')}`,
-              icon: '/mainlogo.webp',
+              icon: '/logo.png',
               tag: event.id,
             });
           }, 100);

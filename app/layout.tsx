@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   title: 'Omni Listen — AI Personal Assistant',
   description: 'Your AI assistant that listens, understands, and organizes everything you say',
   icons: {
-    icon: '/mainlogo.webp',
+    icon: '/logo.png',
   },
   manifest: '/manifest.json',
   appleWebApp: {

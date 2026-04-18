@@ -180,25 +180,28 @@ export default function QueriesPage() {
 
           {/* Stats Summary */}
           {queries.length > 0 && (
-            <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 rounded-lg p-4 border border-primary/20">
+            <div className="bg-card rounded-lg p-4 border border-border">
               <div className="flex items-center gap-2 mb-3">
                 <TrendingUp className="w-5 h-5 text-primary" />
                 <h3 className="font-semibold text-foreground">Analysis Statistics</h3>
               </div>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(stats).map(([type, count]) => {
-                  const typeConfig = {
-                    summary: { label: 'Summary', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700' },
-                    analysis: { label: 'Analysis', color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700' },
-                    list: { label: 'List', color: 'bg-primary/10 text-text-primary border-primary/30' },
-                    comparison: { label: 'Comparison', color: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-700' },
-                    search: { label: 'Search', color: 'bg-primary/10 text-text-primary border-primary/30' },
-                    question: { label: 'Question', color: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 border-pink-300 dark:border-pink-700' },
+                  const labels: Record<string, string> = {
+                    summary: 'Summary',
+                    analysis: 'Analysis',
+                    list: 'List',
+                    comparison: 'Comparison',
+                    search: 'Search',
+                    question: 'Question',
                   };
-                  const config = typeConfig[type as keyof typeof typeConfig] || typeConfig.analysis;
+                  const label = labels[type] ?? 'Analysis';
                   return (
-                    <span key={type} className={`px-3 py-1 rounded-full text-xs font-semibold border ${config.color}`}>
-                      {config.label}: {count}
+                    <span
+                      key={type}
+                      className="px-3 py-1 rounded-full text-xs font-semibold border border-border bg-muted text-foreground"
+                    >
+                      {label}: {count}
                     </span>
                   );
                 })}
@@ -262,7 +265,7 @@ export default function QueriesPage() {
         {filteredQueries.length === 0 ? (
           <div className="bg-card rounded-lg shadow-sm p-12 text-center">
             <div className="max-w-md mx-auto">
-              <div className="w-20 h-20 bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-900/40 dark:to-green-900/40 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-primary/20">
                 <MessageSquare className="w-10 h-10 text-primary" />
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">

@@ -16,12 +16,9 @@ import {
   MessageSquare,
   MoreHorizontal,
   X,
-  Sun,
-  Moon,
 } from 'lucide-react';
-import { useTheme } from '@/lib/theme-context';
 import { useGlobalState } from '@/lib/global-state-context';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DURATIONS, EASINGS, SPRINGS } from '@/lib/motion';
 import {
@@ -296,47 +293,6 @@ function MobileMoreSheet({
   );
 }
 
-// ─── Segmented theme toggle (matches Figma) with view-transition animation ──
-
-function SegmentedThemeToggle() {
-  const { actualTheme, setTheme } = useTheme();
-
-  const handleSwitch = useCallback(
-    (target: 'light' | 'dark') => {
-      if (actualTheme === target) return;
-      setTheme(target);
-    },
-    [actualTheme, setTheme],
-  );
-
-  return (
-    <div className="flex items-center bg-muted rounded-lg p-0.5">
-      <button
-        onClick={() => handleSwitch('light')}
-        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-          actualTheme === 'light'
-            ? 'bg-background text-foreground shadow-sm'
-            : 'text-muted-foreground hover:text-foreground'
-        }`}
-      >
-        <Sun className="w-3.5 h-3.5" />
-        Light
-      </button>
-      <button
-        onClick={() => handleSwitch('dark')}
-        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-          actualTheme === 'dark'
-            ? 'bg-background text-foreground shadow-sm'
-            : 'text-muted-foreground hover:text-foreground'
-        }`}
-      >
-        <Moon className="w-3.5 h-3.5" />
-        Dark
-      </button>
-    </div>
-  );
-}
-
 // ─── Main Navigation component ───────────────────────────────────────────────
 
 export default function Navigation() {
@@ -362,19 +318,20 @@ export default function Navigation() {
 
       <nav className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+          <div className="flex justify-between items-center py-2">
             {/* Left side: Logo + PRIMARY nav + Workspace dropdown */}
             <div className="flex items-center">
               {/* Logo */}
               <Link
                 href="/listen"
-                className="flex items-center gap-2 flex-shrink-0"
+                className="flex items-center flex-shrink-0"
+                aria-label="Omni Listen home"
               >
                 <div className="relative">
                   <img
-                    src="/mainlogo.webp"
+                    src="/logo.png"
                     alt="Omni Listen Logo"
-                    className="h-8 w-8 rounded-lg"
+                    className="h-12 sm:h-14 w-auto object-contain"
                   />
                   {isRecording && (
                     <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
@@ -383,9 +340,6 @@ export default function Navigation() {
                     </span>
                   )}
                 </div>
-                <span className="text-lg font-bold whitespace-nowrap hidden md:block text-foreground">
-                  <span className="text-primary">Omni</span> Listen
-                </span>
               </Link>
 
               {/* Desktop nav items — all flat per Figma */}
@@ -400,13 +354,8 @@ export default function Navigation() {
               </div>
             </div>
 
-            {/* Right side: Theme toggle (desktop only outside menu) + User avatar menu */}
+            {/* Right side: User avatar menu */}
             <div className="flex items-center gap-2">
-              {/* Desktop-only segmented theme toggle */}
-              <div className="hidden md:block">
-                <SegmentedThemeToggle />
-              </div>
-
               {/* User avatar menu (TERTIARY) — desktop */}
               <div className="hidden md:block">
                 <UserAvatarMenu onLogout={handleLogout} />
