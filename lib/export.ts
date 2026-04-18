@@ -105,7 +105,7 @@ function downloadBlob(blob: Blob, filename: string) {
 export function exportConversationsToCSV(conversations: any[]) {
   const data = conversations.map(m => ({
     'Date Created': new Date(m.created_at).toLocaleDateString(),
-    'Job ID': m.job_id,
+    'Conversation Name': m.title || m.job_id,
     'Events Count': m.event_count || 0,
     'Calendar Synced': m.calendar_synced ? 'Yes' : 'No',
     'Has Additional Analysis': m.has_custom_query ? 'Yes' : 'No',
