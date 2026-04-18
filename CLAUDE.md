@@ -1,4 +1,4 @@
-# Omini Listen Frontend
+# Omni Listen Frontend
 
 ## Skill routing
 

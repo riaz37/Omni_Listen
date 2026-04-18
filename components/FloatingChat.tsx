@@ -62,7 +62,7 @@ export default function FloatingChat({ jobId }: FloatingChatProps) {
                     <div className="p-4 bg-primary text-primary-foreground flex justify-between items-center">
                         <div className="flex items-center gap-2">
                             <Bot className="w-5 h-5" />
-                            <h3 className="font-semibold">Omini Assistant</h3>
+                            <h3 className="font-semibold">Omni Assistant</h3>
                         </div>
                         <button
                             onClick={() => setIsOpen(false)}

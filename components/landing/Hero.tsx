@@ -35,13 +35,13 @@ export default function Hero() {
             <div className="flex items-center gap-3">
               <Image
                 src="/mainlogo.webp"
-                alt="Omini Listen"
+                alt="Omni Listen"
                 width={36}
                 height={36}
                 className="rounded-lg"
               />
               <span className="text-lg font-bold tracking-tight">
-                <span className="text-foreground">Omini</span>
+                <span className="text-foreground">Omni</span>
                 <span className="text-primary"> Listen</span>
               </span>
             </div>

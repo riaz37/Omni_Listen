@@ -33,11 +33,11 @@ export default function LoadingScreen() {
         <div className="mb-8 animate-in fade-in slide-in-from-top-4">
           <img
             src="/mainlogo.webp"
-            alt="Omini Listen"
+            alt="Omni Listen"
             className="h-20 w-20 rounded-2xl shadow-2xl mx-auto mb-4"
           />
           <h1 className="text-4xl font-bold">
-            <span className="text-foreground">Omini</span>
+            <span className="text-foreground">Omni</span>
             <span className="text-primary"> Listen</span>
           </h1>
           <p className="text-slate-400 mt-2">AI Meeting Analysis</p>

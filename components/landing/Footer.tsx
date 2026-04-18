@@ -61,8 +61,8 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Image src="/mainlogo.webp" alt="Omini Listen" width={28} height={28} className="rounded-md" />
-              <span className="font-bold text-foreground">Omini Listen</span>
+              <Image src="/mainlogo.webp" alt="Omni Listen" width={28} height={28} className="rounded-md" />
+              <span className="font-bold text-foreground">Omni Listen</span>
             </div>
             <p className="text-muted-foreground leading-relaxed">
               Your AI personal assistant. Capture, analyze, and organize every conversation.
@@ -123,7 +123,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4 text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Omini Listen. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Omni Listen. All rights reserved.</p>
           <div className="flex gap-5">
             {socialLinks.map((social) => (
               <a

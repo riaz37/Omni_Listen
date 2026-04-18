@@ -18,7 +18,7 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: 'Omini Listen — AI Personal Assistant',
+  title: 'Omni Listen — AI Personal Assistant',
   description: 'Your AI assistant that listens, understands, and organizes everything you say',
   icons: {
     icon: '/mainlogo.webp',
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Omini Listen',
+    title: 'Omni Listen',
   },
 };
 

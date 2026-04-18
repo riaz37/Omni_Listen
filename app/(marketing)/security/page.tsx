@@ -14,7 +14,7 @@ export default function SecurityPage() {
                         Security is our <span className="text-primary">Top Priority</span>
                     </h1>
                     <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                        We built Omini Listen with a security-first architecture. Your conversation data is sensitive, and protecting it is the foundation of our business.
+                        We built Omni Listen with a security-first architecture. Your conversation data is sensitive, and protecting it is the foundation of our business.
                     </p>
                 </div>
             </div>
@@ -75,7 +75,7 @@ export default function SecurityPage() {
                 <div className="max-w-4xl mx-auto px-4 text-center">
                     <h2 className="text-3xl font-bold text-foreground mb-8">Vulnerability Reporting</h2>
                     <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-                        If you believe you have found a security vulnerability in Omini Listen, please report it to us immediately.
+                        If you believe you have found a security vulnerability in Omni Listen, please report it to us immediately.
                         We operate a responsible disclosure program.
                     </p>
                     <a

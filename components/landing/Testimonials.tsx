@@ -7,7 +7,7 @@ import { Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 const testimonials = [
   {
     quote:
-      'Omini Listen changed how I handle conversations. I used to lose track of action items constantly. Now everything is captured and synced automatically.',
+      'Omni Listen changed how I handle conversations. I used to lose track of action items constantly. Now everything is captured and synced automatically.',
     name: 'Sarah Chen',
     role: 'Product Manager',
     company: 'TechFlow Inc.',
@@ -60,7 +60,7 @@ export default function Testimonials() {
               Loved by Teams
             </h2>
             <p className="text-lg text-muted-foreground">
-              See what people are saying about Omini Listen.
+              See what people are saying about Omni Listen.
             </p>
           </motion.div>
 

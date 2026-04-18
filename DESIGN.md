@@ -1,4 +1,4 @@
-# Design System — Omini Listen
+# Design System — Omni Listen
 
 ## Product Context
 - **What this is:** AI personal assistant that listens, transcribes, and extracts actionable insights from all your conversations

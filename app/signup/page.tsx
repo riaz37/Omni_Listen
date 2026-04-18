@@ -111,7 +111,7 @@ export default function SignUpPage() {
         formData.name
       );
       login(result);
-      toast.success('Account created successfully! Welcome to Omini Listen');
+      toast.success('Account created successfully! Welcome to Omni Listen');
 
       // Set a timeout to clear loading state in case redirect fails
       const timeoutId = setTimeout(() => {
@@ -184,11 +184,11 @@ export default function SignUpPage() {
           <Link href="/" className="inline-flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
             <img
               src="/mainlogo.webp"
-              alt="Omini Listen"
+              alt="Omni Listen"
               className="h-12 w-12 rounded-xl shadow-lg"
             />
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              <span className="text-primary">Omini</span>
+              <span className="text-primary">Omni</span>
               <span className="text-primary">Listen</span>
             </h1>
           </Link>

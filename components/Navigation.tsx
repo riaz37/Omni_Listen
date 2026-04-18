@@ -373,7 +373,7 @@ export default function Navigation() {
                 <div className="relative">
                   <img
                     src="/mainlogo.webp"
-                    alt="Omini Listen Logo"
+                    alt="Omni Listen Logo"
                     className="h-8 w-8 rounded-lg"
                   />
                   {isRecording && (
@@ -384,7 +384,7 @@ export default function Navigation() {
                   )}
                 </div>
                 <span className="text-lg font-bold whitespace-nowrap hidden md:block text-foreground">
-                  <span className="text-primary">Omini</span> Listen
+                  <span className="text-primary">Omni</span> Listen
                 </span>
               </Link>
 

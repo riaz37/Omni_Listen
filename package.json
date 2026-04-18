@@ -1,11 +1,11 @@
 {
   "name": "esapai-listen",
-  "productName": "Omini Listen",
+  "productName": "Omni Listen",
   "version": "1.0.0",
   "private": true,
   "main": "dist-electron/main/index.js",
   "description": "Background Listening Agent Desktop App",
-  "author": "Omini Listen Team",
+  "author": "Omni Listen Team",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -34,7 +34,7 @@
     },
     "protocols": [
       {
-        "name": "Omini Listen Protocol",
+        "name": "Omni Listen Protocol",
         "schemes": [
           "esapai-listen"
         ]

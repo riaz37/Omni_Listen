@@ -56,7 +56,7 @@ export default function WelcomeCard({ onDismiss }: WelcomeCardProps) {
       </button>
 
       <h2 className="text-lg font-semibold text-foreground mb-1">
-        Welcome to Omini Listen
+        Welcome to Omni Listen
       </h2>
       <p className="text-sm text-muted-foreground mb-6">
         Get started in three simple steps.
