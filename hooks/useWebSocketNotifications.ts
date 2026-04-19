@@ -19,14 +19,22 @@ export function useWebSocketNotifications({ user, refreshUser }: UseWebSocketNot
 
     if (!token) return;
 
-    const wsUrl = `${wsUrlBase}/ws/notifications?token=${token}`;
+    // Connect WITHOUT token in URL (security: prevents token exposure in browser logs)
+    const wsUrl = `${wsUrlBase}/ws/notifications`;
     const ws = new WebSocket(wsUrl);
 
-    ws.onopen = () => {};
+    ws.onopen = () => {
+      // Authenticate via message after connection is established
+      ws.send(JSON.stringify({ type: 'auth', token }));
+    };
 
     ws.onmessage = async (event) => {
       try {
         const data = JSON.parse(event.data);
+
+        // Handle auth confirmation silently
+        if (data.type === 'auth') return;
+
         if (data.type === 'calendar.disconnected') {
           await refreshUser();
           toast.error("Calendar Disconnected! Please sign in again.", { duration: 5000 });
