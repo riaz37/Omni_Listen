@@ -16,9 +16,12 @@ import {
   MessageSquare,
   MoreHorizontal,
   X,
+  Sun,
+  Moon,
 } from 'lucide-react';
+import { useTheme } from '@/lib/theme-context';
 import { useGlobalState } from '@/lib/global-state-context';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DURATIONS, EASINGS, SPRINGS } from '@/lib/motion';
 import {
@@ -293,6 +296,47 @@ function MobileMoreSheet({
   );
 }
 
+// ─── Segmented theme toggle (matches Figma) with view-transition animation ──
+
+function SegmentedThemeToggle() {
+  const { actualTheme, setTheme } = useTheme();
+
+  const handleSwitch = useCallback(
+    (target: 'light' | 'dark') => {
+      if (actualTheme === target) return;
+      setTheme(target);
+    },
+    [actualTheme, setTheme],
+  );
+
+  return (
+    <div className="flex items-center bg-muted rounded-lg p-0.5">
+      <button
+        onClick={() => handleSwitch('light')}
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+          actualTheme === 'light'
+            ? 'bg-background text-foreground shadow-sm'
+            : 'text-muted-foreground hover:text-foreground'
+        }`}
+      >
+        <Sun className="w-3.5 h-3.5" />
+        Light
+      </button>
+      <button
+        onClick={() => handleSwitch('dark')}
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+          actualTheme === 'dark'
+            ? 'bg-background text-foreground shadow-sm'
+            : 'text-muted-foreground hover:text-foreground'
+        }`}
+      >
+        <Moon className="w-3.5 h-3.5" />
+        Dark
+      </button>
+    </div>
+  );
+}
+
 // ─── Main Navigation component ───────────────────────────────────────────────
 
 export default function Navigation() {
@@ -354,8 +398,13 @@ export default function Navigation() {
               </div>
             </div>
 
-            {/* Right side: User avatar menu */}
+            {/* Right side: Theme toggle (desktop only outside menu) + User avatar menu */}
             <div className="flex items-center gap-2">
+              {/* Desktop-only segmented theme toggle */}
+              <div className="hidden md:block">
+                <SegmentedThemeToggle />
+              </div>
+
               {/* User avatar menu (TERTIARY) — desktop */}
               <div className="hidden md:block">
                 <UserAvatarMenu onLogout={handleLogout} />
