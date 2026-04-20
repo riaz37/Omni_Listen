@@ -1,5 +1,5 @@
 // Extension connection utility
-// Handles communication between web app and Omni Listen recorder extension
+// Handles communication between web app and Omini Listen recorder extension
 
 // Declare chrome as a global (it exists in Chrome/Edge browsers)
 declare const chrome: {
@@ -79,7 +79,6 @@ export async function sendTokenToExtension(token: string, userId?: number): Prom
         }
     } else {
     }
-    return false;
     return false;
 }
 

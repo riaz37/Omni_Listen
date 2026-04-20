@@ -225,8 +225,8 @@ export default function TermsPage() {
                         <h2 className="text-2xl font-semibold text-foreground mb-4">{t.s1.heading}</h2>
                         <p className="text-foreground leading-relaxed">
                             {t.s1.body(
-                                <a href="https://esap-listen-web.vercel.app" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer" dir="ltr">
-                                    esap-listen-web.vercel.app
+                                <a href="https://omni-listen.vercel.app" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer" dir="ltr">
+                                    omni-listen.vercel.app
                                 </a>
                             )}
                         </p>
