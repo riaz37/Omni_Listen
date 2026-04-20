@@ -18,7 +18,7 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: 'Omni Listen — AI Personal Assistant',
+  title: 'Omni Listen',
   description: 'Your AI assistant that listens, understands, and organizes everything you say',
   icons: {
     icon: '/logo.png',
