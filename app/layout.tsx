@@ -29,6 +29,9 @@ export const metadata: Metadata = {
     statusBarStyle: 'default',
     title: 'Omni Listen',
   },
+  verification: {
+    google: 'ELu4vvz6OIwe74QsMWAiiawf-WoRC_xW3dfifdG5NGw',
+  },
 };
 
 export const viewport: Viewport = {
