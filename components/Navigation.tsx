@@ -373,9 +373,14 @@ export default function Navigation() {
               >
                 <div className="relative">
                   <img
+                    src="/logo-black.png"
+                    alt="Omni Listen Logo"
+                    className="h-12 sm:h-14 w-auto object-contain block dark:hidden"
+                  />
+                  <img
                     src="/logo.png"
                     alt="Omni Listen Logo"
-                    className="h-12 sm:h-14 w-auto object-contain"
+                    className="h-12 sm:h-14 w-auto object-contain hidden dark:block"
                   />
                   {isRecording && (
                     <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">

@@ -32,9 +32,14 @@ export default function LoadingScreen() {
         {/* Logo */}
         <div className="mb-8 animate-in fade-in slide-in-from-top-4">
           <img
+            src="/logo-black.png"
+            alt="Omni Listen"
+            className="h-20 w-20 rounded-2xl shadow-2xl mx-auto mb-4 block dark:hidden"
+          />
+          <img
             src="/logo.png"
             alt="Omni Listen"
-            className="h-20 w-20 rounded-2xl shadow-2xl mx-auto mb-4"
+            className="h-20 w-20 rounded-2xl shadow-2xl mx-auto mb-4 hidden dark:block"
           />
           <h1 className="text-4xl font-bold">
             <span className="text-foreground">Omni</span>

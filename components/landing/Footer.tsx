@@ -61,7 +61,8 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Image src="/logo.png" alt="Omni Listen" width={28} height={28} className="rounded-md" />
+              <Image src="/logo-black.png" alt="Omni Listen" width={28} height={28} className="rounded-md block dark:hidden" />
+              <Image src="/logo.png" alt="Omni Listen" width={28} height={28} className="rounded-md hidden dark:block" />
               <span className="font-bold text-foreground">Omni Listen</span>
             </div>
             <p className="text-muted-foreground leading-relaxed">

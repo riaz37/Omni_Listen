@@ -61,9 +61,14 @@ export default function ForgotPasswordPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
             <img
+              src="/logo-black.png"
+              alt="Omni Listen"
+              className="h-12 w-auto object-contain rounded-xl shadow-lg block dark:hidden"
+            />
+            <img
               src="/logo.png"
               alt="Omni Listen"
-              className="h-12 w-12 rounded-xl shadow-lg"
+              className="h-12 w-auto object-contain rounded-xl shadow-lg hidden dark:block"
             />
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
               <span className="text-primary">Omni</span>

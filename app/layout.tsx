@@ -21,7 +21,10 @@ export const metadata: Metadata = {
   title: 'Omni Listen',
   description: 'Your AI assistant that listens, understands, and organizes everything you say',
   icons: {
-    icon: '/logo.png',
+    icon: [
+      { url: '/logo-black.png', media: '(prefers-color-scheme: light)' },
+      { url: '/logo.png', media: '(prefers-color-scheme: dark)' },
+    ],
   },
   manifest: '/manifest.json',
   appleWebApp: {

@@ -1,5 +1,5 @@
 {
-  "name": "esapai-listen",
+  "name": "omni-listen",
   "productName": "Omni Listen",
   "version": "1.0.0",
   "private": true,
@@ -18,7 +18,7 @@
     "boneyard:build": "npx boneyard-js build http://localhost:3000"
   },
   "build": {
-    "appId": "com.esap.listen",
+    "appId": "com.omni.listen",
     "files": [
       "out/**/*",
       "dist-electron/**/*",
@@ -36,7 +36,7 @@
       {
         "name": "Omni Listen Protocol",
         "schemes": [
-          "esapai-listen"
+          "omni-listen"
         ]
       }
     ]
