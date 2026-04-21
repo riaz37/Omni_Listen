@@ -30,11 +30,19 @@ export default function LandingNav() {
         <div className="flex justify-between items-center py-2">
           <Link href="/" className="flex items-center shrink-0" aria-label="Omni Listen home">
             <Image
+              src="/logo-black.png"
+              alt="Omni Listen"
+              width={1236}
+              height={323}
+              className="h-8 sm:h-10 w-auto object-contain block dark:hidden"
+              priority
+            />
+            <Image
               src="/logo.png"
               alt="Omni Listen"
               width={1236}
               height={323}
-              className="h-12 sm:h-14 w-auto object-contain"
+              className="h-8 sm:h-10 w-auto object-contain hidden dark:block"
               priority
             />
           </Link>
