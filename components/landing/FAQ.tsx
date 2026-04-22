@@ -6,8 +6,8 @@ import { ChevronDown } from 'lucide-react';
 
 const faqs = [
   {
-    question: 'What is Omni Listen?',
-    answer: 'Omni Listen is your AI personal assistant that listens, transcribes, and extracts actionable insights from any conversation. It automatically identifies tasks, events, decisions, and key notes, then syncs them to your calendar and dashboard.',
+    question: 'What is OmniListen?',
+    answer: 'OmniListen is your AI personal assistant that listens, transcribes, and extracts actionable insights from any conversation. It automatically identifies tasks, events, decisions, and key notes, then syncs them to your calendar and dashboard.',
   },
   {
     question: 'How accurate is the transcription?',
@@ -15,7 +15,7 @@ const faqs = [
   },
   {
     question: 'Does it work with my calendar?',
-    answer: 'Yes. Omni Listen integrates directly with Google Calendar. Events and deadlines detected in your conversations are automatically pushed to your calendar with full context.',
+    answer: 'Yes. OmniListen integrates directly with Google Calendar. Events and deadlines detected in your conversations are automatically pushed to your calendar with full context.',
   },
   {
     question: 'Is my data secure?',
@@ -23,7 +23,7 @@ const faqs = [
   },
   {
     question: 'What languages are supported?',
-    answer: 'Currently, Omni Listen supports English and Arabic with full transcription and analysis capabilities. We are working on adding more languages.',
+    answer: 'Currently, OmniListen supports English and Arabic with full transcription and analysis capabilities. We are working on adding more languages.',
   },
   {
     question: 'Is there a free plan?',
@@ -52,7 +52,7 @@ export default function FAQ() {
             Frequently Asked Questions
           </h2>
           <p className="text-lg text-muted-foreground">
-            Everything you need to know about Omni Listen.
+            Everything you need to know about OmniListen.
           </p>
         </motion.div>
 
