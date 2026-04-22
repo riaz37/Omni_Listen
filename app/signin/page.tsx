@@ -38,7 +38,10 @@ export default function SignInPage() {
   const processedRef = useRef(false);
 
   useEffect(() => {
-    let cancelled = false;
+    const isElectronEnv = typeof window !== 'undefined' && (window as any).electron;
+    if (isElectronEnv) {
+      setIsElectron(true);
+    }
 
     const handleOAuthCallback = async () => {
       if (processedRef.current) return; // Prevent double execution
@@ -62,16 +65,12 @@ export default function SignInPage() {
       const githubState = localStorage.getItem('github_oauth_state');
       if (code && state && githubState === state) {
         localStorage.removeItem('github_oauth_state');
-        if (!cancelled) {
-          await handleGitHubCallback(code);
-        }
+        await handleGitHubCallback(code);
         return;
       }
 
       if (code && state && !githubState) {
-        if (!cancelled) {
-          await handleCalendarCallback(code, state);
-        }
+        await handleCalendarCallback(code, state);
         return;
       }
 
@@ -79,15 +78,20 @@ export default function SignInPage() {
         router.push('/listen');
         return;
       }
+    };
 
-      const script = document.createElement('script');
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      document.body.appendChild(script);
+    handleOAuthCallback();
+  }, [user, router]);
 
-      script.onload = () => {
-        if ((window as any).google && !cancelled) {
+  useEffect(() => {
+    if (isElectron || signinMode !== 'oauth' || user) return;
+
+    let cancelled = false;
+
+    const renderGoogleButton = () => {
+      if ((window as any).google && !cancelled) {
+        const btnContainer = document.getElementById('googleSignInButton');
+        if (btnContainer) {
           (window as any).google.accounts.id.initialize({
             client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
             callback: handleGoogleResponse,
@@ -95,35 +99,34 @@ export default function SignInPage() {
 
           // Render button as "outline" or "filled_blue" to suit light theme
           (window as any).google.accounts.id.renderButton(
-            document.getElementById('googleSignInButton'),
+            btnContainer,
             {
               theme: 'outline',
               size: 'large',
               text: 'signin_with',
               shape: 'rectangular',
-              // width removed to prevent stretching
             }
           );
         }
-      };
-
-      return () => {
-        cancelled = true;
-        if (document.body.contains(script)) {
-          document.body.removeChild(script);
-        }
-      };
+      }
     };
 
-    const isElectronEnv = typeof window !== 'undefined' && (window as any).electron;
-    if (isElectronEnv) {
-      setIsElectron(true);
-      // Skip Google Script injection in Electron, as we use Deep Linking
+    if ((window as any).google) {
+      renderGoogleButton();
     } else {
-      // Only load Google Script if NOT Electron
-      handleOAuthCallback();
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+
+      script.onload = renderGoogleButton;
     }
-  }, [user, router]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [signinMode, isElectron, user]);
 
   // Deep Link Listener for Electron
   useEffect(() => {
@@ -400,7 +403,7 @@ export default function SignInPage() {
               {/* Google Sign In */}
               <div className="flex justify-center w-full">
                 {!isElectron ? (
-                  <div id="googleSignInButton" className="w-full"></div>
+                  <div id="googleSignInButton" className="w-full flex justify-center"></div>
                 ) : (
                   <button
                     onClick={handleElectronGoogleLogin}
@@ -412,6 +415,7 @@ export default function SignInPage() {
                 )}
               </div>
 
+              {/* GitHub Sign In section commented out
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-border"></div>
@@ -421,7 +425,6 @@ export default function SignInPage() {
                 </div>
               </div>
 
-              {/* GitHub Sign In */}
               <button
                 onClick={handleGitHubSignIn}
                 className="flex items-center justify-center gap-3 px-6 py-2.5 bg-foreground hover:bg-foreground/90 text-background rounded-lg transition-colors w-full font-medium"
@@ -429,6 +432,7 @@ export default function SignInPage() {
                 <Github className="w-5 h-5" />
                 <span>Sign in with GitHub</span>
               </button>
+              */}
             </div>
           )}
 
