@@ -12,7 +12,7 @@ const content = {
     lastUpdated: 'Last Updated:',
     lastUpdatedDate: 'April 12, 2026',
     cookiesOn: {
-      heading: 'Cookies on Omni Listen',
+      heading: 'Cookies on OmniListen',
       intro: 'This platform uses cookies to keep your session secure, maintain your preferences, and provide your organization with anonymous usage analytics.',
       essentialLabel: 'Essential Cookies',
       essentialDesc: 'Required for login, session security, platform functionality. Cannot be disabled.',
@@ -49,7 +49,7 @@ const content = {
     lastUpdated: 'آخر تحديث:',
     lastUpdatedDate: '12 أبريل 2026',
     cookiesOn: {
-      heading: 'ملفات تعريف الارتباط في Omni Listen',
+      heading: 'ملفات تعريف الارتباط في OmniListen',
       intro: 'تستخدم هذه المنصّة ملفات تعريف الارتباط للحفاظ على أمان جلستك، والاحتفاظ بتفضيلاتك، وتزويد مؤسستك بتحليلات استخدام مجهولة الهوية.',
       essentialLabel: 'ملفات تعريف الارتباط الأساسية',
       essentialDesc: 'ضرورية لتسجيل الدخول، وأمن الجلسة، وتشغيل المنصّة. لا يمكن تعطيلها.',

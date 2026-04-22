@@ -17,7 +17,7 @@ const content = {
             heading: '1. Agreement',
             body: (link: React.ReactNode) => (
                 <>
-                    These Terms govern access to Omni Listen at {link}, operated by <strong>Empowering Energy (trading as ESAP AI)</strong> (CR No. [Insert CR Number]). Apply to the Client organization and all Authorized Users. Operate alongside MSA, SOW, and DPA &mdash; MSA/DPA takes precedence in conflicts.
+                    These Terms govern access to OmniListen at {link}, operated by <strong>Empowering Energy (trading as ESAP AI)</strong> (CR No. [Insert CR Number]). Apply to the Client organization and all Authorized Users. Operate alongside MSA, SOW, and DPA &mdash; MSA/DPA takes precedence in conflicts.
                 </>
             ),
         },
@@ -46,7 +46,7 @@ const content = {
                 'Ensuring participants are not penalized for declining',
                 'Maintaining consent records per session',
             ],
-            note: 'Omni Listen provides in-platform recording notifications and session start prompts. Legal responsibility rests with the Client as Data Controller. Failure to obtain consent = violation of PDPL and these Terms. Omni Listen is not liable for the Client\u2019s failure to consent.',
+            note: 'OmniListen provides in-platform recording notifications and session start prompts. Legal responsibility rests with the Client as Data Controller. Failure to obtain consent = violation of PDPL and these Terms. OmniListen is not liable for the Client\u2019s failure to consent.',
         },
         s5: {
             heading: '5. Acceptable Use',
@@ -72,7 +72,7 @@ const content = {
         },
         s7: {
             heading: '7. Client Data and Content',
-            intro: 'Client retains full ownership. Omni Listen commits to:',
+            intro: 'Client retains full ownership. OmniListen commits to:',
             items: [
                 'Never selling, licensing, or sharing Client Content',
                 'Never use Client Content to train AI models without explicit written consent',
@@ -112,7 +112,7 @@ const content = {
             heading: '1. الاتفاقية',
             body: (link: React.ReactNode) => (
                 <>
-                    تنظّم هذه الشروط الوصول إلى Omni Listen على {link}، المشغّلة من قِبَل <strong>Empowering Energy (تعمل تحت اسم ESAP AI)</strong> (رقم السجل التجاري [أدخل رقم السجل]). تنطبق على المؤسسة العميلة وجميع المستخدمين المعتمدين. تعمل جنبًا إلى جنب مع اتفاقيات MSA وSOW وDPA &mdash; وتسود اتفاقية MSA/DPA في حال التعارض.
+                    تنظّم هذه الشروط الوصول إلى OmniListen على {link}، المشغّلة من قِبَل <strong>Empowering Energy (تعمل تحت اسم ESAP AI)</strong> (رقم السجل التجاري [أدخل رقم السجل]). تنطبق على المؤسسة العميلة وجميع المستخدمين المعتمدين. تعمل جنبًا إلى جنب مع اتفاقيات MSA وSOW وDPA &mdash; وتسود اتفاقية MSA/DPA في حال التعارض.
                 </>
             ),
         },
@@ -141,7 +141,7 @@ const content = {
                 'ضمان عدم معاقبة المشاركين عند الرفض',
                 'الاحتفاظ بسجلات الموافقة لكل جلسة',
             ],
-            note: 'يوفّر Omni Listen إشعارات التسجيل داخل المنصّة وتنبيهات بدء الجلسة. تقع المسؤولية القانونية على عاتق العميل بصفته المتحكّم في البيانات. عدم الحصول على الموافقة = انتهاك لنظام PDPL ولهذه الشروط. لا يتحمّل Omni Listen المسؤولية عن إخفاق العميل في الحصول على الموافقة.',
+            note: 'يوفّر OmniListen إشعارات التسجيل داخل المنصّة وتنبيهات بدء الجلسة. تقع المسؤولية القانونية على عاتق العميل بصفته المتحكّم في البيانات. عدم الحصول على الموافقة = انتهاك لنظام PDPL ولهذه الشروط. لا يتحمّل OmniListen المسؤولية عن إخفاق العميل في الحصول على الموافقة.',
         },
         s5: {
             heading: '5. الاستخدام المقبول',
@@ -167,7 +167,7 @@ const content = {
         },
         s7: {
             heading: '7. بيانات ومحتوى العميل',
-            intro: 'يحتفظ العميل بالملكية الكاملة. يلتزم Omni Listen بـ:',
+            intro: 'يحتفظ العميل بالملكية الكاملة. يلتزم OmniListen بـ:',
             items: [
                 'عدم بيع محتوى العميل أو ترخيصه أو مشاركته مطلقًا',
                 'عدم استخدام محتوى العميل لتدريب نماذج الذكاء الاصطناعي دون موافقة خطّية صريحة',

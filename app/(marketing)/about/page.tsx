@@ -29,7 +29,7 @@ export default function AboutPage() {
                                 We realized that millions of brilliant ideas, critical decisions, and action items were being lost every day in the chaos of conversations. Notebooks get lost, memories fade, and manual transcription is a chore that no one enjoys.
                             </p>
                             <p>
-                                Omni Listen was born from the desire to capture that value. We wanted to build a personal AI assistant that didn't just record audio, but actually <em>understood</em> it—giving you back the context and clarity you need to move forward.
+                                OmniListen was born from the desire to capture that value. We wanted to build a personal AI assistant that didn't just record audio, but actually <em>understood</em> it—giving you back the context and clarity you need to move forward.
                             </p>
                         </div>
                     </div>
@@ -37,7 +37,7 @@ export default function AboutPage() {
                         {/* Placeholder for Team Image or Illustration */}
                         <div className="text-center">
                             <Users className="w-24 h-24 text-muted-foreground/50 mx-auto mb-4" />
-                            <p className="text-muted-foreground font-medium">Omni Listen Team at work</p>
+                            <p className="text-muted-foreground font-medium">OmniListen Team at work</p>
                         </div>
                     </div>
                 </div>

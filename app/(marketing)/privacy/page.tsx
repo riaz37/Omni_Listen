@@ -16,7 +16,7 @@ const content = {
             heading: 'Who We Are',
             body: (
                 <>
-                    Omni Listen is an AI-powered meeting transcription and intelligence platform developed and operated by{' '}
+                    OmniListen is an AI-powered meeting transcription and intelligence platform developed and operated by{' '}
                     <strong>Empowering Energy (trading as ESAP AI)</strong> (CR No. [Insert CR Number]). We help enterprise teams
                     capture, transcribe, and extract actionable insights from Arabic and English meetings with speaker
                     identification, role-based analysis, and automated action item generation.
@@ -27,9 +27,9 @@ const content = {
             heading: 'Our Role: Data Processor',
             body: (
                 <>
-                    Omni Listen operates exclusively in a B2B enterprise context. Your organization is the{' '}
+                    OmniListen operates exclusively in a B2B enterprise context. Your organization is the{' '}
                     <strong>Data Controller</strong> &mdash; you determine who uses the platform and for what purpose.
-                    Empowering Energy (Omni Listen) acts solely as a <strong>Data Processor</strong>, processing meeting data
+                    Empowering Energy (OmniListen) acts solely as a <strong>Data Processor</strong>, processing meeting data
                     only on your organization&apos;s behalf and strictly under your documented instructions.
                 </>
             ),
@@ -38,7 +38,7 @@ const content = {
             heading: 'Important: Sensitive Personal Data',
             intro: (
                 <>
-                    Omni Listen processes voice recordings and performs speaker identification &mdash; both classified as{' '}
+                    OmniListen processes voice recordings and performs speaker identification &mdash; both classified as{' '}
                     <strong>Sensitive Personal Data</strong> under PDPL Article 23.
                 </>
             ),
@@ -89,7 +89,7 @@ const content = {
         },
         consent: {
             heading: 'Participant Consent Obligation',
-            intro: 'Because Omni Listen records voices of all participants — including non-registered users — your organization must:',
+            intro: 'Because OmniListen records voices of all participants — including non-registered users — your organization must:',
             items: [
                 'Inform all participants before the recording begins',
                 'Obtain explicit consent, particularly for sensitive topics (HR, legal, financial)',
@@ -172,7 +172,7 @@ const content = {
             heading: 'من نحن',
             body: (
                 <>
-                    Omni Listen هو منصّة لتفريغ الاجتماعات وتحليلها مدعومة بالذكاء الاصطناعي، مطوّرة ومشغّلة من قِبَل{' '}
+                    OmniListen هو منصّة لتفريغ الاجتماعات وتحليلها مدعومة بالذكاء الاصطناعي، مطوّرة ومشغّلة من قِبَل{' '}
                     <strong>Empowering Energy (تعمل تحت اسم ESAP AI)</strong> (رقم السجل التجاري [أدخل رقم السجل]). نساعد فرق المؤسسات على التقاط الاجتماعات العربية والإنجليزية وتفريغها واستخلاص رؤى قابلة للتنفيذ، مع تحديد المتحدّث، والتحليل حسب الدور، وتوليد بنود العمل تلقائيًا.
                 </>
             ),
@@ -181,9 +181,9 @@ const content = {
             heading: 'دورنا: معالِج البيانات',
             body: (
                 <>
-                    يعمل Omni Listen حصراً في سياق المؤسسات (B2B). مؤسستك هي{' '}
+                    يعمل OmniListen حصراً في سياق المؤسسات (B2B). مؤسستك هي{' '}
                     <strong>المتحكِّم في البيانات</strong> &mdash; فهي تحدّد من يستخدم المنصّة ولأي غرض.
-                    وتعمل Empowering Energy (Omni Listen) بصفتها{' '}
+                    وتعمل Empowering Energy (OmniListen) بصفتها{' '}
                     <strong>معالِج البيانات</strong> فقط، حيث تعالج بيانات الاجتماعات نيابةً عن مؤسستك وحصراً وفقًا لتعليماتها الموثّقة.
                 </>
             ),
@@ -192,7 +192,7 @@ const content = {
             heading: 'هام: البيانات الشخصية الحسّاسة',
             intro: (
                 <>
-                    يعالج Omni Listen التسجيلات الصوتية ويُجري تحديد المتحدّث &mdash; وكلاهما مصنّف بوصفه{' '}
+                    يعالج OmniListen التسجيلات الصوتية ويُجري تحديد المتحدّث &mdash; وكلاهما مصنّف بوصفه{' '}
                     <strong>بيانات شخصية حسّاسة</strong> وفقًا للمادة 23 من نظام حماية البيانات الشخصية (PDPL).
                 </>
             ),
@@ -243,7 +243,7 @@ const content = {
         },
         consent: {
             heading: 'التزام الموافقة من المشاركين',
-            intro: 'نظرًا لأن Omni Listen يسجّل أصوات جميع المشاركين — بمن فيهم المستخدمون غير المسجّلين — يجب على مؤسستك:',
+            intro: 'نظرًا لأن OmniListen يسجّل أصوات جميع المشاركين — بمن فيهم المستخدمون غير المسجّلين — يجب على مؤسستك:',
             items: [
                 'إبلاغ جميع المشاركين قبل بدء التسجيل',
                 'الحصول على موافقة صريحة، لا سيما في المواضيع الحسّاسة (الموارد البشرية، القانون، المالية)',
