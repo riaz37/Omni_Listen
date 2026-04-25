@@ -362,9 +362,9 @@ export default function Navigation() {
 
       <nav className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-2">
+          <div className="flex justify-between items-center py-2 gap-4">
             {/* Left side: Logo + PRIMARY nav + Workspace dropdown */}
-            <div className="flex items-center">
+            <div className="flex items-center min-w-0 overflow-x-auto hide-scrollbar">
               {/* Logo */}
               <Link
                 href="/listen"

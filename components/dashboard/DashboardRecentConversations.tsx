@@ -66,18 +66,18 @@ export default function DashboardRecentConversations({
     <div className="lg:col-span-1">
       <div className="bg-card-2 rounded-lg shadow border border-border p-6 sticky top-4">
         <Tabs defaultValue="upcoming">
-          <TabsList className="w-full mb-4">
-            <TabsTrigger value="upcoming" className="flex-1 gap-2 data-[state=active]:text-primary">
-              <List className="w-4 h-4" />
-              Upcoming
+          <TabsList className="grid w-full grid-cols-3 mb-4 h-auto p-1">
+            <TabsTrigger value="upcoming" className="flex items-center gap-1.5 px-1 sm:px-3">
+              <List className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate text-xs sm:text-sm">Upcoming</span>
             </TabsTrigger>
-            <TabsTrigger value="tasks" className="flex-1 gap-2 data-[state=active]:text-primary">
-              <CheckSquare className="w-4 h-4" />
-              Tasks
+            <TabsTrigger value="tasks" className="flex items-center gap-1.5 px-1 sm:px-3">
+              <CheckSquare className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate text-xs sm:text-sm">Tasks</span>
             </TabsTrigger>
-            <TabsTrigger value="meetings" className="flex-1 gap-2 data-[state=active]:text-primary">
-              <FileText className="w-4 h-4" />
-              Conversations
+            <TabsTrigger value="meetings" className="flex items-center gap-1.5 px-1 sm:px-3">
+              <FileText className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate text-xs sm:text-sm">History</span>
             </TabsTrigger>
           </TabsList>
 
