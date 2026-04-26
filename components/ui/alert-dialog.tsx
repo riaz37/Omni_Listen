@@ -85,7 +85,7 @@ AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName
 const AlertDialogContent = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>
->(({ className, ...props }, ref) => {
+>(({ className, children, ...props }, ref) => {
   const open = React.useContext(AlertDialogOpenContext)
   const reduced = prefersReducedMotion()
 
@@ -104,7 +104,9 @@ const AlertDialogContent = React.forwardRef<
               initial={reduced ? undefined : "hidden"}
               animate={reduced ? undefined : "visible"}
               exit={reduced ? undefined : "exit"}
-            />
+            >
+              {children}
+            </motion.div>
           </AlertDialogPrimitive.Content>
         </AlertDialogPortal>
       )}

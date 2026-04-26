@@ -60,10 +60,11 @@ export default function ConfirmDialog({
           </div>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-          <AlertDialogCancel className="flex-1 mt-0" onClick={onCancel}>
+          <AlertDialogCancel type="button" className="flex-1 mt-0" onClick={onCancel}>
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
+            type="button"
             className={`flex-1 ${confirmButtonClass}`}
             onClick={onConfirm}
           >
