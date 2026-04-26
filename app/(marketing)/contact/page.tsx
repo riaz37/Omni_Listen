@@ -43,7 +43,7 @@ export default function ContactPage() {
                 <div className="text-center mb-12">
                     <h2 className="text-2xl font-bold text-foreground mb-8">Follow Us</h2>
                     <div className="flex justify-center gap-6">
-                        <a href="https://x.com/ESAP2030" target="_blank" rel="noopener noreferrer" className="bg-card-2 p-4 rounded-full text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all">
+                        <a href="https://x.com/esap_ai" target="_blank" rel="noopener noreferrer" className="bg-card-2 p-4 rounded-full text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all">
                             <svg viewBox="0 0 24 24" aria-hidden="true" className="w-6 h-6 fill-current">
                                 <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
                             </svg>
