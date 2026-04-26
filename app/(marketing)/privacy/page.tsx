@@ -1,10 +1,32 @@
 'use client';
 
-import { useState } from 'react';
-import LandingNav from '@/components/landing/LandingNav';
-import Footer from '@/components/landing/Footer';
+import { useLang } from '@/lib/language-context';
 
 type Lang = 'en' | 'ar';
+
+function LanguageToggle() {
+    const { lang, setLang } = useLang();
+    return (
+        <div className="flex items-center bg-muted rounded-lg p-0.5 shrink-0">
+            <button
+                onClick={() => setLang('en')}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                    lang === 'en' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+            >
+                EN
+            </button>
+            <button
+                onClick={() => setLang('ar')}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                    lang === 'ar' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+            >
+                عربي
+            </button>
+        </div>
+    );
+}
 
 const content = {
     en: {
@@ -320,12 +342,11 @@ const content = {
 } as const;
 
 export default function PrivacyPage() {
-    const [lang, setLang] = useState<Lang>('en');
+    const { lang } = useLang();
     const t = content[lang];
 
     return (
-        <div className="min-h-screen bg-background" dir={lang === 'ar' ? 'rtl' : 'ltr'} lang={lang}>
-            <LandingNav />
+        <div dir={lang === 'ar' ? 'rtl' : 'ltr'} lang={lang}>
             <div className="h-16" />
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -333,7 +354,7 @@ export default function PrivacyPage() {
                     <header className="mb-10 border-b pb-8">
                         <div className="flex items-start justify-between gap-4 mb-4">
                             <h1 className="text-4xl font-bold text-foreground">{t.title}</h1>
-                            <LanguageToggle lang={lang} setLang={setLang} labels={t.toggle} />
+                            <LanguageToggle />
                         </div>
                         <p className="text-muted-foreground">
                             <strong>{t.lastUpdated}</strong> {t.lastUpdatedDate}
@@ -496,38 +517,6 @@ export default function PrivacyPage() {
                     </footer>
                 </article>
             </div>
-            <Footer />
-        </div>
-    );
-}
-
-function LanguageToggle({
-    lang,
-    setLang,
-    labels,
-}: {
-    lang: Lang;
-    setLang: (l: Lang) => void;
-    labels: { en: string; ar: string };
-}) {
-    return (
-        <div className="flex items-center bg-muted rounded-lg p-0.5 shrink-0">
-            <button
-                onClick={() => setLang('en')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                    lang === 'en' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-            >
-                {labels.en}
-            </button>
-            <button
-                onClick={() => setLang('ar')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                    lang === 'ar' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-            >
-                {labels.ar}
-            </button>
         </div>
     );
 }

@@ -245,7 +245,7 @@ function SupportFeatureItem({ feature }: { feature: SupportFeature }) {
 
   return (
     <div
-      className="group border-b border-border last:border-b-0"
+      className="group border-b border-border"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -282,14 +282,15 @@ function SupportFeatureList() {
       whileInView={{ opacity: 1 }}
       viewport={{ once: true, margin: '-10px' }}
       transition={{ duration: DURATIONS.fast }}
-      className="max-w-md"
     >
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-4">
         Also included
       </p>
-      {supportFeatures.map((feature) => (
-        <SupportFeatureItem key={feature.title} feature={feature} />
-      ))}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-8">
+        {supportFeatures.map((feature) => (
+          <SupportFeatureItem key={feature.title} feature={feature} />
+        ))}
+      </div>
     </motion.div>
   );
 }

@@ -5,16 +5,12 @@ import { useAuth } from '@/lib/auth-context';
 import { ArrowRight, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useRef } from 'react';
-import LandingNav from './LandingNav';
-
 export default function Hero() {
   const { user } = useAuth();
   const heroRef = useRef<HTMLElement>(null);
 
   return (
     <>
-      <LandingNav />
-
       {/* Hero Section */}
       <section ref={heroRef} className="min-h-screen flex flex-col justify-center items-center relative pt-20 overflow-hidden">
         {/* Background — subtle grain texture per DESIGN.md */}

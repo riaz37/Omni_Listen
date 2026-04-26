@@ -115,17 +115,9 @@ function UserAvatarMenu({
   return (
     <Dropdown>
       <DropdownTrigger className="flex items-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-        {user?.picture ? (
-          <img
-            src={user.picture}
-            alt={user.name ?? 'User avatar'}
-            className="w-8 h-8 rounded-full cursor-pointer hover:ring-2 hover:ring-primary transition-all"
-          />
-        ) : (
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground font-semibold text-sm cursor-pointer hover:ring-2 hover:ring-primary transition-all">
-            {initials}
-          </div>
-        )}
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground font-semibold text-sm cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+          {initials}
+        </div>
       </DropdownTrigger>
       <DropdownContent align="end" className="w-56">
         {/* User info header */}

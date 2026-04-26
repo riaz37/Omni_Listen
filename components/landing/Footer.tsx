@@ -11,7 +11,6 @@ const productLinks = [
 const companyLinks = [
   { label: 'About Us', href: '/about' },
   { label: 'Contact', href: '/contact' },
-  { label: 'Careers', href: '/careers' },
 ];
 
 const legalLinks = [
