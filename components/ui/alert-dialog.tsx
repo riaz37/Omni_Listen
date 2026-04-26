@@ -94,7 +94,9 @@ const AlertDialogContent = React.forwardRef<
       {open && (
         <AlertDialogPortal forceMount>
           <AlertDialogOverlay />
-          <AlertDialogPrimitive.Content ref={ref} forceMount asChild {...props}>
+          {/* No asChild here — AlertDialogPrimitive.Content renders 2 internal children
+              (Slottable + DescriptionWarning) which breaks Slot's React.Children.only */}
+          <AlertDialogPrimitive.Content ref={ref} forceMount {...props}>
             <motion.div
               className={cn(
                 "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg gap-4 border bg-background p-6 shadow-lg sm:rounded-lg",

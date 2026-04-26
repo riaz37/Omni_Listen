@@ -306,6 +306,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
   };
 
   return (
+    <>
     <MotionDialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col" hideClose>
         {/* Header */}
@@ -608,20 +609,21 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
           )}
         </div>
       </DialogContent>
-      {deleteConfirm && (
-        <ConfirmDialog
-          isOpen={!!deleteConfirm}
-          title="Delete Preset"
-          message={`Are you sure you want to delete "${deleteConfirm.name}"? This action cannot be undone.`}
-          confirmLabel="Delete"
-          variant="danger"
-          onConfirm={() => {
-            executeDelete(deleteConfirm);
-            setDeleteConfirm(null);
-          }}
-          onCancel={() => setDeleteConfirm(null)}
-        />
-      )}
     </MotionDialog>
+    {deleteConfirm && (
+      <ConfirmDialog
+        isOpen={!!deleteConfirm}
+        title="Delete Preset"
+        message={`Are you sure you want to delete "${deleteConfirm.name}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={() => {
+          executeDelete(deleteConfirm);
+          setDeleteConfirm(null);
+        }}
+        onCancel={() => setDeleteConfirm(null)}
+      />
+    )}
+    </>
   );
 }
