@@ -28,3 +28,16 @@ export const AVAILABLE_EVENTS: AvailableEvent[] = [
   { value: 'note.created', label: 'Note Created' },
   { value: 'note.deleted', label: 'Note Deleted' },
 ];
+
+export type RecordingStatus = 'recording' | 'stopped' | 'processed' | 'failed';
+
+export interface RecordingEntry {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  status: RecordingStatus;
+  startedAt: string;
+  stoppedAt: string | null;
+  duration: number;
+  size: number;
+}

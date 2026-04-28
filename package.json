@@ -61,6 +61,7 @@
     "date-fns": "^3.6.0",
     "electron-squirrel-startup": "^1.0.1",
     "electron-store": "^8.1.0",
+    "fake-indexeddb": "^6.2.5",
     "framer-motion": "^12.23.25",
     "geist": "^1.7.0",
     "html2pdf.js": "^0.12.1",

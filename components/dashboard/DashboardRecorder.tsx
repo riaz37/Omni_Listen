@@ -16,10 +16,16 @@ import {
   ListChecks,
   Settings,
   AlertTriangle,
+  RotateCcw,
+  Download,
 } from 'lucide-react';
 import DashboardProcessing from './DashboardProcessing';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
+import type { RecordingEntry } from '@/app/(app)/settings/types';
+import * as vault from '@/lib/recording-vault';
+import { downloadBlob } from '@/lib/download-blob';
+import { toast } from 'sonner';
 
 interface RecorderConfig {
   user_input: string;
@@ -53,6 +59,9 @@ interface DashboardRecorderProps {
   saveCustomQuery: (query: string, immediate?: boolean) => void;
   getDefaultQuery: (roleName: string | null) => string;
   activeRole: string | null;
+  recoveredRecording: RecordingEntry | null;
+  onDismissRecovery: (id: string) => void;
+  onRetryRecovery: (id: string) => void;
 }
 
 export default function DashboardRecorder({
@@ -81,6 +90,9 @@ export default function DashboardRecorder({
   saveCustomQuery,
   getDefaultQuery,
   activeRole,
+  recoveredRecording,
+  onDismissRecovery,
+  onRetryRecovery,
 }: DashboardRecorderProps) {
   const [showAnalysisBox, setShowAnalysisBox] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -111,6 +123,15 @@ export default function DashboardRecorder({
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleDownloadAgain = async (recording: RecordingEntry) => {
+    try {
+      const blob = await vault.assembleBlob(recording.id);
+      downloadBlob(blob, recording.fileName);
+    } catch {
+      toast.info(`This file was saved to your Downloads folder on ${new Date(recording.startedAt).toLocaleDateString()}.`);
+    }
   };
 
   const renderAnalysisBox = (mode: 'upload' | 'record') => {
@@ -433,7 +454,49 @@ export default function DashboardRecorder({
 
                     {/* Controls */}
                     <div className="flex items-center gap-8">
-                      {!isRecording ? (
+                      {!isRecording && recoveredRecording ? (
+                        <div className="w-full rounded-xl border border-amber-500/30 bg-amber-500/5 p-5 space-y-4">
+                          <div className="flex items-start gap-3">
+                            <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-foreground">
+                                Unprocessed recording found
+                              </p>
+                              <p className="font-mono text-xs text-muted-foreground mt-0.5 truncate">
+                                {recoveredRecording.fileName}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                {formatTime(recoveredRecording.duration)}&nbsp;&middot;&nbsp;Saved to your Downloads folder
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => onRetryRecovery(recoveredRecording.id)}
+                            >
+                              <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                              Re-upload &amp; Process
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDownloadAgain(recoveredRecording)}
+                            >
+                              <Download className="w-3.5 h-3.5 mr-1.5" />
+                              Download Again
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => onDismissRecovery(recoveredRecording.id)}
+                            >
+                              <X className="w-3.5 h-3.5 mr-1.5" />
+                              Discard
+                            </Button>
+                          </div>
+                        </div>
+                      ) : !isRecording ? (
                         <Button
                           onClick={onStartRecording}
                           className="group relative w-20 h-20 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 focus:ring-4 focus:ring-primary/20"
@@ -473,7 +536,13 @@ export default function DashboardRecorder({
                     </div>
 
                     <p className="text-muted-foreground text-sm font-medium tracking-wide uppercase">
-                      {isRecording ? (isPaused ? 'Recording paused' : 'Recording in progress...') : 'Tap microphone to start'}
+                      {isRecording
+                        ? isPaused
+                          ? 'Recording paused'
+                          : 'Recording in progress...'
+                        : recoveredRecording
+                        ? 'Recovery available'
+                        : 'Tap microphone to start'}
                     </p>
 
                     {/* Additional Analysis for Recording */}

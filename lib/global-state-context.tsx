@@ -2,6 +2,9 @@
 
 import React, { createContext, useContext, useState, useRef, useEffect, ReactNode } from 'react';
 import { conversationsAPI } from './api';
+import * as vault from './recording-vault';
+import { downloadBlob } from './download-blob';
+import type { RecordingEntry } from '@/app/(app)/settings/types';
 
 interface GlobalStateContextType {
     // Recording State
@@ -17,6 +20,10 @@ interface GlobalStateContextType {
     resumeRecording: () => void;
     cancelRecording: () => void;
     deleteRecording: () => void;
+    recoveredRecording: RecordingEntry | null;
+    currentRecordingId: string | null;
+    activateRecovery: (entry: RecordingEntry) => void;
+    dismissRecovery: (id: string) => void;
 
     // Processing State
     processingJobId: string | null;
@@ -43,6 +50,10 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
+    const [recoveredRecording, setRecoveredRecording] = useState<RecordingEntry | null>(null);
+    const [currentRecordingId, setCurrentRecordingId] = useState<string | null>(null);
+    const currentRecordingIdRef = useRef<string | null>(null);
+    const chunkIndexRef = useRef<number>(0);
 
     // --- Auto Process State ---
     const [autoProcess, setAutoProcess] = useState(false);
@@ -58,6 +69,21 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         return () => clearInterval(interval);
     }, [isRecording, isPaused]);
 
+    useEffect(() => {
+        const checkRecovery = async () => {
+            try {
+                const all = await vault.listRecordings();
+                const unfinished = all.find(
+                    (r) => r.status === 'recording' || r.status === 'stopped',
+                );
+                if (unfinished) setRecoveredRecording(unfinished);
+            } catch {
+                // IndexedDB unavailable (private browsing on some browsers) — silent
+            }
+        };
+        checkRecovery();
+    }, []);
+
     const startRecording = async () => {
         try {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -68,8 +94,8 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
                 audio: {
                     echoCancellation: true,
                     noiseSuppression: true,
-                    sampleRate: 44100
-                }
+                    sampleRate: 44100,
+                },
             });
 
             let mimeType = 'audio/webm';
@@ -81,9 +107,22 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
             const recorder = new MediaRecorder(stream, { mimeType });
             audioChunksRef.current = [];
 
+            const recordingId = crypto.randomUUID();
+            currentRecordingIdRef.current = recordingId;
+            setCurrentRecordingId(recordingId);
+            chunkIndexRef.current = 0;
+
+            const now = new Date();
+            const pad = (n: number) => String(n).padStart(2, '0');
+            const fileName = `recording_${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}.${mimeType.split('/')[1]?.split(';')[0] ?? 'webm'}`;
+
+            await vault.createRecording(recordingId, fileName, mimeType).catch(() => {});
+
             recorder.ondataavailable = (e) => {
                 if (e.data.size > 0) {
                     audioChunksRef.current.push(e.data);
+                    const idx = chunkIndexRef.current++;
+                    vault.appendChunk(recordingId, idx, e.data).catch(() => {});
                 }
             };
 
@@ -92,16 +131,31 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
                 setAudioBlob(blob);
                 setAudioUrl(URL.createObjectURL(blob));
                 stream.getTracks().forEach((track) => track.stop());
+
+                const stoppedAt = new Date().toISOString();
+                vault
+                    .updateRecording(recordingId, {
+                        status: 'stopped',
+                        stoppedAt,
+                        duration: Math.round(
+                            (Date.now() - now.getTime()) / 1000,
+                        ),
+                    })
+                    .catch(() => {});
+
+                downloadBlob(blob, fileName);
+
+                chunkIndexRef.current = 0;
             };
 
             mediaRecorderRef.current = recorder;
-            recorder.start();
+            recorder.start(5000);
             setIsRecording(true);
             setIsPaused(false);
             setRecordingTime(0);
             setAudioBlob(null);
             setAudioUrl(null);
-            setAutoProcess(false); // Reset auto process
+            setAutoProcess(false);
         } catch (error) {
             console.error('Failed to start recording:', error);
             throw error;
@@ -113,6 +167,7 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
             mediaRecorderRef.current.stop();
             setIsRecording(false);
             setIsPaused(false);
+            setRecordingTime(0);
         }
     };
 
@@ -134,15 +189,21 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         if (mediaRecorderRef.current) {
             const stream = mediaRecorderRef.current.stream;
             if (stream) {
-                stream.getTracks().forEach(track => track.stop());
+                stream.getTracks().forEach((track) => track.stop());
             }
-            mediaRecorderRef.current.onstop = null; // Prevent blob creation
+            mediaRecorderRef.current.onstop = null;
             mediaRecorderRef.current.stop();
+        }
+        if (currentRecordingIdRef.current) {
+            vault.deleteRecording(currentRecordingIdRef.current).catch(() => {});
+            currentRecordingIdRef.current = null;
+            setCurrentRecordingId(null);
         }
         setIsRecording(false);
         setIsPaused(false);
         setRecordingTime(0);
         audioChunksRef.current = [];
+        chunkIndexRef.current = 0;
         setAudioBlob(null);
         setAudioUrl(null);
         setAutoProcess(false);
@@ -157,6 +218,15 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         setRecordingTime(0);
         audioChunksRef.current = [];
         setAutoProcess(false);
+    };
+
+    const activateRecovery = (entry: RecordingEntry) => {
+        setRecoveredRecording(entry);
+    };
+
+    const dismissRecovery = async (id: string) => {
+        await vault.deleteRecording(id).catch(() => {});
+        setRecoveredRecording(null);
     };
 
     // --- Processing State ---
@@ -251,6 +321,10 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         <GlobalStateContext.Provider value={{
             isRecording, isPaused, recordingTime, audioBlob, audioUrl, mediaRecorderRef,
             startRecording, stopRecording, pauseRecording, resumeRecording, cancelRecording, deleteRecording,
+            recoveredRecording,
+            currentRecordingId,
+            activateRecovery,
+            dismissRecovery,
             processingJobId, processingStatus, processingProgress, isProcessing,
             startProcessing, pollJobStatus, resetProcessing,
             autoProcess, setAutoProcess
