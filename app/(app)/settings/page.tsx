@@ -11,6 +11,7 @@ import { ExtensionSection } from './ExtensionSection';
 import { DesktopAppSection } from './DesktopAppSection';
 import { WebhooksSection } from './WebhooksSection';
 import { ApiKeysSection } from './ApiKeysSection';
+import { RecordingsSection } from './RecordingsSection';
 
 export default function SettingsPage() {
   const { loading } = useRequireAuth();
@@ -54,6 +55,9 @@ export default function SettingsPage() {
                 {/* Developer */}
                 <WebhooksSection />
                 <ApiKeysSection />
+
+                {/* Data */}
+                <RecordingsSection />
               </div>
             </div>
           </PageEntrance>

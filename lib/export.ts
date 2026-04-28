@@ -2,6 +2,8 @@
  * Export utilities for CSV, PDF, and ICS formats
  */
 
+import { downloadBlob } from './download-blob';
+
 // CSV Export
 export function exportToCSV(data: any[], filename: string, headers?: string[]) {
   if (data.length === 0) {
@@ -87,18 +89,6 @@ function formatICSDate(date: Date): string {
 // Helper: Escape ICS text
 function escapeICS(text: string): string {
   return text.replace(/[,;\\]/g, '\\$&').replace(/\n/g, '\\n');
-}
-
-// Helper: Download blob
-function downloadBlob(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
 }
 
 // Export conversations to CSV

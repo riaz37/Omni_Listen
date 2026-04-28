@@ -20,6 +20,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import { useElectronSync } from '@/hooks/useElectronSync';
 import { useWebSocketNotifications } from '@/hooks/useWebSocketNotifications';
 import { useDashboardData } from '@/hooks/useDashboardData';
+import * as vault from '@/lib/recording-vault';
 
 declare global {
   interface Window {
@@ -70,7 +71,11 @@ export default function DashboardPage() {
     pauseRecording,
     resumeRecording,
     autoProcess,
-    setAutoProcess
+    setAutoProcess,
+    recoveredRecording,
+    currentRecordingId,
+    activateRecovery,
+    dismissRecovery,
   } = useGlobalState();
 
   const [inputMode, setInputMode] = useState<'upload' | 'record'>('record');
@@ -344,6 +349,9 @@ export default function DashboardPage() {
       return;
     }
 
+    // Capture recording ID before async operations
+    const capturedRecordingId = currentRecordingId;
+
     try {
       const id = await startProcessing(audioSource, config);
 
@@ -355,6 +363,12 @@ export default function DashboardPage() {
             clearInterval(checkInterval);
             resetProcessing();
             deleteRecording();
+
+            // Mark vault entry processed and clear chunks
+            if (capturedRecordingId) {
+              vault.updateRecording(capturedRecordingId, { status: 'processed' }).catch(() => {});
+              vault.deleteChunks(capturedRecordingId).catch(() => {});
+            }
 
             let retries = 0;
             const maxRetries = 5;
@@ -375,6 +389,9 @@ export default function DashboardPage() {
           } else if (statusData.status === 'failed') {
             clearInterval(checkInterval);
             toast.error('Processing failed: ' + statusData.error);
+            if (capturedRecordingId) {
+              vault.updateRecording(capturedRecordingId, { status: 'failed' }).catch(() => {});
+            }
           }
         } catch (e) {
           clearInterval(checkInterval);
@@ -399,6 +416,20 @@ export default function DashboardPage() {
   const handleUpload = async () => {
     if (!file) return;
     await processAudio(file);
+  };
+
+  const handleRetryRecovery = async (recordingId: string) => {
+    if (!recoveredRecording) return;
+    try {
+      const blob = await vault.assembleBlob(recordingId);
+      const file = new File([blob], recoveredRecording.fileName, {
+        type: recoveredRecording.mimeType,
+      });
+      dismissRecovery(recordingId);
+      await processAudio(file);
+    } catch {
+      toast.error('Could not load recording. The file may have been cleared by the browser.');
+    }
   };
 
   // Auto-process recording when blob is ready
@@ -498,6 +529,9 @@ export default function DashboardPage() {
             saveCustomQuery={saveCustomQuery}
             getDefaultQuery={getDefaultQuery}
             activeRole={activeRole}
+            recoveredRecording={recoveredRecording}
+            onDismissRecovery={dismissRecovery}
+            onRetryRecovery={handleRetryRecovery}
           />
 
           {/* Sidebar */}
