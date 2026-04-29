@@ -224,6 +224,10 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
             setRecordingTime(0);
             setAudioBlob(null);
             setAudioUrl(null);
+            setDownloadSecondsLeft(null);
+            setDownloadWindowFileName(null);
+            sessionStorage.removeItem(DOWNLOAD_WINDOW_KEY);
+            downloadWarnedRef.current = false;
             setAutoProcess(false);
         } catch (error) {
             console.error('Failed to start recording:', error);

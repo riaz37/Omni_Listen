@@ -347,6 +347,23 @@ export default function DashboardRecorder({
           </div>
 
           <div className="px-6 pb-8">
+            {/* Download Window — shown above spinner so it survives auto-process */}
+            {downloadSecondsLeft !== null && downloadSecondsLeft > 0 && (
+              <div className="flex items-center gap-2 mb-4">
+                <Button
+                  variant="outline"
+                  onClick={onTriggerDownload}
+                  title="Save recording"
+                  className="flex items-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  Save recording
+                </Button>
+                <span className="text-sm font-mono text-muted-foreground">
+                  {formatTime(downloadSecondsLeft)}
+                </span>
+              </div>
+            )}
             {!isProcessing ? (
               <div className="space-y-6">
                 {inputMode === 'upload' && (
@@ -554,23 +571,6 @@ export default function DashboardRecorder({
                       {renderAnalysisBox('record')}
                     </div>
 
-                    {/* Download Window Button */}
-                    {downloadSecondsLeft !== null && downloadSecondsLeft > 0 && (
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          onClick={onTriggerDownload}
-                          title="Save recording"
-                          className="flex items-center gap-2"
-                        >
-                          <Download className="w-4 h-4" />
-                          Save recording
-                        </Button>
-                        <span className="text-sm font-mono text-muted-foreground">
-                          {formatTime(downloadSecondsLeft)}
-                        </span>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
