@@ -37,15 +37,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Check if user is logged in on mount
     const checkAuth = async () => {
-      const token = localStorage.getItem('access_token');
+      const token = sessionStorage.getItem('access_token');
       if (token) {
         try {
           const userData = await authAPI.getCurrentUser();
           setUser(userData);
         } catch (error) {
           console.error('Auth check failed:', error);
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
+          sessionStorage.removeItem('access_token');
+          sessionStorage.removeItem('refresh_token');
         }
       }
       setLoading(false);
@@ -55,8 +55,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (tokens: { access_token: string; refresh_token: string; user: User }) => {
-    localStorage.setItem('access_token', tokens.access_token);
-    localStorage.setItem('refresh_token', tokens.refresh_token);
+    sessionStorage.setItem('access_token', tokens.access_token);
+    sessionStorage.setItem('refresh_token', tokens.refresh_token);
     setUser(tokens.user);
     setIsLoggingOut(false);
 
@@ -85,9 +85,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Clear state after a brief delay to allow navigation to start
     setTimeout(() => {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('processingJobId');
+      sessionStorage.removeItem('access_token');
+      sessionStorage.removeItem('refresh_token');
+      sessionStorage.removeItem('processingJobId');
       setUser(null);
       setIsLoggingOut(false);
     }, 1000);
