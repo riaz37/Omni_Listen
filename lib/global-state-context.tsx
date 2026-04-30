@@ -1,10 +1,14 @@
 'use client';
 
-import React, { createContext, useContext, useState, useRef, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useRef, useEffect, useCallback, ReactNode } from 'react';
+import { toast } from 'sonner';
 import { conversationsAPI } from './api';
 import * as vault from './recording-vault';
 import { downloadBlob } from './download-blob';
 import type { RecordingEntry } from '@/app/(app)/settings/types';
+
+const DOWNLOAD_WINDOW_KEY = 'esap-download-window';
+const DOWNLOAD_WINDOW_SECONDS = 300;
 
 interface GlobalStateContextType {
     // Recording State
@@ -24,6 +28,11 @@ interface GlobalStateContextType {
     currentRecordingId: string | null;
     activateRecovery: (entry: RecordingEntry) => void;
     dismissRecovery: (id: string) => void;
+
+    // Download Window
+    downloadSecondsLeft: number | null;
+    downloadWindowFileName: string | null;
+    triggerDownload: () => void;
 
     // Processing State
     processingJobId: string | null;
@@ -55,6 +64,11 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     const currentRecordingIdRef = useRef<string | null>(null);
     const chunkIndexRef = useRef<number>(0);
 
+    // --- Download Window ---
+    const [downloadSecondsLeft, setDownloadSecondsLeft] = useState<number | null>(null);
+    const [downloadWindowFileName, setDownloadWindowFileName] = useState<string | null>(null);
+    const downloadWarnedRef = useRef(false);
+
     // --- Auto Process State ---
     const [autoProcess, setAutoProcess] = useState(false);
 
@@ -69,6 +83,31 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         return () => clearInterval(interval);
     }, [isRecording, isPaused]);
 
+    // Countdown effect for download window
+    useEffect(() => {
+        if (downloadSecondsLeft === null) return;
+        if (downloadSecondsLeft === 0) {
+            setAudioUrl((prevUrl) => {
+                if (prevUrl) URL.revokeObjectURL(prevUrl);
+                return null;
+            });
+            setAudioBlob(null);
+            setDownloadSecondsLeft(null);
+            setDownloadWindowFileName(null);
+            sessionStorage.removeItem(DOWNLOAD_WINDOW_KEY);
+            downloadWarnedRef.current = false;
+            return;
+        }
+        if (downloadSecondsLeft === 60 && !downloadWarnedRef.current) {
+            downloadWarnedRef.current = true;
+            toast.warning('1 minute left to save your recording');
+        }
+        const timer = setTimeout(() => {
+            setDownloadSecondsLeft((prev) => (prev !== null ? prev - 1 : null));
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, [downloadSecondsLeft]);
+
     useEffect(() => {
         const checkRecovery = async () => {
             try {
@@ -82,6 +121,30 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
             }
         };
         checkRecovery();
+    }, []);
+
+    useEffect(() => {
+        const raw = sessionStorage.getItem(DOWNLOAD_WINDOW_KEY);
+        if (!raw) return;
+        try {
+            const { expiresAt, recordingId, fileName } = JSON.parse(raw);
+            const remaining = Math.floor((expiresAt - Date.now()) / 1000);
+            if (remaining <= 0) {
+                sessionStorage.removeItem(DOWNLOAD_WINDOW_KEY);
+                return;
+            }
+            vault.assembleBlob(recordingId).then((blob) => {
+                const url = URL.createObjectURL(blob);
+                setAudioBlob(blob);
+                setAudioUrl(url);
+                setDownloadWindowFileName(fileName);
+                setDownloadSecondsLeft(remaining);
+            }).catch(() => {
+                sessionStorage.removeItem(DOWNLOAD_WINDOW_KEY);
+            });
+        } catch {
+            sessionStorage.removeItem(DOWNLOAD_WINDOW_KEY);
+        }
     }, []);
 
     const startRecording = async () => {
@@ -143,7 +206,13 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
                     })
                     .catch(() => {});
 
-                downloadBlob(blob, fileName);
+                const expiresAt = Date.now() + DOWNLOAD_WINDOW_SECONDS * 1000;
+                sessionStorage.setItem(
+                  DOWNLOAD_WINDOW_KEY,
+                  JSON.stringify({ expiresAt, recordingId, fileName }),
+                );
+                setDownloadWindowFileName(fileName);
+                setDownloadSecondsLeft(DOWNLOAD_WINDOW_SECONDS);
 
                 chunkIndexRef.current = 0;
             };
@@ -155,6 +224,10 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
             setRecordingTime(0);
             setAudioBlob(null);
             setAudioUrl(null);
+            setDownloadSecondsLeft(null);
+            setDownloadWindowFileName(null);
+            sessionStorage.removeItem(DOWNLOAD_WINDOW_KEY);
+            downloadWarnedRef.current = false;
             setAutoProcess(false);
         } catch (error) {
             console.error('Failed to start recording:', error);
@@ -206,6 +279,10 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         chunkIndexRef.current = 0;
         setAudioBlob(null);
         setAudioUrl(null);
+        setDownloadSecondsLeft(null);
+        setDownloadWindowFileName(null);
+        sessionStorage.removeItem(DOWNLOAD_WINDOW_KEY);
+        downloadWarnedRef.current = false;
         setAutoProcess(false);
     };
 
@@ -215,6 +292,10 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         }
         setAudioBlob(null);
         setAudioUrl(null);
+        setDownloadSecondsLeft(null);
+        setDownloadWindowFileName(null);
+        sessionStorage.removeItem(DOWNLOAD_WINDOW_KEY);
+        downloadWarnedRef.current = false;
         setRecordingTime(0);
         audioChunksRef.current = [];
         setAutoProcess(false);
@@ -228,6 +309,20 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         await vault.deleteRecording(id).catch(() => {});
         setRecoveredRecording(null);
     };
+
+    const triggerDownload = useCallback(() => {
+        if (!audioBlob || !downloadWindowFileName) return;
+        downloadBlob(audioBlob, downloadWindowFileName);
+        setAudioUrl((prevUrl) => {
+            if (prevUrl) URL.revokeObjectURL(prevUrl);
+            return null;
+        });
+        setAudioBlob(null);
+        setDownloadSecondsLeft(null);
+        setDownloadWindowFileName(null);
+        downloadWarnedRef.current = false;
+        sessionStorage.removeItem(DOWNLOAD_WINDOW_KEY);
+    }, [audioBlob, downloadWindowFileName]);
 
     // --- Processing State ---
     const [processingJobId, setProcessingJobId] = useState<string | null>(null);
@@ -325,6 +420,7 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
             currentRecordingId,
             activateRecovery,
             dismissRecovery,
+            downloadSecondsLeft, downloadWindowFileName, triggerDownload,
             processingJobId, processingStatus, processingProgress, isProcessing,
             startProcessing, pollJobStatus, resetProcessing,
             autoProcess, setAutoProcess

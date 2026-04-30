@@ -76,6 +76,8 @@ export default function DashboardPage() {
     currentRecordingId,
     activateRecovery,
     dismissRecovery,
+    downloadSecondsLeft,
+    triggerDownload,
   } = useGlobalState();
 
   const [inputMode, setInputMode] = useState<'upload' | 'record'>('record');
@@ -532,6 +534,8 @@ export default function DashboardPage() {
             recoveredRecording={recoveredRecording}
             onDismissRecovery={dismissRecovery}
             onRetryRecovery={handleRetryRecovery}
+            downloadSecondsLeft={downloadSecondsLeft}
+            onTriggerDownload={triggerDownload}
           />
 
           {/* Sidebar */}

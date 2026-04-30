@@ -38,6 +38,14 @@ export default function SignInPage() {
   const processedRef = useRef(false);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('verified') === 'true') {
+      toast.success('Email verified! Sign in to continue.');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+
+  useEffect(() => {
     const isElectronEnv = typeof window !== 'undefined' && (window as any).electron;
     if (isElectronEnv) {
       setIsElectron(true);

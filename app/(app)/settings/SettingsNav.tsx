@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { User, Calendar, Chrome, Monitor, Webhook, Key, Mic } from 'lucide-react';
+import { User, Calendar, Chrome, Monitor, Webhook, Key } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface NavGroup {
@@ -29,12 +29,6 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: 'webhooks', label: 'Webhooks', icon: <Webhook className="w-4 h-4" /> },
       { id: 'api-keys', label: 'API Keys', icon: <Key className="w-4 h-4" /> },
-    ],
-  },
-  {
-    label: 'Data',
-    items: [
-      { id: 'recordings', label: 'Recordings', icon: <Mic className="w-4 h-4" /> },
     ],
   },
 ];

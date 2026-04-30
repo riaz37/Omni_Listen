@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { authAPI, calendarAPI } from '@/lib/api';
@@ -21,6 +21,18 @@ export default function SignUpPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [isConnectingCalendarModal, setIsConnectingCalendarModal] = useState(false);
+  const [registrationStep, setRegistrationStep] = useState<'form' | 'check-email'>('form');
+  const [registeredEmail, setRegisteredEmail] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [isResending, setIsResending] = useState(false);
+
+  const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (cooldownRef.current) clearInterval(cooldownRef.current);
+    };
+  }, []);
 
   const redirectAfterLogin = async (userData: any) => {
     // Show modal asking if user wants to connect calendar (for new users, they won't have it connected)
@@ -48,6 +60,29 @@ export default function SignUpPage() {
   const handleSkipCalendar = () => {
     setShowCalendarModal(false);
     router.push('/listen');
+  };
+
+  const handleResend = async () => {
+    setIsResending(true);
+    try {
+      await authAPI.resendVerification(registeredEmail);
+      toast.success('Verification email resent!');
+      setResendCooldown(60);
+      cooldownRef.current = setInterval(() => {
+        setResendCooldown(prev => {
+          if (prev <= 1) {
+            clearInterval(cooldownRef.current!);
+            cooldownRef.current = null;
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch {
+      toast.error('Failed to resend. Please try again.');
+    } finally {
+      setIsResending(false);
+    }
   };
 
   const [formData, setFormData] = useState({
@@ -110,6 +145,14 @@ export default function SignUpPage() {
         formData.password,
         formData.name
       );
+
+      if (!result.user.email_verified) {
+        setRegisteredEmail(formData.email);
+        setRegistrationStep('check-email');
+        setIsLoading(false);
+        return;
+      }
+
       login(result);
       toast.success('Account created successfully! Welcome to Omni Listen');
 
@@ -203,180 +246,219 @@ export default function SignUpPage() {
 
         {/* Main Card */}
         <div className="bg-card rounded-3xl shadow-xl border border-border p-8">
-          {/* Error Alert */}
-          {error && (
-            <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
-              <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
-              <p className="text-destructive text-sm font-medium">{error}</p>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Name Input */}
-            <div>
-              <label className="block text-sm font-semibold text-foreground mb-1.5">
-                Full Name
-              </label>
-              <div className="relative group">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
-                  placeholder="John Doe"
-                  required
-                />
+          {registrationStep === 'check-email' ? (
+            <div className="flex flex-col items-center text-center space-y-6 animate-in fade-in">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                <Mail className="w-8 h-8 text-primary" />
               </div>
-            </div>
-
-            {/* Email Input */}
-            <div>
-              <label className="block text-sm font-semibold text-foreground mb-1.5">
-                Email Address
-              </label>
-              <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
-                  placeholder="you@example.com"
-                  required
-                />
+              <div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">Check your email</h3>
+                <p className="text-muted-foreground">
+                  We sent a verification link to{' '}
+                  <span className="font-semibold text-foreground">{registeredEmail}</span>.
+                  Click the link to activate your account.
+                </p>
               </div>
-            </div>
-
-            {/* Password Input */}
-            <div>
-              <label className="block text-sm font-semibold text-foreground mb-1.5">
-                Password
-              </label>
-              <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className={`w-full pl-12 pr-12 py-3 bg-background border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 transition-all font-medium ${formData.password.length > 0 && !isPasswordValid
-                    ? 'border-destructive/50 focus:ring-destructive/20 focus:border-destructive'
-                    : 'border-border focus:ring-primary/20 focus:border-primary'
-                    }`}
-                  placeholder="Create a strong password"
-                  required
-                  minLength={8}
-                  maxLength={128}
-                />
+              <div className="w-full space-y-3">
                 <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={handleResend}
+                  disabled={isResending || resendCooldown > 0}
+                  className="w-full py-3 bg-primary hover:bg-primary-hover text-primary-foreground font-bold rounded-xl shadow-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {isResending ? (
+                    <><Loader2 className="w-5 h-5 animate-spin" /> Sending...</>
+                  ) : resendCooldown > 0 ? (
+                    `Resend in ${resendCooldown}s`
+                  ) : (
+                    'Resend email'
+                  )}
                 </button>
+                <Link
+                  href="/signin"
+                  className="block text-center text-muted-foreground hover:text-foreground transition-colors text-sm pt-1"
+                >
+                  Back to sign in
+                </Link>
               </div>
+            </div>
+          ) : (
+            <>
+              {/* Error Alert */}
+              {error && (
+                <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+                  <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                  <p className="text-destructive text-sm font-medium">{error}</p>
+                </div>
+              )}
 
-              {/* Password Strength Indicator */}
-              {formData.password && (
-                <div className="mt-3 space-y-2 bg-muted p-3 rounded-xl border border-border">
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4].map((level) => (
-                      <div
-                        key={level}
-                        className={`h-1.5 flex-1 rounded-full transition-colors ${passwordStrength >= level
-                          ? passwordStrength <= 2
-                            ? 'bg-red-500'
-                            : passwordStrength === 3
-                              ? 'bg-yellow-500'
-                              : 'bg-primary'
-                          : 'bg-muted'
-                          }`}
-                      />
-                    ))}
+              <form onSubmit={handleSubmit} className="space-y-5">
+                {/* Name Input */}
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">
+                    Full Name
+                  </label>
+                  <div className="relative group">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full pl-12 pr-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                      placeholder="John Doe"
+                      required
+                    />
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <PasswordRequirement met={hasMinLength} text="8+ characters" />
-                    <PasswordRequirement met={hasUpperCase} text="Uppercase" />
-                    <PasswordRequirement met={hasLowerCase} text="Lowercase" />
-                    <PasswordRequirement met={hasNumber} text="Number" />
+                </div>
+
+                {/* Email Input */}
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">
+                    Email Address
+                  </label>
+                  <div className="relative group">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full pl-12 pr-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                      placeholder="you@example.com"
+                      required
+                    />
                   </div>
-                  {formData.password.length > 0 && (
-                    <p className={`text-xs ${passwordLength > 128 ? 'text-destructive' :
-                      passwordLength > 110 ? 'text-yellow-600 dark:text-yellow-400' :
-                        'text-muted-foreground'
-                      }`}>
-                      {passwordLength} / 128 characters
-                      {passwordLength > 128 && ' - Too long!'}
-                      {passwordLength > 110 && passwordLength <= 128 && ' - Getting close to limit'}
+                </div>
+
+                {/* Password Input */}
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">
+                    Password
+                  </label>
+                  <div className="relative group">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      className={`w-full pl-12 pr-12 py-3 bg-background border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 transition-all font-medium ${formData.password.length > 0 && !isPasswordValid
+                        ? 'border-destructive/50 focus:ring-destructive/20 focus:border-destructive'
+                        : 'border-border focus:ring-primary/20 focus:border-primary'
+                        }`}
+                      placeholder="Create a strong password"
+                      required
+                      minLength={8}
+                      maxLength={128}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+
+                  {/* Password Strength Indicator */}
+                  {formData.password && (
+                    <div className="mt-3 space-y-2 bg-muted p-3 rounded-xl border border-border">
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4].map((level) => (
+                          <div
+                            key={level}
+                            className={`h-1.5 flex-1 rounded-full transition-colors ${passwordStrength >= level
+                              ? passwordStrength <= 2
+                                ? 'bg-red-500'
+                                : passwordStrength === 3
+                                  ? 'bg-yellow-500'
+                                  : 'bg-primary'
+                              : 'bg-muted'
+                              }`}
+                          />
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <PasswordRequirement met={hasMinLength} text="8+ characters" />
+                        <PasswordRequirement met={hasUpperCase} text="Uppercase" />
+                        <PasswordRequirement met={hasLowerCase} text="Lowercase" />
+                        <PasswordRequirement met={hasNumber} text="Number" />
+                      </div>
+                      {formData.password.length > 0 && (
+                        <p className={`text-xs ${passwordLength > 128 ? 'text-destructive' :
+                          passwordLength > 110 ? 'text-yellow-600 dark:text-yellow-400' :
+                            'text-muted-foreground'
+                          }`}>
+                          {passwordLength} / 128 characters
+                          {passwordLength > 128 && ' - Too long!'}
+                          {passwordLength > 110 && passwordLength <= 128 && ' - Getting close to limit'}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Confirm Password Input */}
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">
+                    Confirm Password
+                  </label>
+                  <div className="relative group">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={formData.confirmPassword}
+                      onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                      className={`w-full pl-12 pr-12 py-3 bg-background border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 transition-all font-medium ${formData.confirmPassword.length > 0 && !passwordsMatch
+                        ? 'border-destructive/50 focus:ring-destructive/20 focus:border-destructive'
+                        : 'border-border focus:ring-primary/20 focus:border-primary'
+                        }`}
+                      placeholder="Confirm your password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                  {formData.confirmPassword.length > 0 && (
+                    <p className={`text-xs mt-2 font-medium ${passwordsMatch ? 'text-primary' : 'text-destructive'}`}>
+                      {passwordsMatch ? '✓ Passwords match' : '✗ Passwords do not match'}
                     </p>
                   )}
                 </div>
-              )}
-            </div>
 
-            {/* Confirm Password Input */}
-            <div>
-              <label className="block text-sm font-semibold text-foreground mb-1.5">
-                Confirm Password
-              </label>
-              <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className={`w-full pl-12 pr-12 py-3 bg-background border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 transition-all font-medium ${formData.confirmPassword.length > 0 && !passwordsMatch
-                    ? 'border-destructive/50 focus:ring-destructive/20 focus:border-destructive'
-                    : 'border-border focus:ring-primary/20 focus:border-primary'
-                    }`}
-                  placeholder="Confirm your password"
-                  required
-                />
+                {/* Submit Button */}
                 <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  type="submit"
+                  disabled={isLoading || !isPasswordValid || !passwordsMatch}
+                  className="w-full py-3 bg-primary hover:bg-primary-hover text-primary-foreground font-bold rounded-xl shadow-lg hover:shadow-primary/30 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform active:scale-95"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Creating account...</span>
+                    </>
+                  ) : (
+                    <span>Create Account</span>
+                  )}
                 </button>
-              </div>
-              {formData.confirmPassword.length > 0 && (
-                <p className={`text-xs mt-2 font-medium ${passwordsMatch ? 'text-primary' : 'text-destructive'}`}>
-                  {passwordsMatch ? '✓ Passwords match' : '✗ Passwords do not match'}
+              </form>
+
+              {/* Sign In Link */}
+              <div className="mt-8 pt-6 border-t border-border text-center">
+                <p className="text-muted-foreground text-sm">
+                  Already have an account?{' '}
+                  <Link
+                    href="/signin"
+                    className="text-primary hover:text-text-primary font-bold transition-colors"
+                  >
+                    Sign in
+                  </Link>
                 </p>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading || !isPasswordValid || !passwordsMatch}
-              className="w-full py-3 bg-primary hover:bg-primary-hover text-primary-foreground font-bold rounded-xl shadow-lg hover:shadow-primary/30 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 transform active:scale-95"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Creating account...</span>
-                </>
-              ) : (
-                <span>Create Account</span>
-              )}
-            </button>
-          </form>
-
-          {/* Sign In Link */}
-          <div className="mt-8 pt-6 border-t border-border text-center">
-            <p className="text-muted-foreground text-sm">
-              Already have an account?{' '}
-              <Link
-                href="/signin"
-                className="text-primary hover:text-text-primary font-bold transition-colors"
-              >
-                Sign in
-              </Link>
-            </p>
-          </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Calendar Connect Modal */}
