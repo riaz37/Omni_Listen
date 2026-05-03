@@ -42,10 +42,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           const userData = await authAPI.getCurrentUser();
           setUser(userData);
-        } catch (error) {
+        } catch (error: any) {
           console.error('Auth check failed:', error);
-          sessionStorage.removeItem('access_token');
-          sessionStorage.removeItem('refresh_token');
+          // Only clear the token on 401 (invalid/expired). A 403 means the
+          // token is valid but the user lacks a specific permission (e.g. email
+          // not yet verified) — keep the token so in-flight requests (like the
+          // Google Calendar OAuth callback) can still authenticate.
+          if (error?.response?.status === 401) {
+            sessionStorage.removeItem('access_token');
+            sessionStorage.removeItem('refresh_token');
+          }
         }
       }
       setLoading(false);
