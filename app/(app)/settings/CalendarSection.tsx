@@ -33,6 +33,9 @@ export function CalendarSection() {
   const handleConnect = async () => {
     setConnecting(true);
     try {
+      // Mark that the OAuth was initiated from settings so the signin callback
+      // redirects back here instead of /listen after a successful connection.
+      sessionStorage.setItem('calendarReturnTo', '/settings');
       const data = await calendarAPI.getAuthUrl();
       window.location.href = data.authorization_url;
     } catch {
