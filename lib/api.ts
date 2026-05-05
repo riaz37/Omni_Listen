@@ -395,13 +395,23 @@ export const presetsAPI = {
 
 // Calendar API
 export const calendarAPI = {
-  getAuthUrl: async () => {
-    const response = await api.get('/api/calendar/auth-url');
+  getAuthUrl: async (redirectUri?: string) => {
+    const finalRedirectUri = redirectUri ?? (typeof window !== 'undefined'
+      ? `${window.location.origin}/signin`
+      : undefined);
+    const response = await api.get('/api/calendar/auth-url', {
+      params: finalRedirectUri ? { redirect_uri: finalRedirectUri } : undefined,
+    });
     return response.data;
   },
 
-  handleCallback: async (code: string, state: string) => {
-    const response = await api.post('/api/calendar/callback', { code, state });
+  handleCallback: async (code: string, state: string, redirectUri?: string) => {
+    const finalRedirectUri = redirectUri ?? (typeof window !== 'undefined'
+      ? `${window.location.origin}/signin`
+      : undefined);
+    const response = await api.post('/api/calendar/callback', {
+      code, state, ...(finalRedirectUri ? { redirect_uri: finalRedirectUri } : {}),
+    });
     return response.data;
   },
 
