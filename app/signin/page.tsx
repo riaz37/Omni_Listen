@@ -78,6 +78,7 @@ export default function SignInPage() {
       }
 
       if (code && state && !githubState) {
+        processedRef.current = true;
         await handleCalendarCallback(code, state);
         return;
       }
