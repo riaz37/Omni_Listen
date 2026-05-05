@@ -14,7 +14,12 @@ export function CalendarSection() {
   const { confirm } = useConfirmDialog();
   const [connecting, setConnecting] = useState(false);
 
-  // Handle OAuth callback
+  // Refresh user on mount to get latest calendar_connected state
+  useEffect(() => {
+    refreshUser();
+  }, []);
+
+  // Handle OAuth callback (when Google redirects back to /settings directly)
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
