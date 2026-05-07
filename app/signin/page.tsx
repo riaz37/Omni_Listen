@@ -77,7 +77,10 @@ export default function SignInPage() {
         return;
       }
 
-      if (code && state && !githubState) {
+      // Any remaining code+state that isn't a GitHub callback is a calendar OAuth return.
+      // Also clears any stale github_oauth_state that wouldn't match anyway.
+      if (code && state) {
+        if (githubState) localStorage.removeItem('github_oauth_state');
         processedRef.current = true;
         await handleCalendarCallback(code, state);
         return;
@@ -253,9 +256,11 @@ export default function SignInPage() {
     try {
       await calendarAPI.handleCallback(code, state);
       await refreshUser();
+      const returnTo = sessionStorage.getItem('calendarReturnTo') || '/listen';
+      sessionStorage.removeItem('calendarReturnTo');
       toast.success('Calendar connected successfully!');
-      window.history.replaceState({}, document.title, '/listen');
-      router.push('/listen');
+      window.history.replaceState({}, document.title, returnTo);
+      router.push(returnTo);
     } catch (error) {
       const errorMsg = 'Failed to connect calendar';
       setError(errorMsg);
