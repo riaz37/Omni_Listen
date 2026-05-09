@@ -1,32 +1,10 @@
 'use client';
 
-import { useLang } from '@/lib/language-context';
+import { useState } from 'react';
+import LandingNav from '@/components/landing/LandingNav';
+import Footer from '@/components/landing/Footer';
 
 type Lang = 'en' | 'ar';
-
-function LanguageToggle() {
-    const { lang, setLang } = useLang();
-    return (
-        <div className="flex items-center bg-muted rounded-lg p-0.5 shrink-0">
-            <button
-                onClick={() => setLang('en')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                    lang === 'en' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-            >
-                EN
-            </button>
-            <button
-                onClick={() => setLang('ar')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                    lang === 'ar' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-            >
-                عربي
-            </button>
-        </div>
-    );
-}
 
 const content = {
     en: {
@@ -38,7 +16,7 @@ const content = {
             heading: 'Who We Are',
             body: (
                 <>
-                    OmniListen is an AI-powered meeting transcription and intelligence platform developed and operated by{' '}
+                    Omni Listen is an AI-powered meeting transcription and intelligence platform developed and operated by{' '}
                     <strong>Empowering Energy (trading as ESAP AI)</strong> (CR No. [Insert CR Number]). We help enterprise teams
                     capture, transcribe, and extract actionable insights from Arabic and English meetings with speaker
                     identification, role-based analysis, and automated action item generation.
@@ -49,9 +27,9 @@ const content = {
             heading: 'Our Role: Data Processor',
             body: (
                 <>
-                    OmniListen operates exclusively in a B2B enterprise context. Your organization is the{' '}
+                    Omni Listen operates exclusively in a B2B enterprise context. Your organization is the{' '}
                     <strong>Data Controller</strong> &mdash; you determine who uses the platform and for what purpose.
-                    Empowering Energy (OmniListen) acts solely as a <strong>Data Processor</strong>, processing meeting data
+                    Empowering Energy (Omni Listen) acts solely as a <strong>Data Processor</strong>, processing meeting data
                     only on your organization&apos;s behalf and strictly under your documented instructions.
                 </>
             ),
@@ -60,7 +38,7 @@ const content = {
             heading: 'Important: Sensitive Personal Data',
             intro: (
                 <>
-                    OmniListen processes voice recordings and performs speaker identification &mdash; both classified as{' '}
+                    Omni Listen processes voice recordings and performs speaker identification &mdash; both classified as{' '}
                     <strong>Sensitive Personal Data</strong> under PDPL Article 23.
                 </>
             ),
@@ -111,7 +89,7 @@ const content = {
         },
         consent: {
             heading: 'Participant Consent Obligation',
-            intro: 'Because OmniListen records voices of all participants — including non-registered users — your organization must:',
+            intro: 'Because Omni Listen records voices of all participants — including non-registered users — your organization must:',
             items: [
                 'Inform all participants before the recording begins',
                 'Obtain explicit consent, particularly for sensitive topics (HR, legal, financial)',
@@ -129,6 +107,17 @@ const content = {
                 ['Analytics Platform', 'Anonymous usage analytics', 'USA'],
             ],
             footer: "30 days' advance notice for any sub-processor changes. Right to object included.",
+        },
+        googleDisclosure: {
+            heading: 'Data Processing and Third-Party Disclosures',
+            body: 'To provide the features of Omni Listen, we engage limited third-party service providers to act as data processors. These sub-processors are utilized solely for technical processing required to deliver the service (such as data analysis and processing).',
+            noSellBody: 'We do not sell or share your Google user data for any purposes outside of these core functional requirements. All third-party processors are contractually bound to maintain data confidentiality and are strictly prohibited from using your data to train their own models or for any secondary purposes.',
+            limitedUse: {
+                heading: 'Limited Use Disclosure',
+                body: "Omni Listen’s use and transfer to any other app of information received from Google APIs will adhere to the Google API Services User Data Policy, including the Limited Use requirements.",
+                linkText: 'Google API Services User Data Policy',
+                link: 'https://developers.google.com/terms/api-services-user-data-policy',
+            },
         },
         transfers: {
             heading: 'Cross-Border Data Transfers',
@@ -194,7 +183,7 @@ const content = {
             heading: 'من نحن',
             body: (
                 <>
-                    OmniListen هو منصّة لتفريغ الاجتماعات وتحليلها مدعومة بالذكاء الاصطناعي، مطوّرة ومشغّلة من قِبَل{' '}
+                    Omni Listen هو منصّة لتفريغ الاجتماعات وتحليلها مدعومة بالذكاء الاصطناعي، مطوّرة ومشغّلة من قِبَل{' '}
                     <strong>Empowering Energy (تعمل تحت اسم ESAP AI)</strong> (رقم السجل التجاري [أدخل رقم السجل]). نساعد فرق المؤسسات على التقاط الاجتماعات العربية والإنجليزية وتفريغها واستخلاص رؤى قابلة للتنفيذ، مع تحديد المتحدّث، والتحليل حسب الدور، وتوليد بنود العمل تلقائيًا.
                 </>
             ),
@@ -203,9 +192,9 @@ const content = {
             heading: 'دورنا: معالِج البيانات',
             body: (
                 <>
-                    يعمل OmniListen حصراً في سياق المؤسسات (B2B). مؤسستك هي{' '}
+                    يعمل Omni Listen حصراً في سياق المؤسسات (B2B). مؤسستك هي{' '}
                     <strong>المتحكِّم في البيانات</strong> &mdash; فهي تحدّد من يستخدم المنصّة ولأي غرض.
-                    وتعمل Empowering Energy (OmniListen) بصفتها{' '}
+                    وتعمل Empowering Energy (Omni Listen) بصفتها{' '}
                     <strong>معالِج البيانات</strong> فقط، حيث تعالج بيانات الاجتماعات نيابةً عن مؤسستك وحصراً وفقًا لتعليماتها الموثّقة.
                 </>
             ),
@@ -214,7 +203,7 @@ const content = {
             heading: 'هام: البيانات الشخصية الحسّاسة',
             intro: (
                 <>
-                    يعالج OmniListen التسجيلات الصوتية ويُجري تحديد المتحدّث &mdash; وكلاهما مصنّف بوصفه{' '}
+                    يعالج Omni Listen التسجيلات الصوتية ويُجري تحديد المتحدّث &mdash; وكلاهما مصنّف بوصفه{' '}
                     <strong>بيانات شخصية حسّاسة</strong> وفقًا للمادة 23 من نظام حماية البيانات الشخصية (PDPL).
                 </>
             ),
@@ -265,7 +254,7 @@ const content = {
         },
         consent: {
             heading: 'التزام الموافقة من المشاركين',
-            intro: 'نظرًا لأن OmniListen يسجّل أصوات جميع المشاركين — بمن فيهم المستخدمون غير المسجّلين — يجب على مؤسستك:',
+            intro: 'نظرًا لأن Omni Listen يسجّل أصوات جميع المشاركين — بمن فيهم المستخدمون غير المسجّلين — يجب على مؤسستك:',
             items: [
                 'إبلاغ جميع المشاركين قبل بدء التسجيل',
                 'الحصول على موافقة صريحة، لا سيما في المواضيع الحسّاسة (الموارد البشرية، القانون، المالية)',
@@ -283,6 +272,17 @@ const content = {
                 ['منصّة التحليلات', 'تحليلات استخدام مجهولة الهوية', 'الولايات المتحدة'],
             ],
             footer: 'إشعار مسبق مدّته 30 يومًا لأي تغيير في المعالِجين من الباطن. مع حق الاعتراض.',
+        },
+        googleDisclosure: {
+            heading: 'معالجة البيانات والإفصاح عن الأطراف الثالثة',
+            body: 'لتقديم ميزات Omni Listen، نتعاقد مع عدد محدود من مزوّدي الخدمات الخارجيين بوصفهم معالِجين للبيانات. يُستخدم هؤلاء المعالِجون من الباطن حصراً للمعالجة التقنية اللازمة لتقديم الخدمة (مثل تحليل البيانات ومعالجتها).',
+            noSellBody: 'لا نبيع بيانات مستخدمي Google ولا نشاركها لأي أغراض خارج نطاق هذه المتطلبات الوظيفية الأساسية. ويلتزم جميع المعالِجون من الباطن تعاقديًا بالحفاظ على سرية البيانات، ويُحظر عليهم صراحةً استخدام بياناتك لتدريب نماذجهم الخاصة أو لأي أغراض ثانوية.',
+            limitedUse: {
+                heading: 'إفصاح الاستخدام المحدود',
+                body: 'يلتزم استخدام Omni Listen ونقله إلى أي تطبيق آخر للمعلومات المستلَمة من واجهات برمجة تطبيقات Google بسياسة بيانات المستخدم لخدمات Google API، بما في ذلك متطلبات الاستخدام المحدود.',
+                linkText: 'سياسة بيانات المستخدم لخدمات Google API',
+                link: 'https://developers.google.com/terms/api-services-user-data-policy',
+            },
         },
         transfers: {
             heading: 'نقل البيانات عبر الحدود',
@@ -342,11 +342,12 @@ const content = {
 } as const;
 
 export default function PrivacyPage() {
-    const { lang } = useLang();
+    const [lang, setLang] = useState<Lang>('en');
     const t = content[lang];
 
     return (
-        <div dir={lang === 'ar' ? 'rtl' : 'ltr'} lang={lang}>
+        <div className="min-h-screen bg-background" dir={lang === 'ar' ? 'rtl' : 'ltr'} lang={lang}>
+            <LandingNav />
             <div className="h-16" />
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -354,7 +355,7 @@ export default function PrivacyPage() {
                     <header className="mb-10 border-b pb-8">
                         <div className="flex items-start justify-between gap-4 mb-4">
                             <h1 className="text-4xl font-bold text-foreground">{t.title}</h1>
-                            <LanguageToggle />
+                            <LanguageToggle lang={lang} setLang={setLang} labels={t.toggle} />
                         </div>
                         <p className="text-muted-foreground">
                             <strong>{t.lastUpdated}</strong> {t.lastUpdatedDate}
@@ -453,6 +454,28 @@ export default function PrivacyPage() {
                     </section>
 
                     <section className="mb-10">
+                        <h2 className="text-2xl font-semibold text-foreground mb-4">{t.googleDisclosure.heading}</h2>
+                        <p className="text-foreground leading-relaxed mb-4">{t.googleDisclosure.body}</p>
+                        <p className="text-foreground leading-relaxed mb-6">{t.googleDisclosure.noSellBody}</p>
+                        <div className="border border-primary/30 bg-primary/5 rounded-lg p-6">
+                            <h3 className="text-lg font-semibold text-foreground mb-3">{t.googleDisclosure.limitedUse.heading}</h3>
+                            <p className="text-foreground leading-relaxed">
+                                {t.googleDisclosure.limitedUse.body}{' '}
+                                <a
+                                    href={t.googleDisclosure.limitedUse.link}
+                                    className="text-primary hover:underline"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    dir="ltr"
+                                >
+                                    {t.googleDisclosure.limitedUse.linkText}
+                                </a>
+                                .
+                            </p>
+                        </div>
+                    </section>
+
+                    <section className="mb-10">
                         <h2 className="text-2xl font-semibold text-foreground mb-4">{t.transfers.heading}</h2>
                         <p className="text-foreground mb-2">{t.transfers.intro}</p>
                         <ul className="list-disc ps-6 text-foreground space-y-2">
@@ -517,6 +540,38 @@ export default function PrivacyPage() {
                     </footer>
                 </article>
             </div>
+            <Footer />
+        </div>
+    );
+}
+
+function LanguageToggle({
+    lang,
+    setLang,
+    labels,
+}: {
+    lang: Lang;
+    setLang: (l: Lang) => void;
+    labels: { en: string; ar: string };
+}) {
+    return (
+        <div className="flex items-center bg-muted rounded-lg p-0.5 shrink-0">
+            <button
+                onClick={() => setLang('en')}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                    lang === 'en' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+            >
+                {labels.en}
+            </button>
+            <button
+                onClick={() => setLang('ar')}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                    lang === 'ar' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+            >
+                {labels.ar}
+            </button>
         </div>
     );
 }
