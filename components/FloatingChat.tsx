@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { conversationsAPI } from '@/lib/api';
 import { Send, Bot, User, Loader2, MessageSquare, X, ChevronDown } from 'lucide-react';
+import MarkdownContent from '@/components/ui/MarkdownContent';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -115,7 +116,11 @@ export default function FloatingChat({ jobId }: FloatingChatProps) {
                                         ? 'bg-primary text-primary-foreground rounded-br-none'
                                         : 'bg-card text-foreground border border-border rounded-bl-none'
                                     }`}>
-                                    {msg.content}
+                                    {msg.role === 'assistant' ? (
+                                        <MarkdownContent content={msg.content} />
+                                    ) : (
+                                        msg.content
+                                    )}
                                 </div>
                             </div>
                         ))}

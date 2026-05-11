@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { conversationsAPI } from '@/lib/api';
 import { Send, Bot, User, Loader2 } from 'lucide-react';
+import MarkdownContent from '@/components/ui/MarkdownContent';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -89,7 +90,11 @@ export default function ConversationQuery({ jobId }: ConversationQueryProps) {
                                 ? 'bg-primary text-primary-foreground'
                                 : 'bg-muted text-foreground'
                             }`}>
-                            {msg.content}
+                            {msg.role === 'assistant' ? (
+                                <MarkdownContent content={msg.content} />
+                            ) : (
+                                msg.content
+                            )}
                         </div>
                     </div>
                 ))}
