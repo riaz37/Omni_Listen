@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { conversationsAPI } from '@/lib/api';
 import { toast } from 'sonner';
 import EmptyState from '@/components/EmptyState';
@@ -42,9 +43,8 @@ type SortColumn = 'title' | 'category' | 'source' | 'date';
 export default function NotesPage() {
   const router = useRouter();
   const { user, loading } = useRequireAuth();
+  const queryClient = useQueryClient();
 
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -57,7 +57,6 @@ export default function NotesPage() {
     category: 'GENERAL',
     meetingId: '',
   });
-  const [meetings, setMeetings] = useState<any[]>([]);
   const [selectedNoteIds, setSelectedNoteIds] = useState<number[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [sortColumn, setSortColumn] = useState<SortColumn>('date');
@@ -71,89 +70,80 @@ export default function NotesPage() {
     onConfirm: () => void;
   } | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      fetchNotes();
-    }
-  }, [user]);
+  const { data: meetings = [], isLoading: meetingsLoading } = useQuery({
+    queryKey: ['conversations', 'all'],
+    queryFn: () => conversationsAPI.getAllConversations(),
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
 
-  const fetchNotes = async () => {
-    setIsLoading(true);
-    try {
-      const [meetingsData, notesResponse, eventsResponse] = await Promise.all([
-        conversationsAPI.getAllConversations(),
-        conversationsAPI.getAllNotes(),
-        conversationsAPI.getAllEvents(),
-      ]);
+  const { data: rawNotes = [], isLoading: notesLoading } = useQuery({
+    queryKey: ['notes'],
+    queryFn: async () => {
+      const r = await conversationsAPI.getAllNotes();
+      return r.notes ?? [];
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
 
-      setMeetings(meetingsData);
+  const { data: rawEvents = [], isLoading: eventsLoading } = useQuery({
+    queryKey: ['events'],
+    queryFn: async () => {
+      const r = await conversationsAPI.getAllEvents();
+      return r.events ?? [];
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
 
-      const completedTasks = new Set<string>();
-      if (eventsResponse.events && Array.isArray(eventsResponse.events)) {
-        eventsResponse.events.forEach((event: any) => {
-          if (event.completed) {
-            completedTasks.add(event.title?.toLowerCase() || '');
-          }
+  const isLoading = meetingsLoading || notesLoading || eventsLoading;
+
+  const notes = useMemo<Note[]>(() => {
+    const completedTasks = new Set<string>();
+    rawEvents.forEach((event: any) => {
+      if (event.completed) completedTasks.add(event.title?.toLowerCase() || '');
+    });
+
+    const extractedNotes: Note[] = [];
+    rawNotes.forEach((note: any) => {
+      try {
+        let category = 'general';
+        const backendCategory = note.category;
+        if (backendCategory) {
+          const categoryUpper = backendCategory.toUpperCase();
+          if (categoryUpper === 'DECISION' || categoryUpper.includes('DECISION')) category = 'decision';
+          else if (categoryUpper === 'BUDGET' || categoryUpper.includes('BUDGET')) category = 'budget';
+          else if (categoryUpper === 'ACTION' || categoryUpper.includes('ACTION')) category = 'action';
+          else category = 'general';
+        }
+
+        const noteTitle = note.title?.toLowerCase() || '';
+        const hasCompletedRelatedTask = completedTasks.has(noteTitle);
+        const meeting = meetings.find((m: any) => m.job_id === note.meeting_id);
+        let meetingTitle = 'Manual Note';
+        if (meeting) {
+          const finalSummary = typeof meeting.final_summary === 'string'
+            ? JSON.parse(meeting.final_summary) : meeting.final_summary;
+          meetingTitle = finalSummary?.title || 'Meeting';
+        }
+
+        extractedNotes.push({
+          id: `note-${note.id}`,
+          title: note.title || 'Untitled Note',
+          description: note.description || '',
+          category,
+          date: meeting ? new Date(meeting.created_at) : undefined,
+          meetingId: note.meeting_id || '',
+          meetingTitle,
+          type: backendCategory,
+          completed: note.completed || hasCompletedRelatedTask,
+          urgency: note.urgency,
         });
-      }
-
-      const extractedNotes: Note[] = [];
-
-      if (notesResponse.notes && Array.isArray(notesResponse.notes)) {
-        notesResponse.notes.forEach((note: any) => {
-          try {
-            let category = 'general';
-            const backendCategory = note.category;
-
-            if (backendCategory) {
-              const categoryUpper = backendCategory.toUpperCase();
-              if (categoryUpper === 'DECISION' || categoryUpper.includes('DECISION')) {
-                category = 'decision';
-              } else if (categoryUpper === 'BUDGET' || categoryUpper.includes('BUDGET')) {
-                category = 'budget';
-              } else if (categoryUpper === 'ACTION' || categoryUpper.includes('ACTION')) {
-                category = 'action';
-              } else {
-                category = 'general';
-              }
-            }
-
-            const noteTitle = note.title?.toLowerCase() || '';
-            const hasCompletedRelatedTask = completedTasks.has(noteTitle);
-
-            const meeting = meetingsData.find((m: any) => m.job_id === note.meeting_id);
-            let meetingTitle = 'Manual Note';
-            if (meeting) {
-              const finalSummary =
-                typeof meeting.final_summary === 'string'
-                  ? JSON.parse(meeting.final_summary)
-                  : meeting.final_summary;
-              meetingTitle = finalSummary.title || 'Meeting';
-            }
-
-            extractedNotes.push({
-              id: `note-${note.id}`,
-              title: note.title || 'Untitled Note',
-              description: note.description || '',
-              category: category,
-              date: meeting ? new Date(meeting.created_at) : undefined,
-              meetingId: note.meeting_id || '',
-              meetingTitle: meetingTitle,
-              type: backendCategory,
-              completed: note.completed || hasCompletedRelatedTask,
-              urgency: note.urgency,
-            });
-          } catch (err) {}
-        });
-      }
-
-      setNotes(extractedNotes);
-    } catch (error) {
-      toast.error('Failed to load notes');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      } catch (err) {}
+    });
+    return extractedNotes;
+  }, [rawNotes, rawEvents, meetings]);
 
   const handleAddNote = async () => {
     if (!newNoteData.title.trim()) {
@@ -174,13 +164,8 @@ export default function NotesPage() {
 
       toast.success('Note created successfully!');
       setShowAddNoteModal(false);
-      setNewNoteData({
-        title: '',
-        description: '',
-        category: 'GENERAL',
-        meetingId: '',
-      });
-      fetchNotes();
+      setNewNoteData({ title: '', description: '', category: 'GENERAL', meetingId: '' });
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
     } catch (error) {
       toast.error('Failed to create note');
     }
@@ -194,7 +179,9 @@ export default function NotesPage() {
         try {
           const numericId = parseInt(noteId.replace('note-', ''));
           await conversationsAPI.deleteNote(numericId);
-          setNotes(notes.filter((note) => note.id !== noteId));
+          queryClient.setQueryData(['notes'], (old: any[] = []) =>
+            old.filter(n => n.id !== numericId)
+          );
           toast.success('Note deleted successfully');
         } catch (error) {
           toast.error('Failed to delete note');
@@ -206,21 +193,17 @@ export default function NotesPage() {
   const handleSaveNote = async (noteId: number, updates: any) => {
     try {
       await conversationsAPI.updateNote(noteId, updates);
-
-      const updatedNotes = notes.map((n) => {
-        const numericId = parseInt(n.id.replace('note-', ''));
-        if (numericId === noteId) {
+      queryClient.setQueryData(['notes'], (old: any[] = []) =>
+        old.map(n => {
+          if (n.id !== noteId) return n;
           return {
             ...n,
-            title: updates.title !== undefined ? updates.title : n.title,
-            description: updates.description !== undefined ? updates.description : n.description,
-            category: updates.category !== undefined ? updates.category : n.category,
+            ...(updates.title !== undefined && { title: updates.title }),
+            ...(updates.description !== undefined && { description: updates.description }),
+            ...(updates.category !== undefined && { category: updates.category }),
           };
-        }
-        return n;
-      });
-
-      setNotes(updatedNotes);
+        })
+      );
       setShowEditModal(false);
       toast.success('Note updated successfully');
     } catch (error) {
@@ -259,11 +242,8 @@ export default function NotesPage() {
         setIsDeleting(true);
         try {
           const result = await conversationsAPI.bulkDeleteNotes(selectedNoteIds);
-          setNotes(
-            notes.filter((n) => {
-              const numericId = parseInt(n.id.replace('note-', ''));
-              return !selectedNoteIds.includes(numericId);
-            })
+          queryClient.setQueryData(['notes'], (old: any[] = []) =>
+            old.filter(n => !selectedNoteIds.includes(n.id))
           );
           setSelectedNoteIds([]);
           toast.success(`Deleted ${result.deleted_count} note(s)`);

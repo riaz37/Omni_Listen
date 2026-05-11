@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { toast } from 'sonner';
@@ -10,6 +10,7 @@ import HistoryTabs from '@/components/HistoryTabs';
 import DayHistoryView from '@/components/DayHistoryView';
 import { ConversationTable } from '@/components/ConversationTable';
 import { conversationsAPI } from '@/lib/api';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { exportConversationsToCSV } from '@/lib/export';
 import { Skeleton } from 'boneyard-js/react';
 import CustomDropdown from '@/components/ui/custom-dropdown';
@@ -30,8 +31,7 @@ export default function HistoryPage() {
   const router = useRouter();
   const { user, loading } = useRequireAuth();
 
-  const [conversations, setConversations] = useState<any[]>([]);
-  const [loadingConversations, setLoadingConversations] = useState(true);
+  const queryClient = useQueryClient();
   const [sortColumn, setSortColumn] = useState<SortColumn>('date');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [currentPage, setCurrentPage] = useState(1);
@@ -47,26 +47,21 @@ export default function HistoryPage() {
     confirmLabel?: string;
   } | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      loadConversations();
-    }
-  }, [user]);
+  const { data: conversationsData, isLoading: loadingConversations } = useQuery({
+    queryKey: ['conversations', 'history'],
+    queryFn: async () => {
+      const data = await conversationsAPI.getConversations();
+      return data.meetings ?? [];
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const conversations = conversationsData ?? [];
 
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
-
-  const loadConversations = async () => {
-    try {
-      const data = await conversationsAPI.getConversations();
-      setConversations(data.meetings);
-    } catch (error) {
-      toast.error('Failed to load conversations');
-    } finally {
-      setLoadingConversations(false);
-    }
-  };
 
   const handleDelete = (jobId: string) => {
     setConfirmDialog({
@@ -76,7 +71,9 @@ export default function HistoryPage() {
       onConfirm: async () => {
         try {
           await conversationsAPI.deleteConversation(jobId);
-          setConversations((prev) => prev.filter((m) => m.job_id !== jobId));
+          queryClient.setQueryData(['conversations', 'history'], (old: any[] = []) =>
+            old.filter((m) => m.job_id !== jobId)
+          );
         } catch (error) {
           toast.error('Failed to delete conversation');
         }
@@ -116,7 +113,9 @@ export default function HistoryPage() {
         setIsDeleting(true);
         try {
           const result = await conversationsAPI.bulkDeleteConversations(selectedConversationIds);
-          setConversations((prev) => prev.filter((m) => !selectedConversationIds.includes(m.id)));
+          queryClient.setQueryData(['conversations', 'history'], (old: any[] = []) =>
+            old.filter((m) => !selectedConversationIds.includes(m.id))
+          );
           setSelectedConversationIds([]);
           toast.success(`Deleted ${result.deleted_count} conversation(s)`);
         } catch (error) {
@@ -174,9 +173,9 @@ export default function HistoryPage() {
 
   const stats = useMemo(() => {
     const total = conversations.length;
-    const synced = conversations.filter((c) => c.calendar_synced).length;
-    const withAnalysis = conversations.filter((c) => c.has_custom_query).length;
-    const totalEvents = conversations.reduce((acc, c) => acc + (c.event_count || 0), 0);
+    const synced = conversations.filter((c: any) => c.calendar_synced).length;
+    const withAnalysis = conversations.filter((c: any) => c.has_custom_query).length;
+    const totalEvents = conversations.reduce((acc: number, c: any) => acc + (c.event_count || 0), 0);
     return { total, synced, withAnalysis, totalEvents };
   }, [conversations]);
 

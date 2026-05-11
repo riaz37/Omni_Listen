@@ -9,6 +9,7 @@ import { ThemeProvider } from '@/lib/theme-context';
 import { Toaster } from '@/components/ui/sonner';
 import { GlobalStateProvider } from '@/lib/global-state-context';
 import FloatingStatusIndicator from '@/components/FloatingStatusIndicator';
+import { ReactQueryProvider } from './providers';
 
 const instrumentSerif = Instrument_Serif({
   weight: '400',
@@ -52,17 +53,19 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
       <body className={`${GeistSans.variable} ${GeistSans.className} ${GeistMono.variable} ${instrumentSerif.variable} h-full`} suppressHydrationWarning>
-        <ThemeProvider>
-          <AuthProvider>
-            <ConfigProvider>
-              <GlobalStateProvider>
-                {children}
-                <FloatingStatusIndicator />
-                <Toaster />
-              </GlobalStateProvider>
-            </ConfigProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <ReactQueryProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <ConfigProvider>
+                <GlobalStateProvider>
+                  {children}
+                  <FloatingStatusIndicator />
+                  <Toaster />
+                </GlobalStateProvider>
+              </ConfigProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );

@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
@@ -331,7 +332,7 @@ function SegmentedThemeToggle() {
 
 // ─── Main Navigation component ───────────────────────────────────────────────
 
-export default function Navigation() {
+function Navigation() {
   const pathname = usePathname();
   const { logout } = useAuth();
   const { isRecording } = useGlobalState();
@@ -471,3 +472,5 @@ export default function Navigation() {
     </>
   );
 }
+
+export default React.memo(Navigation);

@@ -12,7 +12,7 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 300000, // 5 minutes timeout (increased from 60s to handle large audio files)
+  timeout: 15000, // 15s default for all standard requests
 });
 
 // Request interceptor to add auth token and user timezone
@@ -213,6 +213,7 @@ export const conversationsAPI = {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      timeout: 300000, // 5 min only for large audio file uploads
     });
     return response.data;
   },

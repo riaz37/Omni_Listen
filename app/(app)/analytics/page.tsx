@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useQuery } from '@tanstack/react-query';
 import { analyticsAPI, conversationsAPI } from '@/lib/api';
 import { AnalyticsSkeleton } from './AnalyticsSkeleton';
 import { AnalyticsStatCards } from './AnalyticsStatCards';
@@ -53,136 +54,114 @@ interface Task {
   type?: string;
 }
 
+const CATEGORY_STYLES: Record<string, string> = {
+  general: 'bg-primary/10 text-primary',
+  decision: 'bg-primary/10 text-primary',
+  budget: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
+  action: 'bg-primary/10 text-primary',
+  summary: 'bg-primary/10 text-primary',
+};
+
+function getCategoryBadge(category: string) {
+  const cat = (category || 'general').toLowerCase();
+  const style = CATEGORY_STYLES[cat] || CATEGORY_STYLES.general;
+  const label = category ? category.charAt(0).toUpperCase() + category.slice(1).toLowerCase() : 'General';
+  return (
+    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${style}`}>
+      {label}
+    </span>
+    );
+}
+
+function getUrgencyLabel(urgency?: string) {
+  if (urgency === 'yes' || urgency === 'high') {
+    return <span className="px-2.5 py-1 rounded text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/30">Urgent</span>;
+  }
+  return <span className="px-2.5 py-1 rounded text-xs font-medium bg-muted text-muted-foreground border border-border">Normal</span>;
+}
+
+function getStatusBadge(completed: boolean) {
+  if (completed) {
+    return <span className="px-2.5 py-1 rounded text-xs font-medium bg-primary/10 text-primary border border-primary/20">Done</span>;
+  }
+  return <span className="px-2.5 py-1 rounded text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800/30">To Do</span>;
+}
+
+function formatDuration(seconds: number): string {
+  if (!seconds || seconds === 0) return '0';
+  return String(Math.floor(seconds / 60));
+}
+
 export default function AnalyticsPage() {
   const router = useRouter();
   const { user, loading } = useRequireAuth();
-  const [analytics, setAnalytics] = useState<any>(null);
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [events, setEvents] = useState<EventItem[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (user) {
-      fetchAllData();
-    }
-  }, [user]);
+  const { data: analytics, isLoading: analyticsLoading } = useQuery({
+    queryKey: ['analytics'],
+    queryFn: () => analyticsAPI.getAnalytics(),
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
 
-  const fetchAllData = async () => {
-    setIsLoading(true);
-    try {
-      const [analyticsData, conversationsData, eventsData, notesData] = await Promise.all([
-        analyticsAPI.getAnalytics(),
-        conversationsAPI.getAllConversations(),
-        conversationsAPI.getAllEvents(),
-        conversationsAPI.getAllNotes(),
-      ]);
+  const { data: rawConversations = [], isLoading: convLoading } = useQuery({
+    queryKey: ['conversations', 'all'],
+    queryFn: () => conversationsAPI.getAllConversations(),
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
 
-      setAnalytics(analyticsData);
+  const { data: rawEvents = [], isLoading: eventsLoading } = useQuery({
+    queryKey: ['events'],
+    queryFn: async () => {
+      const r = await conversationsAPI.getAllEvents();
+      return r.events ?? [];
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
 
-      // Process conversations
-      const processedConversations = (Array.isArray(conversationsData) ? conversationsData : []).map((m: any) => {
-        const summary = typeof m.final_summary === 'string'
-          ? JSON.parse(m.final_summary)
-          : m.final_summary;
-        return {
-          job_id: m.job_id,
-          title: summary?.title || 'Conversation Analysis',
-          created_at: m.created_at,
-          event_count: 0,
-          final_summary: summary,
-        };
-      });
-      setConversations(processedConversations.slice(0, 2));
+  const { data: rawNotes = [], isLoading: notesLoading } = useQuery({
+    queryKey: ['notes'],
+    queryFn: async () => {
+      const r = await conversationsAPI.getAllNotes();
+      return r.notes ?? [];
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
 
-      // Process events
-      const allEvents = eventsData.events || [];
-      setEvents(allEvents.slice(0, 2));
+  const isLoading = analyticsLoading || convLoading || eventsLoading || notesLoading;
 
-      // Count events per conversation
-      allEvents.forEach((ev: any) => {
-        const conv = processedConversations.find((m: Conversation) => m.job_id === ev.meeting_id);
-        if (conv) {
-          conv.event_count++;
-        }
-      });
+  const conversations = useMemo<Conversation[]>(() => {
+    return (Array.isArray(rawConversations) ? rawConversations : []).slice(0, 2).map((m: any) => {
+      const summary = typeof m.final_summary === 'string' ? JSON.parse(m.final_summary) : m.final_summary;
+      return {
+        job_id: m.job_id,
+        title: summary?.title || 'Conversation Analysis',
+        created_at: m.created_at,
+        event_count: rawEvents.filter((ev: any) => ev.meeting_id === m.job_id).length,
+        final_summary: summary,
+      };
+    });
+  }, [rawConversations, rawEvents]);
 
-      // Process notes
-      const allNotes = notesData.notes || [];
-      setNotes(allNotes.slice(0, 2));
+  const events = useMemo<EventItem[]>(() => rawEvents.slice(0, 2), [rawEvents]);
+  const notes = useMemo<Note[]>(() => (rawNotes as Note[]).slice(0, 2), [rawNotes]);
 
-      // Build tasks from events + notes
-      const allTasks: Task[] = [];
-      allEvents.forEach((ev: any) => {
-        allTasks.push({
-          id: ev.id,
-          title: ev.title || 'Untitled',
-          description: ev.description || ev.details,
-          completed: ev.completed || false,
-          urgency: ev.urgency || 'no',
-          assignee: ev.assignee,
-          category: ev.category,
-          type: 'Event',
-        });
-      });
-      allNotes.forEach((note: any) => {
-        allTasks.push({
-          id: note.id,
-          title: note.title || 'Untitled',
-          description: note.description,
-          completed: note.completed || false,
-          urgency: note.urgency || 'no',
-          assignee: '',
-          category: note.category,
-          type: 'General',
-        });
-      });
-      setTasks(allTasks.slice(0, 4));
-    } catch (error) {
-      // silently fail - analytics page shows empty state
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const formatDuration = (seconds: number): string => {
-    if (!seconds || seconds === 0) return '0';
-    const mins = Math.floor(seconds / 60);
-    return String(mins);
-  };
-
-  const getCategoryBadge = (category: string) => {
-    const cat = (category || 'general').toLowerCase();
-    const styles: Record<string, string> = {
-      general: 'bg-primary/10 text-primary',
-      decision: 'bg-primary/10 text-primary',
-      budget: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
-      action: 'bg-primary/10 text-primary',
-      summary: 'bg-primary/10 text-primary',
-    };
-    const style = styles[cat] || styles.general;
-    const label = category ? category.charAt(0).toUpperCase() + category.slice(1).toLowerCase() : 'General';
-    return (
-      <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${style}`}>
-        {label}
-      </span>
-    );
-  };
-
-  const getUrgencyLabel = (urgency?: string) => {
-    if (urgency === 'yes' || urgency === 'high') {
-      return <span className="px-2.5 py-1 rounded text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/30">Urgent</span>;
-    }
-    return <span className="px-2.5 py-1 rounded text-xs font-medium bg-muted text-muted-foreground border border-border">Normal</span>;
-  };
-
-  const getStatusBadge = (completed: boolean) => {
-    if (completed) {
-      return <span className="px-2.5 py-1 rounded text-xs font-medium bg-primary/10 text-primary border border-primary/20">Done</span>;
-    }
-    return <span className="px-2.5 py-1 rounded text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800/30">To Do</span>;
-  };
+  const tasks = useMemo<Task[]>(() => {
+    const allTasks: Task[] = [];
+    rawEvents.forEach((ev: any) => {
+      allTasks.push({ id: ev.id, title: ev.title || 'Untitled', description: ev.description || ev.details,
+        completed: ev.completed || false, urgency: ev.urgency || 'no', assignee: ev.assignee,
+        category: ev.category, type: 'Event' });
+    });
+    rawNotes.forEach((note: any) => {
+      allTasks.push({ id: note.id, title: note.title || 'Untitled', description: note.description,
+        completed: note.completed || false, urgency: note.urgency || 'no', assignee: '',
+        category: note.category, type: 'General' });
+    });
+    return allTasks.slice(0, 4);
+  }, [rawEvents, rawNotes]);
 
   if (!user) return null;
 

@@ -1,15 +1,17 @@
 'use client';
 
+import type { ComponentType } from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { conversationsAPI } from '@/lib/api';
 import { toast } from 'sonner';
-import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
+import { dateFnsLocalizer } from 'react-big-calendar';
+import type { CalendarProps } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay, parseISO, isFuture, isToday, isValid } from 'date-fns';
 import { enUS } from 'date-fns/locale';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-import './calendar-styles.css';
 import { Button } from '@/components/ui/button';
 import { Search, Plus, List } from 'lucide-react';
 import CustomDropdown from '@/components/ui/custom-dropdown';
@@ -22,6 +24,16 @@ import { CalendarEventModal } from './CalendarEventModal';
 import { EventListSidebar } from './EventListSidebar';
 import { CreateEventModal } from './CreateEventModal';
 import PageEntrance from '@/components/ui/page-entrance';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import './calendar-styles.css';
+
+const Calendar = dynamic(
+  async () => {
+    const mod = await import('react-big-calendar');
+    return mod.Calendar as ComponentType<CalendarProps<CalendarEvent>>;
+  },
+  { ssr: false, loading: () => <div className="h-full flex items-center justify-center text-muted-foreground text-sm">Loading calendar...</div> }
+) as ComponentType<CalendarProps<CalendarEvent>>;
 
 const locales = {
   'en-US': enUS,
@@ -38,11 +50,9 @@ const localizer = dateFnsLocalizer({
 export default function EventsPage() {
   const router = useRouter();
   const { user, loading } = useRequireAuth();
+  const queryClient = useQueryClient();
 
-
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [view, setView] = useState<'month' | 'week' | 'day' | 'yearly'>('month');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [searchTerm, setSearchTerm] = useState('');
@@ -58,11 +68,59 @@ export default function EventsPage() {
     location: '',
   });
 
-  useEffect(() => {
-    if (user) {
-      fetchEvents();
-    }
-  }, [user]);
+  const { data: rawEvents = [], isLoading } = useQuery({
+    queryKey: ['events'],
+    queryFn: async () => {
+      const r = await conversationsAPI.getAllEvents();
+      return r.events ?? [];
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const events = useMemo<CalendarEvent[]>(() => {
+    const extractedEvents: CalendarEvent[] = [];
+    rawEvents.forEach((event: any) => {
+      try {
+        const dateField = event.date || event.due_date;
+        const timeField = event.time || event.due_time;
+        if (!dateField) return;
+
+        let eventDate: Date;
+        if (timeField && timeField.trim() && timeField.toLowerCase() !== 'null') {
+          eventDate = parseISO(`${dateField}T${timeField}:00`);
+        } else {
+          eventDate = parseISO(dateField);
+        }
+        if (!isValid(eventDate)) return;
+
+        const DEFAULT_EVENT_DURATION_MS = 60 * 60 * 1000;
+        const daysUntil = Math.ceil((eventDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+        let eventType: 'conversation' | 'task' | 'deadline' = 'task';
+        if (daysUntil < 0) eventType = 'deadline';
+        else if (event.urgency === 'high' || daysUntil <= 3) eventType = 'deadline';
+        else if (event.category === 'MEETING' || event.type === 'conversation') eventType = 'conversation';
+
+        extractedEvents.push({
+          id: `event-${event.id}`,
+          eventItemId: event.id,
+          title: event.title || event.task || 'Untitled Event',
+          start: eventDate,
+          end: new Date(eventDate.getTime() + DEFAULT_EVENT_DURATION_MS),
+          description: event.description || event.context || '',
+          location: event.location,
+          attendees: event.assignee ? [event.assignee] : [],
+          assignee: event.assignee || '',
+          conversationId: event.meeting_id || '',
+          type: eventType,
+          synced: true,
+          completed: event.completed || false,
+          urgency: event.urgency,
+        });
+      } catch (err) {}
+    });
+    return extractedEvents;
+  }, [rawEvents]);
 
   // Handle ESC key to close modals
   useEffect(() => {
@@ -81,79 +139,6 @@ export default function EventsPage() {
     document.addEventListener('keydown', handleEsc);
     return () => document.removeEventListener('keydown', handleEsc);
   }, [selectedEvent, showCreateModal, showEventList]);
-
-  const fetchEvents = async () => {
-    setIsLoading(true);
-    try {
-      const eventsResponse = await conversationsAPI.getAllEvents();
-      const extractedEvents: CalendarEvent[] = [];
-
-      if (eventsResponse.events && Array.isArray(eventsResponse.events)) {
-        eventsResponse.events.forEach((event: any) => {
-          try {
-            const dateField = event.date || event.due_date;
-            const timeField = event.time || event.due_time;
-
-            if (!dateField) {
-              return;
-            }
-
-            let eventDate: Date;
-
-            if (timeField && timeField.trim() && timeField.toLowerCase() !== 'null') {
-              const datetimeString = `${dateField}T${timeField}:00`;
-              eventDate = parseISO(datetimeString);
-            } else {
-              eventDate = parseISO(dateField);
-            }
-
-            if (!isValid(eventDate)) {
-              return;
-            }
-
-            const DEFAULT_EVENT_DURATION_MS = 60 * 60 * 1000;
-
-            let eventType: 'conversation' | 'task' | 'deadline' = 'task';
-
-            const daysUntil = Math.ceil((eventDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-            if (daysUntil < 0) {
-              eventType = 'deadline';
-            } else if (event.urgency === 'high' || daysUntil <= 3) {
-              eventType = 'deadline';
-            } else if (event.category === 'MEETING' || event.type === 'conversation') {
-              eventType = 'conversation';
-            }
-
-            const newEvent = {
-              id: `event-${event.id}`,
-              eventItemId: event.id,
-              title: event.title || event.task || 'Untitled Event',
-              start: eventDate,
-              end: new Date(eventDate.getTime() + DEFAULT_EVENT_DURATION_MS),
-              description: event.description || event.context || '',
-              location: event.location,
-              attendees: event.assignee ? [event.assignee] : [],
-              assignee: event.assignee || '',
-              conversationId: event.meeting_id || '',
-              type: eventType,
-              synced: true,
-              completed: event.completed || false,
-              urgency: event.urgency,
-            };
-
-            extractedEvents.push(newEvent);
-          } catch (err) {
-          }
-        });
-      }
-
-      setEvents(extractedEvents);
-    } catch (error) {
-      toast.error('Failed to load events');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleCreateEvent = async () => {
     if (!newEvent.title || !newEvent.start) {
@@ -187,7 +172,7 @@ export default function EventsPage() {
         urgency: createdEvent.urgency || (newEvent.type === 'deadline' ? 'high' : 'no'),
       };
 
-      setEvents([...events, persistedEvent]);
+      queryClient.invalidateQueries({ queryKey: ['events'] });
       setShowCreateModal(false);
       setNewEvent({
         title: '',
@@ -205,20 +190,7 @@ export default function EventsPage() {
   };
 
   const handleSyncEvent = async (event: CalendarEvent) => {
-    try {
-      toast.info('Syncing event to Google Calendar...');
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const updatedEvents = events.map(e =>
-        e.id === event.id
-          ? { ...e, synced: true, calendarEventId: `gcal-${Date.now()}` }
-          : e
-      );
-      setEvents(updatedEvents);
-      toast.success('Event synced to Google Calendar!');
-    } catch (error) {
-      toast.error('Failed to sync event to calendar');
-    }
+    toast.info('Calendar sync not yet implemented');
   };
 
   const handleToggleCompletion = async (event: CalendarEvent) => {
@@ -228,12 +200,9 @@ export default function EventsPage() {
       const newCompletedState = !event.completed;
       await conversationsAPI.toggleTaskCompletion(event.eventItemId, newCompletedState);
 
-      const updatedEvents = events.map(e =>
-        e.id === event.id
-          ? { ...e, completed: newCompletedState }
-          : e
+      queryClient.setQueryData(['events'], (old: any[] = []) =>
+        old.map(e => e.id === event.eventItemId ? { ...e, completed: newCompletedState } : e)
       );
-      setEvents(updatedEvents);
 
       if (newCompletedState) {
         toast.success('Event marked as completed');

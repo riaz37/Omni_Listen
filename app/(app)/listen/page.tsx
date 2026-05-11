@@ -244,7 +244,14 @@ export default function DashboardPage() {
       }
 
       try {
-        const response = await presetsAPI.getPresets();
+        const PRESETS_CACHE_KEY = 'omni-presets-cache';
+        const cached = sessionStorage.getItem(PRESETS_CACHE_KEY);
+        const response = cached
+          ? JSON.parse(cached)
+          : await presetsAPI.getPresets().then(r => {
+              sessionStorage.setItem(PRESETS_CACHE_KEY, JSON.stringify(r));
+              return r;
+            });
         setAllPresets(response.presets || []);
         const savedRole = user?.active_role;
         const lastQuery = user?.last_custom_query;
@@ -355,18 +362,18 @@ export default function DashboardPage() {
     const capturedRecordingId = currentRecordingId;
 
     try {
+      // startProcessing already polls job status via GlobalStateProvider.pollJobStatus.
+      // We only need to watch for completion to handle navigation + vault cleanup.
       const id = await startProcessing(audioSource, config);
 
-      const checkInterval = setInterval(async () => {
+      const watchInterval = setInterval(async () => {
         try {
           const { conversationsAPI } = await import('@/lib/api');
           const statusData = await conversationsAPI.getJobStatus(id);
           if (statusData.status === 'completed') {
-            clearInterval(checkInterval);
-            resetProcessing();
+            clearInterval(watchInterval);
             deleteRecording();
 
-            // Mark vault entry processed and clear chunks
             if (capturedRecordingId) {
               vault.updateRecording(capturedRecordingId, { status: 'processed' }).catch(() => {});
               vault.deleteChunks(capturedRecordingId).catch(() => {});
@@ -389,16 +396,16 @@ export default function DashboardPage() {
             };
             verifyMeeting();
           } else if (statusData.status === 'failed') {
-            clearInterval(checkInterval);
+            clearInterval(watchInterval);
             toast.error('Processing failed: ' + statusData.error);
             if (capturedRecordingId) {
               vault.updateRecording(capturedRecordingId, { status: 'failed' }).catch(() => {});
             }
           }
         } catch (e) {
-          clearInterval(checkInterval);
+          clearInterval(watchInterval);
         }
-      }, 2000);
+      }, 5000);
 
     } catch (error) {
       toast.error('Upload failed. Please try again.');

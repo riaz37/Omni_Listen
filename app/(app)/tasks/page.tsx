@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { conversationsAPI } from '@/lib/api';
 import { toast } from 'sonner';
 import { normalizeUrgency, sortByUrgencyThenDate } from '@/lib/utils';
@@ -31,9 +32,8 @@ interface Task {
 
 export default function TasksPage() {
   const { user, loading } = useRequireAuth();
+  const queryClient = useQueryClient();
 
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'pending' | 'completed'>('all');
   const [filterUrgency, setFilterUrgency] = useState<'all' | 'yes' | 'no'>('all');
@@ -54,79 +54,71 @@ export default function TasksPage() {
     urgency: 'no' as 'yes' | 'no'
   });
 
-  useEffect(() => {
-    if (user) {
-      fetchTasks();
-    }
-  }, [user]);
+  const { data: rawEvents = [], isLoading: eventsLoading } = useQuery({
+    queryKey: ['events'],
+    queryFn: async () => {
+      const r = await conversationsAPI.getAllEvents();
+      return r.events ?? [];
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
 
-  const fetchTasks = async () => {
-    setIsLoading(true);
-    try {
-      const [eventsResponse, notesResponse] = await Promise.all([
-        conversationsAPI.getAllEvents(),
-        conversationsAPI.getAllNotes()
-      ]);
+  const { data: rawNotes = [], isLoading: notesLoading } = useQuery({
+    queryKey: ['notes'],
+    queryFn: async () => {
+      const r = await conversationsAPI.getAllNotes();
+      return r.notes ?? [];
+    },
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+  });
 
-      const allTasks: Task[] = [];
+  const isLoading = eventsLoading || notesLoading;
 
-      if (eventsResponse.events && Array.isArray(eventsResponse.events)) {
-        eventsResponse.events.forEach((event: any) => {
-          try {
-            allTasks.push({
-              id: event.id,
-              title: event.title || 'Untitled Task',
-              description: event.description || event.details,
-              date: new Date(event.date),
-              completed: event.completed || false,
-              type: 'dated_events',
-              category: event.category,
-              assignee: event.assignee,
-              meetingId: event.meeting_id || '',
-              urgency: event.urgency,
-            });
-          } catch (err) {
-          }
+  const tasks = useMemo<Task[]>(() => {
+    const allTasks: Task[] = [];
+    rawEvents.forEach((event: any) => {
+      try {
+        allTasks.push({
+          id: event.id,
+          title: event.title || 'Untitled Task',
+          description: event.description || event.details,
+          date: new Date(event.date),
+          completed: event.completed || false,
+          type: 'dated_events',
+          category: event.category,
+          assignee: event.assignee,
+          meetingId: event.meeting_id || '',
+          urgency: event.urgency,
         });
-      }
-
-      if (notesResponse.notes && Array.isArray(notesResponse.notes)) {
-        notesResponse.notes.forEach((note: any) => {
-          try {
-            allTasks.push({
-              id: note.id,
-              title: note.title || 'Untitled Note',
-              description: note.description || note.details,
-              date: new Date(note.created_at || Date.now()),
-              completed: note.completed || false,
-              type: 'notes',
-              category: note.category || note.note_type,
-              assignee: note.assignee,
-              meetingId: note.meeting_id || '',
-              urgency: note.urgency,
-            });
-          } catch (err) {
-          }
+      } catch (err) {}
+    });
+    rawNotes.forEach((note: any) => {
+      try {
+        allTasks.push({
+          id: note.id,
+          title: note.title || 'Untitled Note',
+          description: note.description || note.details,
+          date: new Date(note.created_at || Date.now()),
+          completed: note.completed || false,
+          type: 'notes',
+          category: note.category || note.note_type,
+          assignee: note.assignee,
+          meetingId: note.meeting_id || '',
+          urgency: note.urgency,
         });
-      }
-
-      allTasks.sort(sortByUrgencyThenDate);
-
-      setTasks(allTasks);
-    } catch (error) {
-      toast.error('Failed to load tasks');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      } catch (err) {}
+    });
+    return [...allTasks].sort(sortByUrgencyThenDate);
+  }, [rawEvents, rawNotes]);
 
   const handleToggleTask = async (taskId: number, completed: boolean) => {
     try {
       await conversationsAPI.toggleTaskCompletion(taskId, completed);
-      setTasks(tasks.map(task =>
-        task.id === taskId ? { ...task, completed } : task
-      ));
-      setTasks(prev => [...prev].sort(sortByUrgencyThenDate));
+      queryClient.setQueryData(['events'], (old: any[] = []) =>
+        old.map(e => e.id === taskId ? { ...e, completed } : e)
+      );
       toast.success(completed ? 'Task marked as completed' : 'Task marked as incomplete');
     } catch (error) {
       toast.error('Failed to update task status');
@@ -140,7 +132,9 @@ export default function TasksPage() {
       onConfirm: async () => {
         try {
           await conversationsAPI.deleteEvent(taskId);
-          setTasks(tasks.filter(task => task.id !== taskId));
+          queryClient.setQueryData(['events'], (old: any[] = []) =>
+            old.filter(e => e.id !== taskId)
+          );
           toast.success('Task deleted successfully');
         } catch (error) {
           toast.error('Failed to delete task');
@@ -163,18 +157,12 @@ export default function TasksPage() {
         urgency: newTask.urgency
       });
 
-      const task: Task = {
-        id: createdTask.id,
-        title: createdTask.title,
-        description: createdTask.description,
-        date: new Date(createdTask.date),
-        completed: false,
-        type: 'dated_events',
-        meetingId: '',
-        urgency: createdTask.urgency
-      };
-
-      setTasks(prev => [task, ...prev].sort(sortByUrgencyThenDate));
+      queryClient.setQueryData(['events'], (old: any[] = []) => [
+        { id: createdTask.id, title: createdTask.title, description: createdTask.description,
+          date: createdTask.date, completed: false, urgency: createdTask.urgency,
+          meeting_id: '', category: undefined, assignee: undefined },
+        ...old,
+      ]);
 
       setNewTask({ title: '', description: '', date: '', urgency: 'no' });
       setShowAddTaskModal(false);

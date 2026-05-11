@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { useQuery } from '@tanstack/react-query';
 import { conversationsAPI } from '@/lib/api';
 import Pagination from '@/components/Pagination';
 import { Button } from '@/components/ui/button';
@@ -26,8 +27,6 @@ interface QueryResult {
 export default function QueriesPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  const [queries, setQueries] = useState<QueryResult[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
@@ -36,44 +35,33 @@ export default function QueriesPage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/signin');
-    } else if (user) {
-      fetchQueries();
-    }
-  }, [user, authLoading, router]);
+  const { data: meetings = [], isLoading: fetchLoading } = useQuery({
+    queryKey: ['conversations', 'all'],
+    queryFn: () => conversationsAPI.getAllConversations(),
+    enabled: !!user && !authLoading,
+    staleTime: 5 * 60 * 1000,
+  });
 
-  const fetchQueries = async () => {
-    setLoading(true);
-    try {
-      const meetings = await conversationsAPI.getAllConversations();
-      const allQueries: QueryResult[] = [];
+  const loading = authLoading || fetchLoading;
 
-      meetings.forEach((meeting: any) => {
-        if (meeting.user_input && meeting.user_input_result) {
-          const result = typeof meeting.user_input_result === 'string'
-            ? JSON.parse(meeting.user_input_result)
-            : meeting.user_input_result;
-
-          allQueries.push({
-            meetingId: meeting.job_id,
-            meetingDate: new Date(meeting.created_at),
-            question: meeting.user_input,
-            answer: result.content || result.description || 'No answer available',
-            type: result.type || 'analysis', // Gemini provides type: summary, analysis, list, etc.
-          });
-        }
-      });
-
-      // Sort by date (newest first)
-      allQueries.sort((a, b) => b.meetingDate.getTime() - a.meetingDate.getTime());
-      setQueries(allQueries);
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
-  };
+  const queries = useMemo<QueryResult[]>(() => {
+    const allQueries: QueryResult[] = [];
+    meetings.forEach((meeting: any) => {
+      if (meeting.user_input && meeting.user_input_result) {
+        const result = typeof meeting.user_input_result === 'string'
+          ? JSON.parse(meeting.user_input_result)
+          : meeting.user_input_result;
+        allQueries.push({
+          meetingId: meeting.job_id,
+          meetingDate: new Date(meeting.created_at),
+          question: meeting.user_input,
+          answer: result.content || result.description || 'No answer available',
+          type: result.type || 'analysis',
+        });
+      }
+    });
+    return allQueries;
+  }, [meetings]);
 
   const copyToClipboard = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
