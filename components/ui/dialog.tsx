@@ -48,19 +48,15 @@ const backdropVariants = {
 }
 
 const desktopContentVariants = {
-  hidden: { opacity: 0, scale: 0.95, x: "-50%", y: "-50%" },
+  hidden: { opacity: 0, scale: 0.95 },
   visible: {
     opacity: 1,
     scale: 1,
-    x: "-50%",
-    y: "-50%",
     transition: { type: "spring" as const, ...SPRINGS.default },
   },
   exit: {
     opacity: 0,
     scale: 0.95,
-    x: "-50%",
-    y: "-50%",
     transition: { duration: DURATIONS.fast, ease: EASINGS.easeIn },
   },
 }
@@ -128,6 +124,7 @@ const DialogContent = React.forwardRef<
           <DialogPrimitive.Content ref={ref} forceMount asChild {...props}>
             <motion.div
               className={cn(isMobile ? mobileClasses : desktopClasses, className)}
+              style={!isMobile ? { x: "-50%", y: "-50%" } : undefined}
               variants={reduced ? undefined : variants}
               initial={reduced ? undefined : "hidden"}
               animate={reduced ? undefined : "visible"}
