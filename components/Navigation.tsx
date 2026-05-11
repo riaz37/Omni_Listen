@@ -76,7 +76,7 @@ function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
   return (
     <Link
       href={item.href}
-      className={`relative inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+      className={`relative inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
         isActive
           ? 'text-foreground'
           : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -90,8 +90,8 @@ function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
           transition={{ type: 'spring', ...SPRINGS.default }}
         />
       )}
-      <span className="relative z-10 flex items-center gap-1.5">
-        <Icon className="w-4 h-4" />
+      <span className="relative z-10 flex items-center gap-1">
+        <Icon className="w-4 h-4 shrink-0" />
         <span>{item.label}</span>
       </span>
     </Link>
@@ -353,14 +353,14 @@ export default function Navigation() {
       </a>
 
       <nav className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border" aria-label="Main navigation">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-2 gap-4">
-            {/* Left side: Logo + PRIMARY nav + Workspace dropdown */}
-            <div className="flex items-center min-w-0 overflow-x-auto hide-scrollbar">
-              {/* Logo */}
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center py-2 gap-3">
+
+            {/* Col 1: Logo — fixed width, never shrinks */}
+            <div className="flex-shrink-0">
               <Link
                 href="/listen"
-                className="flex items-center flex-shrink-0"
+                className="flex items-center"
                 aria-label="Omni Listen home"
               >
                 <div className="relative">
@@ -382,36 +382,30 @@ export default function Navigation() {
                   )}
                 </div>
               </Link>
-
-              {/* Desktop nav items — all flat per Figma */}
-              <div className="hidden md:ml-6 md:flex md:items-center md:gap-2">
-                {PRIMARY_ITEMS.map((item) => (
-                  <NavLink
-                    key={item.href}
-                    item={item}
-                    isActive={pathname === item.href}
-                  />
-                ))}
-              </div>
             </div>
 
-            {/* Right side: Theme toggle (desktop only outside menu) + User avatar menu */}
-            <div className="flex items-center gap-2">
+            {/* Col 2: Desktop nav items — grows to fill available space */}
+            <div className="hidden md:flex md:items-center md:gap-0.5 flex-1 ml-4">
+              {PRIMARY_ITEMS.map((item) => (
+                <NavLink
+                  key={item.href}
+                  item={item}
+                  isActive={pathname === item.href}
+                />
+              ))}
+            </div>
+
+            {/* Col 3: Controls — fixed width, never shrinks */}
+            <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
               {/* Desktop-only segmented theme toggle */}
               <div className="hidden md:block">
                 <SegmentedThemeToggle />
               </div>
 
-              {/* User avatar menu (TERTIARY) — desktop */}
-              <div className="hidden md:block">
-                <UserAvatarMenu onLogout={handleLogout} />
-              </div>
-
-              {/* Mobile: just the avatar linking to settings */}
-              <div className="md:hidden">
-                <UserAvatarMenu onLogout={handleLogout} />
-              </div>
+              {/* User avatar menu */}
+              <UserAvatarMenu onLogout={handleLogout} />
             </div>
+
           </div>
         </div>
 
