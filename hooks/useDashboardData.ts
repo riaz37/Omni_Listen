@@ -113,6 +113,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
       job_id: item.job_id,
       title: item.title || 'Conversation Analysis',
       created_at: new Date(item.created_at),
+      failed_at_stage: item.failed_at_stage ?? null,
     }));
   }, [conversationsResponse]);
 
@@ -149,6 +150,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
     upcomingEvents,
     tasks,
     recentConversations,
+    queryClient,
     handleToggleTask,
     handleDeleteTask,
     handleDeleteEvent,

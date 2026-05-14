@@ -128,6 +128,7 @@ export default function DashboardPage() {
     upcomingEvents,
     tasks,
     recentConversations,
+    queryClient,
     handleToggleTask,
     handleDeleteTask,
     handleDeleteEvent,
@@ -554,6 +555,9 @@ export default function DashboardPage() {
             onToggleTask={handleToggleTask}
             onDeleteTask={confirmDeleteTask}
             onDeleteEvent={handleDeleteEvent}
+            onRecentConversationRetried={() => {
+              queryClient.invalidateQueries({ queryKey: ['conversations', 'recent'] });
+            }}
           />
         </div>
 

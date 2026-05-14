@@ -13,6 +13,11 @@ export interface Conversation {
   user_input_result?: string | Record<string, unknown>;
   calendar_synced?: boolean;
   events?: EventData[];
+  title?: string;
+  summary_preview?: string;
+  event_count?: number;
+  has_custom_query?: boolean;
+  failed_at_stage?: string | null;
 }
 
 export interface FinalSummary {
