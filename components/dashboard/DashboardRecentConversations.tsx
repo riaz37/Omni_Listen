@@ -51,6 +51,7 @@ interface DashboardRecentConversationsProps {
   recentConversations: RecentConversation[];
   upcomingEvents: UpcomingEvent[];
   tasks: Task[];
+  isLoading?: boolean;
   router: { push: (url: string) => void };
   onToggleTask: (taskId: number, completed: boolean) => void;
   onDeleteTask: (taskId: number) => void;
@@ -58,10 +59,24 @@ interface DashboardRecentConversationsProps {
   onRecentConversationRetried?: (jobId: string) => void;
 }
 
+function SidebarSkeleton() {
+  return (
+    <div className="space-y-3">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="p-4 rounded-lg border border-border bg-card animate-pulse">
+          <div className="h-3.5 bg-muted rounded w-3/4 mb-2" />
+          <div className="h-3 bg-muted/60 rounded w-1/2" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function DashboardRecentConversations({
   recentConversations,
   upcomingEvents,
   tasks,
+  isLoading = false,
   router,
   onToggleTask,
   onDeleteTask,
@@ -119,7 +134,7 @@ export default function DashboardRecentConversations({
 
           {/* Upcoming Events Tab */}
           <TabsContent value="upcoming">
-            {upcomingEvents.length > 0 ? (
+            {isLoading ? <SidebarSkeleton /> : upcomingEvents.length > 0 ? (
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {upcomingEvents.map((event, index) => {
                   const isUrgent = normalizeUrgency(event.urgency) === 'yes';
@@ -178,7 +193,7 @@ export default function DashboardRecentConversations({
 
           {/* Tasks Tab */}
           <TabsContent value="tasks">
-            {tasks.length > 0 ? (
+            {isLoading ? <SidebarSkeleton /> : tasks.length > 0 ? (
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {tasks.map((task) => {
                   const isUrgent = normalizeUrgency(task.urgency) === 'yes';
@@ -229,7 +244,7 @@ export default function DashboardRecentConversations({
 
           {/* Recent Conversations Tab */}
           <TabsContent value="meetings">
-            {recentConversations.length > 0 ? (
+            {isLoading ? <SidebarSkeleton /> : recentConversations.length > 0 ? (
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {recentConversations.map((meeting) => {
                   const isRetrying = retryingIds.has(meeting.job_id) || meeting.failed_at_stage === 'pending_extraction';

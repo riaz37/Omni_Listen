@@ -7,7 +7,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
   const queryClient = useQueryClient();
   const enabled = !!user && !loading && !isLoggingOut;
 
-  const { data: rawEvents = [] } = useQuery({
+  const { data: rawEvents = [], isPending: eventsPending } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
       const r = await conversationsAPI.getAllEvents();
@@ -17,7 +17,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: rawNotes = [] } = useQuery({
+  const { data: rawNotes = [], isPending: notesPending } = useQuery({
     queryKey: ['notes'],
     queryFn: async () => {
       const r = await conversationsAPI.getAllNotes();
@@ -34,12 +34,14 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: conversationsResponse } = useQuery({
+  const { data: conversationsResponse, isPending: convPending } = useQuery({
     queryKey: ['conversations', 'recent'],
     queryFn: () => conversationsAPI.getConversations(5, 0),
     enabled,
     staleTime: 5 * 60 * 1000,
   });
+
+  const isSidebarLoading = enabled && (eventsPending || notesPending || convPending);
 
   const upcomingEvents = useMemo(() => {
     const now = new Date();
@@ -150,6 +152,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
     upcomingEvents,
     tasks,
     recentConversations,
+    isSidebarLoading,
     queryClient,
     handleToggleTask,
     handleDeleteTask,

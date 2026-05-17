@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Sun, RefreshCw, X } from 'lucide-react';
 import { briefingAPI } from '@/lib/api';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const STORAGE_KEY = 'morning-briefing-position';
 const BUBBLE_SIZE = 56; // w-14 = 56px
@@ -40,27 +41,25 @@ function getSavedPosition(): { x: number; y: number } | null {
 export default function MorningBriefingBubble() {
     // DESIGN EXCEPTION: Amber/orange gradient is intentional for "morning sun" theming.
     // See DESIGN.md for brand color rules (green-only accent).
-    const [briefing, setBriefing] = useState<BriefingData | null>(null);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
+    const { data: briefing, isLoading: loading } = useQuery<BriefingData>({
+        queryKey: ['morning-briefing'],
+        queryFn: () => briefingAPI.getTodaysBriefing(),
+        staleTime: 10 * 60 * 1000,
+        retry: 3,
+    });
     const [regenerating, setRegenerating] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
-    const [isMinimized, setIsMinimized] = useState(false);
-    const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
+    const [position, setPosition] = useState<{ x: number; y: number } | null>(() => {
+        const saved = getSavedPosition();
+        if (saved) return saved;
+        if (typeof window === 'undefined') return null;
+        return { x: window.innerWidth - BUBBLE_SIZE - EDGE_PADDING - 8, y: window.innerHeight - BUBBLE_SIZE - EDGE_PADDING - 8 };
+    });
     const [isDragging, setIsDragging] = useState(false);
     const dragRef = useRef<{ startX: number; startY: number; startPosX: number; startPosY: number } | null>(null);
     const bubbleRef = useRef<HTMLDivElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        loadBriefing();
-        const saved = getSavedPosition();
-        if (saved) {
-            setPosition(saved);
-        } else {
-            // Default: bottom-right
-            setPosition({ x: window.innerWidth - BUBBLE_SIZE - EDGE_PADDING - 8, y: window.innerHeight - BUBBLE_SIZE - EDGE_PADDING - 8 });
-        }
-    }, []);
 
     // Re-clamp position on window resize
     useEffect(() => {
@@ -130,22 +129,11 @@ export default function MorningBriefingBubble() {
         }
     }, [isDragging]);
 
-    const loadBriefing = async () => {
-        try {
-            setLoading(true);
-            const data = await briefingAPI.getTodaysBriefing();
-            setBriefing(data);
-        } catch (e) {
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const handleRegenerate = async () => {
         try {
             setRegenerating(true);
             const data = await briefingAPI.generateBriefing();
-            setBriefing(data);
+            queryClient.setQueryData(['morning-briefing'], data);
         } catch (e) {
         } finally {
             setRegenerating(false);
@@ -156,6 +144,7 @@ export default function MorningBriefingBubble() {
     const isMorning = currentHour >= 4 && currentHour < 12;
 
     if (loading || !position) return null;
+    // Show if there is content (any hour), or if it's morning and user can generate one.
     if (!briefing?.content && !isMorning) return null;
 
     // Compute panel position: open upward or downward, left or right

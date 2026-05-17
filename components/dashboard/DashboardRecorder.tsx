@@ -146,23 +146,12 @@ export default function DashboardRecorder({
     const checkboxId = mode === 'upload' ? 'custom_field_only' : 'custom_field_only_record';
 
     const handleChipClick = (query: string) => {
-      if (mode === 'upload') {
-        if (config.user_input.trim() === query) {
-          const defaultQuery = getDefaultQuery(activeRole);
-          updateConfig({ user_input: defaultQuery });
-          saveCustomQuery(defaultQuery, true);
-        } else {
-          updateConfig({ user_input: query });
-          saveCustomQuery(query, true);
-        }
+      if (config.user_input.trim() === query) {
+        updateConfig({ user_input: '' });
+        saveCustomQuery('', true);
       } else {
-        if (config.user_input === query) {
-          updateConfig({ user_input: '' });
-          saveCustomQuery('', true);
-        } else {
-          updateConfig({ user_input: query });
-          saveCustomQuery(query, true);
-        }
+        updateConfig({ user_input: query });
+        saveCustomQuery(query, true);
       }
     };
 
@@ -258,12 +247,7 @@ export default function DashboardRecorder({
                   const value = e.target.value;
                   if (value.length <= 1000) {
                     updateConfig({ user_input: value });
-                    if (mode === 'upload') {
-                      const queryToSave = value || getDefaultQuery(activeRole);
-                      saveCustomQuery(queryToSave);
-                    } else {
-                      saveCustomQuery(value);
-                    }
+                    saveCustomQuery(value);
                   }
                 }}
                 placeholder={
