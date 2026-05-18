@@ -240,6 +240,11 @@ export const conversationsAPI = {
     return response.data;
   },
 
+  retryExtraction: async (jobId: string) => {
+    const response = await api.post(`/api/meetings/${jobId}/retry-extraction`);
+    return response.data as { job_id: string; status: string };
+  },
+
   getAllConversations: async () => {
     const response = await api.get('/api/meetings', { params: { limit: 1000, offset: 0 } });
     return response.data.meetings || response.data;

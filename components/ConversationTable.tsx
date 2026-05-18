@@ -17,6 +17,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Link2,
+  RefreshCw,
 } from 'lucide-react';
 
 type SortColumn = 'title' | 'events' | 'date';
@@ -35,6 +36,8 @@ interface ConversationTableProps {
   onSelectAllOnPage: () => void;
   onView: (jobId: string) => void;
   onDelete: (jobId: string) => void;
+  onRetry: (jobId: string) => void;
+  retryingJobIds: Set<string>;
   onSetCurrentPage: (page: number | ((prev: number) => number)) => void;
   onSetRowsPerPage: (rows: number) => void;
   hasFilters: boolean;
@@ -54,6 +57,8 @@ export function ConversationTable({
   onSelectAllOnPage,
   onView,
   onDelete,
+  onRetry,
+  retryingJobIds,
   onSetCurrentPage,
   onSetRowsPerPage,
   hasFilters,
@@ -144,20 +149,50 @@ export function ConversationTable({
                   </span>
                 </td>
                 <td className="p-3">
-                  {conversation.calendar_synced ? (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-primary/10 text-primary rounded text-xs font-medium">
-                      <Link2 className="w-3 h-3" />
-                      Synced
-                    </span>
-                  ) : conversation.has_custom_query ? (
-                    <span className="inline-flex px-2.5 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
-                      Additional Analysis
-                    </span>
-                  ) : (
-                    <span className="inline-flex px-2.5 py-1 rounded text-xs font-medium bg-muted text-muted-foreground">
-                      Analyzed
-                    </span>
-                  )}
+                  {(() => {
+                    const isRetrying = retryingJobIds.has(conversation.job_id) || conversation.failed_at_stage === 'pending_extraction';
+                    const isFailed = !isRetrying && conversation.failed_at_stage === 'extraction_failed';
+
+                    if (isFailed) {
+                      return (
+                        <button
+                          onClick={() => onRetry(conversation.job_id)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
+                        >
+                          <RefreshCw className="w-3 h-3" />
+                          Retry Extraction
+                        </button>
+                      );
+                    }
+                    if (isRetrying) {
+                      return (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium bg-muted text-muted-foreground">
+                          <RefreshCw className="w-3 h-3 animate-spin" />
+                          Retrying...
+                        </span>
+                      );
+                    }
+                    if (conversation.calendar_synced) {
+                      return (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-primary/10 text-primary rounded text-xs font-medium">
+                          <Link2 className="w-3 h-3" />
+                          Synced
+                        </span>
+                      );
+                    }
+                    if (conversation.has_custom_query) {
+                      return (
+                        <span className="inline-flex px-2.5 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                          Additional Analysis
+                        </span>
+                      );
+                    }
+                    return (
+                      <span className="inline-flex px-2.5 py-1 rounded text-xs font-medium bg-muted text-muted-foreground">
+                        Analyzed
+                      </span>
+                    );
+                  })()}
                 </td>
                 <td className="p-3 whitespace-nowrap">
                   <span className="text-sm text-muted-foreground">
@@ -176,6 +211,14 @@ export function ConversationTable({
                       >
                         View Details
                       </DropdownItem>
+                      {conversation.failed_at_stage === 'extraction_failed' && (
+                        <DropdownItem
+                          icon={RefreshCw}
+                          onClick={() => onRetry(conversation.job_id)}
+                        >
+                          Retry Extraction
+                        </DropdownItem>
+                      )}
                       <DropdownItem
                         icon={Trash2}
                         destructive

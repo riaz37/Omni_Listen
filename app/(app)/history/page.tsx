@@ -46,6 +46,7 @@ export default function HistoryPage() {
     onConfirm: () => void;
     confirmLabel?: string;
   } | null>(null);
+  const [retryingJobIds, setRetryingJobIds] = useState<Set<string>>(new Set());
 
   const { data: conversationsData, isLoading: loadingConversations } = useQuery({
     queryKey: ['conversations', 'history'],
@@ -129,6 +130,42 @@ export default function HistoryPage() {
 
   const handleViewConversation = (jobId: string) => {
     router.push(`/conversation?id=${jobId}`);
+  };
+
+  const handleRetry = async (jobId: string) => {
+    setRetryingJobIds((prev) => new Set(prev).add(jobId));
+    queryClient.setQueryData(['conversations', 'history'], (old: any[] = []) =>
+      old.map((m) => m.job_id === jobId ? { ...m, failed_at_stage: 'pending_extraction' } : m)
+    );
+    try {
+      await conversationsAPI.retryExtraction(jobId);
+      const poll = setInterval(async () => {
+        try {
+          const status = await conversationsAPI.getJobStatus(jobId);
+          if (status.status === 'completed') {
+            clearInterval(poll);
+            setRetryingJobIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
+            router.push(`/conversation?id=${jobId}`);
+          } else if (status.status === 'failed') {
+            clearInterval(poll);
+            setRetryingJobIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
+            toast.error('Retry failed: ' + (status.error || 'Unknown error'));
+            queryClient.setQueryData(['conversations', 'history'], (old: any[] = []) =>
+              old.map((m) => m.job_id === jobId ? { ...m, failed_at_stage: 'extraction_failed' } : m)
+            );
+          }
+        } catch {
+          clearInterval(poll);
+          setRetryingJobIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
+        }
+      }, 5000);
+    } catch {
+      setRetryingJobIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
+      toast.error('Failed to start retry. Please try again.');
+      queryClient.setQueryData(['conversations', 'history'], (old: any[] = []) =>
+        old.map((m) => m.job_id === jobId ? { ...m, failed_at_stage: 'extraction_failed' } : m)
+      );
+    }
   };
 
   const handleSort = (column: SortColumn) => {
@@ -328,6 +365,8 @@ export default function HistoryPage() {
                     onSelectAllOnPage={handleSelectAllOnPage}
                     onView={handleViewConversation}
                     onDelete={handleDelete}
+                    onRetry={handleRetry}
+                    retryingJobIds={retryingJobIds}
                     onSetCurrentPage={setCurrentPage}
                     onSetRowsPerPage={(rows) => { setRowsPerPage(rows); setCurrentPage(1); }}
                     hasFilters={searchQuery.trim() !== ''}

@@ -50,7 +50,7 @@ const CHIP_QUERIES: Record<string, string> = {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, loading, refreshUser, isLoggingOut } = useAuth();
+  const { user, loading, isRevalidated, refreshUser, isLoggingOut } = useAuth();
   const { config, updateConfig } = useConfig();
 
   const {
@@ -128,6 +128,8 @@ export default function DashboardPage() {
     upcomingEvents,
     tasks,
     recentConversations,
+    isSidebarLoading,
+    queryClient,
     handleToggleTask,
     handleDeleteTask,
     handleDeleteEvent,
@@ -239,7 +241,9 @@ export default function DashboardPage() {
   // Load default or saved preset on mount
   useEffect(() => {
     const loadPreset = async () => {
-      if (!user) {
+      // Wait for the background server revalidation to complete so we always
+      // load from fresh data, not the stale sessionStorage cache.
+      if (!user || !isRevalidated) {
         return;
       }
 
@@ -254,7 +258,6 @@ export default function DashboardPage() {
             });
         setAllPresets(response.presets || []);
         const savedRole = user?.active_role;
-        const lastQuery = user?.last_custom_query;
 
         let targetPreset;
 
@@ -269,51 +272,35 @@ export default function DashboardPage() {
           targetPreset = response.presets?.find((p: any) => p.is_default);
         }
 
+        // Dashboard additional analysis is role-independent — always use last_custom_query
+        const dashboardQuery = user?.last_custom_query ?? '';
+
         if (targetPreset) {
-          let roleQuery = targetPreset.config.user_input || '';
-
-          if (user?.role_preferences) {
-            try {
-              const prefs = JSON.parse(user.role_preferences);
-              if (prefs[targetPreset.name] !== undefined) {
-                roleQuery = prefs[targetPreset.name];
-              }
-            } catch (e) {
-            }
-          }
-
           updateConfig({
             role: targetPreset.config.role,
             output_fields: targetPreset.config.output_fields,
-            user_input: roleQuery,
+            user_input: dashboardQuery,
           });
+          lastSavedQuery.current = dashboardQuery;
           setActiveRole(targetPreset.name);
 
           for (const [templateId, query] of Object.entries(CHIP_QUERIES)) {
-            if (roleQuery === query) {
+            if (dashboardQuery === query) {
               setActiveTemplate(templateId);
               break;
             }
           }
         } else {
           setActiveRole('Custom');
-
-          if (user?.role_preferences) {
-            try {
-              const prefs = JSON.parse(user.role_preferences);
-              if (prefs['Custom'] !== undefined) {
-                updateConfig({ user_input: prefs['Custom'] });
-              }
-            } catch (e) {
-            }
-          }
+          updateConfig({ user_input: dashboardQuery });
+          lastSavedQuery.current = dashboardQuery;
         }
       } catch (error) {
       }
     };
 
     loadPreset();
-  }, [user]); // Only run once when user is loaded
+  }, [user, isRevalidated]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -361,10 +348,17 @@ export default function DashboardPage() {
     // Capture recording ID before async operations
     const capturedRecordingId = currentRecordingId;
 
+    // If the dashboard additional analysis box is empty, fall back to the role preset's
+    // default query so the preset's configured analysis still runs.
+    const effectiveConfig = {
+      ...config,
+      user_input: config.user_input.trim() || getDefaultQuery(activeRole),
+    };
+
     try {
       // startProcessing already polls job status via GlobalStateProvider.pollJobStatus.
       // We only need to watch for completion to handle navigation + vault cleanup.
-      const id = await startProcessing(audioSource, config);
+      const id = await startProcessing(audioSource, effectiveConfig);
 
       const watchInterval = setInterval(async () => {
         try {
@@ -550,10 +544,14 @@ export default function DashboardPage() {
             recentConversations={recentConversations}
             upcomingEvents={upcomingEvents}
             tasks={tasks}
+            isLoading={isSidebarLoading}
             router={router}
             onToggleTask={handleToggleTask}
             onDeleteTask={confirmDeleteTask}
             onDeleteEvent={handleDeleteEvent}
+            onRecentConversationRetried={() => {
+              queryClient.invalidateQueries({ queryKey: ['conversations', 'recent'] });
+            }}
           />
         </div>
 
@@ -567,26 +565,11 @@ export default function DashboardPage() {
             const roleName = preset.name;
             setActiveRole(roleName);
 
-            let defaultQuery = preset.config.user_input || '';
-
-            if (localRolePrefs[roleName]) {
-              defaultQuery = localRolePrefs[roleName];
-            }
-
-            let matchedTemplate = null;
-            for (const [templateId, query] of Object.entries(CHIP_QUERIES)) {
-              if (defaultQuery === query) {
-                matchedTemplate = templateId;
-                break;
-              }
-            }
-            setActiveTemplate(matchedTemplate);
-
-            updateConfig({
-              user_input: defaultQuery
-            });
-
-            saveCustomQuery(defaultQuery, true, roleName);
+            // Dashboard additional analysis is role-independent — keep user_input as-is.
+            // Only persist the active role change.
+            authAPI.setActiveRole(roleName)
+              .then(() => refreshUser())
+              .catch(() => {});
           }}
         />
         {confirmDialog && (

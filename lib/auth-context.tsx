@@ -19,6 +19,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  isRevalidated: boolean;
   login: (tokens: { access_token: string; refresh_token: string; user: User }) => void;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -30,6 +31,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isRevalidated, setIsRevalidated] = useState(false);
   const router = useRouter();
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -71,6 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } finally {
         setLoading(false);
+        setIsRevalidated(true);
       }
     };
 
@@ -127,7 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, refreshUser, isLoggingOut }}>
+    <AuthContext.Provider value={{ user, loading, isRevalidated, login, logout, refreshUser, isLoggingOut }}>
       {children}
     </AuthContext.Provider>
   );
