@@ -16,10 +16,13 @@ import {
 import { apiKeysAPI } from '@/lib/api';
 import { SettingsSection } from './SettingsSection';
 import { useConfirmDialog } from './ConfirmDialogContext';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import PasswordConfirmDialog from '@/components/PasswordConfirmDialog';
 import type { ApiKeyData } from './types';
 
 export function ApiKeysSection() {
   const { confirm } = useConfirmDialog();
+  const { user } = useRequireAuth();
   const [apiKeys, setApiKeys] = useState<ApiKeyData[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -27,6 +30,10 @@ export function ApiKeysSection() {
   const [newName, setNewName] = useState('');
   const [newSecret, setNewSecret] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
+  const [revokeTargetId, setRevokeTargetId] = useState<number | null>(null);
+  const [revoking, setRevoking] = useState(false);
+  const [revokeError, setRevokeError] = useState<string | null>(null);
 
   useEffect(() => {
     loadKeys();
@@ -60,20 +67,49 @@ export function ApiKeysSection() {
   };
 
   const handleRevoke = (id: number) => {
-    confirm({
-      title: 'Revoke API key',
-      message: 'Are you sure you want to revoke this API key? This cannot be undone.',
-      confirmLabel: 'Revoke',
-      variant: 'danger',
-      onConfirm: async () => {
-        try {
-          await apiKeysAPI.revoke(id);
-          await loadKeys();
-        } catch {
-          // silent
-        }
-      },
-    });
+    if (user?.has_password) {
+      setRevokeTargetId(id);
+      setRevokeError(null);
+      setRevokeDialogOpen(true);
+    } else {
+      confirm({
+        title: 'Revoke API key',
+        message: 'Are you sure you want to revoke this API key? This cannot be undone.',
+        confirmLabel: 'Revoke',
+        variant: 'danger',
+        onConfirm: async () => {
+          try {
+            await apiKeysAPI.revoke(id);
+            await loadKeys();
+          } catch {
+            // silent
+          }
+        },
+      });
+    }
+  };
+
+  const handleRevokeWithPassword = async (password: string) => {
+    if (revokeTargetId === null) return;
+    setRevoking(true);
+    setRevokeError(null);
+    try {
+      await apiKeysAPI.revoke(revokeTargetId, password);
+      await loadKeys();
+      setRevokeDialogOpen(false);
+      setRevokeTargetId(null);
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number; data?: { detail?: string } } })?.response?.status;
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      if (status === 403) {
+        setRevokeError(detail ?? 'Wrong password. Please try again.');
+      } else {
+        setRevokeDialogOpen(false);
+        setRevokeTargetId(null);
+      }
+    } finally {
+      setRevoking(false);
+    }
   };
 
   const closeModal = () => {
@@ -201,6 +237,23 @@ export function ApiKeysSection() {
           )}
         </DialogContent>
       </MotionDialog>
+
+      <PasswordConfirmDialog
+        isOpen={revokeDialogOpen}
+        title="Revoke API key"
+        description="Enter your password to confirm revoking this API key. This cannot be undone."
+        confirmLabel="Revoke"
+        isLoading={revoking}
+        error={revokeError}
+        onConfirm={handleRevokeWithPassword}
+        onCancel={() => {
+          if (!revoking) {
+            setRevokeDialogOpen(false);
+            setRevokeTargetId(null);
+            setRevokeError(null);
+          }
+        }}
+      />
     </>
   );
 }

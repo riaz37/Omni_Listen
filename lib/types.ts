@@ -83,6 +83,7 @@ export interface User {
   picture?: string;
   calendar_connected?: boolean;
   created_at?: string;
+  has_password?: boolean;
 }
 
 // Preset types
