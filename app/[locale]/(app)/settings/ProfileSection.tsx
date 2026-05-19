@@ -9,15 +9,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SettingsSection } from './SettingsSection';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 export function ProfileSection() {
   const { user, refreshUser } = useRequireAuth();
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [newName, setNewName] = useState('');
 
   const handleUpdateName = async () => {
     if (!newName.trim()) {
-      toast.error('Please enter a name');
+      toast.error(t('settings.profile.name_required'));
       return;
     }
 
@@ -27,7 +29,7 @@ export function ProfileSection() {
       setEditing(false);
       setNewName('');
     } catch {
-      toast.error('Failed to update name');
+      toast.error(t('settings.profile.update_failed'));
     }
   };
 
@@ -49,12 +51,12 @@ export function ProfileSection() {
           {editing ? (
             <div className="space-y-3">
               <div>
-                <Label htmlFor="profile-name">Display name</Label>
+                <Label htmlFor="profile-name">{t('settings.profile.display_name')}</Label>
                 <Input
                   id="profile-name"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  placeholder="Enter new name"
+                  placeholder={t('settings.profile.name_placeholder')}
                   className="mt-1.5"
                   autoFocus
                   onKeyDown={(e) => {
@@ -65,14 +67,14 @@ export function ProfileSection() {
               </div>
               <div className="flex gap-2">
                 <Button onClick={handleUpdateName} size="sm">
-                  Save
+                  {t('common.save')}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => { setEditing(false); setNewName(''); }}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
               </div>
             </div>
@@ -88,7 +90,7 @@ export function ProfileSection() {
                 onClick={() => { setEditing(true); setNewName(user?.name || ''); }}
               >
                 <Edit2 className="w-3.5 h-3.5" />
-                Edit
+                {t('common.edit')}
               </Button>
             </div>
           )}

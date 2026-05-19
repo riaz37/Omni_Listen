@@ -403,7 +403,7 @@ function Navigation() {
                 <NavLink
                   key={item.href}
                   item={item}
-                  isActive={pathname === item.href}
+                  isActive={pathname === lp(item.href)}
                 />
               ))}
             </div>

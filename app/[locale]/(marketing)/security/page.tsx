@@ -1,7 +1,3 @@
-export async function generateStaticParams() {
-  return [{ locale: 'en' }, { locale: 'ar' }];
-}
-
 import Link from 'next/link';
 import { Shield, Lock, Server, Eye, FileCheck, AlertTriangle } from 'lucide-react';
 

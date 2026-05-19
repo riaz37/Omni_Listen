@@ -1,7 +1,3 @@
-export async function generateStaticParams() {
-  return [{ locale: 'en' }, { locale: 'ar' }];
-}
-
 import Hero from '@/components/landing/Hero';
 import SocialProof from '@/components/landing/SocialProof';
 import Features from '@/components/landing/Features';

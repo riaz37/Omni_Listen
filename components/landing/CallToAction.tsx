@@ -5,10 +5,12 @@ import { useAuth } from '@/lib/auth-context';
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 export default function CallToAction() {
   const { user } = useAuth();
   const lp = useLocalePath();
+  const { t } = useTranslation();
 
   return (
     <section className="py-24 sm:py-32 bg-primary/5 border-y border-primary/10 relative overflow-hidden">
@@ -21,23 +23,22 @@ export default function CallToAction() {
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-3xl sm:text-5xl font-display font-normal text-foreground mb-4 tracking-tight">
-            Ready to Transform
+            {t('marketing.cta.title')}
             <br />
-            <span className="text-primary">Your Conversations?</span>
+            <span className="text-primary">{t('marketing.cta.title_highlight')}</span>
           </h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
-            Join thousands of professionals who never miss a detail. Start
-            recording for free today.
+            {t('marketing.cta.subtitle')}
           </p>
           <Link
             href={lp(user ? '/listen' : '/signup')}
             className="group inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold text-lg hover:bg-primary-hover transition-all shadow-lg shadow-primary/20 hover:shadow-primary/30"
           >
-            {user ? 'Go to Listen' : 'Start Recording Free'}
+            {user ? t('marketing.cta.btn_listen') : t('marketing.cta.btn_signup')}
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           <p className="mt-4 text-sm text-muted-foreground">
-            No credit card required. Free during public beta.
+            {t('marketing.cta.beta_note')}
           </p>
         </motion.div>
       </div>

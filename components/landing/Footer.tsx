@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Linkedin, Facebook, Instagram, Youtube } from 'lucide-react';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 const productLinks = [
   { label: 'Features', href: '#features' },
@@ -57,6 +58,7 @@ const socialLinks = [
 
 export default function Footer() {
   const lp = useLocalePath();
+  const { t } = useTranslation();
   return (
     <footer className="py-12 border-t border-border bg-muted/30 text-sm">
       <div className="max-w-7xl mx-auto px-4">
@@ -69,13 +71,13 @@ export default function Footer() {
               <span className="font-bold text-foreground">OmniListen</span>
             </div>
             <p className="text-muted-foreground leading-relaxed">
-              Your AI personal assistant. Capture, analyze, and organize every conversation.
+              {t('marketing.footer.tagline')}
             </p>
           </div>
 
           {/* Product */}
           <div>
-            <h4 className="font-bold text-foreground mb-4">Product</h4>
+            <h4 className="font-bold text-foreground mb-4">{t('marketing.footer.product')}</h4>
             <ul className="space-y-1">
               {productLinks.map((link) => (
                 <li key={link.label}>
@@ -92,7 +94,7 @@ export default function Footer() {
 
           {/* Company */}
           <div>
-            <h4 className="font-bold text-foreground mb-4">Company</h4>
+            <h4 className="font-bold text-foreground mb-4">{t('marketing.footer.company')}</h4>
             <ul className="space-y-1">
               {companyLinks.map((link) => (
                 <li key={link.label}>
@@ -109,7 +111,7 @@ export default function Footer() {
 
           {/* Legal */}
           <div>
-            <h4 className="font-bold text-foreground mb-4">Legal</h4>
+            <h4 className="font-bold text-foreground mb-4">{t('marketing.footer.legal')}</h4>
             <ul className="space-y-1">
               {legalLinks.map((link) => (
                 <li key={link.label}>
@@ -127,7 +129,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4 text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} OmniListen. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} OmniListen. {t('marketing.footer.copyright')}</p>
           <div className="flex gap-5">
             {socialLinks.map((social) => (
               <a

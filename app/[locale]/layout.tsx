@@ -1,7 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import { Instrument_Serif, Noto_Sans_Arabic } from 'next/font/google';
-import { GeistSans } from 'geist/font/sans';
-import { GeistMono } from 'geist/font/mono';
 import '../globals.css';
 import { AuthProvider } from '@/lib/auth-context';
 import { ConfigProvider } from '@/lib/config-context';
@@ -13,19 +10,7 @@ import { ReactQueryProvider } from '../providers';
 import { I18nProvider } from '@/lib/i18n/I18nProvider';
 import { getDictionary } from '@/lib/i18n/get-dictionary';
 import type { Locale } from '@/lib/i18n/config';
-
-const instrumentSerif = Instrument_Serif({
-  weight: '400',
-  subsets: ['latin'],
-  variable: '--font-display',
-  display: 'swap',
-});
-
-const notoArabic = Noto_Sans_Arabic({
-  subsets: ['arabic'],
-  variable: '--font-arabic',
-  display: 'swap',
-});
+import LocaleAttributes from '@/components/LocaleAttributes';
 
 export const metadata: Metadata = {
   title: 'Omni Listen',
@@ -70,27 +55,23 @@ export default async function RootLayout({
   const dictionary = await getDictionary(locale as Locale);
 
   return (
-    <html lang={locale} dir={dir} className="h-full" suppressHydrationWarning>
-      <body
-        className={`${GeistSans.variable} ${GeistSans.className} ${GeistMono.variable} ${instrumentSerif.variable} ${notoArabic.variable} h-full`}
-        suppressHydrationWarning
-      >
-        <ReactQueryProvider>
-          <ThemeProvider>
-            <AuthProvider>
-              <ConfigProvider>
-                <GlobalStateProvider>
-                  <I18nProvider locale={locale as Locale} dictionary={dictionary}>
-                    {children}
-                    <FloatingStatusIndicator />
-                    <Toaster />
-                  </I18nProvider>
-                </GlobalStateProvider>
-              </ConfigProvider>
-            </AuthProvider>
-          </ThemeProvider>
-        </ReactQueryProvider>
-      </body>
-    </html>
+    <>
+      <LocaleAttributes locale={locale} dir={dir} />
+      <ReactQueryProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <ConfigProvider>
+              <GlobalStateProvider>
+                <I18nProvider locale={locale as Locale} dictionary={dictionary}>
+                  {children}
+                  <FloatingStatusIndicator />
+                  <Toaster />
+                </I18nProvider>
+              </GlobalStateProvider>
+            </ConfigProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </ReactQueryProvider>
+    </>
   );
 }
