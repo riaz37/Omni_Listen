@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { toast } from 'sonner';
 import PageEntrance from '@/components/ui/page-entrance';

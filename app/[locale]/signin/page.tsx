@@ -91,7 +91,7 @@ export default function SignInPage() {
       }
 
       if (user) {
-        router.push('/listen');
+        router.push(lp('/listen'));
         return;
       }
     };
@@ -206,7 +206,7 @@ export default function SignInPage() {
       setShowCalendarModal(true);
     } else {
       // Calendar already connected, go to dashboard
-      router.push('/listen');
+      router.push(lp('/listen'));
     }
   };
 
@@ -218,7 +218,7 @@ export default function SignInPage() {
     } catch (error) {
       toast.error('Failed to connect calendar. Please try again from Settings.');
       setShowCalendarModal(false);
-      router.push('/listen');
+      router.push(lp('/listen'));
     } finally {
       setIsConnectingCalendarModal(false);
     }
@@ -226,7 +226,7 @@ export default function SignInPage() {
 
   const handleSkipCalendar = () => {
     setShowCalendarModal(false);
-    router.push('/listen');
+    router.push(lp('/listen'));
   };
 
   const handleGoogleResponse = async (response: any) => {
@@ -503,7 +503,7 @@ export default function SignInPage() {
               {/* Forgot Password Link */}
               <div className="flex justify-end">
                 <Link
-                  href="/forgot-password"
+                  href={lp('/forgot-password')}
                   className="text-sm font-semibold text-primary hover:text-text-primary transition-colors"
                 >
                   {t('auth.signin.forgot_password')}
@@ -533,7 +533,7 @@ export default function SignInPage() {
             <p className="text-muted-foreground text-sm">
               {t('auth.signin.no_account')}{' '}
               <Link
-                href="/signup"
+                href={lp('/signup')}
                 className="text-primary hover:text-text-primary font-bold transition-colors"
               >
                 {t('auth.signin.signup_link')}

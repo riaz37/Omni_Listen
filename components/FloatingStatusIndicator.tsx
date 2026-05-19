@@ -2,6 +2,7 @@
 
 import { useGlobalState } from '@/lib/global-state-context';
 import { useRouter, usePathname } from 'next/navigation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { Mic, Loader2, X, Maximize2, Play, Pause, Square } from 'lucide-react';
 
 export default function FloatingStatusIndicator() {

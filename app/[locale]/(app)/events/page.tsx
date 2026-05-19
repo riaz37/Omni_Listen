@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useEventsData, getEventTypeColor } from '@/hooks/useEventsData';
 import { exportEventsToCSV, exportToICS } from '@/lib/export';

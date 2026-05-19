@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI } from './api';
+import { useLocalePath } from './i18n/use-locale-path';
 
 interface User {
   id: number;
@@ -34,6 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isRevalidated, setIsRevalidated] = useState(false);
   const router = useRouter();
+  const lp = useLocalePath();
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -108,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Navigate first to avoid protected route redirects (like /listen -> /signin)
-    router.push('/');
+    router.push(lp('/'));
 
     // Clear state after a brief delay to allow navigation to start
     setTimeout(() => {

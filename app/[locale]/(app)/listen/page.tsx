@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { useAuth } from '@/lib/auth-context';
 import { useConfig } from '@/lib/config-context';
 import { useGlobalState } from '@/lib/global-state-context';

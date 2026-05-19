@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { useAuth } from '@/lib/auth-context';
 import { conversationsAPI, calendarAPI } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
