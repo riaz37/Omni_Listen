@@ -14,6 +14,8 @@ interface I18nContextValue {
 const I18nContext = createContext<I18nContextValue | null>(null)
 
 function resolvePath(obj: Record<string, unknown>, path: string): string {
+  // Try direct key first (handles flat keys like 'nav.features' stored with dots)
+  if (typeof obj[path] === 'string') return obj[path] as string
   const parts = path.split('.')
   let current: unknown = obj
   for (const part of parts) {

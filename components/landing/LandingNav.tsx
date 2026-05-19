@@ -7,6 +7,7 @@ import { Menu, X } from 'lucide-react';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { useState } from 'react';
 import { useTranslation } from '@/lib/i18n/use-translation';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function LandingNav() {
   const { user } = useAuth();
@@ -65,6 +66,7 @@ export default function LandingNav() {
           </div>
 
           <div className="flex items-center gap-3">
+            <LanguageSwitcher />
             {user ? (
               <Link
                 href="/listen"

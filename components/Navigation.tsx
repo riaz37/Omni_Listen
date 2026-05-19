@@ -34,6 +34,7 @@ import {
   DropdownHeader,
 } from '@/components/ui/dropdown';
 import { useTranslation } from '@/lib/i18n/use-translation';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 // ─── Navigation item types ───────────────────────────────────────────────────
 
@@ -407,6 +408,11 @@ function Navigation() {
               {/* Desktop-only segmented theme toggle */}
               <div className="hidden md:block">
                 <SegmentedThemeToggle />
+              </div>
+
+              {/* Language switcher */}
+              <div className="hidden md:block">
+                <LanguageSwitcher />
               </div>
 
               {/* User avatar menu */}
