@@ -160,11 +160,11 @@ export default function DashboardRecorder({
     };
 
     return (
-      <div className="rounded-lg text-left border border-border">
+      <div className="rounded-lg text-start border border-border">
         <Button
           variant="ghost"
           onClick={() => setShowAnalysisBox(!showAnalysisBox)}
-          className="w-full flex items-center justify-between p-4 h-auto text-left rounded-lg"
+          className="w-full flex items-center justify-between p-4 h-auto text-start rounded-lg"
         >
           <div className="flex items-center gap-2">
             <span className="font-semibold text-foreground">
@@ -202,7 +202,7 @@ export default function DashboardRecorder({
                   <Button
                     variant="ghost"
                     onClick={() => handleChipClick("What were the main budget concerns discussed?")}
-                    className={`p-3 h-auto rounded-lg border text-left flex flex-col items-start overflow-hidden min-w-0 ${
+                    className={`p-3 h-auto rounded-lg border text-start flex flex-col items-start overflow-hidden min-w-0 ${
                       isChipActive("What were the main budget concerns discussed?")
                         ? 'border-primary bg-primary/5'
                         : 'border-border bg-card hover:border-primary/50'
@@ -215,7 +215,7 @@ export default function DashboardRecorder({
                   <Button
                     variant="ghost"
                     onClick={() => handleChipClick("List all action items with assigned owners and deadlines")}
-                    className={`p-3 h-auto rounded-lg border text-left flex flex-col items-start overflow-hidden min-w-0 ${
+                    className={`p-3 h-auto rounded-lg border text-start flex flex-col items-start overflow-hidden min-w-0 ${
                       isChipActive("List all action items with assigned owners and deadlines")
                         ? 'border-primary bg-primary/5'
                         : 'border-border bg-card hover:border-primary/50'
@@ -228,7 +228,7 @@ export default function DashboardRecorder({
                   <Button
                     variant="ghost"
                     onClick={() => handleChipClick("Summarize all technical decisions and their rationale")}
-                    className={`p-3 h-auto rounded-lg border text-left flex flex-col items-start overflow-hidden min-w-0 ${
+                    className={`p-3 h-auto rounded-lg border text-start flex flex-col items-start overflow-hidden min-w-0 ${
                       isChipActive("Summarize all technical decisions and their rationale")
                         ? 'border-primary bg-primary/5'
                         : 'border-border bg-card hover:border-primary/50'
@@ -269,7 +269,7 @@ export default function DashboardRecorder({
                   }`}>
                   {config.user_input.length}/1000 characters
                   {config.user_input.length > 900 && (
-                    <span className="ml-2 inline-flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Approaching limit</span>
+                    <span className="ms-2 inline-flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Approaching limit</span>
                   )}
                 </p>
                 {config.custom_field_only && config.user_input.length === 0 && (
@@ -384,7 +384,7 @@ export default function DashboardRecorder({
                       </p>
                       {file && (
                         <div className="mt-4 p-3 bg-primary/5 border border-primary/20 rounded-lg flex items-center justify-between">
-                          <div className="text-left min-w-0">
+                          <div className="text-start min-w-0">
                             <p className="text-sm font-medium text-foreground truncate">{file.name}</p>
                             <p className="text-xs text-primary mt-0.5">
                               {(file.size / (1024 * 1024)).toFixed(2)} MB
@@ -394,7 +394,7 @@ export default function DashboardRecorder({
                             variant="ghost"
                             size="icon"
                             onClick={onClearFile}
-                            className="ml-3 h-auto w-auto p-1.5 text-muted-foreground hover:text-foreground flex-shrink-0"
+                            className="ms-3 h-auto w-auto p-1.5 text-muted-foreground hover:text-foreground flex-shrink-0"
                             title="Remove file"
                           >
                             <X className="w-4 h-4" />
@@ -426,7 +426,7 @@ export default function DashboardRecorder({
                         {formatTime(recordingTime)}
                       </div>
                       {isRecording && (
-                        <div className="absolute -top-2 -right-4">
+                        <div className="absolute -top-2 -end-4">
                           <span className="relative flex h-4 w-4">
                             {!isPaused && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>}
                             <span className={`relative inline-flex rounded-full h-4 w-4 ${isPaused ? 'bg-amber-500' : 'bg-red-500'}`}></span>
@@ -484,7 +484,7 @@ export default function DashboardRecorder({
                               size="sm"
                               onClick={() => onRetryRecovery(recoveredRecording.id)}
                             >
-                              <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                              <RotateCcw className="w-3.5 h-3.5 me-1.5" />
                               Re-upload &amp; Process
                             </Button>
                             <Button
@@ -492,7 +492,7 @@ export default function DashboardRecorder({
                               variant="outline"
                               onClick={() => handleDownloadAgain(recoveredRecording)}
                             >
-                              <Download className="w-3.5 h-3.5 mr-1.5" />
+                              <Download className="w-3.5 h-3.5 me-1.5" />
                               Download Again
                             </Button>
                             <Button
@@ -500,7 +500,7 @@ export default function DashboardRecorder({
                               variant="ghost"
                               onClick={() => onDismissRecovery(recoveredRecording.id)}
                             >
-                              <X className="w-3.5 h-3.5 mr-1.5" />
+                              <X className="w-3.5 h-3.5 me-1.5" />
                               Discard
                             </Button>
                           </div>

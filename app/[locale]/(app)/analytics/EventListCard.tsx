@@ -41,7 +41,7 @@ export function EventListCard({ events, totalEvents }: EventListCardProps) {
           >
             <div className="flex items-start justify-between mb-2">
               <h3 className="text-sm font-medium text-foreground line-clamp-1">{event.title}</h3>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 ml-2 flex-shrink-0">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 ms-2 flex-shrink-0">
                 <Bell className="w-3 h-3" /> Notify
               </span>
             </div>
@@ -60,7 +60,7 @@ export function EventListCard({ events, totalEvents }: EventListCardProps) {
                   <CheckCircle2 className="w-3 h-3" /> Complete
                 </span>
               )}
-              <span className="ml-auto flex items-center gap-2">
+              <span className="ms-auto flex items-center gap-2">
                 <span className="inline-flex items-center gap-1">
                   <Calendar className="w-3 h-3" />
                   {event.date ? format(new Date(event.date), 'MMM dd, yyyy') : ''}

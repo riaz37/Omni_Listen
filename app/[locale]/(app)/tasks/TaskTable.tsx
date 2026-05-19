@@ -89,27 +89,27 @@ export function TaskTable({
                 onCheckedChange={() => onSelectAllOnPage()}
               />
             </th>
-            <th className="text-left p-3 font-medium text-muted-foreground">
+            <th className="text-start p-3 font-medium text-muted-foreground">
               <button onClick={() => onSort('title')} className="flex items-center gap-1 hover:text-foreground transition-colors">
                 Title <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
-            <th className="text-left p-3 font-medium text-muted-foreground">
+            <th className="text-start p-3 font-medium text-muted-foreground">
               <button onClick={() => onSort('status')} className="flex items-center gap-1 hover:text-foreground transition-colors">
                 Status <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
-            <th className="text-left p-3 font-medium text-muted-foreground">
+            <th className="text-start p-3 font-medium text-muted-foreground">
               <button onClick={() => onSort('priority')} className="flex items-center gap-1 hover:text-foreground transition-colors">
                 Priority <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
-            <th className="text-left p-3 font-medium text-muted-foreground">
+            <th className="text-start p-3 font-medium text-muted-foreground">
               <button onClick={() => onSort('assign')} className="flex items-center gap-1 hover:text-foreground transition-colors">
                 Assign <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
-            <th className="text-left p-3 font-medium text-muted-foreground">
+            <th className="text-start p-3 font-medium text-muted-foreground">
               <button className="flex items-center gap-1">
                 Assign <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
@@ -222,16 +222,16 @@ export function TaskTable({
           </span>
           <div className="flex items-center gap-1">
             <button onClick={() => onSetCurrentPage(1)} disabled={currentPage === 1} className="p-1 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-              <ChevronsLeft className="w-4 h-4" />
+              <ChevronsLeft className="w-4 h-4 rtl:rotate-180" />
             </button>
             <button onClick={() => onSetCurrentPage((p: number) => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-1 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
             </button>
             <button onClick={() => onSetCurrentPage((p: number) => Math.min(totalPages, p + 1))} disabled={currentPage >= totalPages} className="p-1 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4 rtl:rotate-180" />
             </button>
             <button onClick={() => onSetCurrentPage(totalPages)} disabled={currentPage >= totalPages} className="p-1 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-              <ChevronsRight className="w-4 h-4" />
+              <ChevronsRight className="w-4 h-4 rtl:rotate-180" />
             </button>
           </div>
         </div>

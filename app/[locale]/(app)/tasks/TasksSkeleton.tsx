@@ -27,14 +27,14 @@ export function TasksSkeleton() {
 
       {/* Tabs Skeleton */}
       <div className="flex border-b border-border mb-6">
-        <div className="h-9 w-12 bg-muted rounded animate-pulse mr-4"></div>
+        <div className="h-9 w-12 bg-muted rounded animate-pulse me-4"></div>
         <div className="h-9 w-14 bg-muted rounded animate-pulse"></div>
       </div>
 
       {/* Search/Filters Skeleton */}
       <div className="mb-6 flex gap-4">
         <div className="h-9 w-[240px] bg-muted rounded-lg animate-pulse"></div>
-        <div className="flex gap-3 ml-auto">
+        <div className="flex gap-3 ms-auto">
           <div className="h-9 w-24 bg-muted rounded-lg animate-pulse"></div>
           <div className="h-9 w-24 bg-muted rounded-lg animate-pulse"></div>
         </div>
@@ -45,7 +45,7 @@ export function TasksSkeleton() {
         <div className="border-b border-border p-3 flex gap-4">
           <div className="h-4 w-4 bg-muted rounded animate-pulse"></div>
           <div className="h-4 w-20 bg-muted rounded animate-pulse"></div>
-          <div className="h-4 w-16 bg-muted rounded animate-pulse ml-auto"></div>
+          <div className="h-4 w-16 bg-muted rounded animate-pulse ms-auto"></div>
           <div className="h-4 w-16 bg-muted rounded animate-pulse"></div>
           <div className="h-4 w-16 bg-muted rounded animate-pulse"></div>
         </div>

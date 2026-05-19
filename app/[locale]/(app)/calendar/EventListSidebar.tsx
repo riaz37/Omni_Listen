@@ -16,7 +16,7 @@ export function EventListSidebar({ events, onSelectEvent, onToggleCompletion, on
         className="fixed inset-0 bg-black/50 z-40"
         onClick={onClose}
       />
-      <div className="fixed right-0 top-0 h-full w-96 bg-card border-l border-border shadow-xl z-50 flex flex-col">
+      <div className="fixed end-0 top-0 h-full w-96 bg-card border-s border-border shadow-xl z-50 flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-border">
           <h2 className="text-lg font-bold text-foreground">Event List</h2>
           <button
@@ -74,7 +74,7 @@ export function EventListSidebar({ events, onSelectEvent, onToggleCompletion, on
                         </button>
                       </div>
                     </div>
-                    <div className="ml-8 space-y-1 text-sm text-muted-foreground">
+                    <div className="ms-8 space-y-1 text-sm text-muted-foreground">
                       <div className="flex items-center gap-4">
                         <span>Speaker: {event.assignee || '-'}</span>
                         <span>Sync: {event.synced ? 'Yes' : 'No'}</span>

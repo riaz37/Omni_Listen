@@ -37,7 +37,7 @@ export function RecentConversationsCard({ conversations, totalConversations, onN
           >
             <div className="flex items-start justify-between mb-2">
               <h3 className="text-sm font-medium text-foreground line-clamp-1">{conversation.title}</h3>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary ml-2 flex-shrink-0">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary ms-2 flex-shrink-0">
                 <Link2 className="w-3 h-3" /> Sync to calendar
               </span>
             </div>
@@ -53,7 +53,7 @@ export function RecentConversationsCard({ conversations, totalConversations, onN
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-muted">
                 <BarChart3 className="w-3 h-3" /> Additional Analysis
               </span>
-              <span className="ml-auto">
+              <span className="ms-auto">
                 {conversation.created_at ? format(new Date(conversation.created_at), 'MMM dd, yyyy') : ''}
               </span>
             </div>

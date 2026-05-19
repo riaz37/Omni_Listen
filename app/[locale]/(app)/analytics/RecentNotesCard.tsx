@@ -37,7 +37,7 @@ export function RecentNotesCard({ notes, totalNotes, getCategoryBadge }: RecentN
           >
             <div className="flex items-start justify-between mb-2">
               <h3 className="text-sm font-medium text-foreground line-clamp-1">{note.title}</h3>
-              <div className="ml-2 flex-shrink-0">
+              <div className="ms-2 flex-shrink-0">
                 {getCategoryBadge(note.category)}
               </div>
             </div>

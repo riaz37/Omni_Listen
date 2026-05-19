@@ -49,7 +49,7 @@ export default function FloatingStatusIndicator() {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
+        <div className="fixed bottom-6 end-6 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
             <div
                 onClick={handleClick}
                 className="bg-card rounded-lg shadow-lg border border-primary/10 p-4 cursor-pointer hover:shadow-xl transition-all flex items-center gap-4 min-w-[300px]"
@@ -67,7 +67,7 @@ export default function FloatingStatusIndicator() {
                             <p className="text-xs text-muted-foreground font-mono">{formatTime(recordingTime)}</p>
                         </div>
 
-                        <div className="flex items-center gap-1 mr-2" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-1 me-2" onClick={(e) => e.stopPropagation()}>
                             <button
                                 onClick={isPaused ? resumeRecording : pauseRecording}
                                 className="p-2 rounded-full hover:bg-muted text-muted-foreground transition-colors"
@@ -114,7 +114,7 @@ export default function FloatingStatusIndicator() {
                     </>
                 )}
 
-                <div className="border-l pl-3 ml-1">
+                <div className="border-s ps-3 ms-1">
                     <Maximize2 className="w-4 h-4 text-muted-foreground hover:text-primary" />
                 </div>
             </div>

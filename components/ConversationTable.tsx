@@ -78,7 +78,7 @@ export function ConversationTable({
                 onCheckedChange={() => onSelectAllOnPage()}
               />
             </th>
-            <th className="text-left p-3 font-medium text-muted-foreground">
+            <th className="text-start p-3 font-medium text-muted-foreground">
               <button
                 onClick={() => onSort('title')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
@@ -86,7 +86,7 @@ export function ConversationTable({
                 Title <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
-            <th className="text-left p-3 font-medium text-muted-foreground">
+            <th className="text-start p-3 font-medium text-muted-foreground">
               <button
                 onClick={() => onSort('events')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
@@ -94,10 +94,10 @@ export function ConversationTable({
                 Events <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
-            <th className="text-left p-3 font-medium text-muted-foreground">
+            <th className="text-start p-3 font-medium text-muted-foreground">
               Status
             </th>
-            <th className="text-left p-3 font-medium text-muted-foreground">
+            <th className="text-start p-3 font-medium text-muted-foreground">
               <button
                 onClick={() => onSort('date')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
@@ -274,7 +274,7 @@ export function ConversationTable({
               disabled={currentPage === 1}
               className="p-1 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
             </button>
             <button
               onClick={() =>
@@ -285,7 +285,7 @@ export function ConversationTable({
               disabled={currentPage >= totalPages}
               className="p-1 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4 rtl:rotate-180" />
             </button>
             <button
               onClick={() => onSetCurrentPage(totalPages)}

@@ -96,7 +96,7 @@ function DayGroupItem({ group }: { group: DayGroup }) {
                                 e.stopPropagation();
                                 router.push(`/conversation?id=${source.job_id}`);
                             }}
-                            className="inline-flex items-center ml-1 p-0.5 text-primary hover:text-text-primary hover:bg-primary/10 rounded transition-colors"
+                            className="inline-flex items-center ms-1 p-0.5 text-primary hover:text-text-primary hover:bg-primary/10 rounded transition-colors"
                             title={`Go to: ${source.title}`}
                         >
                             <ExternalLink className="w-3.5 h-3.5" />

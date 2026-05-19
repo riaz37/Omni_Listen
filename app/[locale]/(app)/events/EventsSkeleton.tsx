@@ -17,7 +17,7 @@ export function EventsSkeleton() {
       {/* Skeleton Search + Actions */}
       <div className="mb-6 flex gap-4">
         <div className="h-9 w-[280px] bg-muted rounded-lg animate-pulse"></div>
-        <div className="flex gap-2 ml-auto">
+        <div className="flex gap-2 ms-auto">
           <div className="h-9 w-24 bg-muted rounded-lg animate-pulse"></div>
           <div className="h-9 w-16 bg-muted rounded-lg animate-pulse"></div>
           <div className="h-9 w-20 bg-muted rounded-lg animate-pulse"></div>
@@ -26,9 +26,9 @@ export function EventsSkeleton() {
       </div>
       {/* Skeleton Tabs */}
       <div className="flex border-b border-border mb-6">
-        <div className="h-9 w-12 bg-muted rounded animate-pulse mr-4"></div>
-        <div className="h-9 w-14 bg-muted rounded animate-pulse mr-4"></div>
-        <div className="h-9 w-20 bg-muted rounded animate-pulse mr-4"></div>
+        <div className="h-9 w-12 bg-muted rounded animate-pulse me-4"></div>
+        <div className="h-9 w-14 bg-muted rounded animate-pulse me-4"></div>
+        <div className="h-9 w-20 bg-muted rounded animate-pulse me-4"></div>
         <div className="h-9 w-12 bg-muted rounded animate-pulse"></div>
       </div>
       {/* Skeleton Event Cards */}

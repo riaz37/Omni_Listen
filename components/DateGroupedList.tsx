@@ -103,7 +103,7 @@ export function DateGroupedList<T>({
                     </div>
 
                     {/* Items */}
-                    <div className="space-y-3 ml-[5px] border-l border-border/40 pl-5">
+                    <div className="space-y-3 ms-[5px] border-s border-border/40 ps-5">
                         {groupedItems[dateStr].map((item, index) => (
                             <React.Fragment key={index}>
                                 {renderItem(item)}

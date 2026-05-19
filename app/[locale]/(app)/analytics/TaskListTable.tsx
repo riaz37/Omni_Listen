@@ -39,22 +39,22 @@ export function TaskListTable({ tasks, getStatusBadge, getUrgencyLabel }: TaskLi
         <table className="w-full">
           <thead>
             <tr className="border-b border-border">
-              <th className="text-left py-3 px-3 w-10">
+              <th className="text-start py-3 px-3 w-10">
                 <Checkbox checked={false} onCheckedChange={() => {}} disabled />
               </th>
-              <th className="text-left py-3 px-3 text-xs font-medium text-muted-foreground max-w-[260px]">
+              <th className="text-start py-3 px-3 text-xs font-medium text-muted-foreground max-w-[260px]">
                 <span className="flex items-center gap-1">Title <ArrowUpDown className="w-3 h-3" /></span>
               </th>
-              <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">
+              <th className="text-start py-3 px-4 text-xs font-medium text-muted-foreground">
                 <span className="flex items-center gap-1">Status <ArrowUpDown className="w-3 h-3" /></span>
               </th>
-              <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">
+              <th className="text-start py-3 px-4 text-xs font-medium text-muted-foreground">
                 <span className="flex items-center gap-1">Priority <ArrowUpDown className="w-3 h-3" /></span>
               </th>
-              <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">
+              <th className="text-start py-3 px-4 text-xs font-medium text-muted-foreground">
                 <span className="flex items-center gap-1">Assignee <ArrowUpDown className="w-3 h-3" /></span>
               </th>
-              <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground">
+              <th className="text-start py-3 px-4 text-xs font-medium text-muted-foreground">
                 <span className="flex items-center gap-1">Tags <ArrowUpDown className="w-3 h-3" /></span>
               </th>
               <th className="w-10"></th>

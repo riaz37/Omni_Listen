@@ -73,11 +73,11 @@ export default function FAQ() {
                 <button
                   id={questionId}
                   onClick={() => toggle(i)}
-                  className="w-full flex items-center justify-between p-5 text-left bg-card hover:bg-muted/50 transition-colors"
+                  className="w-full flex items-center justify-between p-5 text-start bg-card hover:bg-muted/50 transition-colors"
                   aria-expanded={isOpen}
                   aria-controls={answerId}
                 >
-                  <span className="text-sm font-semibold text-foreground pr-4">
+                  <span className="text-sm font-semibold text-foreground pe-4">
                     {faq.question}
                   </span>
                   <ChevronDown

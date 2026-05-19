@@ -24,8 +24,8 @@ export default function LoadingScreen() {
     <div className="fixed inset-0 z-50 bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 flex items-center justify-center">
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute w-96 h-96 bg-primary/10 rounded-full blur-3xl -top-48 -left-48 animate-pulse"></div>
-        <div className="absolute w-96 h-96 bg-primary/10 rounded-full blur-3xl -bottom-48 -right-48 animate-pulse delay-1000"></div>
+        <div className="absolute w-96 h-96 bg-primary/10 rounded-full blur-3xl -top-48 -start-48 animate-pulse"></div>
+        <div className="absolute w-96 h-96 bg-primary/10 rounded-full blur-3xl -bottom-48 -end-48 animate-pulse delay-1000"></div>
       </div>
 
       <div className="relative z-10 text-center">

@@ -148,7 +148,7 @@ export default function LandingNav() {
       )}
 
       <motion.div
-        className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary origin-left"
+        className="absolute bottom-0 start-0 end-0 h-[2px] bg-primary origin-left"
         style={{ scaleX }}
       />
     </nav>

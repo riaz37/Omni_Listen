@@ -265,7 +265,7 @@ function SupportFeatureItem({ feature }: { feature: SupportFeature }) {
             transition={{ duration: 0.15, ease: EASINGS.easeOut }}
             className="overflow-hidden"
           >
-            <p className="text-sm text-muted-foreground leading-relaxed pb-4 pl-7">
+            <p className="text-sm text-muted-foreground leading-relaxed pb-4 ps-7">
               {feature.description}
             </p>
           </motion.div>

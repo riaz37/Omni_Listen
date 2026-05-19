@@ -24,10 +24,10 @@ export default function MarkdownContent({ content, className = '' }: MarkdownCon
                     <em className="italic">{children}</em>
                 ),
                 ul: ({ children }) => (
-                    <ul className="mb-2 ml-4 space-y-1 list-disc">{children}</ul>
+                    <ul className="mb-2 ms-4 space-y-1 list-disc">{children}</ul>
                 ),
                 ol: ({ children }) => (
-                    <ol className="mb-2 ml-4 space-y-1 list-decimal">{children}</ol>
+                    <ol className="mb-2 ms-4 space-y-1 list-decimal">{children}</ol>
                 ),
                 li: ({ children }) => (
                     <li className="leading-relaxed">{children}</li>
@@ -65,7 +65,7 @@ export default function MarkdownContent({ content, className = '' }: MarkdownCon
                     </pre>
                 ),
                 blockquote: ({ children }) => (
-                    <blockquote className="mb-2 pl-3 border-l-2 border-primary/40 text-muted-foreground italic">
+                    <blockquote className="mb-2 ps-3 border-s-2 border-primary/40 text-muted-foreground italic">
                         {children}
                     </blockquote>
                 ),
@@ -84,7 +84,7 @@ export default function MarkdownContent({ content, className = '' }: MarkdownCon
                     <tr className="hover:bg-muted/30 transition-colors">{children}</tr>
                 ),
                 th: ({ children }) => (
-                    <th className="px-3 py-2 text-left font-semibold text-foreground border-b border-border">
+                    <th className="px-3 py-2 text-start font-semibold text-foreground border-b border-border">
                         {children}
                     </th>
                 ),

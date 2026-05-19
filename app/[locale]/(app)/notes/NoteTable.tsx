@@ -91,7 +91,7 @@ export function NoteTable({
                 onCheckedChange={() => onSelectAllOnPage()}
               />
             </th>
-            <th className="text-left p-3 font-medium text-muted-foreground">
+            <th className="text-start p-3 font-medium text-muted-foreground">
               <button
                 onClick={() => onSort('title')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
@@ -99,7 +99,7 @@ export function NoteTable({
                 Title <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
-            <th className="text-left p-3 font-medium text-muted-foreground">
+            <th className="text-start p-3 font-medium text-muted-foreground">
               <button
                 onClick={() => onSort('category')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
@@ -107,7 +107,7 @@ export function NoteTable({
                 Category <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
-            <th className="text-left p-3 font-medium text-muted-foreground">
+            <th className="text-start p-3 font-medium text-muted-foreground">
               <button
                 onClick={() => onSort('source')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
@@ -115,7 +115,7 @@ export function NoteTable({
                 Source <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
-            <th className="text-left p-3 font-medium text-muted-foreground">
+            <th className="text-start p-3 font-medium text-muted-foreground">
               <button
                 onClick={() => onSort('date')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
@@ -242,7 +242,7 @@ export function NoteTable({
               disabled={currentPage === 1}
               className="p-1 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronsLeft className="w-4 h-4" />
+              <ChevronsLeft className="w-4 h-4 rtl:rotate-180" />
             </button>
             <button
               onClick={() =>
@@ -251,7 +251,7 @@ export function NoteTable({
               disabled={currentPage === 1}
               className="p-1 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
             </button>
             <button
               onClick={() =>
@@ -262,14 +262,14 @@ export function NoteTable({
               disabled={currentPage >= totalPages}
               className="p-1 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4 rtl:rotate-180" />
             </button>
             <button
               onClick={() => onSetCurrentPage(totalPages)}
               disabled={currentPage >= totalPages}
               className="p-1 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronsRight className="w-4 h-4" />
+              <ChevronsRight className="w-4 h-4 rtl:rotate-180" />
             </button>
           </div>
         </div>

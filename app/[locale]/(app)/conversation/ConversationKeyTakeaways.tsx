@@ -7,7 +7,7 @@ const getLineStyle = (text: string) => {
             id: 'urgent',
             // Added: عاجل (Urgent), ضروري (Necessary), طارئ (Emergency), فورا (Immediately)
             patterns: ['URGENT:', 'عاجل'],
-            className: 'bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 text-red-900 dark:text-red-200',
+            className: 'bg-red-50 dark:bg-red-900/20 border-s-4 border-red-500 text-red-900 dark:text-red-200',
 
         }
     ];
@@ -22,7 +22,7 @@ const getLineStyle = (text: string) => {
 
         if (pattern.test(text)) {
             return {
-                className: `${cat.className} pl-4 py-2 my-2 rounded-r`,
+                className: `${cat.className} ps-4 py-2 my-2 rounded-e`,
 
             };
         }
@@ -64,7 +64,7 @@ export function ConversationKeyTakeaways({ summary }: ConversationKeyTakeawaysPr
 
                                 return (
                                     <p key={i} className={style.className}>
-                                        {<span className="mr-2">{line}</span>}
+                                        {<span className="me-2">{line}</span>}
 
                                     </p>
                                 );
@@ -76,13 +76,13 @@ export function ConversationKeyTakeaways({ summary }: ConversationKeyTakeawaysPr
                 {arabicText && arabicText !== englishText && (
                     <div className="mt-4">
                         <h3 className="text-sm font-medium text-foreground mb-2">Arabic</h3>
-                        <div className="prose prose-sm max-w-none" dir="rtl">
+                        <div className="prose prose-sm max-w-none">
                             {arabicText.split('\n').map((line: string, i: number) => {
                                 const style = getLineStyle(line);
 
                                 return (
                                     <p key={i} className={style.className}>
-                                        {<span className="ml-2"></span>}
+                                        {<span className="ms-2"></span>}
                                         {line}
                                     </p>
                                 );

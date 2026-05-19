@@ -109,7 +109,7 @@ export default function DatePicker({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-2 px-3 py-2.5 border border-border rounded-lg bg-background text-foreground hover:bg-muted/50 transition-colors text-sm cursor-pointer text-left"
+        className="w-full flex items-center gap-2 px-3 py-2.5 border border-border rounded-lg bg-background text-foreground hover:bg-muted/50 transition-colors text-sm cursor-pointer text-start"
       >
         <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
         <span className={displayValue ? 'text-foreground' : 'text-muted-foreground'}>
@@ -118,7 +118,7 @@ export default function DatePicker({
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full mt-2 w-[280px] bg-card border border-border rounded-xl shadow-lg z-50 p-3">
+        <div className="absolute start-0 top-full mt-2 w-[280px] bg-card border border-border rounded-xl shadow-lg z-50 p-3">
           {/* Month navigation */}
           <div className="flex items-center justify-between mb-2">
             <button
@@ -126,7 +126,7 @@ export default function DatePicker({
               onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
               className="p-1.5 rounded-lg hover:bg-muted transition-colors"
             >
-              <ChevronLeft className="w-4 h-4 text-foreground" />
+              <ChevronLeft className="w-4 h-4 text-foreground rtl:rotate-180" />
             </button>
             <span className="text-sm font-medium text-foreground">
               {format(currentMonth, 'MMMM yyyy')}
@@ -136,7 +136,7 @@ export default function DatePicker({
               onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
               className="p-1.5 rounded-lg hover:bg-muted transition-colors"
             >
-              <ChevronRight className="w-4 h-4 text-foreground" />
+              <ChevronRight className="w-4 h-4 text-foreground rtl:rotate-180" />
             </button>
           </div>
 

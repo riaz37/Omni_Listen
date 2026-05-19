@@ -97,12 +97,12 @@ export default function VerifyEmailContent() {
         <motion.div
           animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] -top-20 -left-20"
+          className="absolute w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] -top-20 -start-20"
         />
         <motion.div
           animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.4, 0.2] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] -bottom-20 -right-20"
+          className="absolute w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] -bottom-20 -end-20"
         />
       </div>
 
@@ -169,7 +169,7 @@ export default function VerifyEmailContent() {
 
               {/* Resend section */}
               <div className="w-full space-y-3">
-                <p className="text-sm text-muted-foreground text-left font-medium">Request a new verification link:</p>
+                <p className="text-sm text-muted-foreground text-start font-medium">Request a new verification link:</p>
                 <input
                   type="email"
                   value={resendEmail}

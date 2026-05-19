@@ -84,7 +84,7 @@ export default function TimePicker({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-2 px-3 py-2.5 border border-border rounded-lg bg-background text-foreground hover:bg-muted/50 transition-colors text-sm cursor-pointer text-left"
+        className="w-full flex items-center gap-2 px-3 py-2.5 border border-border rounded-lg bg-background text-foreground hover:bg-muted/50 transition-colors text-sm cursor-pointer text-start"
       >
         <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
         <span className={displayValue ? 'text-foreground' : 'text-muted-foreground'}>
@@ -95,7 +95,7 @@ export default function TimePicker({
       {open && (
         <div
           ref={listRef}
-          className="absolute left-0 top-full mt-2 w-full min-w-[140px] max-h-[240px] overflow-y-auto bg-card border border-border rounded-xl shadow-lg z-50 py-1"
+          className="absolute start-0 top-full mt-2 w-full min-w-[140px] max-h-[240px] overflow-y-auto bg-card border border-border rounded-xl shadow-lg z-50 py-1"
         >
           {options.map((option) => {
             const selected = value === option.value;
@@ -108,7 +108,7 @@ export default function TimePicker({
                   onChange(option.value);
                   setOpen(false);
                 }}
-                className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+                className={`w-full text-start px-3 py-2 text-sm transition-colors ${
                   selected
                     ? 'bg-primary/10 text-primary font-medium'
                     : 'text-foreground hover:bg-muted'

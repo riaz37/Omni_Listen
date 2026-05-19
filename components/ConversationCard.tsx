@@ -82,12 +82,12 @@ export function ConversationCard({
       </div>
 
       {/* Row 2: Description */}
-      <p className="text-sm text-muted-foreground line-clamp-2 mb-3 ml-6">
+      <p className="text-sm text-muted-foreground line-clamp-2 mb-3 ms-6">
         {truncate(meeting.summary_preview, 180)}
       </p>
 
       {/* Row 3: Footer metadata */}
-      <div className="flex items-center gap-3 text-xs text-muted-foreground ml-6">
+      <div className="flex items-center gap-3 text-xs text-muted-foreground ms-6">
         <span className="inline-flex items-center gap-1">
           <Calendar className="w-3.5 h-3.5" />
           {meeting.event_count} Event{meeting.event_count !== 1 ? 's' : ''}

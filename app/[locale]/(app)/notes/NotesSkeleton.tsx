@@ -35,11 +35,11 @@ export function NotesSkeleton() {
               </div>
               <div className="h-5 w-16 bg-muted rounded-full flex-shrink-0" />
             </div>
-            <div className="ml-6">
+            <div className="ms-6">
               <div className="h-3.5 bg-muted rounded w-full mb-1.5" />
               <div className="h-3.5 bg-muted rounded w-4/5" />
             </div>
-            <div className="flex items-center gap-3 ml-6 pt-1">
+            <div className="flex items-center gap-3 ms-6 pt-1">
               <div className="h-3 bg-muted rounded w-24" />
               <div className="h-3 bg-muted rounded w-16" />
             </div>

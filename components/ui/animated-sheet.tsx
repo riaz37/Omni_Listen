@@ -102,7 +102,7 @@ export default function AnimatedSheet({
           aria-hidden="true"
         />
         <div
-          className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50 max-h-[70vh] overflow-y-auto rounded-t-2xl"
+          className="fixed bottom-0 start-0 end-0 bg-background border-t border-border z-50 max-h-[70vh] overflow-y-auto rounded-t-2xl"
           role="dialog"
           aria-modal="true"
           aria-label={title}
@@ -138,7 +138,7 @@ export default function AnimatedSheet({
 
           {/* Sheet */}
           <motion.div
-            className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50 max-h-[70vh] overflow-y-auto rounded-t-2xl"
+            className="fixed bottom-0 start-0 end-0 bg-background border-t border-border z-50 max-h-[70vh] overflow-y-auto rounded-t-2xl"
             variants={sheetVariants}
             initial="hidden"
             animate={controls}

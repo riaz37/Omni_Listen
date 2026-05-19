@@ -187,7 +187,7 @@ export function DropdownContent({
     [close, focusIndex, getItems, triggerId],
   );
 
-  const alignClass = align === 'end' ? 'right-0' : 'left-0';
+  const alignClass = align === 'end' ? 'end-0' : 'start-0';
 
   return (
     <AnimatePresence>

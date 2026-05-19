@@ -54,7 +54,7 @@ export default function HowItWorks() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
           {/* Connector line (desktop only) */}
-          <div className="hidden md:block absolute top-[32px] left-[16.67%] right-[16.67%] h-[2px] bg-border" />
+          <div className="hidden md:block absolute top-[32px] start-[16.67%] end-[16.67%] h-[2px] bg-border" />
 
           {steps.map((step, i) => {
             const Icon = step.icon;

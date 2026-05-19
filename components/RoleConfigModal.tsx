@@ -320,7 +320,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                 className="h-auto w-auto p-1.5 text-muted-foreground hover:text-foreground"
                 title="Back to list"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
               </Button>
             )}
             <DialogTitle>
@@ -431,9 +431,9 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                         <Input
                           value={formData.name}
                           disabled
-                          className="pr-10"
+                          className="pe-10"
                         />
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        <div className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                           <Lock className="w-3.5 h-3.5" />
                         </div>
                       </div>
@@ -447,9 +447,9 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                         <Input
                           value={formData.role}
                           disabled
-                          className="pr-10"
+                          className="pe-10"
                         />
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        <div className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                           <Lock className="w-3.5 h-3.5" />
                         </div>
                       </div>

@@ -31,7 +31,7 @@ export default function HistoryTabs({ activeView, onViewChange }: HistoryTabsPro
                         {isActive && (
                             <motion.div
                                 layoutId="history-tab-underline"
-                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                                className="absolute bottom-0 start-0 end-0 h-0.5 bg-primary"
                                 transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                             />
                         )}

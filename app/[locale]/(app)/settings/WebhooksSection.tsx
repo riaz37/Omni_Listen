@@ -186,7 +186,7 @@ export function WebhooksSection() {
                       ))}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5 ml-4 shrink-0">
+                  <div className="flex items-center gap-1.5 ms-4 shrink-0">
                     <Button
                       variant="ghost"
                       size="icon"
@@ -444,7 +444,7 @@ function WebhookGuideSheet({
         <div className="space-y-6 pb-8">
           {/* Payload format — top callout */}
           <div className="flex items-start gap-3 bg-primary/5 border border-primary/15 rounded-lg p-3">
-            <ArrowRight className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+            <ArrowRight className="w-4 h-4 text-primary mt-0.5 shrink-0 rtl:rotate-180" />
             <p className="text-sm text-muted-foreground leading-relaxed">
               All payloads are <span className="font-medium text-foreground">POST JSON</span> with{' '}
               <code className="px-1 py-0.5 bg-primary/10 text-primary rounded text-xs font-mono">event_id</code>{' '}
@@ -528,7 +528,7 @@ function EventCard({
       {/* Header — name on top, description below */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors"
+        className="w-full text-start px-4 py-3 hover:bg-muted/50 transition-colors"
       >
         <div className="flex items-center justify-between mb-1">
           <code className="px-2 py-0.5 bg-primary/10 text-primary rounded text-xs font-mono font-medium">

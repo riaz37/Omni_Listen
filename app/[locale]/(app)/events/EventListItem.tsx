@@ -105,7 +105,7 @@ export function EventListItem({
             <h3 className={`text-sm font-semibold text-foreground ${event.completed ? 'line-through' : ''}`}>
               {event.title}
             </h3>
-            <div className="flex items-center gap-2 flex-shrink-0 ml-3">
+            <div className="flex items-center gap-2 flex-shrink-0 ms-3">
               {/* Notify Button */}
               <button
                 onClick={() => onToggleNotification(event.id)}

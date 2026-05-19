@@ -170,7 +170,7 @@ export default function ConversationDetailClient() {
                     onClick={() => router.back()}
                     className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground mb-4 transition-colors text-sm"
                 >
-                    <ArrowLeft className="w-4 h-4" />
+                    <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
                     <span>Back</span>
                 </button>
 
@@ -235,7 +235,7 @@ export default function ConversationDetailClient() {
                                     <FileText className="w-5 h-5 text-blue-600" />
                                     Key Takeaways
                                 </h2>
-                                <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded">
+                                <div className="bg-blue-50 dark:bg-blue-900/20 border-s-4 border-blue-500 p-4 rounded">
                                     <p className="text-sm text-foreground mb-3 font-medium">
                                         Question: {conversation.user_input}
                                     </p>

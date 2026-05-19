@@ -143,7 +143,7 @@ export default function AutonomousHeadPage() {
                 <div className="p-6 pt-0 space-y-6">
 
                     {error && (
-                        <div className="relative w-full rounded-lg border border-destructive/50 p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-destructive text-destructive dark:border-destructive">
+                        <div className="relative w-full rounded-lg border border-destructive/50 p-4 [&>svg~*]:ps-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:start-4 [&>svg]:top-4 [&>svg]:text-destructive text-destructive dark:border-destructive">
                             <AlertCircle className="h-4 w-4" />
                             <h5 className="mb-1 font-medium leading-none tracking-tight">Error</h5>
                             <div className="text-sm [&_p]:leading-relaxed">{error}</div>

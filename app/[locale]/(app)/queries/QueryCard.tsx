@@ -51,7 +51,7 @@ export function QueryCard({
         </span>
         <button
           onClick={() => onNavigateToMeeting(query.meetingId)}
-          className="ml-auto text-primary hover:text-text-primary font-medium flex items-center gap-1 hover:underline"
+          className="ms-auto text-primary hover:text-text-primary font-medium flex items-center gap-1 hover:underline"
         >
           View Meeting
           <ExternalLink className="w-4 h-4" />

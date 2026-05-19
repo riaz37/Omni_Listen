@@ -168,9 +168,20 @@ export default function DashboardRecentConversations({
                         <span>{event.assignee || 'Unassigned'}</span>
                         <div className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          <span>{event.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                          <Clock className="w-3 h-3 ml-1" />
-                          <span>{event.date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                          <span>
+                            {event.date.toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
+                          </span>
+                          <Clock className="w-3 h-3 ms-1" />
+                          <span>
+                            {event.date.toLocaleTimeString('en-US', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -224,9 +235,20 @@ export default function DashboardRecentConversations({
                         <span>{task.assignee || 'Unassigned'}</span>
                         <div className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          <span>{task.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                          <Clock className="w-3 h-3 ml-1" />
-                          <span>{task.date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                          <span>
+                            {task.date.toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
+                          </span>
+                          <Clock className="w-3 h-3 ms-1" />
+                          <span>
+                            {task.date.toLocaleTimeString('en-US', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
                         </div>
                       </div>
                     </div>

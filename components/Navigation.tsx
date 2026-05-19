@@ -198,7 +198,7 @@ function MobileMoreSheet({
 
       {/* Sheet */}
       <motion.div
-        className="sm:hidden fixed bottom-16 left-0 right-0 bg-background border-t border-border z-50 max-h-[60vh] overflow-y-auto rounded-t-2xl"
+        className="sm:hidden fixed bottom-16 start-0 end-0 bg-background border-t border-border z-50 max-h-[60vh] overflow-y-auto rounded-t-2xl"
         role="dialog"
         aria-label="More navigation items"
         initial={{ y: '100%' }}
@@ -348,7 +348,7 @@ function Navigation() {
       {/* E6: Skip-to-content link */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-md"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:start-4 focus:z-50 focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-md"
       >
         Skip to content
       </a>
@@ -376,7 +376,7 @@ function Navigation() {
                     className="h-12 sm:h-14 w-auto object-contain hidden dark:block"
                   />
                   {isRecording && (
-                    <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
+                    <span className="absolute -top-0.5 -end-0.5 flex h-3 w-3">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
                     </span>
@@ -386,7 +386,7 @@ function Navigation() {
             </div>
 
             {/* Col 2: Desktop nav items — grows to fill available space */}
-            <div className="hidden md:flex md:items-center md:gap-0.5 flex-1 ml-4">
+            <div className="hidden md:flex md:items-center md:gap-0.5 flex-1 ms-4">
               {PRIMARY_ITEMS.map((item) => (
                 <NavLink
                   key={item.href}
@@ -412,7 +412,7 @@ function Navigation() {
 
         {/* ─── Mobile bottom tab bar (PRIMARY + More) ─────────────────────── */}
         <div
-          className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50"
+          className="md:hidden fixed bottom-0 start-0 end-0 bg-background border-t border-border z-50"
           role="tablist"
           aria-label="Primary navigation"
         >

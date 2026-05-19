@@ -60,7 +60,7 @@ export function NoteQuickViewModal({
           {note.meetingId && (
             <Button
               onClick={() => onViewDetails(note.meetingId)}
-              iconRight={<ChevronRight className="w-4 h-4" />}
+              iconRight={<ChevronRight className="w-4 h-4 rtl:rotate-180" />}
             >
               View Details
             </Button>

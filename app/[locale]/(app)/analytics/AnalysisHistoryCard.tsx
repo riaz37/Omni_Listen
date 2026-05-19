@@ -36,7 +36,7 @@ export function AnalysisHistoryCard({ notes }: AnalysisHistoryCardProps) {
               <h3 className="text-sm font-medium text-foreground line-clamp-1">
                 {note.title || 'Your Analysis Request'}
               </h3>
-              <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+              <div className="flex items-center gap-2 ms-2 flex-shrink-0">
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                   Summary
                 </span>

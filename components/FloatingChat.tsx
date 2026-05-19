@@ -55,7 +55,7 @@ export default function FloatingChat({ jobId }: FloatingChatProps) {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-[60] flex flex-col items-end">
+        <div className="fixed bottom-6 end-6 z-[60] flex flex-col items-end">
             {/* Chat Window */}
             {isOpen && (
                 <div className="mb-4 w-[350px] sm:w-[400px] h-[500px] bg-card rounded-2xl shadow-2xl border border-border flex flex-col overflow-hidden animate-slide-up origin-bottom-right">
@@ -85,13 +85,13 @@ export default function FloatingChat({ jobId }: FloatingChatProps) {
                                 <div className="mt-4 space-y-2">
                                     <button
                                         onClick={() => setQuery("What were the key decisions?")}
-                                        className="block w-full text-left text-xs bg-card p-2 rounded border border-border hover:border-primary/30 hover:text-primary transition-colors"
+                                        className="block w-full text-start text-xs bg-card p-2 rounded border border-border hover:border-primary/30 hover:text-primary transition-colors"
                                     >
                                         "What were the key decisions?"
                                     </button>
                                     <button
                                         onClick={() => setQuery("List all action items")}
-                                        className="block w-full text-left text-xs bg-card p-2 rounded border border-border hover:border-primary/30 hover:text-primary transition-colors"
+                                        className="block w-full text-start text-xs bg-card p-2 rounded border border-border hover:border-primary/30 hover:text-primary transition-colors"
                                     >
                                         "List all action items"
                                     </button>

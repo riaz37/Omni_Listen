@@ -370,16 +370,16 @@ export default function NotesPage() {
           {/* Search & Filters */}
           <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             <div className="relative w-full sm:w-auto sm:min-w-[240px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Filter notes..."
                 value={searchTerm}
                 onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                className="w-full pl-9 pr-4 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground text-sm"
+                className="w-full ps-9 pe-4 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground text-sm"
               />
             </div>
-            <div className="flex items-center gap-3 ml-auto">
+            <div className="flex items-center gap-3 ms-auto">
               <span className="text-sm text-muted-foreground">Category</span>
               <CustomDropdown
                 value={selectedCategory}

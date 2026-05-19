@@ -257,7 +257,7 @@ export default function MorningBriefingBubble() {
 
                 {/* Pulse animation when has content */}
                 {briefing?.content && !isExpanded && (
-                    <span className="absolute top-0 right-0 flex h-3 w-3 pointer-events-none">
+                    <span className="absolute top-0 end-0 flex h-3 w-3 pointer-events-none">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
                     </span>
@@ -265,7 +265,7 @@ export default function MorningBriefingBubble() {
 
                 {/* Tooltip — hidden while dragging */}
                 {!isDragging && (
-                    <span className="absolute left-full ml-3 px-3 py-1.5 bg-foreground text-background text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                    <span className="absolute start-full ms-3 px-3 py-1.5 bg-foreground text-background text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                         Morning Briefing
                     </span>
                 )}

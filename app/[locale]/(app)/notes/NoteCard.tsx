@@ -84,12 +84,12 @@ export function NoteCard({
       </div>
 
       {/* Description */}
-      <p className="text-muted-foreground text-sm line-clamp-2 mb-3 ml-6">
+      <p className="text-muted-foreground text-sm line-clamp-2 mb-3 ms-6">
         {note.description}
       </p>
 
       {/* Bottom: date + time */}
-      <div className="flex items-center gap-3 text-xs text-muted-foreground ml-6">
+      <div className="flex items-center gap-3 text-xs text-muted-foreground ms-6">
         {note.date && (
           <>
             <div className="flex items-center gap-1">

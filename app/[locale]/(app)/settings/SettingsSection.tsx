@@ -36,7 +36,7 @@ export function SettingsSection({
             <p className="text-sm text-muted-foreground mt-1">{description}</p>
           )}
         </div>
-        {action && <div className="shrink-0 ml-4">{action}</div>}
+        {action && <div className="shrink-0 ms-4">{action}</div>}
       </div>
       {children}
     </section>

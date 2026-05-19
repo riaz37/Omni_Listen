@@ -46,10 +46,10 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
               <Clock className="w-4 h-4" />
               <span className="text-sm font-medium">Date & Time</span>
             </div>
-            <p className="text-foreground ml-6 text-sm">
+            <p className="text-foreground ms-6 text-sm">
               {format(event.start, 'EEEE, MMMM dd, yyyy')}
             </p>
-            <p className="text-muted-foreground ml-6 text-sm">
+            <p className="text-muted-foreground ms-6 text-sm">
               {format(event.start, 'h:mm a')} - {format(event.end, 'h:mm a')}
             </p>
           </div>
@@ -67,7 +67,7 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
                 <MapPin className="w-4 h-4" />
                 <span className="text-sm font-medium">Location</span>
               </div>
-              <p className="text-foreground ml-6 text-sm">{event.location}</p>
+              <p className="text-foreground ms-6 text-sm">{event.location}</p>
             </div>
           )}
 
@@ -77,7 +77,7 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
                 <Users className="w-4 h-4" />
                 <span className="text-sm font-medium">Assignee</span>
               </div>
-              <p className="text-foreground ml-6 text-sm">{event.assignee}</p>
+              <p className="text-foreground ms-6 text-sm">{event.assignee}</p>
             </div>
           )}
 
@@ -87,7 +87,7 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
                 <Users className="w-4 h-4" />
                 <span className="text-sm font-medium">Attendees</span>
               </div>
-              <div className="ml-6 space-y-1">
+              <div className="ms-6 space-y-1">
                 {event.attendees.map((attendee, index) => (
                   <p key={index} className="text-foreground text-sm">{attendee}</p>
                 ))}
@@ -118,7 +118,7 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
           <DialogFooter className="pt-2 border-t border-border">
             <Button
               onClick={() => onNavigateToConversation(event.conversationId!)}
-              iconRight={<ChevronRight className="w-4 h-4" />}
+              iconRight={<ChevronRight className="w-4 h-4 rtl:rotate-180" />}
               className="w-full"
             >
               View Conversation Details

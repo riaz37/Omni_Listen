@@ -269,13 +269,13 @@ export default function EventsPage() {
         {/* Search & Actions Row */}
         <div className="mb-6 flex flex-col sm:flex-row gap-4 items-center">
           <div className="flex-1 relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full ps-10 pe-4 py-2 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -287,7 +287,7 @@ export default function EventsPage() {
               <List className="w-4 h-4" />
               <span>All Events</span>
               {events.length > 0 && (
-                <span className="ml-0.5 px-1.5 py-0.5 text-xs font-semibold rounded-full bg-primary/10 text-primary min-w-[20px] text-center">
+                <span className="ms-0.5 px-1.5 py-0.5 text-xs font-semibold rounded-full bg-primary/10 text-primary min-w-[20px] text-center">
                   {events.length}
                 </span>
               )}

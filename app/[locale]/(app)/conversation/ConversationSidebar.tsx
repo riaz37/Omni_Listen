@@ -26,7 +26,7 @@ export function ConversationSidebar({ datedEvents, notes, onToggleCompletion }: 
                             const description = event.description || event.context;
 
                             return (
-                                <div key={index} className="border-l-4 border-primary pl-3 py-2">
+                                <div key={index} className="border-s-4 border-primary ps-3 py-2">
                                     <p className="text-sm font-semibold text-foreground">{title}</p>
                                     <p className="text-xs text-muted-foreground mt-1">
                                         📅 {formattedDate || date || 'TBD'}
@@ -82,7 +82,7 @@ export function ConversationSidebar({ datedEvents, notes, onToggleCompletion }: 
                             return (
                                 <div
                                     key={note.id || index}
-                                    className={`border-l-4 ${borderColor} pl-3 py-2 ${bgClass} ${note.completed ? 'opacity-75' : ''}`}
+                                    className={`border-s-4 ${borderColor} ps-3 py-2 ${bgClass} ${note.completed ? 'opacity-75' : ''}`}
                                 >
                                     <div className="flex items-start gap-3">
                                         <div className="flex-1">
