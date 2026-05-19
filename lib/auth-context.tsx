@@ -14,6 +14,7 @@ interface User {
   active_role?: string | null;
   last_custom_query?: string | null;
   role_preferences?: string | null; // JSON string
+  has_password?: boolean;
 }
 
 interface AuthContextType {

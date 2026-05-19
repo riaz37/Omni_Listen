@@ -421,8 +421,10 @@ export const calendarAPI = {
     return response.data;
   },
 
-  disconnect: async () => {
-    const response = await api.post('/api/calendar/disconnect');
+  disconnect: async (password?: string) => {
+    const response = await api.post('/api/calendar/disconnect',
+      password ? { current_password: password } : {}
+    );
     return response.data;
   },
 };
@@ -511,8 +513,10 @@ export const apiKeysAPI = {
     return response.data;
   },
 
-  revoke: async (id: number) => {
-    const response = await api.delete(`/api/keys/${id}`);
+  revoke: async (id: number, password?: string) => {
+    const response = await api.delete(`/api/keys/${id}`, {
+      data: password ? { current_password: password } : undefined,
+    });
     return response.data;
   },
 };

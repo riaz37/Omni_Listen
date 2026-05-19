@@ -8,11 +8,15 @@ import { Button } from '@/components/ui/button';
 import { SettingsSection } from './SettingsSection';
 import { useConfirmDialog } from './ConfirmDialogContext';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import PasswordConfirmDialog from '@/components/PasswordConfirmDialog';
 
 export function CalendarSection() {
   const { user, refreshUser } = useRequireAuth();
   const { confirm } = useConfirmDialog();
   const [connecting, setConnecting] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
+  const [disconnectError, setDisconnectError] = useState<string | null>(null);
 
   // Refresh user on mount to get latest calendar_connected state
   useEffect(() => {
@@ -56,58 +60,103 @@ export function CalendarSection() {
   };
 
   const handleDisconnect = () => {
-    confirm({
-      title: 'Disconnect calendar',
-      message: 'Are you sure you want to disconnect your calendar?',
-      confirmLabel: 'Disconnect',
-      variant: 'warning',
-      onConfirm: async () => {
-        try {
-          await calendarAPI.disconnect();
-          await refreshUser();
-          toast.success('Calendar disconnected');
-        } catch {
-          toast.error('Failed to disconnect calendar');
-        }
-      },
-    });
+    if (user?.has_password) {
+      setDisconnectError(null);
+      setPasswordDialogOpen(true);
+    } else {
+      confirm({
+        title: 'Disconnect calendar',
+        message: 'Are you sure you want to disconnect your calendar?',
+        confirmLabel: 'Disconnect',
+        variant: 'warning',
+        onConfirm: async () => {
+          try {
+            await calendarAPI.disconnect();
+            await refreshUser();
+            toast.success('Calendar disconnected');
+          } catch {
+            toast.error('Failed to disconnect calendar');
+          }
+        },
+      });
+    }
+  };
+
+  const handleDisconnectWithPassword = async (password: string) => {
+    setDisconnecting(true);
+    setDisconnectError(null);
+    try {
+      await calendarAPI.disconnect(password);
+      await refreshUser();
+      setPasswordDialogOpen(false);
+      toast.success('Calendar disconnected');
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number; data?: { detail?: string } } })?.response?.status;
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      if (status === 403) {
+        setDisconnectError(detail ?? 'Wrong password. Please try again.');
+      } else {
+        setPasswordDialogOpen(false);
+        toast.error('Failed to disconnect calendar');
+      }
+    } finally {
+      setDisconnecting(false);
+    }
   };
 
   return (
-    <SettingsSection
-      id="calendar"
-      icon={<Calendar className="w-5 h-5" />}
-      title="Google Calendar Integration"
-    >
-      {user?.calendar_connected ? (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-primary bg-primary/5 px-4 py-3 rounded-lg text-sm">
-            <Check className="w-4 h-4 shrink-0" />
-            <span className="font-medium">Calendar Connected</span>
+    <>
+      <SettingsSection
+        id="calendar"
+        icon={<Calendar className="w-5 h-5" />}
+        title="Google Calendar Integration"
+      >
+        {user?.calendar_connected ? (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-primary bg-primary/5 px-4 py-3 rounded-lg text-sm">
+              <Check className="w-4 h-4 shrink-0" />
+              <span className="font-medium">Calendar Connected</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Conversation events will be automatically synced to your Google Calendar
+              when you enable &quot;Calendar Sync&quot; in the output fields.
+            </p>
+            <Button variant="destructive" onClick={handleDisconnect}>
+              Disconnect Calendar
+            </Button>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Conversation events will be automatically synced to your Google Calendar
-            when you enable &quot;Calendar Sync&quot; in the output fields.
-          </p>
-          <Button variant="destructive" onClick={handleDisconnect}>
-            Disconnect Calendar
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 px-4 py-3 rounded-lg text-sm">
-            <X className="w-4 h-4 shrink-0" />
-            <span className="font-medium">Calendar Not Connected</span>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 px-4 py-3 rounded-lg text-sm">
+              <X className="w-4 h-4 shrink-0" />
+              <span className="font-medium">Calendar Not Connected</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Connect your Google Calendar to automatically create events from conversation
+              action items when you enable &quot;Calendar Sync&quot; in the output fields.
+            </p>
+            <Button onClick={handleConnect} disabled={connecting} loading={connecting}>
+              Connect Google Calendar
+            </Button>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Connect your Google Calendar to automatically create events from conversation
-            action items when you enable &quot;Calendar Sync&quot; in the output fields.
-          </p>
-          <Button onClick={handleConnect} disabled={connecting} loading={connecting}>
-            Connect Google Calendar
-          </Button>
-        </div>
-      )}
-    </SettingsSection>
+        )}
+      </SettingsSection>
+
+      <PasswordConfirmDialog
+        isOpen={passwordDialogOpen}
+        title="Disconnect calendar"
+        description="Enter your password to confirm disconnecting your Google Calendar."
+        confirmLabel="Disconnect"
+        isLoading={disconnecting}
+        error={disconnectError}
+        onConfirm={handleDisconnectWithPassword}
+        onCancel={() => {
+          if (!disconnecting) {
+            setPasswordDialogOpen(false);
+            setDisconnectError(null);
+          }
+        }}
+      />
+    </>
   );
 }
