@@ -7,8 +7,10 @@ import { toast } from 'sonner';
 import { Loader2, Mail, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/lib/i18n/use-translation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 
 export default function ForgotPasswordPage() {
+  const lp = useLocalePath();
   const { t } = useTranslation();
 
   const [email, setEmail] = useState('');

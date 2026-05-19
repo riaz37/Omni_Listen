@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { Loader2, CheckCircle2, AlertCircle, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/lib/i18n/use-translation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 
 export default function VerifyEmailContent() {
   const { t } = useTranslation();

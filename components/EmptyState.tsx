@@ -19,6 +19,7 @@ import {
   TRANSITIONS,
   prefersReducedMotion,
 } from '@/lib/motion';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 
 type EmptyStateVariant =
   | 'dashboard'
@@ -127,6 +128,7 @@ export default function EmptyState({
   description,
   action,
 }: EmptyStateProps) {
+  const lp = useLocalePath();
   const config = variant ? variantConfigs[variant] : undefined;
 
   const Icon = icon ?? config?.icon;
@@ -182,7 +184,7 @@ export default function EmptyState({
       {!action && ctaConfig && (
         <Child {...childProps}>
           <Link
-            href={ctaConfig.href}
+            href={lp(ctaConfig.href)}
             className="relative px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors"
           >
             <span className="absolute inset-0 rounded-lg animate-ping [animation-iteration-count:3] bg-primary/20 pointer-events-none" style={{ animationDuration: '3s' }} />

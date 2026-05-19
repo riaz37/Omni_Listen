@@ -6,9 +6,11 @@ import { ArrowRight, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useRef } from 'react';
 import { useTranslation } from '@/lib/i18n/use-translation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 export default function Hero() {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const lp = useLocalePath();
   const heroRef = useRef<HTMLElement>(null);
 
   return (
@@ -62,7 +64,7 @@ export default function Hero() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link
-              href={user ? '/listen' : '/signup'}
+              href={lp(user ? '/listen' : '/signup')}
               className="group px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold text-lg flex items-center gap-2 hover:bg-primary-hover transition-all shadow-lg shadow-primary/20 hover:shadow-primary/30"
             >
               {t('marketing.hero.cta_primary')}

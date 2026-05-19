@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Calendar, Mic, BarChart3, X } from 'lucide-react';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import type { LucideIcon } from 'lucide-react';
 
 interface OnboardingStep {
@@ -45,6 +46,7 @@ interface WelcomeCardProps {
 }
 
 export default function WelcomeCard({ onDismiss }: WelcomeCardProps) {
+  const lp = useLocalePath();
   return (
     <div className="bg-card-2 rounded-xl p-6 relative">
       <button
@@ -85,7 +87,7 @@ export default function WelcomeCard({ onDismiss }: WelcomeCardProps) {
             </div>
 
             <Link
-              href={step.href}
+              href={lp(step.href)}
               className="mt-auto inline-flex items-center text-xs font-medium text-primary hover:underline"
             >
               {step.linkLabel} &rarr;

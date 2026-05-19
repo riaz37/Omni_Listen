@@ -9,6 +9,7 @@ import FeatureHighlights from '@/components/FeatureHighlights';
 import LoadingScreen from '@/components/LoadingScreen';
 import CalendarConnectModal from '@/components/CalendarConnectModal';
 import Link from 'next/link';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { Loader2, Mail, Lock, Github, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/lib/i18n/use-translation';
@@ -19,6 +20,7 @@ import { useTranslation } from '@/lib/i18n/use-translation';
 
 
 export default function SignInPage() {
+  const lp = useLocalePath();
   const { t } = useTranslation();
   const router = useRouter();
   const { user, login, refreshUser } = useAuth();

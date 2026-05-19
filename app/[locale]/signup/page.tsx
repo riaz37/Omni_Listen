@@ -8,12 +8,14 @@ import CalendarConnectModal from '@/components/CalendarConnectModal';
 import { toast } from 'sonner';
 import FeatureHighlights from '@/components/FeatureHighlights';
 import Link from 'next/link';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { Loader2, Mail, Lock, User, AlertCircle, Eye, EyeOff, CheckCircle2, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/lib/i18n/use-translation';
 
 export default function SignUpPage() {
   const { t } = useTranslation();
+  const lp = useLocalePath();
   const router = useRouter();
   const { login } = useAuth();
 
@@ -276,7 +278,7 @@ export default function SignUpPage() {
                   )}
                 </button>
                 <Link
-                  href="/signin"
+                  href={lp("/signin")}
                   className="block text-center text-muted-foreground hover:text-foreground transition-colors text-sm pt-1"
                 >
                   {t('auth.signup.back_to_signin')}
@@ -452,7 +454,7 @@ export default function SignUpPage() {
                 <p className="text-muted-foreground text-sm">
                   {t('auth.signup.have_account')}{' '}
                   <Link
-                    href="/signin"
+                    href={lp("/signin")}
                     className="text-primary hover:text-text-primary font-bold transition-colors"
                   >
                     {t('auth.signup.signin_link')}

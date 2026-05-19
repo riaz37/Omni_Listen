@@ -4,9 +4,11 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 
 export default function CallToAction() {
   const { user } = useAuth();
+  const lp = useLocalePath();
 
   return (
     <section className="py-24 sm:py-32 bg-primary/5 border-y border-primary/10 relative overflow-hidden">
@@ -28,7 +30,7 @@ export default function CallToAction() {
             recording for free today.
           </p>
           <Link
-            href={user ? '/listen' : '/signup'}
+            href={lp(user ? '/listen' : '/signup')}
             className="group inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold text-lg hover:bg-primary-hover transition-all shadow-lg shadow-primary/20 hover:shadow-primary/30"
           >
             {user ? 'Go to Listen' : 'Start Recording Free'}

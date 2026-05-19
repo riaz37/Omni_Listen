@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Check, ArrowRight } from 'lucide-react';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 
 const tiers = [
   {
@@ -54,6 +55,7 @@ const tiers = [
 ];
 
 export default function PricingTeaser() {
+  const lp = useLocalePath();
   return (
     <section className="py-24 sm:py-32 bg-muted/30 border-y border-border/50">
       <div className="max-w-7xl mx-auto px-4">
@@ -112,7 +114,7 @@ export default function PricingTeaser() {
 
               {tier.href ? (
                 <Link
-                  href={tier.href}
+                  href={lp(tier.href)}
                   className="block w-full py-3 text-center bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary-hover transition-colors text-sm"
                 >
                   {tier.cta}
@@ -137,7 +139,7 @@ export default function PricingTeaser() {
           className="text-center mt-8"
         >
           <Link
-            href="/pricing"
+            href={lp('/pricing')}
             className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground font-medium transition-colors py-3"
           >
             See full pricing details

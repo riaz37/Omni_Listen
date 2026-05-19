@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { Loader2, Lock, AlertCircle, CheckCircle2, XCircle, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/lib/i18n/use-translation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 
 
 export default function ResetPasswordContent() {

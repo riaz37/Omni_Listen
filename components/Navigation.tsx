@@ -34,6 +34,7 @@ import {
   DropdownHeader,
 } from '@/components/ui/dropdown';
 import { useTranslation } from '@/lib/i18n/use-translation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 // ─── Navigation item types ───────────────────────────────────────────────────
@@ -77,9 +78,10 @@ const TERTIARY_NAV_ITEMS: readonly NavItem[] = [
 function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
   const Icon = item.icon;
   const { t } = useTranslation();
+  const lp = useLocalePath();
   return (
     <Link
-      href={item.href}
+      href={lp(item.href)}
       className={`relative inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
         isActive
           ? 'text-foreground'
@@ -111,6 +113,7 @@ function UserAvatarMenu({
 }) {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const lp = useLocalePath();
 
   const initials =
     user?.name?.charAt(0).toUpperCase() ||
@@ -143,7 +146,7 @@ function UserAvatarMenu({
 
         {/* Nav items */}
         {TERTIARY_NAV_ITEMS.map((item) => (
-          <DropdownItem key={item.href} href={item.href} icon={item.icon}>
+          <DropdownItem key={item.href} href={lp(item.href)} icon={item.icon}>
             {t(item.labelKey)}
           </DropdownItem>
         ))}
@@ -173,6 +176,7 @@ function MobileMoreSheet({
   onLogout: () => void;
 }) {
   const { t } = useTranslation();
+  const lp = useLocalePath();
   // Close on Escape
   useEffect(() => {
     if (!isOpen) return;
@@ -234,11 +238,11 @@ function MobileMoreSheet({
         <div className="py-1">
           {SECONDARY_ITEMS.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive = pathname === lp(item.href);
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={lp(item.href)}
                 onClick={onClose}
                 className={`flex items-center gap-3 px-6 py-3 transition-colors ${
                   isActive
@@ -257,11 +261,11 @@ function MobileMoreSheet({
         <div className="border-t border-border mt-1 pt-1">
           {TERTIARY_NAV_ITEMS.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive = pathname === lp(item.href);
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={lp(item.href)}
                 onClick={onClose}
                 className={`flex items-center gap-3 px-6 py-3 transition-colors ${
                   isActive
@@ -343,6 +347,7 @@ function Navigation() {
   const { logout } = useAuth();
   const { isRecording } = useGlobalState();
   const { t } = useTranslation();
+  const lp = useLocalePath();
   const [showMobileMore, setShowMobileMore] = useState(false);
 
   const handleLogout = () => {
@@ -367,7 +372,7 @@ function Navigation() {
             {/* Col 1: Logo — fixed width, never shrinks */}
             <div className="flex-shrink-0">
               <Link
-                href="/listen"
+                href={lp('/listen')}
                 className="flex items-center"
                 aria-label="Omni Listen home"
               >
@@ -431,11 +436,11 @@ function Navigation() {
           <div className="flex justify-around items-center h-16 px-2">
             {PRIMARY_ITEMS.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href;
+              const isActive = pathname === lp(item.href);
               return (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={lp(item.href)}
                   role="tab"
                   aria-selected={isActive}
                   className={`flex flex-col items-center justify-center px-2 py-1 transition-colors min-w-0 flex-1 ${

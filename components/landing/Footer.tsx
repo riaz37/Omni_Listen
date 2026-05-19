@@ -1,6 +1,9 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Linkedin, Facebook, Instagram, Youtube } from 'lucide-react';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 
 const productLinks = [
   { label: 'Features', href: '#features' },
@@ -53,6 +56,7 @@ const socialLinks = [
 ];
 
 export default function Footer() {
+  const lp = useLocalePath();
   return (
     <footer className="py-12 border-t border-border bg-muted/30 text-sm">
       <div className="max-w-7xl mx-auto px-4">
@@ -76,7 +80,7 @@ export default function Footer() {
               {productLinks.map((link) => (
                 <li key={link.label}>
                   <Link
-                    href={link.href}
+                    href={link.href.startsWith('/') ? lp(link.href) : link.href}
                     className="text-muted-foreground hover:text-foreground transition-colors inline-block py-2.5"
                   >
                     {link.label}
@@ -93,7 +97,7 @@ export default function Footer() {
               {companyLinks.map((link) => (
                 <li key={link.label}>
                   <Link
-                    href={link.href}
+                    href={lp(link.href)}
                     className="text-muted-foreground hover:text-foreground transition-colors inline-block py-2.5"
                   >
                     {link.label}
@@ -110,7 +114,7 @@ export default function Footer() {
               {legalLinks.map((link) => (
                 <li key={link.label}>
                   <Link
-                    href={link.href}
+                    href={lp(link.href)}
                     className="text-muted-foreground hover:text-foreground transition-colors inline-block py-2.5"
                   >
                     {link.label}
