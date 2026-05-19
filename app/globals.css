@@ -287,3 +287,8 @@ select:focus-visible {
 .animate-pulse-ring {
   animation: pulse-ring 3s ease-out infinite;
 }
+
+/* Arabic font override */
+:lang(ar) {
+  font-family: var(--font-arabic), var(--font-geist-sans), sans-serif;
+}

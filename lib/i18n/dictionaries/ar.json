@@ -1,0 +1,50 @@
+{
+  "common": {
+    "loading": "جاري التحميل...",
+    "error": "حدث خطأ ما",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "close": "إغلاق",
+    "back": "رجوع",
+    "next": "التالي",
+    "submit": "إرسال",
+    "search": "بحث"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "history": "السجل",
+    "notes": "الملاحظات",
+    "tasks": "المهام",
+    "calendar": "التقويم",
+    "queries": "الاستفسارات",
+    "analytics": "التحليلات",
+    "settings": "الإعدادات",
+    "listen": "الاستماع"
+  },
+  "marketing": {
+    "hero.title": "مساعدك الذكي الذي يستمع",
+    "hero.subtitle": "أومني ليسن يفهم وينظم كل ما تقوله",
+    "pricing.title": "أسعار بسيطة",
+    "nav.signin": "تسجيل الدخول",
+    "nav.signup": "ابدأ الآن"
+  },
+  "auth": {
+    "signin.title": "تسجيل الدخول",
+    "signin.email": "البريد الإلكتروني",
+    "signin.password": "كلمة المرور",
+    "signin.submit": "تسجيل الدخول",
+    "signin.no_account": "ليس لديك حساب؟",
+    "signup.title": "إنشاء حساب",
+    "signup.cta": "سجّل الآن",
+    "signup.have_account": "لديك حساب بالفعل؟"
+  },
+  "dashboard": {
+    "listen.start": "ابدأ الاستماع",
+    "listen.stop": "إيقاف",
+    "notes.empty": "لا توجد ملاحظات بعد",
+    "tasks.empty": "لا توجد مهام بعد",
+    "history.empty": "لا توجد محادثات بعد"
+  }
+}

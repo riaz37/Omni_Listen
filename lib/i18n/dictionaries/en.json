@@ -1,0 +1,50 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "search": "Search"
+  },
+  "nav": {
+    "home": "Home",
+    "history": "History",
+    "notes": "Notes",
+    "tasks": "Tasks",
+    "calendar": "Calendar",
+    "queries": "Queries",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "listen": "Listen"
+  },
+  "marketing": {
+    "hero.title": "Your AI that listens",
+    "hero.subtitle": "Omni Listen understands and organizes everything you say",
+    "pricing.title": "Simple pricing",
+    "nav.signin": "Sign in",
+    "nav.signup": "Get started"
+  },
+  "auth": {
+    "signin.title": "Sign in",
+    "signin.email": "Email",
+    "signin.password": "Password",
+    "signin.submit": "Sign in",
+    "signin.no_account": "Don't have an account?",
+    "signup.title": "Create account",
+    "signup.cta": "Sign up",
+    "signup.have_account": "Already have an account?"
+  },
+  "dashboard": {
+    "listen.start": "Start listening",
+    "listen.stop": "Stop",
+    "notes.empty": "No notes yet",
+    "tasks.empty": "No tasks yet",
+    "history.empty": "No conversations yet"
+  }
+}

@@ -1,4 +1,4 @@
-import type { RecordingEntry } from '@/app/(app)/settings/types';
+import type { RecordingEntry } from '@/lib/types';
 
 const DB_NAME = 'esap-recording-vault';
 const DB_VERSION = 1;

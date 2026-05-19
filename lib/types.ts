@@ -130,3 +130,31 @@ export interface ApiKeyData {
   created_at: string;
   last_used_at?: string;
 }
+
+export type RecordingStatus = 'recording' | 'stopped' | 'processed' | 'failed';
+
+export interface RecordingEntry {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  status: RecordingStatus;
+  startedAt: string;
+  stoppedAt: string | null;
+  duration: number;
+  size: number;
+}
+
+export interface AvailableEvent {
+  value: string;
+  label: string;
+}
+
+export const AVAILABLE_EVENTS: AvailableEvent[] = [
+  { value: 'meeting.processed', label: 'Meeting Processed' },
+  { value: 'task.created', label: 'Task Created' },
+  { value: 'event.completed', label: 'Event Completed' },
+  { value: 'event.updated', label: 'Event Updated' },
+  { value: 'event.deleted', label: 'Event Deleted' },
+  { value: 'note.created', label: 'Note Created' },
+  { value: 'note.deleted', label: 'Note Deleted' },
+];

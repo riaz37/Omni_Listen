@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { conversationsAPI } from './api';
 import * as vault from './recording-vault';
 import { downloadBlob } from './download-blob';
-import type { RecordingEntry } from '@/app/(app)/settings/types';
+import type { RecordingEntry } from '@/lib/types';
 
 const DOWNLOAD_WINDOW_KEY = 'esap-download-window';
 const DOWNLOAD_WINDOW_SECONDS = 300;

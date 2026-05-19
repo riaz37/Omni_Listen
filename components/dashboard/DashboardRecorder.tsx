@@ -22,7 +22,7 @@ import {
 import DashboardProcessing from './DashboardProcessing';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import type { RecordingEntry } from '@/app/(app)/settings/types';
+import type { RecordingEntry } from '@/lib/types';
 import * as vault from '@/lib/recording-vault';
 import { downloadBlob } from '@/lib/download-blob';
 import { toast } from 'sonner';
