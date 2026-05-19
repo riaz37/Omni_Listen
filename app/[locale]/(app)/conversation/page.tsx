@@ -1,3 +1,7 @@
+export async function generateStaticParams() {
+  return [{ locale: 'en' }, { locale: 'ar' }];
+}
+
 import { Suspense } from 'react';
 import ConversationDetailClient from './ConversationDetailClient';
 

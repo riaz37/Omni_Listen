@@ -1,3 +1,7 @@
+export async function generateStaticParams() {
+  return [{ locale: 'en' }, { locale: 'ar' }];
+}
+
 import Link from 'next/link';
 import { Users, Target, Shield, Zap, Heart } from 'lucide-react';
 

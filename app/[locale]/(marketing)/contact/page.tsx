@@ -1,3 +1,7 @@
+export async function generateStaticParams() {
+  return [{ locale: 'en' }, { locale: 'ar' }];
+}
+
 import { Mail, MapPin, Phone, Linkedin, Facebook, Instagram, Youtube } from 'lucide-react';
 
 export default function ContactPage() {

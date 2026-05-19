@@ -34,7 +34,7 @@ export default function LanguageSwitcher() {
           aria-current={locale === l ? 'page' : undefined}
           aria-label={l === 'en' ? 'Switch to English' : 'التبديل إلى العربية'}
         >
-          {l === 'en' ? 'EN' : 'ع'}
+          {l === 'en' ? '🇺🇸' : '🇸🇦'}
         </Link>
       ))}
     </div>
