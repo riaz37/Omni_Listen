@@ -24,6 +24,7 @@ import { CalendarEventModal } from './CalendarEventModal';
 import { EventListSidebar } from './EventListSidebar';
 import { CreateEventModal } from './CreateEventModal';
 import PageEntrance from '@/components/ui/page-entrance';
+import { useTranslation } from '@/lib/i18n/use-translation';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './calendar-styles.css';
 
@@ -32,7 +33,7 @@ const Calendar = dynamic(
     const mod = await import('react-big-calendar');
     return mod.Calendar as ComponentType<CalendarProps<CalendarEvent>>;
   },
-  { ssr: false, loading: () => <div className="h-full flex items-center justify-center text-muted-foreground text-sm">Loading calendar...</div> }
+  { ssr: false, loading: () => <div className="h-full flex items-center justify-center text-muted-foreground text-sm">{/* calendar loading */}</div> }
 ) as ComponentType<CalendarProps<CalendarEvent>>;
 
 const locales = {
@@ -48,6 +49,7 @@ const localizer = dateFnsLocalizer({
 });
 
 export default function EventsPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user, loading } = useRequireAuth();
   const queryClient = useQueryClient();
@@ -255,14 +257,14 @@ export default function EventsPage() {
         {/* Header */}
         <div className="mb-8 flex justify-between items-start">
           <div>
-            <h1 className="text-2xl font-bold text-foreground mb-2">Event Calendar</h1>
-            <p className="text-muted-foreground">View and manage all your conversation events and deadlines</p>
+            <h1 className="text-2xl font-bold text-foreground mb-2">{t('calendar.title')}</h1>
+            <p className="text-muted-foreground">{t('calendar.subtitle')}</p>
           </div>
           <Button
             onClick={() => setShowCreateModal(true)}
             iconLeft={<Plus className="w-4 h-4" />}
           >
-            Add Event
+            {t('calendar.add_event')}
           </Button>
         </div>
 
@@ -272,7 +274,7 @@ export default function EventsPage() {
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search"
+              placeholder={t('calendar.search_placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full ps-10 pe-4 py-2 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
@@ -285,22 +287,22 @@ export default function EventsPage() {
               className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-foreground hover:bg-muted hover:border-primary/50 transition-colors text-sm font-medium"
             >
               <List className="w-4 h-4" />
-              <span>All Events</span>
+              <span>{t('calendar.all_events')}</span>
               {events.length > 0 && (
                 <span className="ms-0.5 px-1.5 py-0.5 text-xs font-semibold rounded-full bg-primary/10 text-primary min-w-[20px] text-center">
                   {events.length}
                 </span>
               )}
             </button>
-            <span className="text-sm text-muted-foreground">Sort By</span>
+            <span className="text-sm text-muted-foreground">{t('calendar.sort_by')}</span>
             <CustomDropdown
               value={filterType}
               onChange={(val) => setFilterType(val as 'all' | 'conversation' | 'task' | 'deadline')}
               options={[
-                { value: 'all', label: 'Events' },
-                { value: 'conversation', label: 'Conversations' },
-                { value: 'task', label: 'Tasks' },
-                { value: 'deadline', label: 'Deadlines' },
+                { value: 'all', label: t('calendar.filter_all') },
+                { value: 'conversation', label: t('calendar.filter_conversations') },
+                { value: 'task', label: t('calendar.filter_tasks') },
+                { value: 'deadline', label: t('calendar.filter_deadlines') },
               ]}
             />
           </div>

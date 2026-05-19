@@ -21,6 +21,7 @@ import { useElectronSync } from '@/hooks/useElectronSync';
 import { useWebSocketNotifications } from '@/hooks/useWebSocketNotifications';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import * as vault from '@/lib/recording-vault';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 declare global {
   interface Window {
@@ -49,6 +50,7 @@ const CHIP_QUERIES: Record<string, string> = {
 };
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user, loading, isRevalidated, refreshUser, isLoggingOut } = useAuth();
   const { config, updateConfig } = useConfig();
@@ -139,8 +141,8 @@ export default function DashboardPage() {
 
   const confirmDeleteTask = (taskId: number) => {
     setConfirmDialog({
-      title: 'Delete task',
-      message: 'Are you sure you want to delete this task? This action cannot be undone.',
+      title: t('dashboard.delete_task_title'),
+      message: t('dashboard.delete_task_message'),
       onConfirm: () => {
         handleDeleteTask(taskId);
         setConfirmDialog(null);
@@ -478,9 +480,9 @@ export default function DashboardPage() {
         <div className="mb-10">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div>
-              <h1 className="text-2xl font-semibold text-foreground tracking-tight leading-[1.3]">Dashboard</h1>
+              <h1 className="text-2xl font-semibold text-foreground tracking-tight leading-[1.3]">{t('dashboard.title')}</h1>
               <p className="text-base text-muted-foreground mt-2">
-                Your personal AI assistant — always listening, always organized
+                {t('dashboard.subtitle')}
               </p>
             </div>
             <Button
@@ -490,7 +492,7 @@ export default function DashboardPage() {
             >
               <div className="flex items-center gap-2 text-foreground group-hover:text-primary transition-colors">
                 <Settings className="w-5 h-5" />
-                <span className="text-sm font-semibold">Roles & Presets</span>
+                <span className="text-sm font-semibold">{t('dashboard.roles_presets')}</span>
               </div>
               <div className="h-5 w-px bg-border mx-1"></div>
               <div className="text-xs font-medium bg-primary/5 text-primary px-3 py-1 rounded-lg group-hover:bg-primary/10 transition-colors truncate max-w-[150px]">

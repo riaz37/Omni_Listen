@@ -10,8 +10,10 @@ import FeatureHighlights from '@/components/FeatureHighlights';
 import Link from 'next/link';
 import { Loader2, Mail, Lock, User, AlertCircle, Eye, EyeOff, CheckCircle2, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 export default function SignUpPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { login } = useAuth();
 
@@ -240,8 +242,8 @@ export default function SignUpPage() {
               <span className="text-primary">Listen</span>
             </h1>
           </Link>
-          <h2 className="text-3xl font-bold text-foreground mb-2">Create Account</h2>
-          <p className="text-muted-foreground">Join thousands of professionals changing how they meet</p>
+          <h2 className="text-3xl font-bold text-foreground mb-2">{t('auth.signup.title')}</h2>
+          <p className="text-muted-foreground">{t('auth.signup.subtitle')}</p>
         </div>
 
         {/* Main Card */}
@@ -252,11 +254,11 @@ export default function SignUpPage() {
                 <Mail className="w-8 h-8 text-primary" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">Check your email</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-2">{t('auth.signup.check_email_title')}</h3>
                 <p className="text-muted-foreground">
-                  We sent a verification link to{' '}
+                  {t('auth.signup.check_email_body')}{' '}
                   <span className="font-semibold text-foreground">{registeredEmail}</span>.
-                  Click the link to activate your account.
+                  {' '}{t('auth.signup.check_email_body2')}
                 </p>
               </div>
               <div className="w-full space-y-3">
@@ -266,18 +268,18 @@ export default function SignUpPage() {
                   className="w-full py-3 bg-primary hover:bg-primary-hover text-primary-foreground font-bold rounded-xl shadow-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isResending ? (
-                    <><Loader2 className="w-5 h-5 animate-spin" /> Sending...</>
+                    <><Loader2 className="w-5 h-5 animate-spin" /> {t('common.sending')}</>
                   ) : resendCooldown > 0 ? (
-                    `Resend in ${resendCooldown}s`
+                    `${t('common.resend_in')} ${resendCooldown}s`
                   ) : (
-                    'Resend email'
+                    t('auth.signup.resend_email')
                   )}
                 </button>
                 <Link
                   href="/signin"
                   className="block text-center text-muted-foreground hover:text-foreground transition-colors text-sm pt-1"
                 >
-                  Back to sign in
+                  {t('auth.signup.back_to_signin')}
                 </Link>
               </div>
             </div>
@@ -295,7 +297,7 @@ export default function SignUpPage() {
                 {/* Name Input */}
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-1.5">
-                    Full Name
+                    {t('auth.signup.name_label')}
                   </label>
                   <div className="relative group">
                     <User className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -304,7 +306,7 @@ export default function SignUpPage() {
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full ps-12 pe-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
-                      placeholder="John Doe"
+                      placeholder={t('auth.signup.name_placeholder')}
                       required
                     />
                   </div>
@@ -313,7 +315,7 @@ export default function SignUpPage() {
                 {/* Email Input */}
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-1.5">
-                    Email Address
+                    {t('auth.signup.email_label')}
                   </label>
                   <div className="relative group">
                     <Mail className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -322,7 +324,7 @@ export default function SignUpPage() {
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full ps-12 pe-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
-                      placeholder="you@example.com"
+                      placeholder={t('auth.signup.email_placeholder')}
                       required
                     />
                   </div>
@@ -331,7 +333,7 @@ export default function SignUpPage() {
                 {/* Password Input */}
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-1.5">
-                    Password
+                    {t('auth.signup.password_label')}
                   </label>
                   <div className="relative group">
                     <Lock className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -343,7 +345,7 @@ export default function SignUpPage() {
                         ? 'border-destructive/50 focus:ring-destructive/20 focus:border-destructive'
                         : 'border-border focus:ring-primary/20 focus:border-primary'
                         }`}
-                      placeholder="Create a strong password"
+                      placeholder={t('auth.signup.password_placeholder')}
                       required
                       minLength={8}
                       maxLength={128}
@@ -376,10 +378,10 @@ export default function SignUpPage() {
                         ))}
                       </div>
                       <div className="grid grid-cols-2 gap-2">
-                        <PasswordRequirement met={hasMinLength} text="8+ characters" />
-                        <PasswordRequirement met={hasUpperCase} text="Uppercase" />
-                        <PasswordRequirement met={hasLowerCase} text="Lowercase" />
-                        <PasswordRequirement met={hasNumber} text="Number" />
+                        <PasswordRequirement met={hasMinLength} text={t('auth.signup.pw_req_length')} />
+                        <PasswordRequirement met={hasUpperCase} text={t('auth.signup.pw_req_uppercase')} />
+                        <PasswordRequirement met={hasLowerCase} text={t('auth.signup.pw_req_lowercase')} />
+                        <PasswordRequirement met={hasNumber} text={t('auth.signup.pw_req_number')} />
                       </div>
                       {formData.password.length > 0 && (
                         <p className={`text-xs ${passwordLength > 128 ? 'text-destructive' :
@@ -387,8 +389,8 @@ export default function SignUpPage() {
                             'text-muted-foreground'
                           }`}>
                           {passwordLength} / 128 characters
-                          {passwordLength > 128 && ' - Too long!'}
-                          {passwordLength > 110 && passwordLength <= 128 && ' - Getting close to limit'}
+                          {passwordLength > 128 && ' ' + t('auth.signup.pw_too_long')}
+                          {passwordLength > 110 && passwordLength <= 128 && ' ' + t('auth.signup.pw_near_limit')}
                         </p>
                       )}
                     </div>
@@ -398,7 +400,7 @@ export default function SignUpPage() {
                 {/* Confirm Password Input */}
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-1.5">
-                    Confirm Password
+                    {t('auth.signup.confirm_password_label')}
                   </label>
                   <div className="relative group">
                     <Lock className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -410,7 +412,7 @@ export default function SignUpPage() {
                         ? 'border-destructive/50 focus:ring-destructive/20 focus:border-destructive'
                         : 'border-border focus:ring-primary/20 focus:border-primary'
                         }`}
-                      placeholder="Confirm your password"
+                      placeholder={t('auth.signup.confirm_password_placeholder')}
                       required
                     />
                     <button
@@ -423,7 +425,7 @@ export default function SignUpPage() {
                   </div>
                   {formData.confirmPassword.length > 0 && (
                     <p className={`text-xs mt-2 font-medium ${passwordsMatch ? 'text-primary' : 'text-destructive'}`}>
-                      {passwordsMatch ? '✓ Passwords match' : '✗ Passwords do not match'}
+                      {passwordsMatch ? '✓ ' + t('common.passwords_match') : '✗ ' + t('common.passwords_no_match')}
                     </p>
                   )}
                 </div>
@@ -437,10 +439,10 @@ export default function SignUpPage() {
                   {isLoading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>Creating account...</span>
+                      <span>{t('auth.signup.submitting')}</span>
                     </>
                   ) : (
-                    <span>Create Account</span>
+                    <span>{t('auth.signup.submit')}</span>
                   )}
                 </button>
               </form>
@@ -448,12 +450,12 @@ export default function SignUpPage() {
               {/* Sign In Link */}
               <div className="mt-8 pt-6 border-t border-border text-center">
                 <p className="text-muted-foreground text-sm">
-                  Already have an account?{' '}
+                  {t('auth.signup.have_account')}{' '}
                   <Link
                     href="/signin"
                     className="text-primary hover:text-text-primary font-bold transition-colors"
                   >
-                    Sign in
+                    {t('auth.signup.signin_link')}
                   </Link>
                 </p>
               </div>
@@ -471,7 +473,7 @@ export default function SignUpPage() {
 
         {/* Footer */}
         <p className="text-center text-muted-foreground text-xs mt-6">
-          By creating an account, you agree to our <Link href="/terms" className="hover:text-foreground underline">Terms</Link> and <Link href="/privacy" className="hover:text-foreground underline">Privacy Policy</Link>
+          {t('auth.signup.terms_prefix')} <Link href="/terms" className="hover:text-foreground underline">{t('common.terms')}</Link> {t('auth.signup.terms_and')} <Link href="/privacy" className="hover:text-foreground underline">{t('common.privacy_policy')}</Link>
         </p>
       </motion.div>
     </div>

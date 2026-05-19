@@ -23,10 +23,12 @@ import {
   Trash2,
   AlignJustify,
 } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 type SortColumn = 'title' | 'status' | 'assignee' | 'date';
 
 export default function EventsPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user, loading } = useRequireAuth();
 
@@ -151,10 +153,10 @@ export default function EventsPage() {
             <div className="flex items-center justify-between mb-1">
               <div>
                 <h1 className="text-2xl font-bold text-foreground">
-                  Events List
+                  {t('events.title')}
                 </h1>
                 <p className="text-muted-foreground text-sm">
-                  All events extracted from your conversations
+                  {t('events.subtitle')}
                 </p>
               </div>
               <div className="flex gap-2">
@@ -165,7 +167,7 @@ export default function EventsPage() {
                   iconLeft={<Download className="w-4 h-4" />}
                   title="Export to CSV"
                 >
-                  CSV
+                  {t('events.export_csv')}
                 </Button>
                 <Button
                   onClick={() =>
@@ -178,7 +180,7 @@ export default function EventsPage() {
                   iconLeft={<Download className="w-4 h-4" />}
                   title="Export to Calendar (ICS)"
                 >
-                  Export
+                  {t('events.export_ics')}
                 </Button>
               </div>
             </div>
@@ -188,22 +190,22 @@ export default function EventsPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {[
               {
-                label: 'Total Events',
+                label: t('events.stat_total'),
                 value: stats.total,
                 onClick: () => setActiveTab('all'),
               },
               {
-                label: 'Upcoming',
+                label: t('events.stat_upcoming'),
                 value: stats.upcoming,
                 onClick: () => setActiveTab('upcoming'),
               },
               {
-                label: 'Completed',
+                label: t('events.stat_completed'),
                 value: stats.completed,
                 onClick: () => setActiveTab('all'),
               },
               {
-                label: 'Overdue',
+                label: t('events.stat_overdue'),
                 value: stats.overdue,
                 onClick: () => setActiveTab('past'),
               },
@@ -238,9 +240,10 @@ export default function EventsPage() {
                     : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
-                {tab === 'all'
-                  ? 'All'
-                  : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                {tab === 'all' ? t('events.tab_all')
+                  : tab === 'today' ? t('events.tab_today')
+                  : tab === 'upcoming' ? t('events.tab_upcoming')
+                  : t('events.tab_past')}
               </button>
             ))}
           </div>
@@ -251,7 +254,7 @@ export default function EventsPage() {
               <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Filter events..."
+                placeholder={t('events.search_placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full ps-9 pe-4 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground text-sm"
@@ -288,10 +291,10 @@ export default function EventsPage() {
             <div className="bg-card rounded-lg shadow-sm border border-border">
               <EmptyState
                 icon={List}
-                title="No events found"
-                description="Upload and analyze conversations to see events here"
+                title={t('events.empty_title')}
+                description={t('events.empty_description')}
                 action={{
-                  label: 'Go to Listen',
+                  label: t('events.go_to_listen'),
                   onClick: () => router.push('/listen'),
                 }}
               />

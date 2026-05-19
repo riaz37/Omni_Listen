@@ -11,6 +11,7 @@ import CalendarConnectModal from '@/components/CalendarConnectModal';
 import Link from 'next/link';
 import { Loader2, Mail, Lock, Github, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 
 // Removed conflicting global declaration
@@ -18,6 +19,7 @@ import { motion } from 'framer-motion';
 
 
 export default function SignInPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user, login, refreshUser } = useAuth();
 
@@ -353,8 +355,8 @@ export default function SignInPage() {
               <span className="text-primary">Listen</span>
             </h1>
           </Link>
-          <h2 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h2>
-          <p className="text-muted-foreground">Sign in to access your intelligent workspace</p>
+          <h2 className="text-3xl font-bold text-foreground mb-2">{t('auth.signin.title')}</h2>
+          <p className="text-muted-foreground">{t('auth.signin.subtitle')}</p>
         </div>
 
         {/* Main Card */}
@@ -380,7 +382,7 @@ export default function SignInPage() {
                   : 'text-muted-foreground hover:text-foreground'
                   }`}
               >
-                Quick Sign In
+                {t('auth.signin.tab_quick')}
               </button>
             )}
             {isElectron && (
@@ -394,7 +396,7 @@ export default function SignInPage() {
                   : 'text-muted-foreground hover:text-foreground'
                   }`}
               >
-                Google Sign In
+                {t('auth.signin.tab_google')}
               </button>
             )}
             <button
@@ -407,7 +409,7 @@ export default function SignInPage() {
                 : 'text-muted-foreground hover:text-foreground'
                 }`}
             >
-              Email / Password
+              {t('auth.signin.tab_email')}
             </button>
           </div>
 
@@ -424,7 +426,7 @@ export default function SignInPage() {
                     className="flex items-center justify-center gap-3 px-6 py-2.5 bg-card border border-border hover:bg-muted text-foreground rounded-lg transition-colors w-full font-medium shadow-sm"
                   >
                     <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
-                    <span>Continue with Google</span>
+                    <span>{t('auth.signin.google_btn')}</span>
                   </button>
                 )}
               </div>
@@ -456,7 +458,7 @@ export default function SignInPage() {
               {/* Email Input */}
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-1.5">
-                  Email Address
+                  {t('auth.signin.email_label')}
                 </label>
                 <div className="relative group">
                   <Mail className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -465,7 +467,7 @@ export default function SignInPage() {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="w-full ps-12 pe-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
-                    placeholder="you@example.com"
+                    placeholder={t('auth.signin.email_placeholder')}
                     required
                   />
                 </div>
@@ -474,7 +476,7 @@ export default function SignInPage() {
               {/* Password Input */}
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-1.5">
-                  Password
+                  {t('auth.signin.password_label')}
                 </label>
                 <div className="relative group">
                   <Lock className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -483,7 +485,7 @@ export default function SignInPage() {
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     className="w-full ps-12 pe-12 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
-                    placeholder="Enter your password"
+                    placeholder={t('auth.signin.password_placeholder')}
                     required
                   />
                   <button
@@ -502,7 +504,7 @@ export default function SignInPage() {
                   href="/forgot-password"
                   className="text-sm font-semibold text-primary hover:text-text-primary transition-colors"
                 >
-                  Forgot password?
+                  {t('auth.signin.forgot_password')}
                 </Link>
               </div>
 
@@ -515,10 +517,10 @@ export default function SignInPage() {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Signing in...</span>
+                    <span>{t('auth.signin.submitting')}</span>
                   </>
                 ) : (
-                  <span>Sign In</span>
+                  <span>{t('auth.signin.submit')}</span>
                 )}
               </button>
             </form>
@@ -527,12 +529,12 @@ export default function SignInPage() {
           {/* Sign Up Link */}
           <div className="mt-8 pt-6 border-t border-border text-center">
             <p className="text-muted-foreground text-sm">
-              Don't have an account?{' '}
+              {t('auth.signin.no_account')}{' '}
               <Link
                 href="/signup"
                 className="text-primary hover:text-text-primary font-bold transition-colors"
               >
-                Sign up for free
+                {t('auth.signin.signup_link')}
               </Link>
             </p>
           </div>
@@ -548,7 +550,7 @@ export default function SignInPage() {
         />
 
         <p className="text-center text-muted-foreground text-xs mt-6">
-          By signing in, you agree to our <Link href="/terms" className="hover:text-foreground underline">Terms</Link> and <Link href="/privacy" className="hover:text-foreground underline">Privacy Policy</Link>
+          {t('auth.signin.terms_prefix')} <Link href="/terms" className="hover:text-foreground underline">{t('common.terms')}</Link> {t('auth.signin.terms_and')} <Link href="/privacy" className="hover:text-foreground underline">{t('common.privacy_policy')}</Link>
         </p>
       </motion.div>
     </div>

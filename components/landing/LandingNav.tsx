@@ -6,17 +6,19 @@ import { useAuth } from '@/lib/auth-context';
 import { Menu, X } from 'lucide-react';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { useState } from 'react';
-
-const navLinks = [
-  { label: 'Features', href: '/#features' },
-  { label: 'How It Works', href: '/#how-it-works' },
-  { label: 'Pricing', href: '/pricing', isRoute: true },
-  { label: 'About', href: '/about', isRoute: true },
-];
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 export default function LandingNav() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navLinks = [
+    { label: t('marketing.nav.features'), href: '/#features' },
+    { label: t('marketing.nav.how_it_works'), href: '/#how-it-works' },
+    { label: t('marketing.nav.pricing'), href: '/pricing', isRoute: true },
+    { label: t('marketing.nav.about'), href: '/about', isRoute: true },
+  ];
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -68,7 +70,7 @@ export default function LandingNav() {
                 href="/listen"
                 className="px-5 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:bg-primary-hover transition-colors"
               >
-                Listen
+                {t('marketing.nav.listen')}
               </Link>
             ) : (
               <>
@@ -76,13 +78,13 @@ export default function LandingNav() {
                   href="/signin"
                   className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden sm:block py-3"
                 >
-                  Sign In
+                  {t('marketing.nav.signin')}
                 </Link>
                 <Link
                   href="/signup"
                   className="px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:bg-primary-hover transition-all hidden sm:inline-flex"
                 >
-                  Get Started
+                  {t('marketing.nav.signup')}
                 </Link>
               </>
             )}
@@ -132,14 +134,14 @@ export default function LandingNav() {
                   className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Sign In
+                  {t('marketing.nav.signin')}
                 </Link>
                 <Link
                   href="/signup"
                   className="px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:bg-primary-hover transition-all text-center"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Get Started
+                  {t('marketing.nav.signup')}
                 </Link>
               </div>
             )}

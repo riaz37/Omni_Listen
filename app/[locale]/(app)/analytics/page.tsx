@@ -14,6 +14,7 @@ import { AnalysisHistoryCard } from './AnalysisHistoryCard';
 import { TaskListTable } from './TaskListTable';
 import { Skeleton } from 'boneyard-js/react';
 import PageEntrance from '@/components/ui/page-entrance';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface Conversation {
   job_id: string;
@@ -93,6 +94,7 @@ function formatDuration(seconds: number): string {
 }
 
 export default function AnalyticsPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user, loading } = useRequireAuth();
 
@@ -177,9 +179,9 @@ export default function AnalyticsPage() {
         <PageEntrance name="analytics" className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-12">
           {/* Page Header */}
           <div className="mb-8">
-            <h1 className="text-2xl font-semibold text-foreground">Analytics</h1>
+            <h1 className="text-2xl font-semibold text-foreground">{t('analytics.title')}</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              View and manage all your conversation events and insights
+              {t('analytics.subtitle')}
             </p>
           </div>
 

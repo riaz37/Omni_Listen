@@ -1,33 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useLang } from '@/lib/language-context';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 type Lang = 'en' | 'ar';
-
-function LanguageToggle() {
-    const { lang, setLang } = useLang();
-    return (
-        <div className="flex items-center bg-muted rounded-lg p-0.5 shrink-0">
-            <button
-                onClick={() => setLang('en')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                    lang === 'en' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-            >
-                EN
-            </button>
-            <button
-                onClick={() => setLang('ar')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                    lang === 'ar' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-            >
-                عربي
-            </button>
-        </div>
-    );
-}
 
 const content = {
     en: {
@@ -223,11 +199,12 @@ const content = {
 } as const;
 
 export default function TermsPage() {
-    const { lang } = useLang();
+    const { locale, dir } = useTranslation();
+    const lang: Lang = locale === 'ar' ? 'ar' : 'en';
     const t = content[lang];
 
     return (
-        <div dir={lang === 'ar' ? 'rtl' : 'ltr'} lang={lang}>
+        <div dir={dir} lang={lang}>
             <div className="h-16" />
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -235,7 +212,6 @@ export default function TermsPage() {
                     <header className="mb-10 border-b pb-8">
                         <div className="flex items-start justify-between gap-4 mb-4">
                             <h1 className="text-4xl font-bold text-foreground">{t.title}</h1>
-                            <LanguageToggle />
                         </div>
                         <p className="text-muted-foreground">
                             <strong>{t.lastUpdated}</strong> {t.lastUpdatedDate}

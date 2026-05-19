@@ -16,6 +16,7 @@ import { TaskStatsCards } from './TaskStatsCards';
 import { TaskTable } from './TaskTable';
 import { AddTaskModal } from './AddTaskModal';
 import PageEntrance from '@/components/ui/page-entrance';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface Task {
   id: number;
@@ -31,6 +32,7 @@ interface Task {
 }
 
 export default function TasksPage() {
+  const { t } = useTranslation();
   const { user, loading } = useRequireAuth();
   const queryClient = useQueryClient();
 
@@ -127,7 +129,7 @@ export default function TasksPage() {
 
   const handleDeleteTask = (taskId: number) => {
     setConfirmDialog({
-      title: 'Delete task',
+      title: t('dashboard.delete_task_title'),
       message: 'Are you sure you want to delete this task?',
       onConfirm: async () => {
         try {
@@ -254,14 +256,14 @@ export default function TasksPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-1">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Task List</h1>
-              <p className="text-muted-foreground text-sm">All tasks extracted from your conversations</p>
+              <h1 className="text-2xl font-bold text-foreground">{t('tasks.title')}</h1>
+              <p className="text-muted-foreground text-sm">{t('tasks.subtitle')}</p>
             </div>
             <Button
               onClick={() => setShowAddTaskModal(true)}
               iconLeft={<Plus className="w-4 h-4" />}
             >
-              Add Task
+              {t('tasks.add_task')}
             </Button>
           </div>
         </div>
@@ -280,7 +282,7 @@ export default function TasksPage() {
               : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
           >
-            All
+            {t('tasks.tab_all')}
           </button>
           <button
             onClick={() => setActiveTab('done')}
@@ -289,7 +291,7 @@ export default function TasksPage() {
               : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
           >
-            Done
+            {t('tasks.tab_done')}
           </button>
         </div>
 
@@ -299,31 +301,31 @@ export default function TasksPage() {
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Filter tasks..."
+              placeholder={t('tasks.filter_placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full ps-9 pe-4 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground text-sm"
             />
           </div>
           <div className="flex items-center gap-3 ms-auto">
-            <span className="text-sm text-muted-foreground">Status</span>
+            <span className="text-sm text-muted-foreground">{t('tasks.status_label')}</span>
             <CustomDropdown
               value={filterType}
               onChange={(val) => setFilterType(val as 'all' | 'pending' | 'completed')}
               options={[
-                { value: 'all', label: 'All Status' },
-                { value: 'pending', label: 'Pending' },
-                { value: 'completed', label: 'Completed' },
+                { value: 'all', label: t('tasks.status_all') },
+                { value: 'pending', label: t('tasks.status_pending') },
+                { value: 'completed', label: t('tasks.status_completed') },
               ]}
             />
-            <span className="text-sm text-muted-foreground">Priority</span>
+            <span className="text-sm text-muted-foreground">{t('tasks.priority_label')}</span>
             <CustomDropdown
               value={filterUrgency}
               onChange={(val) => setFilterUrgency(val as 'all' | 'yes' | 'no')}
               options={[
-                { value: 'all', label: 'All Priority' },
-                { value: 'yes', label: 'Urgent' },
-                { value: 'no', label: 'Normal' },
+                { value: 'all', label: t('tasks.priority_all') },
+                { value: 'yes', label: t('tasks.priority_urgent') },
+                { value: 'no', label: t('tasks.priority_normal') },
               ]}
             />
           </div>

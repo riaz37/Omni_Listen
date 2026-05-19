@@ -15,6 +15,7 @@ import { Skeleton } from 'boneyard-js/react';
 import { QueryCard } from './QueryCard';
 import PageEntrance from '@/components/ui/page-entrance';
 import CustomDropdown from '@/components/ui/custom-dropdown';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface QueryResult {
   meetingId: string;
@@ -25,6 +26,7 @@ interface QueryResult {
 }
 
 export default function QueriesPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
@@ -140,9 +142,9 @@ export default function QueriesPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-foreground mb-2">Additional Analysis History</h1>
+              <h1 className="text-2xl font-bold text-foreground mb-2">{t('queries.title')}</h1>
               <p className="text-muted-foreground">
-                {queries.length} total analysis • {filteredQueries.length} shown
+                {queries.length} {t('queries.subtitle_total')} • {filteredQueries.length} {t('queries.subtitle_shown')}
               </p>
             </div>
             {queries.length > 0 && (
@@ -171,19 +173,19 @@ export default function QueriesPage() {
             <div className="bg-card rounded-lg p-4 border border-border">
               <div className="flex items-center gap-2 mb-3">
                 <TrendingUp className="w-5 h-5 text-primary" />
-                <h3 className="font-semibold text-foreground">Analysis Statistics</h3>
+                <h3 className="font-semibold text-foreground">{t('queries.stat_title')}</h3>
               </div>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(stats).map(([type, count]) => {
                   const labels: Record<string, string> = {
-                    summary: 'Summary',
-                    analysis: 'Analysis',
-                    list: 'List',
-                    comparison: 'Comparison',
-                    search: 'Search',
-                    question: 'Question',
+                    summary: t('queries.label_summary'),
+                    analysis: t('queries.label_analysis'),
+                    list: t('queries.label_list'),
+                    comparison: t('queries.label_comparison'),
+                    search: t('queries.label_search'),
+                    question: t('queries.label_question'),
                   };
-                  const label = labels[type] ?? 'Analysis';
+                  const label = labels[type] ?? t('queries.label_analysis');
                   return (
                     <span
                       key={type}
@@ -206,7 +208,7 @@ export default function QueriesPage() {
                 <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="Search additional analysis..."
+                  placeholder={t('queries.search_placeholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full ps-9 pe-3 py-2 bg-card text-foreground text-sm border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/40 placeholder:text-muted-foreground"
@@ -223,13 +225,13 @@ export default function QueriesPage() {
                     setCurrentPage(1);
                   }}
                   options={[
-                    { value: 'all', label: 'All Types' },
-                    { value: 'summary', label: 'Summary' },
-                    { value: 'analysis', label: 'Analysis' },
-                    { value: 'list', label: 'List' },
-                    { value: 'comparison', label: 'Comparison' },
-                    { value: 'search', label: 'Search' },
-                    { value: 'question', label: 'Question' },
+                    { value: 'all', label: t('queries.filter_all') },
+                    { value: 'summary', label: t('queries.filter_summary') },
+                    { value: 'analysis', label: t('queries.filter_analysis') },
+                    { value: 'list', label: t('queries.filter_list') },
+                    { value: 'comparison', label: t('queries.filter_comparison') },
+                    { value: 'search', label: t('queries.filter_search') },
+                    { value: 'question', label: t('queries.filter_question') },
                   ]}
                 />
               </div>
@@ -241,8 +243,8 @@ export default function QueriesPage() {
                   value={sortBy}
                   onChange={(val) => setSortBy(val as 'newest' | 'oldest')}
                   options={[
-                    { value: 'newest', label: 'Newest First' },
-                    { value: 'oldest', label: 'Oldest First' },
+                    { value: 'newest', label: t('queries.sort_newest') },
+                    { value: 'oldest', label: t('queries.sort_oldest') },
                   ]}
                 />
               </div>
@@ -257,12 +259,12 @@ export default function QueriesPage() {
                 <MessageSquare className="w-10 h-10 text-primary" />
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">
-                {searchTerm || filterType !== 'all' ? 'No analysis found' : 'No analysis yet'}
+                {searchTerm || filterType !== 'all' ? t('queries.empty_title_filtered') : t('queries.empty_title')}
               </h3>
               <p className="text-muted-foreground mb-6">
                 {searchTerm || filterType !== 'all'
-                  ? 'Try adjusting your search or filter criteria'
-                  : 'Start asking questions when processing conversations to see them here'}
+                  ? t('queries.empty_body_filtered')
+                  : t('queries.empty_body')}
               </p>
               {!searchTerm && filterType === 'all' && (
                 <Button
@@ -270,7 +272,7 @@ export default function QueriesPage() {
                   iconLeft={<MessageSquare className="w-4 h-4" />}
                   size="lg"
                 >
-                  Go to Listen
+                  {t('queries.go_to_listen')}
                 </Button>
               )}
             </div>

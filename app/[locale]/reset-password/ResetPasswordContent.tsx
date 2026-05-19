@@ -7,9 +7,11 @@ import { authAPI } from '@/lib/api';
 import { toast } from 'sonner';
 import { Loader2, Lock, AlertCircle, CheckCircle2, XCircle, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 
 export default function ResetPasswordContent() {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -101,8 +103,8 @@ export default function ResetPasswordContent() {
             <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 className="w-8 h-8 text-primary" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">Password Reset Successful!</h2>
-            <p className="text-muted-foreground mb-4">Redirecting to sign in...</p>
+            <h2 className="text-2xl font-bold text-foreground mb-2">{t('auth.reset.success_title')}</h2>
+            <p className="text-muted-foreground mb-4">{t('auth.reset.success_subtitle')}</p>
             <Loader2 className="w-6 h-6 animate-spin text-primary mx-auto" />
           </div>
         </div>
@@ -150,8 +152,8 @@ export default function ResetPasswordContent() {
               <span className="text-primary">Listen</span>
             </h1>
           </Link>
-          <h2 className="text-3xl font-bold text-foreground mb-2">Reset Password</h2>
-          <p className="text-muted-foreground">Create your new password</p>
+          <h2 className="text-3xl font-bold text-foreground mb-2">{t('auth.reset.title')}</h2>
+          <p className="text-muted-foreground">{t('auth.reset.subtitle')}</p>
         </div>
 
         {/* Main Card */}
@@ -160,9 +162,9 @@ export default function ResetPasswordContent() {
             <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-destructive text-sm font-medium mb-2">Invalid Reset Link</p>
+                <p className="text-destructive text-sm font-medium mb-2">{t('auth.reset.invalid_link_title')}</p>
                 <p className="text-muted-foreground text-xs">
-                  This password reset link is invalid or has expired. Please request a new one.
+                  {t('auth.reset.invalid_link_body')}
                 </p>
               </div>
             </div>
@@ -171,7 +173,7 @@ export default function ResetPasswordContent() {
               {/* Password Input */}
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-1.5">
-                  New Password
+                  {t('auth.reset.new_password_label')}
                 </label>
                 <div className="relative group">
                   <Lock className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -184,7 +186,7 @@ export default function ResetPasswordContent() {
                         ? 'border-destructive/50 focus:ring-destructive/20 focus:border-destructive'
                         : 'border-border focus:ring-primary/20 focus:border-primary'
                     }`}
-                    placeholder="Create a strong password"
+                    placeholder={t('auth.reset.new_password_placeholder')}
                     required
                     minLength={8}
                     maxLength={128}
@@ -218,10 +220,10 @@ export default function ResetPasswordContent() {
                       ))}
                     </div>
                     <div className="grid grid-cols-2 gap-2">
-                      <PasswordRequirement met={hasMinLength} text="8+ characters" />
-                      <PasswordRequirement met={hasUpperCase} text="Uppercase" />
-                      <PasswordRequirement met={hasLowerCase} text="Lowercase" />
-                      <PasswordRequirement met={hasNumber} text="Number" />
+                      <PasswordRequirement met={hasMinLength} text={t('auth.reset.pw_req_length')} />
+                      <PasswordRequirement met={hasUpperCase} text={t('auth.reset.pw_req_uppercase')} />
+                      <PasswordRequirement met={hasLowerCase} text={t('auth.reset.pw_req_lowercase')} />
+                      <PasswordRequirement met={hasNumber} text={t('auth.reset.pw_req_number')} />
                     </div>
                     {password.length > 0 && (
                       <p className={`text-xs ${
@@ -230,8 +232,8 @@ export default function ResetPasswordContent() {
                         'text-muted-foreground'
                       }`}>
                         {passwordLength} / 128 characters
-                        {passwordLength > 128 && ' - Too long!'}
-                        {passwordLength > 110 && passwordLength <= 128 && ' - Getting close to limit'}
+                        {passwordLength > 128 && ' ' + t('auth.reset.pw_too_long')}
+                        {passwordLength > 110 && passwordLength <= 128 && ' ' + t('auth.reset.pw_near_limit')}
                       </p>
                     )}
                   </div>
@@ -241,7 +243,7 @@ export default function ResetPasswordContent() {
               {/* Confirm Password Input */}
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-1.5">
-                  Confirm New Password
+                  {t('auth.reset.confirm_password_label')}
                 </label>
                 <div className="relative group">
                   <Lock className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -254,7 +256,7 @@ export default function ResetPasswordContent() {
                         ? 'border-destructive/50 focus:ring-destructive/20 focus:border-destructive'
                         : 'border-border focus:ring-primary/20 focus:border-primary'
                     }`}
-                    placeholder="Confirm your password"
+                    placeholder={t('auth.reset.confirm_password_placeholder')}
                     required
                   />
                   <button
@@ -267,7 +269,7 @@ export default function ResetPasswordContent() {
                 </div>
                 {confirmPassword.length > 0 && (
                   <p className={`text-xs mt-2 font-medium ${passwordsMatch ? 'text-primary' : 'text-destructive'}`}>
-                    {passwordsMatch ? '✓ Passwords match' : '✗ Passwords do not match'}
+                    {passwordsMatch ? '✓ ' + t('common.passwords_match') : '✗ ' + t('common.passwords_no_match')}
                   </p>
                 )}
               </div>
@@ -281,10 +283,10 @@ export default function ResetPasswordContent() {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Resetting password...</span>
+                    <span>{t('auth.reset.submitting')}</span>
                   </>
                 ) : (
-                  <span>Reset Password</span>
+                  <span>{t('auth.reset.submit')}</span>
                 )}
               </button>
             </form>
@@ -296,16 +298,16 @@ export default function ResetPasswordContent() {
               href="/signin"
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
-              Back to sign in
+              {t('auth.reset.back_to_signin')}
             </Link>
           </div>
         </div>
 
         {/* Footer */}
         <p className="text-center text-muted-foreground text-xs mt-6">
-          Remember your password?{' '}
+          {t('auth.reset.remember_password')}{' '}
           <Link href="/signin" className="text-primary hover:text-text-primary font-bold transition-colors">
-            Sign in
+            {t('auth.reset.signin_link')}
           </Link>
         </p>
       </motion.div>

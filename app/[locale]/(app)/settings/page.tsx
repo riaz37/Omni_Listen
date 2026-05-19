@@ -4,6 +4,7 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Skeleton } from 'boneyard-js/react';
 import PageEntrance from '@/components/ui/page-entrance';
 import { ConfirmDialogProvider } from './ConfirmDialogContext';
+import { useTranslation } from '@/lib/i18n/use-translation';
 import { SettingsNav } from './SettingsNav';
 import { ProfileSection } from './ProfileSection';
 import { CalendarSection } from './CalendarSection';
@@ -13,6 +14,7 @@ import { WebhooksSection } from './WebhooksSection';
 import { ApiKeysSection } from './ApiKeysSection';
 
 export default function SettingsPage() {
+  const { t } = useTranslation();
   const { loading } = useRequireAuth();
 
   return (
@@ -35,8 +37,8 @@ export default function SettingsPage() {
         <ConfirmDialogProvider>
           <PageEntrance name="settings" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="mb-8">
-              <h1 className="text-2xl font-bold text-foreground">Settings</h1>
-              <p className="text-muted-foreground mt-1">Manage your account and preferences</p>
+              <h1 className="text-2xl font-bold text-foreground">{t('settings.title')}</h1>
+              <p className="text-muted-foreground mt-1">{t('settings.subtitle')}</p>
             </div>
 
             <div className="flex gap-8">

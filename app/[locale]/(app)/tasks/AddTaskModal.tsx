@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import CustomDropdown from '@/components/ui/custom-dropdown';
 import DatePicker from '@/components/ui/date-picker';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface NewTaskData {
   title: string;
@@ -32,12 +33,13 @@ interface AddTaskModalProps {
 }
 
 export function AddTaskModal({ show, newTask, onNewTaskChange, onClose, onSubmit }: AddTaskModalProps) {
+  const { t } = useTranslation();
   return (
     <MotionDialog open={show} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Task</DialogTitle>
-          <DialogDescription>Create a new task to track</DialogDescription>
+          <DialogTitle>{t('tasks.modal_title')}</DialogTitle>
+          <DialogDescription>{t('tasks.modal_description')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 py-1">
@@ -45,13 +47,13 @@ export function AddTaskModal({ show, newTask, onNewTaskChange, onClose, onSubmit
           <div className="space-y-2">
             <Label htmlFor="task-title" className="flex items-center gap-1.5">
               <ListTodo className="w-3.5 h-3.5 text-muted-foreground" />
-              Title
+              {t('tasks.modal_title_label')}
             </Label>
             <Input
               id="task-title"
               value={newTask.title}
               onChange={(e) => onNewTaskChange({ ...newTask, title: e.target.value })}
-              placeholder="What needs to be done?"
+              placeholder={t('tasks.modal_title_placeholder')}
               maxLength={100}
               autoFocus
             />
@@ -61,12 +63,12 @@ export function AddTaskModal({ show, newTask, onNewTaskChange, onClose, onSubmit
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5">
               <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
-              Due Date
+              {t('tasks.modal_due_date_label')}
             </Label>
             <DatePicker
               value={newTask.date}
               onChange={(date) => onNewTaskChange({ ...newTask, date })}
-              placeholder="Pick a due date"
+              placeholder={t('tasks.modal_due_date_placeholder')}
             />
           </div>
 
@@ -74,14 +76,14 @@ export function AddTaskModal({ show, newTask, onNewTaskChange, onClose, onSubmit
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5 text-muted-foreground" />
-              Urgency
+              {t('tasks.modal_urgency_label')}
             </Label>
             <CustomDropdown
               value={newTask.urgency}
               onChange={(val) => onNewTaskChange({ ...newTask, urgency: val as 'yes' | 'no' })}
               options={[
-                { value: 'yes', label: 'Urgent' },
-                { value: 'no', label: 'Normal' },
+                { value: 'yes', label: t('tasks.modal_urgency_urgent') },
+                { value: 'no', label: t('tasks.modal_urgency_normal') },
               ]}
               className="w-full"
             />
@@ -91,13 +93,13 @@ export function AddTaskModal({ show, newTask, onNewTaskChange, onClose, onSubmit
           <div className="space-y-2">
             <Label htmlFor="task-description" className="flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5 text-muted-foreground" />
-              Description
+              {t('tasks.modal_description_label')}
             </Label>
             <Textarea
               id="task-description"
               value={newTask.description}
               onChange={(e) => onNewTaskChange({ ...newTask, description: e.target.value })}
-              placeholder="Add any relevant details..."
+              placeholder={t('tasks.modal_description_placeholder')}
               maxLength={500}
               rows={4}
             />
@@ -106,10 +108,10 @@ export function AddTaskModal({ show, newTask, onNewTaskChange, onClose, onSubmit
 
         <DialogFooter className="gap-2 pt-2 border-t border-border sm:justify-between">
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button onClick={onSubmit}>
-            Add Task
+            {t('tasks.modal_submit')}
           </Button>
         </DialogFooter>
       </DialogContent>

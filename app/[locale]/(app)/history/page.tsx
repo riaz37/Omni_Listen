@@ -18,6 +18,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DURATIONS, EASINGS } from '@/lib/motion';
 import { AlignJustify } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/use-translation';
 import {
   FileText,
   Trash2,
@@ -28,6 +29,7 @@ import {
 type SortColumn = 'title' | 'events' | 'date';
 
 export default function HistoryPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user, loading } = useRequireAuth();
 
@@ -66,9 +68,9 @@ export default function HistoryPage() {
 
   const handleDelete = (jobId: string) => {
     setConfirmDialog({
-      title: 'Delete conversation',
-      message: 'Are you sure you want to delete this conversation?',
-      confirmLabel: 'Delete',
+      title: t('history.delete_title'),
+      message: t('history.delete_message'),
+      confirmLabel: t('common.delete'),
       onConfirm: async () => {
         try {
           await conversationsAPI.deleteConversation(jobId);
@@ -107,9 +109,9 @@ export default function HistoryPage() {
     }
 
     setConfirmDialog({
-      title: 'Delete selected conversations',
+      title: t('history.bulk_delete_title'),
       message: `Are you sure you want to delete ${selectedConversationIds.length} selected conversation(s)?`,
-      confirmLabel: 'Delete',
+      confirmLabel: t('common.delete'),
       onConfirm: async () => {
         setIsDeleting(true);
         try {
@@ -259,10 +261,10 @@ export default function HistoryPage() {
             <div className="flex items-center justify-between mb-1">
               <div>
                 <h1 className="text-2xl font-bold text-foreground tracking-tight">
-                  Conversation History
+                  {t('history.title')}
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                  All conversations analyzed from your recordings
+                  {t('history.subtitle')}
                 </p>
               </div>
               <button
@@ -270,7 +272,7 @@ export default function HistoryPage() {
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-primary text-primary hover:bg-primary/10 rounded-lg transition-colors"
               >
                 <Download className="w-4 h-4" />
-                Export
+                {t('history.export')}
               </button>
             </div>
           </div>
@@ -278,10 +280,10 @@ export default function HistoryPage() {
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {[
-              { label: 'Total Conversations', value: stats.total },
-              { label: 'Total Events', value: stats.totalEvents },
-              { label: 'Calendar Synced', value: stats.synced },
-              { label: 'With Analysis', value: stats.withAnalysis },
+              { label: t('history.stat_total'), value: stats.total },
+              { label: t('history.stat_events'), value: stats.totalEvents },
+              { label: t('history.stat_synced'), value: stats.synced },
+              { label: t('history.stat_analysis'), value: stats.withAnalysis },
             ].map((card) => (
               <div
                 key={card.label}
@@ -312,7 +314,7 @@ export default function HistoryPage() {
                       <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <input
                         type="text"
-                        placeholder="Filter conversations..."
+                        placeholder={t('history.filter_placeholder')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full ps-9 pe-4 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground text-sm"
@@ -342,10 +344,10 @@ export default function HistoryPage() {
                   <div className="bg-card rounded-lg border border-border shadow-sm">
                     <EmptyState
                       icon={FileText}
-                      title="No conversations yet"
-                      description="Record your first conversation to get started"
+                      title={t('history.empty_title')}
+                      description={t('history.empty_description')}
                       action={{
-                        label: 'Go to Listen',
+                        label: t('history.go_to_listen'),
                         onClick: () => router.push('/listen'),
                       }}
                     />

@@ -7,8 +7,10 @@ import { authAPI } from '@/lib/api';
 import { toast } from 'sonner';
 import { Loader2, CheckCircle2, AlertCircle, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 export default function VerifyEmailContent() {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -130,8 +132,8 @@ export default function VerifyEmailContent() {
               <span className="text-primary">Listen</span>
             </h1>
           </Link>
-          <h2 className="text-3xl font-bold text-foreground mb-2">Email Verification</h2>
-          <p className="text-muted-foreground">Verifying your email address</p>
+          <h2 className="text-3xl font-bold text-foreground mb-2">{t('auth.verify.title')}</h2>
+          <p className="text-muted-foreground">{t('auth.verify.subtitle')}</p>
         </div>
 
         {/* Main Card */}
@@ -141,8 +143,8 @@ export default function VerifyEmailContent() {
             <div className="flex flex-col items-center text-center space-y-4 animate-in fade-in">
               <Loader2 className="w-16 h-16 animate-spin text-primary" />
               <div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">Verifying your email...</h3>
-                <p className="text-muted-foreground">Please wait while we verify your email address.</p>
+                <h3 className="text-xl font-semibold text-foreground mb-2">{t('auth.verify.verifying_title')}</h3>
+                <p className="text-muted-foreground">{t('auth.verify.verifying_body')}</p>
               </div>
             </div>
           )}
@@ -152,8 +154,8 @@ export default function VerifyEmailContent() {
             <div className="flex flex-col items-center text-center space-y-4 animate-in fade-in">
               <CheckCircle2 className="w-16 h-16 text-primary" />
               <div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">Email Verified!</h3>
-                <p className="text-muted-foreground">Your email has been successfully verified. Redirecting to sign in...</p>
+                <h3 className="text-xl font-semibold text-foreground mb-2">{t('auth.verify.success_title')}</h3>
+                <p className="text-muted-foreground">{t('auth.verify.success_body')}</p>
               </div>
             </div>
           )}
@@ -163,18 +165,18 @@ export default function VerifyEmailContent() {
             <div className="flex flex-col items-center text-center space-y-6 animate-in fade-in">
               <AlertCircle className="w-16 h-16 text-destructive" />
               <div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">Verification Failed</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-2">{t('auth.verify.error_title')}</h3>
                 <p className="text-muted-foreground mb-4">{errorMessage}</p>
               </div>
 
               {/* Resend section */}
               <div className="w-full space-y-3">
-                <p className="text-sm text-muted-foreground text-start font-medium">Request a new verification link:</p>
+                <p className="text-sm text-muted-foreground text-start font-medium">{t('auth.verify.resend_label')}</p>
                 <input
                   type="email"
                   value={resendEmail}
                   onChange={(e) => setResendEmail(e.target.value)}
-                  placeholder="your@email.com"
+                  placeholder={t('auth.verify.resend_placeholder')}
                   className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 />
                 <button
@@ -183,18 +185,18 @@ export default function VerifyEmailContent() {
                   className="w-full px-6 py-3 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl font-medium transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isResending ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</>
+                    <><Loader2 className="w-4 h-4 animate-spin" /> {t('common.sending')}</>
                   ) : resendCooldown > 0 ? (
-                    `Resend in ${resendCooldown}s`
+                    `${t('common.resend_in')} ${resendCooldown}s`
                   ) : (
-                    'Resend verification email'
+                    t('auth.verify.resend_btn')
                   )}
                 </button>
                 <Link
                   href="/signin"
                   className="block w-full px-6 py-3 border border-border text-foreground rounded-xl font-medium transition-colors text-center hover:bg-muted"
                 >
-                  Back to Sign In
+                  {t('auth.verify.back_to_signin')}
                 </Link>
               </div>
             </div>

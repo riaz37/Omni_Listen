@@ -5,8 +5,10 @@ import { useAuth } from '@/lib/auth-context';
 import { ArrowRight, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useRef } from 'react';
+import { useTranslation } from '@/lib/i18n/use-translation';
 export default function Hero() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const heroRef = useRef<HTMLElement>(null);
 
   return (
@@ -34,13 +36,13 @@ export default function Hero() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
               </span>
-              Now in Public Beta
+              {t('marketing.hero.badge')}
             </div>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-display font-normal tracking-[-0.02em] text-foreground leading-[1.08] mb-6">
-              Never Miss a Detail
+              {t('marketing.hero.title')}
               <br />
-              <span className="text-primary">From Any Conversation</span>
+              <span className="text-primary">{t('marketing.hero.title_highlight')}</span>
             </h1>
           </motion.div>
 
@@ -50,8 +52,7 @@ export default function Hero() {
             transition={{ delay: 0.3, duration: 0.7 }}
             className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            AI that listens so you don&apos;t have to take notes. Record, transcribe,
-            and extract actionable insights from every conversation you have.
+            {t('marketing.hero.subtitle')}
           </motion.p>
 
           <motion.div
@@ -64,7 +65,7 @@ export default function Hero() {
               href={user ? '/listen' : '/signup'}
               className="group px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold text-lg flex items-center gap-2 hover:bg-primary-hover transition-all shadow-lg shadow-primary/20 hover:shadow-primary/30"
             >
-              Start Listening Free
+              {t('marketing.hero.cta_primary')}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <a
@@ -72,7 +73,7 @@ export default function Hero() {
               className="px-8 py-4 rounded-full border border-border bg-background hover:bg-muted text-muted-foreground font-semibold flex items-center gap-2 transition-all"
             >
               <Play className="w-4 h-4" />
-              See How It Works
+              {t('marketing.hero.cta_secondary')}
             </a>
           </motion.div>
         </div>

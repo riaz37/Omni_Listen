@@ -1,4 +1,7 @@
+'use client';
+
 import { normalizeUrgency } from '@/lib/utils';
+import { useTranslation } from '@/lib/i18n/use-translation';
 import CustomDropdown from '@/components/ui/custom-dropdown';
 import {
   Dropdown,
@@ -77,6 +80,7 @@ export function TaskTable({
   onSetRowsPerPage,
 }: TaskTableProps) {
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <div className="bg-card rounded-lg border border-border overflow-hidden">
@@ -91,27 +95,27 @@ export function TaskTable({
             </th>
             <th className="text-start p-3 font-medium text-muted-foreground">
               <button onClick={() => onSort('title')} className="flex items-center gap-1 hover:text-foreground transition-colors">
-                Title <ArrowUpDown className="w-3.5 h-3.5" />
+                {t('tasks.col_title')} <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
             <th className="text-start p-3 font-medium text-muted-foreground">
               <button onClick={() => onSort('status')} className="flex items-center gap-1 hover:text-foreground transition-colors">
-                Status <ArrowUpDown className="w-3.5 h-3.5" />
+                {t('tasks.col_status')} <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
             <th className="text-start p-3 font-medium text-muted-foreground">
               <button onClick={() => onSort('priority')} className="flex items-center gap-1 hover:text-foreground transition-colors">
-                Priority <ArrowUpDown className="w-3.5 h-3.5" />
+                {t('tasks.col_priority')} <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
             <th className="text-start p-3 font-medium text-muted-foreground">
               <button onClick={() => onSort('assign')} className="flex items-center gap-1 hover:text-foreground transition-colors">
-                Assign <ArrowUpDown className="w-3.5 h-3.5" />
+                {t('tasks.col_assign')} <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
             <th className="text-start p-3 font-medium text-muted-foreground">
               <button className="flex items-center gap-1">
-                Assign <ArrowUpDown className="w-3.5 h-3.5" />
+                {t('tasks.col_assign')} <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
             <th className="w-10 p-3"></th>
@@ -122,8 +126,8 @@ export function TaskTable({
             <tr>
               <td colSpan={7} className="p-8 text-center text-muted-foreground">
                 {searchTerm || filterType !== 'all' || filterUrgency !== 'all'
-                  ? 'No tasks match your filters'
-                  : 'No tasks found. Upload meetings to create tasks.'}
+                  ? t('tasks.no_match')
+                  : t('tasks.empty')}
               </td>
             </tr>
           ) : (
@@ -154,7 +158,7 @@ export function TaskTable({
                       ? 'bg-primary/10 text-primary border-primary/30'
                       : 'bg-card text-primary border-primary/30'
                       }`}>
-                      {task.completed ? 'Done' : 'To Do'}
+                      {task.completed ? t('tasks.status_done') : t('tasks.status_todo')}
                     </span>
                   </td>
                   <td className="p-3">
@@ -162,7 +166,7 @@ export function TaskTable({
                       ? 'bg-destructive/10 text-destructive border-destructive/30'
                       : 'bg-muted text-muted-foreground border-border'
                       }`}>
-                      {isUrgent ? 'Urgent' : 'Normal'}
+                      {isUrgent ? t('common.urgent') : t('common.normal')}
                     </span>
                   </td>
                   <td className="p-3">
@@ -184,10 +188,10 @@ export function TaskTable({
                       </DropdownTrigger>
                       <DropdownContent align="end">
                         <DropdownItem icon={CheckCircle2} onClick={() => onToggleTask(task.id, !task.completed)}>
-                          {task.completed ? 'Mark Incomplete' : 'Mark Done'}
+                          {task.completed ? t('tasks.mark_incomplete') : t('tasks.mark_done')}
                         </DropdownItem>
                         <DropdownItem icon={Trash2} destructive onClick={() => onDeleteTask(task.id)}>
-                          Delete
+                          {t('common.delete')}
                         </DropdownItem>
                       </DropdownContent>
                     </Dropdown>
@@ -202,11 +206,11 @@ export function TaskTable({
       {/* Pagination */}
       <div className="flex items-center justify-between px-4 py-3 border-t border-border">
         <div className="text-sm text-muted-foreground">
-          {selectedIds.length} of {filteredTasksCount} row(s) selected.
+          {selectedIds.length} {t('common.of')} {filteredTasksCount} row(s) {t('common.selected')}.
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-muted-foreground">Rows per page</span>
+            <span className="text-muted-foreground">{t('common.rows_per_page')}</span>
             <CustomDropdown
               value={String(rowsPerPage)}
               onChange={(val) => { onSetRowsPerPage(Number(val)); onSetCurrentPage(1); }}
@@ -218,7 +222,7 @@ export function TaskTable({
             />
           </div>
           <span className="text-sm text-muted-foreground">
-            Page {currentPage} of {totalPages || 1}
+            {t('common.page_of')} {currentPage} {t('common.of')} {totalPages || 1}
           </span>
           <div className="flex items-center gap-1">
             <button onClick={() => onSetCurrentPage(1)} disabled={currentPage === 1} className="p-1 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors">

@@ -6,8 +6,10 @@ import { authAPI } from '@/lib/api';
 import { toast } from 'sonner';
 import { Loader2, Mail, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 export default function ForgotPasswordPage() {
+  const { t } = useTranslation();
 
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -75,8 +77,8 @@ export default function ForgotPasswordPage() {
               <span className="text-primary">Listen</span>
             </h1>
           </Link>
-          <h2 className="text-3xl font-bold text-foreground mb-2">Reset Password</h2>
-          <p className="text-muted-foreground">Reset your password</p>
+          <h2 className="text-3xl font-bold text-foreground mb-2">{t('auth.forgot.title')}</h2>
+          <p className="text-muted-foreground">{t('auth.forgot.subtitle')}</p>
         </div>
 
         {/* Main Card */}
@@ -85,7 +87,7 @@ export default function ForgotPasswordPage() {
             <>
               <div className="mb-6 text-center">
                 <p className="text-muted-foreground">
-                  Enter your email address and we&apos;ll send you instructions to reset your password.
+                  {t('auth.forgot.instruction')}
                 </p>
               </div>
 
@@ -93,7 +95,7 @@ export default function ForgotPasswordPage() {
                 {/* Email Input */}
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-1.5">
-                    Email Address
+                    {t('auth.forgot.email_label')}
                   </label>
                   <div className="relative group">
                     <Mail className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -102,7 +104,7 @@ export default function ForgotPasswordPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full ps-12 pe-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
-                      placeholder="you@example.com"
+                      placeholder={t('auth.forgot.email_placeholder')}
                       required
                     />
                   </div>
@@ -117,10 +119,10 @@ export default function ForgotPasswordPage() {
                   {isLoading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>Sending...</span>
+                      <span>{t('auth.forgot.submitting')}</span>
                     </>
                   ) : (
-                    <span>Send Reset Instructions</span>
+                    <span>{t('auth.forgot.submit')}</span>
                   )}
                 </button>
               </form>
@@ -133,10 +135,10 @@ export default function ForgotPasswordPage() {
                   <CheckCircle2 className="w-8 h-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">Check your email</h3>
+                  <h3 className="text-xl font-semibold text-foreground mb-2">{t('auth.forgot.check_email_title')}</h3>
                   <p className="text-muted-foreground">
-                    If an account exists with <span className="font-medium text-primary">{email}</span>,
-                    you will receive password reset instructions shortly.
+                    {t('auth.forgot.check_email_body')} <span className="font-medium text-primary">{email}</span>,
+                    {' '}{t('auth.forgot.check_email_body2')}
                   </p>
                 </div>
               </div>
@@ -147,9 +149,9 @@ export default function ForgotPasswordPage() {
                   <div className="flex items-start gap-3 mb-2">
                     <AlertCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
-                      <p className="text-foreground text-sm font-medium mb-2">Email Not Configured</p>
+                      <p className="text-foreground text-sm font-medium mb-2">{t('auth.forgot.email_not_configured')}</p>
                       <p className="text-muted-foreground text-xs mb-2">
-                        SMTP is not configured. Click the link below to reset your password:
+                        {t('auth.forgot.smtp_note')}
                       </p>
                       <Link
                         href={resetUrl.replace(window.location.origin, '')}
@@ -171,16 +173,16 @@ export default function ForgotPasswordPage() {
               className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
-              <span>Back to sign in</span>
+              <span>{t('auth.forgot.back_to_signin')}</span>
             </Link>
           </div>
         </div>
 
         {/* Footer */}
         <p className="text-center text-muted-foreground text-xs mt-6">
-          Remember your password?{' '}
+          {t('auth.forgot.remember_password')}{' '}
           <Link href="/signin" className="text-primary hover:text-text-primary font-bold transition-colors">
-            Sign in
+            {t('auth.forgot.signin_link')}
           </Link>
         </p>
       </motion.div>

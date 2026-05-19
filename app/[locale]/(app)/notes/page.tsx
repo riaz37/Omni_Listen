@@ -24,6 +24,7 @@ import { NoteTable } from './NoteTable';
 import { AddNoteModal } from './AddNoteModal';
 import { NoteQuickViewModal } from './NoteQuickViewModal';
 import PageEntrance from '@/components/ui/page-entrance';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface Note {
   id: string;
@@ -41,6 +42,7 @@ interface Note {
 type SortColumn = 'title' | 'category' | 'source' | 'date';
 
 export default function NotesPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user, loading } = useRequireAuth();
   const queryClient = useQueryClient();
@@ -173,8 +175,8 @@ export default function NotesPage() {
 
   const handleDeleteNote = (noteId: string) => {
     setConfirmDialog({
-      title: 'Delete note',
-      message: 'Are you sure you want to delete this note?',
+      title: t('notes.delete_title'),
+      message: t('notes.delete_message'),
       onConfirm: async () => {
         try {
           const numericId = parseInt(noteId.replace('note-', ''));
@@ -236,7 +238,7 @@ export default function NotesPage() {
     }
 
     setConfirmDialog({
-      title: 'Delete selected notes',
+      title: t('notes.bulk_delete_title'),
       message: `Are you sure you want to delete ${selectedNoteIds.length} selected note(s)?`,
       onConfirm: async () => {
         setIsDeleting(true);
@@ -327,13 +329,13 @@ export default function NotesPage() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-1">
               <div>
-                <h1 className="text-2xl font-bold text-foreground tracking-tight">Notes</h1>
+                <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('notes.title')}</h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                  All notes captured from your conversations
+                  {t('notes.subtitle')}
                 </p>
               </div>
               <Button onClick={() => setShowAddNoteModal(true)} iconLeft={<Plus className="w-4 h-4" />}>
-                Add Note
+                {t('notes.add_note')}
               </Button>
             </div>
           </div>
@@ -353,7 +355,7 @@ export default function NotesPage() {
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
-              All
+              {t('notes.tab_all')}
             </button>
             <button
               onClick={() => { setActiveTab('completed'); setCurrentPage(1); }}
@@ -363,7 +365,7 @@ export default function NotesPage() {
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
-              Completed
+              {t('notes.tab_completed')}
             </button>
           </div>
 
@@ -373,22 +375,22 @@ export default function NotesPage() {
               <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Filter notes..."
+                placeholder={t('notes.filter_placeholder')}
                 value={searchTerm}
                 onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                 className="w-full ps-9 pe-4 py-2 bg-card text-foreground border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground text-sm"
               />
             </div>
             <div className="flex items-center gap-3 ms-auto">
-              <span className="text-sm text-muted-foreground">Category</span>
+              <span className="text-sm text-muted-foreground">{t('notes.category_label')}</span>
               <CustomDropdown
                 value={selectedCategory}
                 onChange={(val) => { setSelectedCategory(val); setCurrentPage(1); }}
                 options={[
-                  { value: 'all', label: 'All Categories' },
-                  { value: 'general', label: 'General' },
-                  { value: 'decision', label: 'Decision' },
-                  { value: 'budget', label: 'Budget' },
+                  { value: 'all', label: t('notes.category_all') },
+                  { value: 'general', label: t('notes.category_general') },
+                  { value: 'decision', label: t('notes.category_decision') },
+                  { value: 'budget', label: t('notes.category_budget') },
                 ]}
               />
 

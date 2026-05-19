@@ -33,47 +33,49 @@ import {
   DropdownSeparator,
   DropdownHeader,
 } from '@/components/ui/dropdown';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 // ─── Navigation item types ───────────────────────────────────────────────────
 
 interface NavItem {
   readonly href: string;
-  readonly label: string;
+  readonly labelKey: string;
   readonly icon: React.ComponentType<{ className?: string }>;
 }
 
 // ─── PRIMARY: Always visible in top bar ──────────────────────────────────────
 
 const PRIMARY_ITEMS: readonly NavItem[] = [
-  { href: '/listen', label: 'Listen', icon: Home },
-  { href: '/analytics', label: 'Analytics', icon: BarChart3 },
-  { href: '/history', label: 'History', icon: History },
-  { href: '/calendar', label: 'Calendar', icon: Calendar },
-  { href: '/events', label: 'Event', icon: List },
-  { href: '/tasks', label: 'Task', icon: CheckSquare },
-  { href: '/notes', label: 'Notes', icon: StickyNote },
-  { href: '/queries', label: 'Analysis', icon: MessageSquare },
+  { href: '/listen', labelKey: 'nav.listen', icon: Home },
+  { href: '/analytics', labelKey: 'nav.analytics', icon: BarChart3 },
+  { href: '/history', labelKey: 'nav.history', icon: History },
+  { href: '/calendar', labelKey: 'nav.calendar', icon: Calendar },
+  { href: '/events', labelKey: 'nav.events', icon: List },
+  { href: '/tasks', labelKey: 'nav.tasks', icon: CheckSquare },
+  { href: '/notes', labelKey: 'nav.notes', icon: StickyNote },
+  { href: '/queries', labelKey: 'nav.queries', icon: MessageSquare },
 ] as const;
 
 // ─── SECONDARY: "Workspace" dropdown (used in mobile bottom sheet) ──────────
 
 const SECONDARY_ITEMS: readonly NavItem[] = [
-  { href: '/events', label: 'Events', icon: List },
-  { href: '/tasks', label: 'Tasks', icon: CheckSquare },
-  { href: '/notes', label: 'Notes', icon: StickyNote },
-  { href: '/queries', label: 'Analysis', icon: MessageSquare },
+  { href: '/events', labelKey: 'nav.events', icon: List },
+  { href: '/tasks', labelKey: 'nav.tasks', icon: CheckSquare },
+  { href: '/notes', labelKey: 'nav.notes', icon: StickyNote },
+  { href: '/queries', labelKey: 'nav.queries', icon: MessageSquare },
 ] as const;
 
 // ─── TERTIARY: User avatar menu items ────────────────────────────────────────
 
 const TERTIARY_NAV_ITEMS: readonly NavItem[] = [
-  { href: '/settings', label: 'Settings', icon: Settings },
+  { href: '/settings', labelKey: 'nav.settings', icon: Settings },
 ] as const;
 
 // ─── Desktop nav link ────────────────────────────────────────────────────────
 
 function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
   const Icon = item.icon;
+  const { t } = useTranslation();
   return (
     <Link
       href={item.href}
@@ -93,7 +95,7 @@ function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
       )}
       <span className="relative z-10 flex items-center gap-1">
         <Icon className="w-4 h-4 shrink-0" />
-        <span>{item.label}</span>
+        <span>{t(item.labelKey)}</span>
       </span>
     </Link>
   );
@@ -107,6 +109,7 @@ function UserAvatarMenu({
   onLogout: () => void;
 }) {
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const initials =
     user?.name?.charAt(0).toUpperCase() ||
@@ -140,7 +143,7 @@ function UserAvatarMenu({
         {/* Nav items */}
         {TERTIARY_NAV_ITEMS.map((item) => (
           <DropdownItem key={item.href} href={item.href} icon={item.icon}>
-            {item.label}
+            {t(item.labelKey)}
           </DropdownItem>
         ))}
 
@@ -148,7 +151,7 @@ function UserAvatarMenu({
 
         {/* Logout */}
         <DropdownItem icon={LogOut} destructive onClick={onLogout}>
-          Logout
+          {t('common.logout')}
         </DropdownItem>
       </DropdownContent>
     </Dropdown>
@@ -168,6 +171,7 @@ function MobileMoreSheet({
   pathname: string;
   onLogout: () => void;
 }) {
+  const { t } = useTranslation();
   // Close on Escape
   useEffect(() => {
     if (!isOpen) return;
@@ -214,12 +218,12 @@ function MobileMoreSheet({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-2">
           <span className="text-sm font-semibold text-foreground">
-            Workspace
+            {t('common.workspace')}
           </span>
           <button
             onClick={onClose}
             className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            aria-label="Close menu"
+            aria-label={t('common.close')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -242,7 +246,7 @@ function MobileMoreSheet({
                 }`}
               >
                 <Icon className="w-5 h-5 shrink-0" />
-                <span className="text-sm">{item.label}</span>
+                <span className="text-sm">{t(item.labelKey)}</span>
               </Link>
             );
           })}
@@ -265,7 +269,7 @@ function MobileMoreSheet({
                 }`}
               >
                 <Icon className="w-5 h-5 shrink-0" />
-                <span className="text-sm">{item.label}</span>
+                <span className="text-sm">{t(item.labelKey)}</span>
               </Link>
             );
           })}
@@ -279,7 +283,7 @@ function MobileMoreSheet({
             className="flex items-center gap-3 px-6 py-3 transition-colors w-full text-destructive hover:bg-destructive/10"
           >
             <LogOut className="w-5 h-5 shrink-0" />
-            <span className="text-sm">Logout</span>
+            <span className="text-sm">{t('common.logout')}</span>
           </button>
         </div>
       </motion.div>
@@ -293,6 +297,7 @@ function MobileMoreSheet({
 
 function SegmentedThemeToggle() {
   const { actualTheme, setTheme } = useTheme();
+  const { t } = useTranslation();
 
   const handleSwitch = useCallback(
     (target: 'light' | 'dark') => {
@@ -313,7 +318,7 @@ function SegmentedThemeToggle() {
         }`}
       >
         <Sun className="w-3.5 h-3.5" />
-        Light
+        {t('common.light')}
       </button>
       <button
         onClick={() => handleSwitch('dark')}
@@ -324,7 +329,7 @@ function SegmentedThemeToggle() {
         }`}
       >
         <Moon className="w-3.5 h-3.5" />
-        Dark
+        {t('common.dark')}
       </button>
     </div>
   );
@@ -336,6 +341,7 @@ function Navigation() {
   const pathname = usePathname();
   const { logout } = useAuth();
   const { isRecording } = useGlobalState();
+  const { t } = useTranslation();
   const [showMobileMore, setShowMobileMore] = useState(false);
 
   const handleLogout = () => {
@@ -350,7 +356,7 @@ function Navigation() {
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:start-4 focus:z-50 focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-md"
       >
-        Skip to content
+        {t('common.skip_to_content')}
       </a>
 
       <nav className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border" aria-label="Main navigation">
@@ -434,7 +440,7 @@ function Navigation() {
                 >
                   <Icon className="w-6 h-6 mb-1 shrink-0" />
                   <span className="text-[10px] font-medium truncate w-full text-center">
-                    {item.label}
+                    {t(item.labelKey)}
                   </span>
                 </Link>
               );
@@ -453,7 +459,7 @@ function Navigation() {
               }`}
             >
               <MoreHorizontal className="w-6 h-6 mb-1 shrink-0" />
-              <span className="text-[10px] font-medium">More</span>
+              <span className="text-[10px] font-medium">{t('common.more')}</span>
             </button>
           </div>
         </div>
