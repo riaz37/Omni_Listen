@@ -33,7 +33,7 @@ export default function HistoryPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const lp = useLocalePath();
-  const { user, loading } = useRequireAuth();
+  const { user, loading, isRevalidated } = useRequireAuth();
 
   const queryClient = useQueryClient();
   const [sortColumn, setSortColumn] = useState<SortColumn>('date');
@@ -58,7 +58,7 @@ export default function HistoryPage() {
       const data = await conversationsAPI.getConversations();
       return data.meetings ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && isRevalidated,
     staleTime: 5 * 60 * 1000,
   });
 

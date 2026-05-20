@@ -44,7 +44,7 @@ type SortColumn = 'title' | 'category' | 'source' | 'date';
 export default function NotesPage() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { user, loading } = useRequireAuth();
+  const { user, loading, isRevalidated } = useRequireAuth();
   const queryClient = useQueryClient();
 
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -75,7 +75,7 @@ export default function NotesPage() {
   const { data: meetings = [], isLoading: meetingsLoading } = useQuery({
     queryKey: ['conversations', 'all'],
     queryFn: () => conversationsAPI.getAllConversations(),
-    enabled: !!user,
+    enabled: !!user && isRevalidated,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -85,7 +85,7 @@ export default function NotesPage() {
       const r = await conversationsAPI.getAllNotes();
       return r.notes ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && isRevalidated,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -95,7 +95,7 @@ export default function NotesPage() {
       const r = await conversationsAPI.getAllEvents();
       return r.events ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && isRevalidated,
     staleTime: 5 * 60 * 1000,
   });
 

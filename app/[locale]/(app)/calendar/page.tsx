@@ -51,7 +51,7 @@ const localizer = dateFnsLocalizer({
 export default function EventsPage() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { user, loading } = useRequireAuth();
+  const { user, loading, isRevalidated } = useRequireAuth();
   const queryClient = useQueryClient();
 
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
@@ -76,7 +76,7 @@ export default function EventsPage() {
       const r = await conversationsAPI.getAllEvents();
       return r.events ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && isRevalidated,
     staleTime: 5 * 60 * 1000,
   });
 

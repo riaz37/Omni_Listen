@@ -30,7 +30,7 @@ export default function QueriesPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const lp = useLocalePath();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isRevalidated } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
@@ -42,7 +42,7 @@ export default function QueriesPage() {
   const { data: meetings = [], isLoading: fetchLoading } = useQuery({
     queryKey: ['conversations', 'all'],
     queryFn: () => conversationsAPI.getAllConversations(),
-    enabled: !!user && !authLoading,
+    enabled: !!user && !authLoading && isRevalidated,
     staleTime: 5 * 60 * 1000,
   });
 

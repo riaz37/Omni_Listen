@@ -54,55 +54,61 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = typeof window !== 'undefined' ? sessionStorage.getItem('refresh_token') : null;
-        if (refreshToken) {
-          // If a refresh is already in progress, wait for it
-          if (!refreshTokenPromise) {
-            refreshTokenPromise = (async () => {
-              try {
-                const response = await axios.post(`${API_URL}/api/auth/refresh`, {
-                  refresh_token: refreshToken,
-                });
-
-                const { access_token, refresh_token: new_refresh_token } = response.data;
-
-                // Store both new tokens (implements refresh token rotation)
-                if (typeof window !== 'undefined') {
-                  sessionStorage.setItem('access_token', access_token);
-                  if (new_refresh_token) {
-                    sessionStorage.setItem('refresh_token', new_refresh_token);
-                  }
-                }
-                return access_token;
-              } catch (err) {
-                throw err;
-              } finally {
-                // Clear the promise after completion
-                refreshTokenPromise = null;
-              }
-            })();
-          } else {
+        if (!refreshToken) {
+          // Access token rejected with no refresh token — clear stale session and redirect
+          if (typeof window !== 'undefined' && sessionStorage.getItem('access_token')) {
+            sessionStorage.removeItem('access_token');
+            sessionStorage.removeItem('cached_user');
+            window.location.href = '/signin';
           }
-
-          // Wait for the refresh to complete
-          const access_token = await refreshTokenPromise;
-
-          // Retry the original request with new token
-          // Create a new config object to avoid mutation issues
-          const newConfig = {
-            ...originalRequest,
-            headers: {
-              ...originalRequest.headers,
-              Authorization: `Bearer ${access_token}`,
-            },
-          };
-
-          return api(newConfig);
+          return Promise.reject(error);
         }
+
+        // If a refresh is already in progress, wait for it
+        if (!refreshTokenPromise) {
+          refreshTokenPromise = (async () => {
+            try {
+              const response = await axios.post(`${API_URL}/api/auth/refresh`, {
+                refresh_token: refreshToken,
+              });
+
+              const { access_token, refresh_token: new_refresh_token } = response.data;
+
+              // Store both new tokens (implements refresh token rotation)
+              if (typeof window !== 'undefined') {
+                sessionStorage.setItem('access_token', access_token);
+                if (new_refresh_token) {
+                  sessionStorage.setItem('refresh_token', new_refresh_token);
+                }
+              }
+              return access_token;
+            } catch (err) {
+              throw err;
+            } finally {
+              refreshTokenPromise = null;
+            }
+          })();
+        }
+
+        // Wait for the refresh to complete
+        const access_token = await refreshTokenPromise;
+
+        // Retry the original request with new token
+        const newConfig = {
+          ...originalRequest,
+          headers: {
+            ...originalRequest.headers,
+            Authorization: `Bearer ${access_token}`,
+          },
+        };
+
+        return api(newConfig);
       } catch (refreshError) {
         // Refresh failed, redirect to login
         if (typeof window !== 'undefined') {
           sessionStorage.removeItem('access_token');
           sessionStorage.removeItem('refresh_token');
+          sessionStorage.removeItem('cached_user');
           window.location.href = '/signin';
         }
         return Promise.reject(refreshError);
