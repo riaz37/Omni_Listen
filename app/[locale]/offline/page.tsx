@@ -2,8 +2,10 @@
 
 import Link from 'next/link';
 import { WifiOff, RefreshCw } from 'lucide-react';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 
 export default function OfflinePage() {
+  const lp = useLocalePath();
   const handleRefresh = () => {
     window.location.reload();
   };
@@ -52,7 +54,7 @@ export default function OfflinePage() {
             </button>
 
             <Link
-              href="/"
+              href={lp('/')}
               className="block w-full py-4 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-xl border border-white/10 hover:border-white/20 transition-all duration-300"
             >
               Go to Home

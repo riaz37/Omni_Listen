@@ -1,11 +1,16 @@
 import { useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { conversationsAPI, analyticsAPI } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
 import { sortByUrgencyThenDate } from '@/lib/utils';
 
 export function useDashboardData(user: any, loading: boolean, isLoggingOut: boolean) {
   const queryClient = useQueryClient();
-  const enabled = !!user && !loading && !isLoggingOut;
+  const { isRevalidated } = useAuth();
+  // isRevalidated ensures the server has confirmed the token before firing queries.
+  // Without it, queries would fire immediately from the cached user and return 401
+  // if the token expired between sessions.
+  const enabled = !!user && !loading && !isLoggingOut && isRevalidated;
 
   const { data: rawEvents = [], isPending: eventsPending } = useQuery({
     queryKey: ['events'],

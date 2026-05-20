@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Sun, RefreshCw, X } from 'lucide-react';
 import { briefingAPI } from '@/lib/api';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/lib/auth-context';
 import { useTranslation } from '@/lib/i18n/use-translation';
 
 const STORAGE_KEY = 'morning-briefing-position';
@@ -44,11 +45,13 @@ export default function MorningBriefingBubble() {
     // See DESIGN.md for brand color rules (green-only accent).
     const queryClient = useQueryClient();
     const { t } = useTranslation();
+    const { user } = useAuth();
     const { data: briefing, isLoading: loading } = useQuery<BriefingData>({
         queryKey: ['morning-briefing'],
         queryFn: () => briefingAPI.getTodaysBriefing(),
+        enabled: !!user,
         staleTime: 10 * 60 * 1000,
-        retry: 3,
+        retry: (failureCount, error: any) => error?.response?.status === 401 ? false : failureCount < 2,
     });
     const [regenerating, setRegenerating] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);

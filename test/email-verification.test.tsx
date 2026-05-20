@@ -55,13 +55,13 @@ describe('SignInPage — ?verified=true toast', () => {
   })
 
   it('shows success toast when ?verified=true is in the URL', async () => {
-    const { default: SignInPage } = await import('@/app/signin/page')
+    const { default: SignInPage } = await import('@/app/[locale]/signin/page')
     render(<SignInPage />)
     expect(toastSuccess).toHaveBeenCalledWith('Email verified! Sign in to continue.')
   })
 
   it('clears the ?verified param from the URL after showing toast', async () => {
-    const { default: SignInPage } = await import('@/app/signin/page')
+    const { default: SignInPage } = await import('@/app/[locale]/signin/page')
     render(<SignInPage />)
     expect(window.history.replaceState).toHaveBeenCalledWith({}, '', '/signin')
   })
@@ -81,7 +81,7 @@ describe('VerifyEmailContent — success redirect', () => {
   })
 
   it('redirects to /signin?verified=true on successful verification', async () => {
-    const { default: VerifyEmailContent } = await import('@/app/verify-email/VerifyEmailContent')
+    const { default: VerifyEmailContent } = await import('@/app/[locale]/verify-email/VerifyEmailContent')
     render(<VerifyEmailContent />)
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/signin?verified=true')
@@ -103,7 +103,7 @@ describe('VerifyEmailContent — error state with resend', () => {
   })
 
   it('shows a resend email input and button in the error state', async () => {
-    const { default: VerifyEmailContent } = await import('@/app/verify-email/VerifyEmailContent')
+    const { default: VerifyEmailContent } = await import('@/app/[locale]/verify-email/VerifyEmailContent')
     render(<VerifyEmailContent />)
     await waitFor(() => screen.getByText('Verification Failed'))
     expect(screen.getByPlaceholderText(/your@email.com/i)).toBeInTheDocument()
@@ -112,7 +112,7 @@ describe('VerifyEmailContent — error state with resend', () => {
 
   it('calls resendVerification with the entered email', async () => {
     mockResendVerification.mockResolvedValue({ message: 'sent' })
-    const { default: VerifyEmailContent } = await import('@/app/verify-email/VerifyEmailContent')
+    const { default: VerifyEmailContent } = await import('@/app/[locale]/verify-email/VerifyEmailContent')
     render(<VerifyEmailContent />)
     await waitFor(() => screen.getByText('Verification Failed'))
     fireEvent.change(screen.getByPlaceholderText(/your@email.com/i), { target: { value: 'test@example.com' } })
@@ -134,7 +134,7 @@ describe('SignUpPage — email verification gate', () => {
   })
 
   const fillAndSubmit = async () => {
-    const { default: SignUpPage } = await import('@/app/signup/page')
+    const { default: SignUpPage } = await import('@/app/[locale]/signup/page')
     render(<SignUpPage />)
     fireEvent.change(screen.getByPlaceholderText('John Doe'), { target: { value: 'Test User' } })
     fireEvent.change(screen.getByPlaceholderText('you@example.com'), { target: { value: 'test@example.com' } })

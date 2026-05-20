@@ -98,7 +98,7 @@ export default function DashboardRecentConversations({
             clearInterval(poll);
             setRetryingIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
             onRecentConversationRetried?.(jobId);
-            router.push(`/conversation?id=${jobId}`);
+            router.push(lp(`/conversation?id=${jobId}`));
           } else if (status.status === 'failed') {
             clearInterval(poll);
             setRetryingIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
@@ -208,7 +208,7 @@ export default function DashboardRecentConversations({
           <TabsContent value="tasks">
             {isLoading ? <SidebarSkeleton /> : tasks.length > 0 ? (
               <div className="space-y-2 max-h-96 overflow-y-auto">
-                {tasks.map((task) => {
+                {tasks.slice(0, 15).map((task) => {
                   const isUrgent = normalizeUrgency(task.urgency) === 'yes';
                   return (
                     <div key={task.id} className={`p-4 rounded-lg border border-border transition-all ${task.completed ? 'bg-muted/50 opacity-70' : 'bg-card'} relative`}>
@@ -229,7 +229,7 @@ export default function DashboardRecentConversations({
                           </Button>
                         </div>
                       </div>
-                      <h3 className={`font-medium text-sm text-foreground mb-1 ${task.meetingId ? 'cursor-pointer' : ''}`} onClick={() => task.meetingId && router.push(`/conversation?id=${task.meetingId}`)}>
+                      <h3 className={`font-medium text-sm text-foreground mb-1 ${task.meetingId ? 'cursor-pointer' : ''}`} onClick={() => task.meetingId && router.push(lp(`/conversation?id=${task.meetingId}`))}>
                         {task.title}
                       </h3>
                       {task.description && <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{task.description}</p>}
@@ -263,6 +263,11 @@ export default function DashboardRecentConversations({
                 <p className="text-sm text-muted-foreground">No tasks yet</p>
                 <p className="text-xs text-muted-foreground mt-1">Tasks will appear here from your conversations</p>
               </div>
+            )}
+            {tasks.length > 0 && (
+              <Button variant="link" onClick={() => router.push(lp('/tasks'))} className="mt-4 w-full text-primary">
+                View all tasks →
+              </Button>
             )}
           </TabsContent>
 
@@ -311,7 +316,7 @@ export default function DashboardRecentConversations({
                   return (
                     <div
                       key={meeting.job_id}
-                      onClick={() => router.push(`/conversation?id=${meeting.job_id}`)}
+                      onClick={() => router.push(lp(`/conversation?id=${meeting.job_id}`))}
                       className="p-3 rounded-lg border border-border bg-card-2 hover:bg-muted cursor-pointer transition-colors"
                     >
                       <h3 className="font-medium text-sm text-foreground mb-1 line-clamp-1">

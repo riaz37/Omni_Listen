@@ -3,6 +3,7 @@
 import type { ComponentType } from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import dynamic from 'next/dynamic';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -51,7 +52,8 @@ const localizer = dateFnsLocalizer({
 export default function EventsPage() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { user, loading } = useRequireAuth();
+  const lp = useLocalePath();
+  const { user, loading, isRevalidated } = useRequireAuth();
   const queryClient = useQueryClient();
 
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
@@ -76,7 +78,7 @@ export default function EventsPage() {
       const r = await conversationsAPI.getAllEvents();
       return r.events ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && isRevalidated,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -320,7 +322,7 @@ export default function EventsPage() {
           {view === 'yearly' ? (
             <YearlyView currentDate={currentDate} />
           ) : (
-            <div style={{ height: 'calc(100vh - 280px)', minHeight: '400px' }}>
+            <div style={{ height: 'calc(100vh - 280px)', minHeight: '620px' }}>
               <Calendar
                 localizer={localizer}
                 events={filteredEvents}
@@ -362,7 +364,7 @@ export default function EventsPage() {
           calendarConnected={!!user?.calendar_connected}
           onClose={() => setSelectedEvent(null)}
           onSync={handleSyncEvent}
-          onNavigateToConversation={(conversationId) => router.push(`/conversation?id=${conversationId}`)}
+          onNavigateToConversation={(conversationId) => router.push(lp(`/conversation?id=${conversationId}`))}
         />
       )}
 

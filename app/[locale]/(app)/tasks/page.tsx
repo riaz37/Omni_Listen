@@ -33,7 +33,7 @@ interface Task {
 
 export default function TasksPage() {
   const { t } = useTranslation();
-  const { user, loading } = useRequireAuth();
+  const { user, loading, isRevalidated } = useRequireAuth();
   const queryClient = useQueryClient();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -62,7 +62,7 @@ export default function TasksPage() {
       const r = await conversationsAPI.getAllEvents();
       return r.events ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && isRevalidated,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -72,7 +72,7 @@ export default function TasksPage() {
       const r = await conversationsAPI.getAllNotes();
       return r.notes ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && isRevalidated,
     staleTime: 5 * 60 * 1000,
   });
 

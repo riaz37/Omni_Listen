@@ -382,13 +382,13 @@ export default function DashboardPage() {
             const verifyMeeting = async () => {
               try {
                 await conversationsAPI.getConversationDetails(id);
-                router.push(`/conversation?id=${id}`);
+                router.push(lp(`/conversation?id=${id}`));
               } catch (error) {
                 retries++;
                 if (retries < maxRetries) {
                   setTimeout(verifyMeeting, 500);
                 } else {
-                  router.push(`/conversation?id=${id}`);
+                  router.push(lp(`/conversation?id=${id}`));
                 }
               }
             };

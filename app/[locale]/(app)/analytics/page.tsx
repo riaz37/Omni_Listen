@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useQuery } from '@tanstack/react-query';
 import { analyticsAPI, conversationsAPI } from '@/lib/api';
@@ -96,19 +97,21 @@ function formatDuration(seconds: number): string {
 export default function AnalyticsPage() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { user, loading } = useRequireAuth();
+  const lp = useLocalePath();
+  const { user, loading, isRevalidated } = useRequireAuth();
+  const canFetch = !!user && isRevalidated;
 
   const { data: analytics, isLoading: analyticsLoading } = useQuery({
     queryKey: ['analytics'],
     queryFn: () => analyticsAPI.getAnalytics(),
-    enabled: !!user,
+    enabled: canFetch,
     staleTime: 5 * 60 * 1000,
   });
 
   const { data: rawConversations = [], isLoading: convLoading } = useQuery({
     queryKey: ['conversations', 'all'],
     queryFn: () => conversationsAPI.getAllConversations(),
-    enabled: !!user,
+    enabled: canFetch,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -118,7 +121,7 @@ export default function AnalyticsPage() {
       const r = await conversationsAPI.getAllEvents();
       return r.events ?? [];
     },
-    enabled: !!user,
+    enabled: canFetch,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -128,7 +131,7 @@ export default function AnalyticsPage() {
       const r = await conversationsAPI.getAllNotes();
       return r.notes ?? [];
     },
-    enabled: !!user,
+    enabled: canFetch,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -191,7 +194,7 @@ export default function AnalyticsPage() {
             totalEvents={totalEvents}
             avgDuration={avgDuration}
             last30Days={last30Days}
-            onNavigate={(path) => router.push(path)}
+            onNavigate={(path) => router.push(lp(path))}
           />
 
           {/* Recent Conversations + Recent Notes */}
@@ -199,11 +202,11 @@ export default function AnalyticsPage() {
             <RecentConversationsCard
               conversations={conversations}
               totalConversations={totalConversations}
-              onNavigate={(path) => router.push(path)}
+              onNavigate={(path) => router.push(lp(path))}
             />
             <RecentNotesCard
               notes={notes}
-              totalNotes={analytics?.total_events || 0}
+              totalNotes={analytics?.total_notes || 0}
               getCategoryBadge={getCategoryBadge}
             />
           </div>

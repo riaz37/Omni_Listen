@@ -260,7 +260,7 @@ export default function SignInPage() {
     try {
       await calendarAPI.handleCallback(code, state);
       await refreshUser();
-      const returnTo = sessionStorage.getItem('calendarReturnTo') || '/listen';
+      const returnTo = lp(sessionStorage.getItem('calendarReturnTo') || '/listen');
       sessionStorage.removeItem('calendarReturnTo');
       toast.success('Calendar connected successfully!');
       window.history.replaceState({}, document.title, returnTo);

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { conversationsAPI } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
 import { toast } from 'sonner';
 import { parseISO, format, isFuture, isPast, isToday, differenceInDays } from 'date-fns';
 
@@ -28,6 +29,7 @@ interface Event {
 
 export function useEventsData(user: unknown) {
   const queryClient = useQueryClient();
+  const { isRevalidated } = useAuth();
 
   // UI-only state
   const [searchTerm, setSearchTerm] = useState('');
@@ -51,7 +53,7 @@ export function useEventsData(user: unknown) {
       const response = await conversationsAPI.getAllEvents();
       return response.events ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && isRevalidated,
     staleTime: 5 * 60 * 1000,
   });
 

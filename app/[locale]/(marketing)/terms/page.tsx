@@ -280,7 +280,7 @@ export default function TermsPage() {
                         <h2 className="text-2xl font-semibold text-foreground mb-4">{t.s8.heading}</h2>
                         <p className="text-foreground leading-relaxed">
                             {t.s8.body(
-                                <Link href="/privacy" className="text-primary hover:underline">{t.s8.linkText}</Link>
+                                <Link href={`/${locale}/privacy`} className="text-primary hover:underline">{t.s8.linkText}</Link>
                             )}
                         </p>
                     </section>

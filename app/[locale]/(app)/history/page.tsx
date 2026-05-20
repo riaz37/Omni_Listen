@@ -33,7 +33,7 @@ export default function HistoryPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const lp = useLocalePath();
-  const { user, loading } = useRequireAuth();
+  const { user, loading, isRevalidated } = useRequireAuth();
 
   const queryClient = useQueryClient();
   const [sortColumn, setSortColumn] = useState<SortColumn>('date');
@@ -58,7 +58,7 @@ export default function HistoryPage() {
       const data = await conversationsAPI.getConversations();
       return data.meetings ?? [];
     },
-    enabled: !!user,
+    enabled: !!user && isRevalidated,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -133,7 +133,7 @@ export default function HistoryPage() {
   };
 
   const handleViewConversation = (jobId: string) => {
-    router.push(`/conversation?id=${jobId}`);
+    router.push(lp(`/conversation?id=${jobId}`));
   };
 
   const handleRetry = async (jobId: string) => {
@@ -149,7 +149,7 @@ export default function HistoryPage() {
           if (status.status === 'completed') {
             clearInterval(poll);
             setRetryingJobIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
-            router.push(`/conversation?id=${jobId}`);
+            router.push(lp(`/conversation?id=${jobId}`));
           } else if (status.status === 'failed') {
             clearInterval(poll);
             setRetryingJobIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
