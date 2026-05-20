@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { useAuth } from '@/lib/auth-context';
 
 /**
@@ -10,13 +11,14 @@ import { useAuth } from '@/lib/auth-context';
  */
 export function useRequireAuth() {
   const router = useRouter();
+  const lp = useLocalePath();
   const auth = useAuth();
 
   useEffect(() => {
     if (!auth.loading && !auth.user) {
-      router.push('/signin');
+      router.push(lp('/signin'));
     }
-  }, [auth.user, auth.loading, router]);
+  }, [auth.user, auth.loading, router, lp]);
 
   return auth;
 }

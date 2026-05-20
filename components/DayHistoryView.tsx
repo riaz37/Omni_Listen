@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { Calendar, FileText, RefreshCw, Sparkles, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { useMemo, useState, useEffect } from 'react';
@@ -38,6 +39,7 @@ interface SummaryData {
 
 function DayGroupItem({ group }: { group: DayGroup }) {
     const router = useRouter();
+    const lp = useLocalePath();
     const { t } = useTranslation();
     const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
     const [loading, setLoading] = useState(false);
@@ -96,7 +98,7 @@ function DayGroupItem({ group }: { group: DayGroup }) {
                             key={i}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                router.push(`/conversation?id=${source.job_id}`);
+                                router.push(lp(`/conversation?id=${source.job_id}`));
                             }}
                             className="inline-flex items-center ms-1 p-0.5 text-primary hover:text-text-primary hover:bg-primary/10 rounded transition-colors"
                             title={`Go to: ${source.title}`}

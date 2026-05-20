@@ -6,6 +6,12 @@ import { getUserTimezone } from './timezone';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+function getSignInUrl(): string {
+  const lang = (typeof localStorage !== 'undefined' && localStorage.getItem('NEXT_LOCALE'))
+    || (typeof navigator !== 'undefined' && navigator.language.startsWith('ar') ? 'ar' : 'en');
+  return `/${lang}/signin`;
+}
+
 // Create axios instance
 export const api = axios.create({
   baseURL: API_URL,
@@ -59,7 +65,7 @@ api.interceptors.response.use(
           if (typeof window !== 'undefined' && sessionStorage.getItem('access_token')) {
             sessionStorage.removeItem('access_token');
             sessionStorage.removeItem('cached_user');
-            window.location.href = '/signin';
+            window.location.href = getSignInUrl();
           }
           return Promise.reject(error);
         }
@@ -109,7 +115,7 @@ api.interceptors.response.use(
           sessionStorage.removeItem('access_token');
           sessionStorage.removeItem('refresh_token');
           sessionStorage.removeItem('cached_user');
-          window.location.href = '/signin';
+          window.location.href = getSignInUrl();
         }
         return Promise.reject(refreshError);
       }

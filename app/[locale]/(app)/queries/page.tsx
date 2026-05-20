@@ -293,7 +293,7 @@ export default function QueriesPage() {
                     copiedIndex={copiedIndex}
                     onToggleExpand={setExpandedIndex}
                     onCopy={copyToClipboard}
-                    onNavigateToMeeting={(meetingId) => router.push(`/conversation?id=${meetingId}`)}
+                    onNavigateToMeeting={(meetingId) => router.push(lp(`/conversation?id=${meetingId}`))}
                   />
                 );
               })}

@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useQuery } from '@tanstack/react-query';
 import { analyticsAPI, conversationsAPI } from '@/lib/api';
@@ -96,6 +97,7 @@ function formatDuration(seconds: number): string {
 export default function AnalyticsPage() {
   const { t } = useTranslation();
   const router = useRouter();
+  const lp = useLocalePath();
   const { user, loading, isRevalidated } = useRequireAuth();
   const canFetch = !!user && isRevalidated;
 
@@ -192,7 +194,7 @@ export default function AnalyticsPage() {
             totalEvents={totalEvents}
             avgDuration={avgDuration}
             last30Days={last30Days}
-            onNavigate={(path) => router.push(path)}
+            onNavigate={(path) => router.push(lp(path))}
           />
 
           {/* Recent Conversations + Recent Notes */}
@@ -200,7 +202,7 @@ export default function AnalyticsPage() {
             <RecentConversationsCard
               conversations={conversations}
               totalConversations={totalConversations}
-              onNavigate={(path) => router.push(path)}
+              onNavigate={(path) => router.push(lp(path))}
             />
             <RecentNotesCard
               notes={notes}

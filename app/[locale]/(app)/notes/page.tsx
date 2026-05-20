@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { conversationsAPI } from '@/lib/api';
@@ -44,6 +45,7 @@ type SortColumn = 'title' | 'category' | 'source' | 'date';
 export default function NotesPage() {
   const { t } = useTranslation();
   const router = useRouter();
+  const lp = useLocalePath();
   const { user, loading, isRevalidated } = useRequireAuth();
   const queryClient = useQueryClient();
 
@@ -448,7 +450,7 @@ export default function NotesPage() {
           <NoteQuickViewModal
             note={selectedNote}
             onClose={() => setSelectedNote(null)}
-            onViewDetails={(meetingId) => router.push(`/conversation?id=${meetingId}`)}
+            onViewDetails={(meetingId) => router.push(lp(`/conversation?id=${meetingId}`))}
           />
         )}
 

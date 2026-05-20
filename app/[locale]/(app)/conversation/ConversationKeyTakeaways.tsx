@@ -76,9 +76,9 @@ export function ConversationKeyTakeaways({ summary }: ConversationKeyTakeawaysPr
                 )}
                 {/* ARABIC SECTION */}
                 {arabicText && arabicText !== englishText && (
-                    <div className="mt-4">
-                        <h3 className="text-sm font-medium text-foreground mb-2">{t('conversation.takeaways_arabic')}</h3>
-                        <div className="prose prose-sm max-w-none">
+                    <div className="mt-4" dir="rtl">
+                        <h3 className="text-sm font-medium text-foreground mb-2 text-right">{t('conversation.takeaways_arabic')}</h3>
+                        <div className="prose prose-sm max-w-none text-right">
                             {arabicText.split('\n').map((line: string, i: number) => {
                                 const style = getLineStyle(line);
 

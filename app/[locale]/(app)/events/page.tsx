@@ -341,7 +341,7 @@ export default function EventsPage() {
             onSyncEvent={handleSyncEvent}
             onDeleteEvent={handleDeleteEvent}
             onNavigateToMeeting={(meetingId) =>
-              router.push(`/conversation?id=${meetingId}`)
+              router.push(lp(`/conversation?id=${meetingId}`))
             }
             getEventTypeColor={getEventTypeColor}
           />

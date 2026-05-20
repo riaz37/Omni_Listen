@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { toast } from 'sonner';
 
 interface UseWebSocketNotificationsProps {
@@ -9,6 +10,7 @@ interface UseWebSocketNotificationsProps {
 
 export function useWebSocketNotifications({ user, refreshUser }: UseWebSocketNotificationsProps) {
   const router = useRouter();
+  const lp = useLocalePath();
 
   useEffect(() => {
     if (!user) return;
@@ -38,7 +40,7 @@ export function useWebSocketNotifications({ user, refreshUser }: UseWebSocketNot
         if (data.type === 'calendar.disconnected') {
           await refreshUser();
           toast.error("Calendar Disconnected! Please sign in again.", { duration: 5000 });
-          router.push('/settings');
+          router.push(lp('/settings'));
         }
       } catch (e) {
         // WS message parse error handled silently

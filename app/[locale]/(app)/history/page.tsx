@@ -133,7 +133,7 @@ export default function HistoryPage() {
   };
 
   const handleViewConversation = (jobId: string) => {
-    router.push(`/conversation?id=${jobId}`);
+    router.push(lp(`/conversation?id=${jobId}`));
   };
 
   const handleRetry = async (jobId: string) => {
@@ -149,7 +149,7 @@ export default function HistoryPage() {
           if (status.status === 'completed') {
             clearInterval(poll);
             setRetryingJobIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
-            router.push(`/conversation?id=${jobId}`);
+            router.push(lp(`/conversation?id=${jobId}`));
           } else if (status.status === 'failed') {
             clearInterval(poll);
             setRetryingJobIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
