@@ -8,7 +8,7 @@ import { useAuth } from '@/lib/auth-context';
 import { conversationsAPI, calendarAPI } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Calendar, FileText, Loader2, Download, Check, ArrowLeft } from 'lucide-react';
+import { Calendar, FileText, Loader2, Download, Check, ArrowLeft, RefreshCw } from 'lucide-react';
 import { exportConversationToPDF } from '@/lib/export';
 import { toast } from 'sonner';
 import FloatingChat from '@/components/FloatingChat';
@@ -30,6 +30,7 @@ export default function ConversationDetailClient() {
     const [conversation, setConversation] = useState<any>(null);
     const [loadingConversation, setLoadingConversation] = useState(true);
     const [syncing, setSyncing] = useState(false);
+    const [retrying, setRetrying] = useState(false);
     const [isTranscriptExpanded, setIsTranscriptExpanded] = useState(false);
 
     useEffect(() => {
@@ -57,6 +58,35 @@ export default function ConversationDetailClient() {
             }
         } finally {
             setLoadingConversation(false);
+        }
+    };
+
+    const handleRetry = async () => {
+        if (!jobId) return;
+        setRetrying(true);
+        try {
+            await conversationsAPI.retryExtraction(jobId);
+            const poll = setInterval(async () => {
+                try {
+                    const status = await conversationsAPI.getJobStatus(jobId);
+                    if (status.status === 'completed') {
+                        clearInterval(poll);
+                        setRetrying(false);
+                        toast.success('Extraction complete!');
+                        await loadConversation();
+                    } else if (status.status === 'failed') {
+                        clearInterval(poll);
+                        setRetrying(false);
+                        toast.error('Retry failed: ' + (status.error || 'Unknown error'));
+                    }
+                } catch {
+                    clearInterval(poll);
+                    setRetrying(false);
+                }
+            }, 5000);
+        } catch {
+            setRetrying(false);
+            toast.error('Failed to start retry. Please try again.');
         }
     };
 
@@ -186,6 +216,17 @@ export default function ConversationDetailClient() {
                             <p className="text-sm text-muted-foreground mt-1">{formatDate(conversation.created_at)}</p>
                         </div>
                         <div className="flex gap-3">
+                            {conversation?.failed_at_stage === 'extraction_failed' && (
+                                <Button
+                                    onClick={handleRetry}
+                                    disabled={retrying}
+                                    loading={retrying}
+                                    variant="outline"
+                                    iconLeft={<RefreshCw className={`w-4 h-4 ${retrying ? 'animate-spin' : ''}`} />}
+                                >
+                                    {retrying ? 'Retrying...' : 'Retry Extraction'}
+                                </Button>
+                            )}
                             <Button
                                 onClick={() => exportConversationToPDF(conversation)}
                                 variant="secondary"
