@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { conversationsAPI } from '@/lib/api';
 import { Send, Bot, User, Loader2, MessageSquare, X, ChevronDown } from 'lucide-react';
 import MarkdownContent from '@/components/ui/MarkdownContent';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -13,6 +14,7 @@ interface FloatingChatProps {
 }
 
 export default function FloatingChat({ jobId }: FloatingChatProps) {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [query, setQuery] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
@@ -41,7 +43,7 @@ export default function FloatingChat({ jobId }: FloatingChatProps) {
             const response = await conversationsAPI.queryConversation(jobId, userMessage);
             setMessages(prev => [...prev, { role: 'assistant', content: response.answer }]);
         } catch (error) {
-            setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error processing your request.' }]);
+            setMessages(prev => [...prev, { role: 'assistant', content: t('common_ui.chat.error') }]);
         } finally {
             setIsLoading(false);
         }
@@ -63,7 +65,7 @@ export default function FloatingChat({ jobId }: FloatingChatProps) {
                     <div className="p-4 bg-primary text-primary-foreground flex justify-between items-center">
                         <div className="flex items-center gap-2">
                             <Bot className="w-5 h-5" />
-                            <h3 className="font-semibold">Omni Assistant</h3>
+                            <h3 className="font-semibold">{t('common_ui.chat.title')}</h3>
                         </div>
                         <button
                             onClick={() => setIsOpen(false)}
@@ -80,20 +82,20 @@ export default function FloatingChat({ jobId }: FloatingChatProps) {
                                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
                                     <Bot className="w-6 h-6 text-primary" />
                                 </div>
-                                <p className="font-medium text-foreground">How can I help?</p>
-                                <p className="text-sm mt-1">Ask me anything about this conversation.</p>
+                                <p className="font-medium text-foreground">{t('common_ui.chat.how_can_help')}</p>
+                                <p className="text-sm mt-1">{t('common_ui.chat.ask_anything')}</p>
                                 <div className="mt-4 space-y-2">
                                     <button
-                                        onClick={() => setQuery("What were the key decisions?")}
+                                        onClick={() => setQuery(t('common_ui.chat.suggestion_decisions'))}
                                         className="block w-full text-start text-xs bg-card p-2 rounded border border-border hover:border-primary/30 hover:text-primary transition-colors"
                                     >
-                                        "What were the key decisions?"
+                                        {t('common_ui.chat.suggestion_decisions')}
                                     </button>
                                     <button
-                                        onClick={() => setQuery("List all action items")}
+                                        onClick={() => setQuery(t('common_ui.chat.suggestion_actions'))}
                                         className="block w-full text-start text-xs bg-card p-2 rounded border border-border hover:border-primary/30 hover:text-primary transition-colors"
                                     >
-                                        "List all action items"
+                                        {t('common_ui.chat.suggestion_actions')}
                                     </button>
                                 </div>
                             </div>
@@ -146,7 +148,7 @@ export default function FloatingChat({ jobId }: FloatingChatProps) {
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
                                 onKeyDown={handleKeyDown}
-                                placeholder="Ask a question..."
+                                placeholder={t('common_ui.chat.placeholder')}
                                 className="flex-1 px-4 py-2 bg-muted border border-border rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:bg-card text-sm"
                                 disabled={isLoading}
                                 autoFocus

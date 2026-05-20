@@ -3,6 +3,7 @@ import {
   Calendar,
   Clock,
 } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface Note {
   id: number;
@@ -18,12 +19,13 @@ interface AnalysisHistoryCardProps {
 }
 
 export function AnalysisHistoryCard({ notes }: AnalysisHistoryCardProps) {
+  const { t } = useTranslation();
   return (
     <div className="bg-card-2 rounded-lg border border-border p-5">
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-foreground">Recent Additional Analysis History</h2>
+        <h2 className="text-lg font-semibold text-foreground">{t('analytics.analysis.title')}</h2>
         <p className="text-sm text-muted-foreground mt-0.5">
-          {notes.length} total analysis &middot; {notes.length} shown
+          {notes.length} {t('analytics.analysis.total_suffix')} &middot; {notes.length} {t('analytics.analysis.shown')}
         </p>
       </div>
       <div className="space-y-3">
@@ -34,29 +36,29 @@ export function AnalysisHistoryCard({ notes }: AnalysisHistoryCardProps) {
           >
             <div className="flex items-start justify-between mb-2">
               <h3 className="text-sm font-medium text-foreground line-clamp-1">
-                {note.title || 'Your Analysis Request'}
+                {note.title || t('analytics.analysis.default_title')}
               </h3>
               <div className="flex items-center gap-2 ms-2 flex-shrink-0">
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                  Summary
+                  {t('analytics.analysis.label_summary')}
                 </span>
               </div>
             </div>
             <p className="text-sm text-muted-foreground line-clamp-1 mb-2">
-              {note.description || 'Summarize all technical decisions and their rationale'}
+              {note.description || t('analytics.analysis.request_placeholder')}
             </p>
             <div className="mb-2">
-              <p className="text-sm font-medium text-foreground mb-0.5">AI Analysis</p>
+              <p className="text-sm font-medium text-foreground mb-0.5">{t('analytics.analysis.label_ai')}</p>
               <p className="text-sm text-muted-foreground line-clamp-1">
                 {note.description
                   ? note.description.substring(0, 80) + '...'
-                  : 'The transcript is empty, so there are no technical decisions or ratio...'}
+                  : t('analytics.analysis.result_placeholder')}
               </p>
             </div>
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                {note.created_at ? format(new Date(note.created_at), 'MMM dd, yyyy') : 'No date'}
+                {note.created_at ? format(new Date(note.created_at), 'MMM dd, yyyy') : t('analytics.analysis.no_date')}
               </span>
               <span className="inline-flex items-center gap-1">
                 <Clock className="w-3 h-3" />
@@ -65,7 +67,7 @@ export function AnalysisHistoryCard({ notes }: AnalysisHistoryCardProps) {
             </div>
           </div>
         )) : (
-          <p className="text-sm text-muted-foreground text-center py-6">No analysis history yet</p>
+          <p className="text-sm text-muted-foreground text-center py-6">{t('analytics.analysis.empty')}</p>
         )}
       </div>
     </div>

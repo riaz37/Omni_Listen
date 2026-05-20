@@ -4,6 +4,7 @@ import {
   Calendar,
   Link2,
 } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface Conversation {
   job_id: string;
@@ -20,12 +21,13 @@ interface RecentConversationsCardProps {
 }
 
 export function RecentConversationsCard({ conversations, totalConversations, onNavigate }: RecentConversationsCardProps) {
+  const { t } = useTranslation();
   return (
     <div className="bg-card-2 rounded-lg border border-border p-5">
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-foreground">Recent Conversations</h2>
+        <h2 className="text-lg font-semibold text-foreground">{t('analytics.conversations.title')}</h2>
         <p className="text-sm text-muted-foreground mt-0.5">
-          {totalConversations} total conversations &middot; {conversations.length} shown
+          {totalConversations} {t('analytics.conversations.total_suffix')} &middot; {conversations.length} {t('analytics.conversations.shown')}
         </p>
       </div>
       <div className="space-y-3">
@@ -38,20 +40,20 @@ export function RecentConversationsCard({ conversations, totalConversations, onN
             <div className="flex items-start justify-between mb-2">
               <h3 className="text-sm font-medium text-foreground line-clamp-1">{conversation.title}</h3>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary ms-2 flex-shrink-0">
-                <Link2 className="w-3 h-3" /> Sync to calendar
+                <Link2 className="w-3 h-3" /> {t('analytics.conversations.sync_label')}
               </span>
             </div>
             <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
               {conversation.final_summary?.summary
                 ? conversation.final_summary.summary.substring(0, 120) + '...'
-                : 'Conversation analysis summary available.'}
+                : t('analytics.conversations.summary_placeholder')}
             </p>
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-muted">
-                <Calendar className="w-3 h-3" /> {conversation.event_count} Events
+                <Calendar className="w-3 h-3" /> {conversation.event_count} {t('analytics.conversations.events_label')}
               </span>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-muted">
-                <BarChart3 className="w-3 h-3" /> Additional Analysis
+                <BarChart3 className="w-3 h-3" /> {t('analytics.conversations.analysis_label')}
               </span>
               <span className="ms-auto">
                 {conversation.created_at ? format(new Date(conversation.created_at), 'MMM dd, yyyy') : ''}
@@ -59,7 +61,7 @@ export function RecentConversationsCard({ conversations, totalConversations, onN
             </div>
           </div>
         )) : (
-          <p className="text-sm text-muted-foreground text-center py-6">No conversations yet</p>
+          <p className="text-sm text-muted-foreground text-center py-6">{t('analytics.conversations.empty')}</p>
         )}
       </div>
     </div>

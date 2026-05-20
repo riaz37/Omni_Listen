@@ -16,6 +16,7 @@ import {
   CheckCircle,
   CheckCircle2,
 } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface Event {
   id: string;
@@ -56,24 +57,25 @@ export function EventDetailModal({
   onNavigateToMeeting,
   getEventTypeColor,
 }: EventDetailModalProps) {
+  const { t } = useTranslation();
   return (
     <MotionDialog open onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
             <span className={`px-3 py-1 rounded-full text-sm font-medium capitalize border ${getEventTypeColor(selectedEvent.type)}`}>
-              {selectedEvent.type}
+              {t(`calendar.create_modal.type_${selectedEvent.type}`)}
             </span>
             {selectedEvent.completed && (
               <span className="px-3 py-1 bg-primary/10 text-text-primary rounded-full text-sm flex items-center gap-1">
                 <CheckCircle2 className="w-4 h-4" />
-                Completed
+                {t('events.detail_modal.completed')}
               </span>
             )}
             {selectedEvent.synced && (
               <span className="px-3 py-1 bg-primary/10 text-text-primary rounded-full text-sm flex items-center gap-1">
                 <CheckCircle className="w-4 h-4" />
-                Synced
+                {t('events.detail_modal.synced')}
               </span>
             )}
           </div>
@@ -84,7 +86,7 @@ export function EventDetailModal({
           <div>
             <div className="flex items-center gap-2 text-muted-foreground mb-1">
               <Clock className="w-4 h-4" />
-              <span className="text-sm font-medium">Date & Time</span>
+              <span className="text-sm font-medium">{t('events.detail_modal.date_time')}</span>
             </div>
             <p className="text-foreground ms-6 text-sm">
               {format(selectedEvent.start, 'EEEE, MMMM dd, yyyy')}
@@ -96,7 +98,7 @@ export function EventDetailModal({
 
           {selectedEvent.description && (
             <div>
-              <p className="text-sm font-medium text-muted-foreground mb-1">Description</p>
+              <p className="text-sm font-medium text-muted-foreground mb-1">{t('events.detail_modal.description')}</p>
               <p className="text-foreground text-sm [overflow-wrap:anywhere] whitespace-pre-wrap line-clamp-6">{selectedEvent.description}</p>
             </div>
           )}
@@ -105,7 +107,7 @@ export function EventDetailModal({
             <div>
               <div className="flex items-center gap-2 text-muted-foreground mb-1">
                 <MapPin className="w-4 h-4" />
-                <span className="text-sm font-medium">Location</span>
+                <span className="text-sm font-medium">{t('events.detail_modal.location')}</span>
               </div>
               <p className="text-foreground ms-6 text-sm">{selectedEvent.location}</p>
             </div>
@@ -115,7 +117,7 @@ export function EventDetailModal({
             <div>
               <div className="flex items-center gap-2 text-muted-foreground mb-2">
                 <Users className="w-4 h-4" />
-                <span className="text-sm font-medium">Attendees</span>
+                <span className="text-sm font-medium">{t('events.detail_modal.attendees')}</span>
               </div>
               <div className="ms-6 space-y-1">
                 {selectedEvent.attendees.map((attendee, index) => (
@@ -137,7 +139,7 @@ export function EventDetailModal({
               iconLeft={<CheckCircle className="w-4 h-4" />}
               className="w-full"
             >
-              Sync to Calendar
+              {t('events.detail_modal.sync_to_calendar')}
             </Button>
           )}
 
@@ -147,7 +149,7 @@ export function EventDetailModal({
               iconRight={<ChevronRight className="w-4 h-4 rtl:rotate-180" />}
               className="w-full"
             >
-              View Meeting Details
+              {t('events.detail_modal.view_meeting')}
             </Button>
           )}
 
@@ -157,7 +159,7 @@ export function EventDetailModal({
             iconLeft={<Trash2 className="w-4 h-4" />}
             className="w-full"
           >
-            Delete Event
+            {t('events.detail_modal.delete')}
           </Button>
         </DialogFooter>
       </DialogContent>

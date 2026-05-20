@@ -1,4 +1,5 @@
 import { AlignJustify } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface NoteStats {
   total: number;
@@ -13,11 +14,12 @@ interface NoteStatsCardsProps {
 }
 
 export function NoteStatsCards({ stats, onFilterChange }: NoteStatsCardsProps) {
+  const { t } = useTranslation();
   const cards = [
-    { label: 'Total Notes', value: stats.total, onClick: () => onFilterChange('all') },
-    { label: 'General', value: stats.general, onClick: () => onFilterChange('general') },
-    { label: 'Decision', value: stats.decision, onClick: () => onFilterChange('decision') },
-    { label: 'Budget', value: stats.budget, onClick: () => onFilterChange('budget') },
+    { label: t('notes.stat_total'), value: stats.total, onClick: () => onFilterChange('all') },
+    { label: t('notes.stat_general'), value: stats.general, onClick: () => onFilterChange('general') },
+    { label: t('notes.stat_decision'), value: stats.decision, onClick: () => onFilterChange('decision') },
+    { label: t('notes.stat_budget'), value: stats.budget, onClick: () => onFilterChange('budget') },
   ];
 
   return (

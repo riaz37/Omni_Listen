@@ -31,9 +31,11 @@ import { webhooksAPI } from '@/lib/api';
 import { SettingsSection } from './SettingsSection';
 import { useConfirmDialog } from './ConfirmDialogContext';
 import { AVAILABLE_EVENTS, type WebhookData } from './types';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 export function WebhooksSection() {
   const { confirm } = useConfirmDialog();
+  const { t } = useTranslation();
   const [webhooks, setWebhooks] = useState<WebhookData[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -139,15 +141,15 @@ export function WebhooksSection() {
       <SettingsSection
         id="webhooks"
         icon={<Webhook className="w-5 h-5" />}
-        title="Webhooks"
+        title={t('settings.webhooks.title')}
         action={
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => setDocsOpen(true)}>
               <BookOpen className="w-3.5 h-3.5" />
-              Docs
+              {t('settings.webhooks.docs')}
             </Button>
             <Button onClick={() => setModalOpen(true)} iconLeft={<Plus className="w-4 h-4" />} size="sm">
-              Add Webhook
+              {t('settings.webhooks.add')}
             </Button>
           </div>
         }
@@ -159,7 +161,7 @@ export function WebhooksSection() {
         ) : webhooks.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Bell className="w-10 h-10 mx-auto mb-2 opacity-30" />
-            <p className="text-sm">No webhooks configured</p>
+            <p className="text-sm">{t('settings.webhooks.empty')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -168,20 +170,20 @@ export function WebhooksSection() {
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-sm">{webhook.name || 'Unnamed'}</span>
+                      <span className="font-medium text-sm">{webhook.name || t('settings.webhooks.unnamed')}</span>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                         webhook.is_active
                           ? 'bg-primary/10 text-primary'
                           : 'bg-muted text-muted-foreground'
                       }`}>
-                        {webhook.is_active ? 'Active' : 'Paused'}
+                        {webhook.is_active ? t('settings.webhooks.status_active') : t('settings.webhooks.status_paused')}
                       </span>
                     </div>
                     <div className="text-xs text-muted-foreground truncate font-mono">{webhook.url}</div>
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {webhook.events.map(evt => (
                         <span key={evt} className="px-2 py-0.5 bg-primary/10 text-primary rounded-full text-xs border border-primary/20 font-medium">
-                          {evt === '*' ? 'All Events' : evt}
+                          {evt === '*' ? t('settings.webhooks.all_events') : evt}
                         </span>
                       ))}
                     </div>
@@ -225,22 +227,22 @@ export function WebhooksSection() {
       <MotionDialog open={modalOpen} onOpenChange={(open) => { if (!open) closeModal(); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create Webhook</DialogTitle>
-            <DialogDescription>Add an endpoint to receive event notifications.</DialogDescription>
+            <DialogTitle>{t('settings.webhooks.create_title')}</DialogTitle>
+            <DialogDescription>{t('settings.webhooks.create_desc')}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="webhook-name">Name (optional)</Label>
+              <Label htmlFor="webhook-name">{t('settings.webhooks.label_name')}</Label>
               <Input
                 id="webhook-name"
                 value={newName}
                 onChange={e => setNewName(e.target.value)}
-                placeholder="My Webhook"
+                placeholder={t('settings.webhooks.placeholder_name')}
                 className="mt-1.5"
               />
             </div>
             <div>
-              <Label htmlFor="webhook-url">URL *</Label>
+              <Label htmlFor="webhook-url">{t('settings.webhooks.label_url')}</Label>
               <Input
                 id="webhook-url"
                 type="url"
@@ -252,7 +254,7 @@ export function WebhooksSection() {
               />
             </div>
             <div>
-              <Label>Events</Label>
+              <Label>{t('settings.webhooks.label_events')}</Label>
               <div className="flex flex-wrap gap-2 mt-2">
                 {AVAILABLE_EVENTS.map(evt => (
                   <button
@@ -272,13 +274,13 @@ export function WebhooksSection() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={closeModal}>Cancel</Button>
+            <Button variant="outline" onClick={closeModal}>{t('common.cancel')}</Button>
             <Button
               onClick={handleCreate}
               disabled={!newUrl.trim() || creating}
               loading={creating}
             >
-              Create
+              {t('settings.webhooks.create_btn')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -290,15 +292,15 @@ export function WebhooksSection() {
 /* ─── Webhook Integration Guide (Sheet) ────────────────────��────────────── */
 
 const SETUP_STEPS = [
-  { title: 'Create endpoint', desc: 'Click "Add Webhook" and enter your URL (must accept POST).' },
-  { title: 'Choose events', desc: 'Subscribe to specific events or receive all.' },
-  { title: 'Verify delivery', desc: 'Send a test payload to confirm your endpoint responds.' },
-  { title: 'Go live', desc: 'Toggle on/off anytime without deleting.' },
+  { titleKey: 'settings.webhooks.step1_title', descKey: 'settings.webhooks.step1_desc' },
+  { titleKey: 'settings.webhooks.step2_title', descKey: 'settings.webhooks.step2_desc' },
+  { titleKey: 'settings.webhooks.step3_title', descKey: 'settings.webhooks.step3_desc' },
+  { titleKey: 'settings.webhooks.step4_title', descKey: 'settings.webhooks.step4_desc' },
 ];
 
 interface EventDef {
   name: string;
-  description: string;
+  descKey: string;
   fields: string[];
   example: string;
 }
@@ -306,12 +308,12 @@ interface EventDef {
 const EVENT_TABS = [
   {
     id: 'meetings',
-    label: 'Meetings',
+    labelKey: 'settings.webhooks.tab_meetings',
     icon: <MessageSquare className="w-3.5 h-3.5" />,
     events: [
       {
         name: 'meeting.processed',
-        description: 'Conversation has been fully transcribed, summarized, and processed.',
+        descKey: 'settings.webhooks.event_meeting_processed',
         fields: ['job_id', 'title', 'transcript', 'summary', 'events_count', 'notes_count', 'processing_time_seconds', 'audio_duration_seconds'],
         example: JSON.stringify({
           event_type: 'meeting.processed',
@@ -330,12 +332,12 @@ const EVENT_TABS = [
   },
   {
     id: 'tasks',
-    label: 'Tasks & Events',
+    labelKey: 'settings.webhooks.tab_tasks',
     icon: <Zap className="w-3.5 h-3.5" />,
     events: [
       {
         name: 'task.created',
-        description: 'New task created from a conversation or added manually.',
+        descKey: 'settings.webhooks.event_task_created',
         fields: ['event_id', 'title', 'description', 'date', 'urgency', 'completed', 'synced'],
         example: JSON.stringify({
           event_type: 'task.created',
@@ -352,7 +354,7 @@ const EVENT_TABS = [
       },
       {
         name: 'event.completed',
-        description: 'Task marked as completed or uncompleted.',
+        descKey: 'settings.webhooks.event_event_completed',
         fields: ['event_id', 'completed', 'title', 'description', 'category', 'urgency'],
         example: JSON.stringify({
           event_type: 'event.completed',
@@ -361,7 +363,7 @@ const EVENT_TABS = [
       },
       {
         name: 'event.updated',
-        description: 'Task or event has been updated.',
+        descKey: 'settings.webhooks.event_event_updated',
         fields: ['event_id', 'title', 'description', 'date', 'category', 'urgency'],
         example: JSON.stringify({
           event_type: 'event.updated',
@@ -370,7 +372,7 @@ const EVENT_TABS = [
       },
       {
         name: 'event.deleted',
-        description: 'Task or event permanently deleted.',
+        descKey: 'settings.webhooks.event_event_deleted',
         fields: ['event_id', 'title', 'date', 'assignee', 'description', 'urgency'],
         example: JSON.stringify({
           event_type: 'event.deleted',
@@ -381,12 +383,12 @@ const EVENT_TABS = [
   },
   {
     id: 'notes',
-    label: 'Notes',
+    labelKey: 'settings.webhooks.tab_notes',
     icon: <FileText className="w-3.5 h-3.5" />,
     events: [
       {
         name: 'note.created',
-        description: 'New note created from a conversation or added manually.',
+        descKey: 'settings.webhooks.event_note_created',
         fields: ['note_id', 'meeting_id', 'category', 'title', 'description', 'manual'],
         example: JSON.stringify({
           event_type: 'note.created',
@@ -402,7 +404,7 @@ const EVENT_TABS = [
       },
       {
         name: 'note.deleted',
-        description: 'Note permanently deleted.',
+        descKey: 'settings.webhooks.event_note_deleted',
         fields: ['note_id', 'category', 'title', 'description', 'urgency'],
         example: JSON.stringify({
           event_type: 'note.deleted',
@@ -420,6 +422,7 @@ function WebhookGuideSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const [copiedEvent, setCopiedEvent] = useState<string | null>(null);
 
   const copyToClipboard = (text: string, eventName: string) => {
@@ -434,10 +437,10 @@ function WebhookGuideSheet({
         <SheetHeader className="mb-6">
           <SheetTitle className="flex items-center gap-2">
             <Info className="w-5 h-5 text-primary" />
-            Integration Guide
+            {t('settings.webhooks.guide_title')}
           </SheetTitle>
           <SheetDescription>
-            Set up webhooks to receive real-time event notifications.
+            {t('settings.webhooks.guide_desc')}
           </SheetDescription>
         </SheetHeader>
 
@@ -446,18 +449,18 @@ function WebhookGuideSheet({
           <div className="flex items-start gap-3 bg-primary/5 border border-primary/15 rounded-lg p-3">
             <ArrowRight className="w-4 h-4 text-primary mt-0.5 shrink-0 rtl:rotate-180" />
             <p className="text-sm text-muted-foreground leading-relaxed">
-              All payloads are <span className="font-medium text-foreground">POST JSON</span> with{' '}
+              {t('settings.webhooks.payload_note_pre')} <span className="font-medium text-foreground">POST JSON</span> {t('settings.webhooks.payload_note_post')}{' '}
               <code className="px-1 py-0.5 bg-primary/10 text-primary rounded text-xs font-mono">event_id</code>{' '}
               <code className="px-1 py-0.5 bg-primary/10 text-primary rounded text-xs font-mono">event_type</code>{' '}
               <code className="px-1 py-0.5 bg-primary/10 text-primary rounded text-xs font-mono">created_at</code>{' '}
-              + a <code className="px-1 py-0.5 bg-primary/10 text-primary rounded text-xs font-mono">data</code> object.
-              Respond <span className="font-medium text-foreground">2xx within 10s</span>.
+              <code className="px-1 py-0.5 bg-primary/10 text-primary rounded text-xs font-mono">data</code>.{' '}
+              {t('settings.webhooks.payload_respond')} <span className="font-medium text-foreground">2xx {t('settings.webhooks.payload_within')}</span>.
             </p>
           </div>
 
           {/* Visual stepper */}
           <div>
-            <h3 className="text-sm font-semibold text-foreground mb-3">Quick Setup</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">{t('settings.webhooks.setup_title')}</h3>
             <div className="space-y-2">
               {SETUP_STEPS.map((step, i) => (
                 <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-muted/40 border border-border/50">
@@ -465,8 +468,8 @@ function WebhookGuideSheet({
                     {i + 1}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-foreground">{step.title}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{step.desc}</p>
+                    <p className="text-sm font-medium text-foreground">{t(step.titleKey)}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t(step.descKey)}</p>
                   </div>
                 </div>
               ))}
@@ -477,15 +480,15 @@ function WebhookGuideSheet({
 
           {/* Tabbed event reference */}
           <div>
-            <h3 className="text-sm font-semibold text-foreground mb-3">Event Reference</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">{t('settings.webhooks.event_ref_title')}</h3>
 
             <Tabs defaultValue="meetings">
               <TabsList className="w-full">
                 {EVENT_TABS.map(tab => (
                   <TabsTrigger key={tab.id} value={tab.id} className="gap-1.5 flex-1">
                     {tab.icon}
-                    <span className="hidden sm:inline">{tab.label}</span>
-                    <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
+                    <span className="hidden sm:inline">{t(tab.labelKey)}</span>
+                    <span className="sm:hidden">{t(tab.labelKey).split(' ')[0]}</span>
                   </TabsTrigger>
                 ))}
               </TabsList>
@@ -521,6 +524,7 @@ function EventCard({
   copiedEvent: string | null;
   onCopy: (text: string, name: string) => void;
 }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -536,7 +540,7 @@ function EventCard({
           </code>
           <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 shrink-0 ${expanded ? 'rotate-180' : ''}`} />
         </div>
-        <p className="text-sm text-muted-foreground">{event.description}</p>
+        <p className="text-sm text-muted-foreground">{t(event.descKey)}</p>
 
         {/* Always-visible field pills */}
         <div className="flex flex-wrap gap-1 mt-2">
@@ -552,14 +556,14 @@ function EventCard({
       {expanded && (
         <div className="border-t border-border">
           <div className="flex items-center justify-between px-4 py-2 bg-muted/30">
-            <span className="text-xs font-medium text-muted-foreground">Example payload</span>
+            <span className="text-xs font-medium text-muted-foreground">{t('settings.webhooks.example_payload')}</span>
             <button
               onClick={() => onCopy(event.example, event.name)}
               className="inline-flex items-center gap-1 px-2 py-0.5 text-xs text-muted-foreground hover:text-foreground transition-colors rounded hover:bg-muted"
             >
               {copiedEvent === event.name
-                ? <><Check className="w-3 h-3 text-primary" /> Copied</>
-                : <><Copy className="w-3 h-3" /> Copy</>}
+                ? <><Check className="w-3 h-3 text-primary" /> {t('settings.webhooks.copied')}</>
+                : <><Copy className="w-3 h-3" /> {t('settings.webhooks.copy')}</>}
             </button>
           </div>
           <div className="bg-[#0a0a0a] dark:bg-muted/30 overflow-x-auto">

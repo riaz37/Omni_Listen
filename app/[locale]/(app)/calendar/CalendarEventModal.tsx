@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import type { CalendarEvent } from '@/lib/types';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface CalendarEventModalProps {
   event: CalendarEvent;
@@ -19,6 +20,7 @@ interface CalendarEventModalProps {
 }
 
 export function CalendarEventModal({ event, calendarConnected, onClose, onSync, onNavigateToConversation }: CalendarEventModalProps) {
+  const { t } = useTranslation();
   return (
     <MotionDialog open onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-lg overflow-hidden">
@@ -28,12 +30,12 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
                 event.type === 'task' ? 'bg-accent text-accent-foreground' :
                   'bg-destructive/10 text-destructive'
               }`}>
-              {event.type}
+              {t(`calendar.create_modal.type_${event.type}`)}
             </span>
             {event.completed && (
               <span className="px-3 py-1 bg-primary/10 text-text-primary rounded-full text-sm flex items-center gap-1">
                 <CheckCircle2 className="w-4 h-4" />
-                Completed
+                {t('calendar.event_modal.completed')}
               </span>
             )}
           </div>
@@ -44,7 +46,7 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
           <div>
             <div className="flex items-center gap-2 text-muted-foreground mb-1">
               <Clock className="w-4 h-4" />
-              <span className="text-sm font-medium">Date & Time</span>
+              <span className="text-sm font-medium">{t('calendar.event_modal.date_time')}</span>
             </div>
             <p className="text-foreground ms-6 text-sm">
               {format(event.start, 'EEEE, MMMM dd, yyyy')}
@@ -56,7 +58,7 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
 
           {event.description && (
             <div>
-              <p className="text-sm font-medium text-muted-foreground mb-1">Description</p>
+              <p className="text-sm font-medium text-muted-foreground mb-1">{t('calendar.event_modal.description')}</p>
               <p className="text-foreground text-sm [overflow-wrap:anywhere] whitespace-pre-wrap line-clamp-6">{event.description}</p>
             </div>
           )}
@@ -65,7 +67,7 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
             <div>
               <div className="flex items-center gap-2 text-muted-foreground mb-1">
                 <MapPin className="w-4 h-4" />
-                <span className="text-sm font-medium">Location</span>
+                <span className="text-sm font-medium">{t('calendar.event_modal.location')}</span>
               </div>
               <p className="text-foreground ms-6 text-sm">{event.location}</p>
             </div>
@@ -75,7 +77,7 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
             <div>
               <div className="flex items-center gap-2 text-muted-foreground mb-1">
                 <Users className="w-4 h-4" />
-                <span className="text-sm font-medium">Assignee</span>
+                <span className="text-sm font-medium">{t('calendar.event_modal.assignee')}</span>
               </div>
               <p className="text-foreground ms-6 text-sm">{event.assignee}</p>
             </div>
@@ -85,7 +87,7 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
             <div>
               <div className="flex items-center gap-2 text-muted-foreground mb-2">
                 <Users className="w-4 h-4" />
-                <span className="text-sm font-medium">Attendees</span>
+                <span className="text-sm font-medium">{t('calendar.event_modal.attendees')}</span>
               </div>
               <div className="ms-6 space-y-1">
                 {event.attendees.map((attendee, index) => (
@@ -100,7 +102,7 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
             <div className="flex items-center gap-2">
               <div className={`w-2.5 h-2.5 rounded-full ${event.synced ? 'bg-primary' : 'bg-muted-foreground'}`} />
               <span className="text-sm text-muted-foreground">
-                {event.synced ? 'Synced to Calendar' : 'Not synced'}
+                {event.synced ? t('calendar.event_modal.synced') : t('calendar.event_modal.not_synced')}
               </span>
             </div>
             {!event.synced && calendarConnected && (
@@ -108,7 +110,7 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
                 onClick={() => onSync(event)}
                 size="sm"
               >
-                Sync Now
+                {t('calendar.event_modal.sync_now')}
               </Button>
             )}
           </div>
@@ -121,7 +123,7 @@ export function CalendarEventModal({ event, calendarConnected, onClose, onSync, 
               iconRight={<ChevronRight className="w-4 h-4 rtl:rotate-180" />}
               className="w-full"
             >
-              View Conversation Details
+              {t('calendar.event_modal.view_conversation')}
             </Button>
           </DialogFooter>
         )}

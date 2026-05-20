@@ -7,6 +7,7 @@ import {
   DialogFooter,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface Note {
   id: string;
@@ -32,11 +33,12 @@ export function NoteQuickViewModal({
   onClose,
   onViewDetails,
 }: NoteQuickViewModalProps) {
+  const { t } = useTranslation();
   return (
     <MotionDialog open onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Note Quick View</DialogTitle>
+          <DialogTitle>{t('notes.quick_view.title')}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-1">
@@ -47,7 +49,7 @@ export function NoteQuickViewModal({
 
           {note.meetingId && (
             <div className="rounded-lg border border-border bg-muted/30 px-4 py-3">
-              <p className="text-sm font-medium text-foreground">From Meeting</p>
+              <p className="text-sm font-medium text-foreground">{t('notes.quick_view.from_meeting')}</p>
               <p className="text-sm text-muted-foreground">{note.meetingTitle}</p>
             </div>
           )}
@@ -55,14 +57,14 @@ export function NoteQuickViewModal({
 
         <DialogFooter className="gap-2 pt-2 border-t border-border sm:justify-between">
           <Button variant="outline" onClick={onClose}>
-            Close
+            {t('common.close')}
           </Button>
           {note.meetingId && (
             <Button
               onClick={() => onViewDetails(note.meetingId)}
               iconRight={<ChevronRight className="w-4 h-4 rtl:rotate-180" />}
             >
-              View Details
+              {t('notes.quick_view.view_details')}
             </Button>
           )}
         </DialogFooter>

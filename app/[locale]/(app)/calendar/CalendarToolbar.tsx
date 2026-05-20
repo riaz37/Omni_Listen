@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface CalendarToolbarProps {
   view: 'month' | 'week' | 'day' | 'yearly';
@@ -8,6 +9,7 @@ interface CalendarToolbarProps {
 }
 
 export function CalendarToolbar({ view, currentDate, onViewChange, onNavigate }: CalendarToolbarProps) {
+  const { t } = useTranslation();
   const handlePrev = () => {
     const d = new Date(currentDate);
     if (view === 'yearly') {
@@ -66,7 +68,7 @@ export function CalendarToolbar({ view, currentDate, onViewChange, onNavigate }:
             onClick={() => onViewChange(v)}
             className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${view === v ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
           >
-            {v.charAt(0).toUpperCase() + v.slice(1)}
+            {t(`calendar.toolbar.${v}`)}
           </button>
         ))}
       </div>

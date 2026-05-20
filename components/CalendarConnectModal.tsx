@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface CalendarConnectModalProps {
     isOpen: boolean;
@@ -21,25 +22,25 @@ export default function CalendarConnectModal({
     onSkip,
     isConnecting = false,
 }: CalendarConnectModalProps) {
+    const { t } = useTranslation();
     return (
         <MotionDialog open={isOpen} onOpenChange={(open) => { if (!open) onSkip(); }}>
             <DialogContent className="max-w-md overflow-hidden p-0" hideClose>
-                <DialogTitle className="sr-only">Connect Google Calendar</DialogTitle>
+                <DialogTitle className="sr-only">{t('common_ui.calendar_connect.title')}</DialogTitle>
                 {/* Header */}
                 <div className="bg-gradient-to-r from-primary to-primary px-6 py-8 text-center">
                     <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Calendar className="w-8 h-8 text-white" />
                     </div>
                     <h2 className="text-2xl font-bold text-primary-foreground">
-                        Connect Google Calendar?
+                        {t('common_ui.calendar_connect.title')}
                     </h2>
                 </div>
 
                 {/* Content */}
                 <div className="p-6 space-y-6">
                     <p className="text-muted-foreground text-center">
-                        Sync your conversations and automatically add action items to your Google Calendar.
-                        You can always connect later from Settings.
+                        {t('common_ui.calendar_connect.body')}
                     </p>
 
                     <div className="space-y-3">
@@ -51,7 +52,7 @@ export default function CalendarConnectModal({
                             size="lg"
                             className="w-full rounded-xl shadow-lg hover:shadow-green-500/30"
                         >
-                            {isConnecting ? 'Connecting...' : 'Connect Now'}
+                            {isConnecting ? t('common_ui.calendar_connect.btn_connecting') : t('common_ui.calendar_connect.btn_connect')}
                         </Button>
 
                         <Button
@@ -61,7 +62,7 @@ export default function CalendarConnectModal({
                             size="lg"
                             className="w-full rounded-xl"
                         >
-                            Maybe Later
+                            {t('common_ui.calendar_connect.btn_later')}
                         </Button>
                     </div>
                 </div>

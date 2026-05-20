@@ -14,6 +14,7 @@ import {
   DropdownContent,
   DropdownItem,
 } from '@/components/ui/dropdown';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface Note {
   id: string;
@@ -45,6 +46,7 @@ export function NoteCard({
   onDelete,
   getCategoryBadgeColor,
 }: NoteCardProps) {
+  const { t } = useTranslation();
   return (
     <div
       className={`bg-card rounded-lg border border-border p-4 hover:shadow-sm transition-all ${note.completed ? 'opacity-75' : ''}`}
@@ -73,10 +75,10 @@ export function NoteCard({
             </DropdownTrigger>
             <DropdownContent align="end">
               <DropdownItem icon={Eye} onClick={() => onView(note)}>
-                View Details
+                {t('notes.card.view_details')}
               </DropdownItem>
               <DropdownItem icon={Trash2} destructive onClick={() => onDelete(note.id)}>
-                Delete
+                {t('common.delete')}
               </DropdownItem>
             </DropdownContent>
           </Dropdown>

@@ -1,5 +1,6 @@
 import { CheckCircle, AlertCircle } from 'lucide-react';
 import { getUrgencyStyles } from '@/lib/urgency-detector';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface ConversationSidebarProps {
     datedEvents: any[];
@@ -8,6 +9,7 @@ interface ConversationSidebarProps {
 }
 
 export function ConversationSidebar({ datedEvents, notes, onToggleCompletion }: ConversationSidebarProps) {
+    const { t } = useTranslation();
     return (
         <div className="space-y-6">
             {/* Events */}
@@ -15,7 +17,7 @@ export function ConversationSidebar({ datedEvents, notes, onToggleCompletion }: 
                 <div className="bg-card rounded-lg border border-border p-6">
                     <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                         <CheckCircle className="w-5 h-5 text-primary" />
-                        Events ({datedEvents.length})
+                        {t('conversation.sidebar_events_title')} ({datedEvents.length})
                     </h3>
                     <div className="space-y-4">
                         {datedEvents.map((event: any, index: number) => {
@@ -29,10 +31,10 @@ export function ConversationSidebar({ datedEvents, notes, onToggleCompletion }: 
                                 <div key={index} className="border-s-4 border-primary ps-3 py-2">
                                     <p className="text-sm font-semibold text-foreground">{title}</p>
                                     <p className="text-xs text-muted-foreground mt-1">
-                                        📅 {formattedDate || date || 'TBD'}
+                                        📅 {formattedDate || date || t('conversation.sidebar_tbd')}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
-                                        👤 {event.assignee || 'Unassigned'}
+                                        👤 {event.assignee || t('conversation.sidebar_unassigned')}
                                     </p>
                                     {description && (
                                         <p className="text-xs text-muted-foreground mt-2">{description}</p>
@@ -49,7 +51,7 @@ export function ConversationSidebar({ datedEvents, notes, onToggleCompletion }: 
                 <div className="bg-card rounded-lg border border-border p-6">
                     <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                         <AlertCircle className="w-5 h-5 text-yellow-600" />
-                        Notes ({notes.length})
+                        {t('conversation.sidebar_notes_title')} ({notes.length})
                     </h3>
                     <div className="space-y-4">
                         {notes.map((note: any, index: number) => {
@@ -93,7 +95,7 @@ export function ConversationSidebar({ datedEvents, notes, onToggleCompletion }: 
                                                 <div className="flex items-center gap-1">
                                                     {note.completed && (
                                                         <span className="px-2 py-0.5 bg-primary/10 text-text-primary rounded text-xs font-medium flex-shrink-0">
-                                                            ✓ Done
+                                                            ✓ {t('conversation.sidebar_done')}
                                                         </span>
                                                     )}
                                                     {!note.completed && isUrgent && (

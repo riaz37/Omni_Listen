@@ -14,6 +14,7 @@ import {
 import CustomDropdown from '@/components/ui/custom-dropdown';
 import DatePicker from '@/components/ui/date-picker';
 import TimePicker from '@/components/ui/time-picker';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface NewEventData {
   title: string;
@@ -47,6 +48,7 @@ function combineDateTime(date: string, time: string): string {
 }
 
 export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit }: CreateEventModalProps) {
+  const { t } = useTranslation();
   const startParts = splitDateTime(newEvent.start);
   const endParts = splitDateTime(newEvent.end);
 
@@ -54,19 +56,19 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
     <MotionDialog open onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add Event</DialogTitle>
-          <DialogDescription>Create a new event on your calendar</DialogDescription>
+          <DialogTitle>{t('calendar.create_modal.title')}</DialogTitle>
+          <DialogDescription>{t('calendar.create_modal.desc')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 py-1">
           {/* Title */}
           <div className="space-y-2">
-            <Label htmlFor="event-title">Title</Label>
+            <Label htmlFor="event-title">{t('calendar.create_modal.label_title')}</Label>
             <Input
               id="event-title"
               value={newEvent.title}
               onChange={(e) => onNewEventChange({ ...newEvent, title: e.target.value })}
-              placeholder="What's this event about?"
+              placeholder={t('calendar.create_modal.placeholder_title')}
               maxLength={100}
               autoFocus
             />
@@ -76,15 +78,15 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5">
               <Tag className="w-3.5 h-3.5 text-muted-foreground" />
-              Type
+              {t('calendar.create_modal.label_type')}
             </Label>
             <CustomDropdown
               value={newEvent.type}
               onChange={(val) => onNewEventChange({ ...newEvent, type: val as 'conversation' | 'task' | 'deadline' })}
               options={[
-                { value: 'conversation', label: 'Conversation' },
-                { value: 'task', label: 'Task' },
-                { value: 'deadline', label: 'Deadline' },
+                { value: 'conversation', label: t('calendar.create_modal.type_conversation') },
+                { value: 'task', label: t('calendar.create_modal.type_task') },
+                { value: 'deadline', label: t('calendar.create_modal.type_deadline') },
               ]}
               className="w-full"
             />
@@ -96,7 +98,7 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
             <div className="space-y-2">
               <Label className="flex items-center gap-1.5">
                 <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
-                Starts
+                {t('calendar.create_modal.label_starts')}
               </Label>
               <div className="grid grid-cols-2 gap-2">
                 <DatePicker
@@ -104,14 +106,14 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
                   onChange={(date) =>
                     onNewEventChange({ ...newEvent, start: combineDateTime(date, startParts.time) })
                   }
-                  placeholder="Date"
+                  placeholder={t('calendar.create_modal.placeholder_date')}
                 />
                 <TimePicker
                   value={startParts.time}
                   onChange={(time) =>
                     onNewEventChange({ ...newEvent, start: combineDateTime(startParts.date, time) })
                   }
-                  placeholder="Time"
+                  placeholder={t('calendar.create_modal.placeholder_time')}
                 />
               </div>
             </div>
@@ -119,7 +121,7 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
             {/* Divider */}
             <div className="flex items-center gap-3">
               <div className="h-px flex-1 bg-border" />
-              <span className="text-xs text-muted-foreground">to</span>
+              <span className="text-xs text-muted-foreground">{t('calendar.create_modal.label_to')}</span>
               <div className="h-px flex-1 bg-border" />
             </div>
 
@@ -127,7 +129,7 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
             <div className="space-y-2">
               <Label className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-                Ends
+                {t('calendar.create_modal.label_ends')}
               </Label>
               <div className="grid grid-cols-2 gap-2">
                 <DatePicker
@@ -135,14 +137,14 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
                   onChange={(date) =>
                     onNewEventChange({ ...newEvent, end: combineDateTime(date, endParts.time) })
                   }
-                  placeholder="Date"
+                  placeholder={t('calendar.create_modal.placeholder_date')}
                 />
                 <TimePicker
                   value={endParts.time}
                   onChange={(time) =>
                     onNewEventChange({ ...newEvent, end: combineDateTime(endParts.date, time) })
                   }
-                  placeholder="Time"
+                  placeholder={t('calendar.create_modal.placeholder_time')}
                 />
               </div>
             </div>
@@ -152,13 +154,13 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
           <div className="space-y-2">
             <Label htmlFor="event-location" className="flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
-              Location
+              {t('calendar.create_modal.label_location')}
             </Label>
             <Input
               id="event-location"
               value={newEvent.location}
               onChange={(e) => onNewEventChange({ ...newEvent, location: e.target.value })}
-              placeholder="Add a location"
+              placeholder={t('calendar.create_modal.placeholder_location')}
               maxLength={200}
             />
           </div>
@@ -167,7 +169,7 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
           <div className="space-y-2">
             <Label htmlFor="event-description" className="flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5 text-muted-foreground" />
-              Description
+              {t('calendar.create_modal.label_description')}
             </Label>
             <Textarea
               id="event-description"
@@ -175,17 +177,17 @@ export function CreateEventModal({ newEvent, onNewEventChange, onClose, onSubmit
               onChange={(e) => onNewEventChange({ ...newEvent, description: e.target.value })}
               rows={3}
               maxLength={500}
-              placeholder="Add details about this event..."
+              placeholder={t('calendar.create_modal.placeholder_description')}
             />
           </div>
         </div>
 
         <DialogFooter className="gap-2 pt-2 border-t border-border sm:justify-between">
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button onClick={onSubmit}>
-            Add Event
+            {t('calendar.create_modal.add_btn')}
           </Button>
         </DialogFooter>
       </DialogContent>

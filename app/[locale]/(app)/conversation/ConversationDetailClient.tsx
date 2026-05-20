@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
+import { useTranslation } from '@/lib/i18n/use-translation';
 import { useAuth } from '@/lib/auth-context';
 import { conversationsAPI, calendarAPI } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
@@ -20,6 +21,7 @@ import PageEntrance from '@/components/ui/page-entrance';
 export default function ConversationDetailClient() {
     const router = useRouter();
     const lp = useLocalePath();
+    const { t } = useTranslation();
     const searchParams = useSearchParams();
     const jobId = searchParams.get('id');
 
@@ -162,7 +164,7 @@ export default function ConversationDetailClient() {
         }>
             {!conversation ? (
                 <div className="min-h-screen bg-background flex items-center justify-center">
-                    <p className="text-muted-foreground">Conversation not found.</p>
+                    <p className="text-muted-foreground">{t('conversation.not_found')}</p>
                 </div>
             ) : (
             <div className="min-h-screen bg-background">
@@ -173,14 +175,14 @@ export default function ConversationDetailClient() {
                     className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground mb-4 transition-colors text-sm"
                 >
                     <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
-                    <span>Back</span>
+                    <span>{t('conversation.back')}</span>
                 </button>
 
                 {/* Header */}
                 <div className="mb-8">
                     <div className="flex justify-between items-start">
                         <div>
-                            <h1 className="text-2xl font-bold text-foreground">{conversation.title || 'Conversation Analysis'}</h1>
+                            <h1 className="text-2xl font-bold text-foreground">{conversation.title || t('conversation.default_title')}</h1>
                             <p className="text-sm text-muted-foreground mt-1">{formatDate(conversation.created_at)}</p>
                         </div>
                         <div className="flex gap-3">
@@ -188,14 +190,14 @@ export default function ConversationDetailClient() {
                                 onClick={() => exportConversationToPDF(conversation)}
                                 variant="secondary"
                                 iconLeft={<Download className="w-4 h-4" />}
-                                title="Export to PDF"
+                                title={t('conversation.export_to_pdf')}
                             >
-                                Download Pdf
+                                {t('conversation.download_pdf')}
                             </Button>
                             {conversation?.calendar_synced ? (
                                 <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-text-primary rounded-lg border border-primary/30 text-sm">
                                     <Check className="w-4 h-4" />
-                                    Synced to Calendar
+                                    {t('conversation.synced_to_calendar')}
                                 </div>
                             ) : (
                                 <Button
@@ -204,7 +206,7 @@ export default function ConversationDetailClient() {
                                     loading={syncing}
                                     iconLeft={<Calendar className="w-4 h-4" />}
                                 >
-                                    Sync to Calendar
+                                    {t('conversation.sync_to_calendar')}
                                 </Button>
                             )}
                         </div>
@@ -235,11 +237,11 @@ export default function ConversationDetailClient() {
                             <div className="bg-card rounded-lg border border-border p-6">
                                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                                     <FileText className="w-5 h-5 text-blue-600" />
-                                    Key Takeaways
+                                    {t('conversation.key_takeaways_title')}
                                 </h2>
                                 <div className="bg-blue-50 dark:bg-blue-900/20 border-s-4 border-blue-500 p-4 rounded">
                                     <p className="text-sm text-foreground mb-3 font-medium">
-                                        Question: {conversation.user_input}
+                                        {t('conversation.question_label')} {conversation.user_input}
                                     </p>
                                     <div className="text-foreground whitespace-pre-wrap">
                                         {conversation.user_input_result.content || conversation.user_input_result.description}

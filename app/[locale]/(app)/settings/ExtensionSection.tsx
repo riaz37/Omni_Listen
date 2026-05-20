@@ -5,9 +5,11 @@ import { Chrome, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SettingsSection } from './SettingsSection';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 export function ExtensionSection() {
   const { user } = useRequireAuth();
+  const { t } = useTranslation();
   const [syncing, setSyncing] = useState(false);
   const [status, setStatus] = useState<'unknown' | 'synced' | 'error'>('unknown');
   const [message, setMessage] = useState('');
@@ -53,17 +55,15 @@ export function ExtensionSection() {
     <SettingsSection
       id="extension"
       icon={<Chrome className="w-5 h-5" />}
-      title="Meeting Recorder Extension"
+      title={t('settings.ext.title')}
     >
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          Install our Edge extension to record Zoom, Google Meet, and Microsoft Teams
-          meetings directly from your browser. The recordings will be automatically
-          transcribed using your preset settings.
+          {t('settings.ext.description')}
         </p>
 
         <div className="bg-muted/50 border border-border rounded-lg p-4">
-          <h3 className="font-medium text-foreground mb-2 text-sm">How to connect:</h3>
+          <h3 className="font-medium text-foreground mb-2 text-sm">{t('settings.ext.how_to_connect')}</h3>
           <ol className="list-decimal list-inside text-sm text-muted-foreground space-y-2">
             <li>
               <a
@@ -72,11 +72,11 @@ export function ExtensionSection() {
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
               >
-                Install the ESAP Meeting Recorder from Edge Webstore
+                {t('settings.ext.step1')}
               </a>
             </li>
-            <li>Click &quot;Copy Auth Token&quot; below</li>
-            <li>Open the extension and paste the token in settings</li>
+            <li>{t('settings.ext.step2')}</li>
+            <li>{t('settings.ext.step3')}</li>
           </ol>
         </div>
 
@@ -98,7 +98,7 @@ export function ExtensionSection() {
           loading={syncing}
           iconLeft={<Chrome className="w-4 h-4" />}
         >
-          Connect Extension
+          {t('settings.ext.connect_btn')}
         </Button>
       </div>
     </SettingsSection>

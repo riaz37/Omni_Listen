@@ -18,11 +18,13 @@ import { SettingsSection } from './SettingsSection';
 import { useConfirmDialog } from './ConfirmDialogContext';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import PasswordConfirmDialog from '@/components/PasswordConfirmDialog';
+import { useTranslation } from '@/lib/i18n/use-translation';
 import type { ApiKeyData } from './types';
 
 export function ApiKeysSection() {
   const { confirm } = useConfirmDialog();
   const { user } = useRequireAuth();
+  const { t } = useTranslation();
   const [apiKeys, setApiKeys] = useState<ApiKeyData[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -73,9 +75,9 @@ export function ApiKeysSection() {
       setRevokeDialogOpen(true);
     } else {
       confirm({
-        title: 'Revoke API key',
-        message: 'Are you sure you want to revoke this API key? This cannot be undone.',
-        confirmLabel: 'Revoke',
+        title: t('settings.apikeys.revoke_title'),
+        message: t('settings.apikeys.revoke_msg'),
+        confirmLabel: t('settings.apikeys.revoke_btn'),
         variant: 'danger',
         onConfirm: async () => {
           try {
@@ -131,10 +133,10 @@ export function ApiKeysSection() {
       <SettingsSection
         id="api-keys"
         icon={<Key className="w-5 h-5 text-primary" />}
-        title="API Keys"
+        title={t('settings.apikeys.title')}
         action={
           <Button onClick={() => setModalOpen(true)} iconLeft={<Plus className="w-4 h-4" />} size="sm">
-            Create Key
+            {t('settings.apikeys.create_btn')}
           </Button>
         }
       >
@@ -145,15 +147,15 @@ export function ApiKeysSection() {
         ) : apiKeys.length === 0 ? (
           <div className="text-center py-8 bg-muted/50 rounded-lg border border-dashed border-border">
             <Key className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-            <p className="text-muted-foreground text-sm">No API keys found.</p>
-            <p className="text-xs text-muted-foreground mt-1">Create a key to access the API programmatically.</p>
+            <p className="text-muted-foreground text-sm">{t('settings.apikeys.empty_title')}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('settings.apikeys.empty_desc')}</p>
           </div>
         ) : (
           <div className="space-y-3">
             {apiKeys.map(key => (
               <div key={key.id} className="p-4 rounded-lg bg-muted/50 border border-border flex items-center justify-between">
                 <div>
-                  <div className="font-medium text-sm text-foreground">{key.name || 'Unnamed Key'}</div>
+                  <div className="font-medium text-sm text-foreground">{key.name || t('settings.apikeys.unnamed_key')}</div>
                   <code className="text-xs bg-muted px-2 py-0.5 rounded mt-1 block w-fit text-muted-foreground font-mono">
                     {key.key_prefix}...
                   </code>
@@ -180,9 +182,9 @@ export function ApiKeysSection() {
       <MotionDialog open={modalOpen} onOpenChange={(open) => { if (!open) closeModal(); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{newSecret ? 'API Key Created' : 'Create API Key'}</DialogTitle>
+            <DialogTitle>{newSecret ? t('settings.apikeys.modal_created_title') : t('settings.apikeys.modal_create_title')}</DialogTitle>
             {!newSecret && (
-              <DialogDescription>Give your key a name to identify it later.</DialogDescription>
+              <DialogDescription>{t('settings.apikeys.modal_create_desc')}</DialogDescription>
             )}
           </DialogHeader>
 
@@ -192,9 +194,9 @@ export function ApiKeysSection() {
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-semibold text-sm text-foreground">Key generated successfully!</p>
+                    <p className="font-semibold text-sm text-foreground">{t('settings.apikeys.key_generated')}</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Copy this key now. You won&apos;t be able to see it again.
+                      {t('settings.apikeys.key_copy_note')}
                     </p>
                   </div>
                 </div>
@@ -206,31 +208,31 @@ export function ApiKeysSection() {
                 </Button>
               </div>
               <DialogFooter>
-                <Button onClick={closeModal}>Done</Button>
+                <Button onClick={closeModal}>{t('settings.apikeys.done')}</Button>
               </DialogFooter>
             </div>
           ) : (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="api-key-name">Key Name</Label>
+                <Label htmlFor="api-key-name">{t('settings.apikeys.label_key_name')}</Label>
                 <Input
                   id="api-key-name"
                   value={newName}
                   onChange={e => setNewName(e.target.value)}
-                  placeholder="e.g. My Script"
+                  placeholder={t('settings.apikeys.key_name_placeholder')}
                   className="mt-1.5"
                   autoFocus
                   onKeyDown={(e) => { if (e.key === 'Enter' && newName.trim()) handleCreate(); }}
                 />
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={closeModal}>Cancel</Button>
+                <Button variant="outline" onClick={closeModal}>{t('common.cancel')}</Button>
                 <Button
                   onClick={handleCreate}
                   disabled={!newName.trim() || creating}
                   loading={creating}
                 >
-                  Create Key
+                  {t('settings.apikeys.create_key_btn')}
                 </Button>
               </DialogFooter>
             </div>
@@ -240,9 +242,9 @@ export function ApiKeysSection() {
 
       <PasswordConfirmDialog
         isOpen={revokeDialogOpen}
-        title="Revoke API key"
-        description="Enter your password to confirm revoking this API key. This cannot be undone."
-        confirmLabel="Revoke"
+        title={t('settings.apikeys.revoke_pw_title')}
+        description={t('settings.apikeys.revoke_pw_desc')}
+        confirmLabel={t('settings.apikeys.revoke_btn')}
         isLoading={revoking}
         error={revokeError}
         onConfirm={handleRevokeWithPassword}

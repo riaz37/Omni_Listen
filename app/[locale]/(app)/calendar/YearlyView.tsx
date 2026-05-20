@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { format } from 'date-fns';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface YearMonth {
   name: string;
@@ -54,7 +55,9 @@ interface YearlyViewProps {
 }
 
 export function YearlyView({ currentDate }: YearlyViewProps) {
+  const { t } = useTranslation();
   const yearMonths = useMemo(() => getYearMonths(currentDate.getFullYear()), [currentDate]);
+  const weekdayKeys = ['su', 'mo', 'tu', 'we', 'th', 'fr', 'sa'] as const;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -64,12 +67,12 @@ export function YearlyView({ currentDate }: YearlyViewProps) {
             {month.name} {month.year}
           </h3>
           <div className="grid grid-cols-7 gap-0 text-center">
-            {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
+            {weekdayKeys.map((d) => (
               <div
                 key={d}
-                className={`text-xs font-medium py-1 ${d === 'Fr' || d === 'Sa' ? 'text-primary' : 'text-muted-foreground'}`}
+                className={`text-xs font-medium py-1 ${d === 'fr' || d === 'sa' ? 'text-primary' : 'text-muted-foreground'}`}
               >
-                {d}
+                {t(`calendar.weekday_${d}`)}
               </div>
             ))}
             {month.days.map((day, idx) => (

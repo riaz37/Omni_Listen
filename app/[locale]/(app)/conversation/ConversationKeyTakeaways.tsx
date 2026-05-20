@@ -1,4 +1,5 @@
 import { FileText } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 // Helper function to highlight important keywords in text
 const getLineStyle = (text: string) => {
@@ -44,6 +45,7 @@ interface ConversationKeyTakeawaysProps {
 }
 
 export function ConversationKeyTakeaways({ summary }: ConversationKeyTakeawaysProps) {
+    const { t } = useTranslation();
     const englishText = summary?.english;
     const arabicText = summary?.arabic || summary?.original_language;
 
@@ -51,12 +53,12 @@ export function ConversationKeyTakeaways({ summary }: ConversationKeyTakeawaysPr
         <div className="bg-card rounded-lg border border-border p-6">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-primary" />
-                Key Takeaways
+                {t('conversation.key_takeaways_title')}
             </h2>
             <div className="space-y-4">
                 {englishText && (
                     <div>
-                        <h3 className="text-sm font-medium text-foreground mb-2">English</h3>
+                        <h3 className="text-sm font-medium text-foreground mb-2">{t('conversation.takeaways_english')}</h3>
                         <div className="prose prose-sm max-w-none">
                             {englishText.split('\n').map((line: string, i: number) => {
                                 // Calculate style BEFORE rendering
@@ -75,7 +77,7 @@ export function ConversationKeyTakeaways({ summary }: ConversationKeyTakeawaysPr
                 {/* ARABIC SECTION */}
                 {arabicText && arabicText !== englishText && (
                     <div className="mt-4">
-                        <h3 className="text-sm font-medium text-foreground mb-2">Arabic</h3>
+                        <h3 className="text-sm font-medium text-foreground mb-2">{t('conversation.takeaways_arabic')}</h3>
                         <div className="prose prose-sm max-w-none">
                             {arabicText.split('\n').map((line: string, i: number) => {
                                 const style = getLineStyle(line);

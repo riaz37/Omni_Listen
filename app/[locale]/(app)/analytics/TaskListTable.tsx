@@ -6,6 +6,7 @@ import {
   Users,
   ArrowUpDown,
 } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface Task {
   id: number;
@@ -25,12 +26,13 @@ interface TaskListTableProps {
 }
 
 export function TaskListTable({ tasks, getStatusBadge, getUrgencyLabel }: TaskListTableProps) {
+  const { t } = useTranslation();
   return (
     <div className="bg-card-2 rounded-lg border border-border p-5">
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-foreground">Task List</h2>
+        <h2 className="text-lg font-semibold text-foreground">{t('analytics.tasks.title')}</h2>
         <p className="text-sm text-muted-foreground mt-0.5">
-          {tasks.length} total Task &middot; {tasks.length} shown
+          {tasks.length} {t('analytics.tasks.total_suffix')} &middot; {tasks.length} {t('analytics.tasks.shown')}
         </p>
       </div>
 
@@ -43,19 +45,19 @@ export function TaskListTable({ tasks, getStatusBadge, getUrgencyLabel }: TaskLi
                 <Checkbox checked={false} onCheckedChange={() => {}} disabled />
               </th>
               <th className="text-start py-3 px-3 text-xs font-medium text-muted-foreground max-w-[260px]">
-                <span className="flex items-center gap-1">Title <ArrowUpDown className="w-3 h-3" /></span>
+                <span className="flex items-center gap-1">{t('analytics.tasks.col_title')} <ArrowUpDown className="w-3 h-3" /></span>
               </th>
               <th className="text-start py-3 px-4 text-xs font-medium text-muted-foreground">
-                <span className="flex items-center gap-1">Status <ArrowUpDown className="w-3 h-3" /></span>
+                <span className="flex items-center gap-1">{t('analytics.tasks.col_status')} <ArrowUpDown className="w-3 h-3" /></span>
               </th>
               <th className="text-start py-3 px-4 text-xs font-medium text-muted-foreground">
-                <span className="flex items-center gap-1">Priority <ArrowUpDown className="w-3 h-3" /></span>
+                <span className="flex items-center gap-1">{t('analytics.tasks.col_priority')} <ArrowUpDown className="w-3 h-3" /></span>
               </th>
               <th className="text-start py-3 px-4 text-xs font-medium text-muted-foreground">
-                <span className="flex items-center gap-1">Assignee <ArrowUpDown className="w-3 h-3" /></span>
+                <span className="flex items-center gap-1">{t('analytics.tasks.col_assignee')} <ArrowUpDown className="w-3 h-3" /></span>
               </th>
               <th className="text-start py-3 px-4 text-xs font-medium text-muted-foreground">
-                <span className="flex items-center gap-1">Tags <ArrowUpDown className="w-3 h-3" /></span>
+                <span className="flex items-center gap-1">{t('analytics.tasks.col_tags')} <ArrowUpDown className="w-3 h-3" /></span>
               </th>
               <th className="w-10"></th>
             </tr>
@@ -70,7 +72,7 @@ export function TaskListTable({ tasks, getStatusBadge, getUrgencyLabel }: TaskLi
                   <div>
                     <p className="text-sm font-medium text-foreground line-clamp-1">{task.title}</p>
                     <p className="text-sm text-muted-foreground line-clamp-1">
-                      {task.description || 'No description'}
+                      {task.description || t('analytics.tasks.no_description')}
                     </p>
                   </div>
                 </td>
@@ -83,13 +85,13 @@ export function TaskListTable({ tasks, getStatusBadge, getUrgencyLabel }: TaskLi
                 <td className="py-3 px-4">
                   <span className="text-sm text-muted-foreground flex items-center gap-1">
                     <Users className="w-3.5 h-3.5" />
-                    {task.assignee || 'Unassigned'}
+                    {task.assignee || t('analytics.tasks.unassigned')}
                   </span>
                 </td>
                 <td className="py-3 px-4">
                   <div className="flex items-center gap-1.5">
-                    <span className="px-2.5 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/30">{task.type || 'Event'}</span>
-                    <span className="px-2.5 py-1 rounded text-xs font-medium bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-800/30">{task.category || 'General'}</span>
+                    <span className="px-2.5 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/30">{task.type || t('analytics.tasks.tag_event')}</span>
+                    <span className="px-2.5 py-1 rounded text-xs font-medium bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-800/30">{task.category || t('common.general')}</span>
                   </div>
                 </td>
                 <td className="py-3 px-3">
@@ -101,7 +103,7 @@ export function TaskListTable({ tasks, getStatusBadge, getUrgencyLabel }: TaskLi
             )) : (
               <tr>
                 <td colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
-                  No tasks found
+                  {t('analytics.tasks.empty')}
                 </td>
               </tr>
             )}

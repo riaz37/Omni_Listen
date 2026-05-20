@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import CustomDropdown from '@/components/ui/custom-dropdown';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface Note {
   id: number;
@@ -34,6 +35,7 @@ interface EditNoteModalProps {
 }
 
 export default function EditNoteModal({ note, isOpen, onClose, onSave }: EditNoteModalProps) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     title: note.title || '',
     description: note.description || '',
@@ -71,7 +73,7 @@ export default function EditNoteModal({ note, isOpen, onClose, onSave }: EditNot
     <MotionDialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Edit Note</DialogTitle>
+          <DialogTitle>{t('notes.edit_modal.title')}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5 py-1">
@@ -79,15 +81,15 @@ export default function EditNoteModal({ note, isOpen, onClose, onSave }: EditNot
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5">
               <Tag className="w-3.5 h-3.5 text-muted-foreground" />
-              Category
+              {t('notes.edit_modal.label_category')}
             </Label>
             <CustomDropdown
               value={formData.category}
               onChange={(val) => setFormData({ ...formData, category: val })}
               options={[
-                { value: 'GENERAL', label: 'General' },
-                { value: 'BUDGET', label: 'Budget' },
-                { value: 'DECISION', label: 'Decision' },
+                { value: 'GENERAL', label: t('notes.category_general') },
+                { value: 'BUDGET', label: t('notes.stat_budget') },
+                { value: 'DECISION', label: t('notes.category_decision') },
               ]}
               className="w-full"
             />
@@ -97,14 +99,14 @@ export default function EditNoteModal({ note, isOpen, onClose, onSave }: EditNot
           <div className="space-y-2">
             <Label htmlFor="edit-note-title" className="flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5 text-muted-foreground" />
-              Title
+              {t('notes.edit_modal.label_title')}
             </Label>
             <Input
               id="edit-note-title"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               required
-              placeholder="Enter note title"
+              placeholder={t('notes.edit_modal.placeholder_title')}
             />
           </div>
 
@@ -112,7 +114,7 @@ export default function EditNoteModal({ note, isOpen, onClose, onSave }: EditNot
           <div className="space-y-2">
             <Label htmlFor="edit-note-description" className="flex items-center gap-1.5">
               <AlignLeft className="w-3.5 h-3.5 text-muted-foreground" />
-              Description
+              {t('notes.edit_modal.label_description')}
             </Label>
             <Textarea
               id="edit-note-description"
@@ -120,14 +122,14 @@ export default function EditNoteModal({ note, isOpen, onClose, onSave }: EditNot
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={6}
               required
-              placeholder="Enter note description"
+              placeholder={t('notes.edit_modal.placeholder_description')}
               className="resize-none"
             />
           </div>
 
           <DialogFooter className="gap-2 pt-2 border-t border-border sm:justify-between">
             <Button type="button" variant="outline" onClick={onClose} disabled={isSaving}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
@@ -135,7 +137,7 @@ export default function EditNoteModal({ note, isOpen, onClose, onSave }: EditNot
               loading={isSaving}
               iconLeft={<Save className="w-4 h-4" />}
             >
-              {isSaving ? 'Saving...' : 'Save Changes'}
+              {isSaving ? t('notes.edit_modal.saving') : t('notes.edit_modal.save_changes')}
             </Button>
           </DialogFooter>
         </form>

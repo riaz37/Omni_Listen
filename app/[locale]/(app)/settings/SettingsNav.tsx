@@ -3,39 +3,36 @@
 import { useEffect, useRef, useState } from 'react';
 import { User, Calendar, Chrome, Monitor, Webhook, Key } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-interface NavGroup {
-  label: string;
-  items: { id: string; label: string; icon: React.ReactNode }[];
-}
-
-const NAV_GROUPS: NavGroup[] = [
-  {
-    label: 'Account',
-    items: [
-      { id: 'profile', label: 'Profile', icon: <User className="w-4 h-4" /> },
-      { id: 'calendar', label: 'Calendar', icon: <Calendar className="w-4 h-4" /> },
-    ],
-  },
-  {
-    label: 'Apps & Devices',
-    items: [
-      { id: 'extension', label: 'Extension', icon: <Chrome className="w-4 h-4" /> },
-      { id: 'desktop', label: 'Desktop App', icon: <Monitor className="w-4 h-4" /> },
-    ],
-  },
-  {
-    label: 'Developer',
-    items: [
-      { id: 'webhooks', label: 'Webhooks', icon: <Webhook className="w-4 h-4" /> },
-      { id: 'api-keys', label: 'API Keys', icon: <Key className="w-4 h-4" /> },
-    ],
-  },
-];
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 export function SettingsNav() {
+  const { t } = useTranslation();
   const [activeId, setActiveId] = useState('profile');
   const observerRef = useRef<IntersectionObserver | null>(null);
+
+  const NAV_GROUPS = [
+    {
+      label: t('settings.nav.group_account'),
+      items: [
+        { id: 'profile', label: t('settings.nav.item_profile'), icon: <User className="w-4 h-4" /> },
+        { id: 'calendar', label: t('settings.nav.item_calendar'), icon: <Calendar className="w-4 h-4" /> },
+      ],
+    },
+    {
+      label: t('settings.nav.group_apps'),
+      items: [
+        { id: 'extension', label: t('settings.nav.item_extension'), icon: <Chrome className="w-4 h-4" /> },
+        { id: 'desktop', label: t('settings.nav.item_desktop'), icon: <Monitor className="w-4 h-4" /> },
+      ],
+    },
+    {
+      label: t('settings.nav.group_developer'),
+      items: [
+        { id: 'webhooks', label: t('settings.nav.item_webhooks'), icon: <Webhook className="w-4 h-4" /> },
+        { id: 'api-keys', label: t('settings.nav.item_api_keys'), icon: <Key className="w-4 h-4" /> },
+      ],
+    },
+  ];
 
   useEffect(() => {
     const ids = NAV_GROUPS.flatMap(g => g.items.map(i => i.id));

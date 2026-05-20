@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 // Predefined system presets
 import { SYSTEM_PRESETS } from '@/lib/presets';
@@ -44,6 +45,7 @@ interface RoleConfigModalProps {
 
 export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activeRoleName }: RoleConfigModalProps) {
   const { config, setConfig } = useConfig();
+  const { t } = useTranslation();
 
   const [userPresets, setUserPresets] = useState<Preset[]>([]);
   const [loading, setLoading] = useState(false);
@@ -220,7 +222,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
               <h3 className="font-semibold text-base text-foreground truncate">{preset.name}</h3>
               {preset.is_system && (
                 <span className="shrink-0 px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-muted-foreground border border-border rounded">
-                  System
+                  {t('common_ui.role_modal.badge_system')}
                 </span>
               )}
             </div>
@@ -245,7 +247,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
             {preset.config.custom_field_only && (
               <div className="flex items-center gap-1.5 text-xs font-medium text-foreground/70 bg-muted/50 dark:bg-muted/20 px-2 py-1 rounded border border-border w-fit">
                 <AlertCircle className="w-3 h-3 shrink-0" />
-                Custom analysis only
+                {t('common_ui.role_modal.custom_analysis_only')}
               </div>
             )}
           </div>
@@ -263,7 +265,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                 : ''
             }`}
           >
-            {isActive ? 'Active' : (saving ? 'Saving...' : 'Apply')}
+            {isActive ? t('common_ui.role_modal.active') : (saving ? t('common_ui.role_modal.saving') : t('common_ui.role_modal.apply'))}
           </Button>
 
           <Button
@@ -271,7 +273,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
             size="icon"
             onClick={() => handleEdit(preset)}
             className="h-auto w-auto p-2 text-muted-foreground hover:text-foreground"
-            title={preset.is_system ? "Customize this template" : "Edit preset"}
+            title={preset.is_system ? t('common_ui.role_modal.customize_template') : t('common_ui.role_modal.edit_preset')}
           >
             <Edit2 className="w-3.5 h-3.5" />
           </Button>
@@ -284,7 +286,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                   size="icon"
                   onClick={() => handleSetDefault(preset)}
                   className="h-auto w-auto p-2 text-muted-foreground hover:text-foreground"
-                  title="Set as default"
+                  title={t('common_ui.role_modal.set_default')}
                 >
                   <Star className="w-3.5 h-3.5" />
                 </Button>
@@ -294,7 +296,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                 size="icon"
                 onClick={() => handleDelete(preset)}
                 className="h-auto w-auto p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                title="Delete preset"
+                title={t('common_ui.role_modal.delete_preset')}
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </Button>
@@ -318,13 +320,13 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                 size="icon"
                 onClick={() => setView('list')}
                 className="h-auto w-auto p-1.5 text-muted-foreground hover:text-foreground"
-                title="Back to list"
+                title={t('common_ui.role_modal.back_to_list')}
               >
                 <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
               </Button>
             )}
             <DialogTitle>
-              {view === 'list' ? 'Manage Presets' : (editingPreset ? 'Edit Preset' : (isSystemTemplate ? 'Customize Template' : 'Create Preset'))}
+              {view === 'list' ? t('common_ui.role_modal.manage_presets') : (editingPreset ? t('common_ui.role_modal.edit_preset') : (isSystemTemplate ? t('common_ui.role_modal.customize_template') : t('common_ui.role_modal.create_preset')))}
             </DialogTitle>
           </div>
           <div className="flex items-center gap-2">
@@ -336,7 +338,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                 size="sm"
                 iconLeft={!saving ? <Save className="w-3.5 h-3.5" /> : undefined}
               >
-                {saving ? 'Saving...' : 'Save'}
+                {saving ? t('common_ui.role_modal.saving_btn') : t('common_ui.role_modal.save_btn')}
               </Button>
             )}
             <Button
@@ -360,7 +362,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-baseline gap-2">
                     <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">
-                      My Presets
+                      {t('common_ui.role_modal.my_presets')}
                     </h3>
                     <span className="text-xs text-muted-foreground tabular-nums">
                       {userPresets.length}
@@ -371,7 +373,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                     size="sm"
                     iconLeft={<Plus className="w-3.5 h-3.5" />}
                   >
-                    Create new
+                    {t('common_ui.role_modal.create_new')}
                   </Button>
                 </div>
 
@@ -393,8 +395,8 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                   </div>
                 ) : userPresets.length === 0 ? (
                   <div className="py-8 text-center">
-                    <p className="text-sm text-muted-foreground">No custom presets yet.</p>
-                    <p className="text-xs text-muted-foreground mt-1">Create one above or customize a system template below.</p>
+                    <p className="text-sm text-muted-foreground">{t('common_ui.role_modal.no_presets')}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('common_ui.role_modal.no_presets_hint')}</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -406,7 +408,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
               {/* System Presets Section */}
               <div>
                 <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide mb-4">
-                  System Templates
+                  {t('common_ui.role_modal.system_templates')}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {SYSTEM_PRESETS.map(renderPresetCard)}
@@ -420,12 +422,12 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                 /* Customize Template (single-column layout) */
                 <>
                   <div className="bg-muted/50 dark:bg-muted/20 border border-border rounded-lg p-4 mb-6 text-sm text-muted-foreground">
-                    You are customizing a system template. The name and role are fixed, but you can add a default analysis request and modify output fields.
+                    {t('common_ui.role_modal.customize_note')}
                   </div>
                   <div className="space-y-5">
                     <div className="space-y-2">
                       <Label>
-                        Preset Name <span className="text-destructive">*</span>
+                        {t('common_ui.role_modal.label_preset_name')} <span className="text-destructive">*</span>
                       </Label>
                       <div className="relative">
                         <Input
@@ -441,7 +443,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
 
                     <div className="space-y-2">
                       <Label>
-                        Role <span className="text-destructive">*</span>
+                        {t('common_ui.role_modal.label_role')} <span className="text-destructive">*</span>
                       </Label>
                       <div className="relative">
                         <Input
@@ -458,19 +460,19 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <Label>
-                          Default Analysis Request {formData.custom_field_only ? <span className="text-destructive">*</span> : <span className="text-muted-foreground font-normal">(optional)</span>}
+                          {t('common_ui.role_modal.label_analysis_req')} {formData.custom_field_only ? <span className="text-destructive">*</span> : <span className="text-muted-foreground font-normal">{t('common_ui.role_modal.analysis_optional')}</span>}
                         </Label>
                         {formData.custom_field_only && !formData.user_input && (
                           <span className="text-xs text-destructive flex items-center gap-1">
                             <AlertCircle className="w-3 h-3" />
-                            Required when custom analysis is enabled
+                            {t('common_ui.role_modal.analysis_required_hint')}
                           </span>
                         )}
                       </div>
                       <Textarea
                         value={formData.user_input}
                         onChange={(e) => setFormData({ ...formData, user_input: e.target.value })}
-                        placeholder="Enter a default analysis request that will auto-fill when this preset is selected..."
+                        placeholder={t('common_ui.role_modal.analysis_req_placeholder')}
                         rows={3}
                         className={formData.custom_field_only && !formData.user_input ? 'border-destructive/50 bg-destructive/5' : ''}
                       />
@@ -482,14 +484,14 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                             onCheckedChange={(checked) => setFormData({ ...formData, custom_field_only: checked === true })}
                           />
                           <label htmlFor="custom_field_only" className="text-sm cursor-pointer">
-                            Only process additional analysis (skip standard extraction)
+                            {t('common_ui.role_modal.custom_only_label')}
                           </label>
                         </div>
                       </div>
                     </div>
 
                     <div className="space-y-3">
-                      <Label>Output Fields</Label>
+                      <Label>{t('common_ui.role_modal.output_fields')}</Label>
                       <div className="grid grid-cols-2 gap-3">
                         {Object.entries(formData.output_fields || {}).map(([key, value]) => (
                           <div key={key} className="flex items-center gap-2 capitalize">
@@ -515,39 +517,39 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
               ) : (
                 /* Create / Edit Preset (two-column layout) */
                 <>
-                  <p className="text-base text-muted-foreground mb-8">What are you having problems with?</p>
+                  <p className="text-base text-muted-foreground mb-8">{t('common_ui.role_modal.what_problem')}</p>
                   <div className="flex gap-12">
                     {/* Left column - form fields */}
                     <div className="flex-1 space-y-5">
                       <div className="space-y-2">
                         <Label htmlFor="preset-name">
-                          Preset Name <span className="text-destructive">*</span>
+                          {t('common_ui.role_modal.label_preset_name')} <span className="text-destructive">*</span>
                         </Label>
                         <Input
                           id="preset-name"
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          placeholder="Give your preset a name"
+                          placeholder={t('common_ui.role_modal.preset_name_placeholder')}
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="preset-role">Preset Role</Label>
+                        <Label htmlFor="preset-role">{t('common_ui.role_modal.label_role')}</Label>
                         <Input
                           id="preset-role"
                           value={formData.role}
                           onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                          placeholder="Define the AI role"
+                          placeholder={t('common_ui.role_modal.preset_role_placeholder')}
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="preset-description">Description</Label>
+                        <Label htmlFor="preset-description">{t('common_ui.role_modal.preset_desc_label')}</Label>
                         <Textarea
                           id="preset-description"
                           value={formData.user_input}
                           onChange={(e) => setFormData({ ...formData, user_input: e.target.value })}
-                          placeholder="Describe what this preset should do..."
+                          placeholder={t('common_ui.role_modal.preset_desc_placeholder')}
                           rows={5}
                           className="resize-y"
                         />
@@ -560,14 +562,14 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                           onCheckedChange={(checked) => setFormData({ ...formData, custom_field_only: checked === true })}
                         />
                         <label htmlFor="custom_field_only_create" className="text-sm cursor-pointer">
-                          Only process additional analysis (skip standard extraction)
+                          {t('common_ui.role_modal.custom_only_label')}
                         </label>
                       </div>
                     </div>
 
                     {/* Right column - output fields */}
                     <div className="w-72 shrink-0">
-                      <Label className="mb-4 block">Output Fields</Label>
+                      <Label className="mb-4 block">{t('common_ui.role_modal.output_fields')}</Label>
                       <div className="space-y-3.5">
                         {Object.entries(formData.output_fields || {}).map(([key, value]) => (
                           <div key={key} className="flex items-center gap-2 capitalize">
@@ -592,7 +594,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
 
                   <DialogFooter className="gap-2 pt-6 border-t border-border sm:justify-between">
                     <Button variant="outline" size="lg" onClick={() => setView('list')}>
-                      Cancel
+                      {t('common.cancel')}
                     </Button>
                     <Button
                       onClick={handleSavePreset}
@@ -600,7 +602,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
                       loading={saving}
                       size="lg"
                     >
-                      Submit
+                      {t('common.submit')}
                     </Button>
                   </DialogFooter>
                 </>
@@ -613,9 +615,9 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
     {deleteConfirm && (
       <ConfirmDialog
         isOpen={!!deleteConfirm}
-        title="Delete Preset"
-        message={`Are you sure you want to delete "${deleteConfirm.name}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        title={t('common_ui.role_modal.delete_title')}
+        message={`${t('common_ui.role_modal.delete_confirm_msg')} "${deleteConfirm.name}"`}
+        confirmLabel={t('common.delete')}
         variant="danger"
         onConfirm={() => {
           executeDelete(deleteConfirm);

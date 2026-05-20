@@ -14,6 +14,7 @@ import {
   DropdownContent,
   DropdownItem,
 } from '@/components/ui/dropdown';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface ConversationCardProps {
   meeting: any;
@@ -30,6 +31,7 @@ export function ConversationCard({
   onView,
   onDelete,
 }: ConversationCardProps) {
+  const { t } = useTranslation();
   return (
     <div
       className="bg-card rounded-lg border border-border p-5 hover:shadow-md transition-all cursor-pointer"
@@ -48,7 +50,7 @@ export function ConversationCard({
         </div>
 
         <h3 className="text-sm font-semibold text-foreground flex-1 truncate">
-          {meeting.title || 'Conversation Analysis'}
+          {meeting.title || t('history.card.default_title')}
         </h3>
 
         {meeting.calendar_synced && (
@@ -57,7 +59,7 @@ export function ConversationCard({
             onClick={(e) => e.stopPropagation()}
           >
             <Link2 className="w-3 h-3" />
-            Sync to calendar
+            {t('history.card.sync_label')}
           </span>
         )}
 
@@ -71,10 +73,10 @@ export function ConversationCard({
             </DropdownTrigger>
             <DropdownContent align="end">
               <DropdownItem icon={Eye} onClick={() => onView(meeting.job_id)}>
-                View Details
+                {t('history.table.view_details')}
               </DropdownItem>
               <DropdownItem icon={Trash2} destructive onClick={() => onDelete(meeting.job_id)}>
-                Delete
+                {t('common.delete')}
               </DropdownItem>
             </DropdownContent>
           </Dropdown>
@@ -90,7 +92,7 @@ export function ConversationCard({
       <div className="flex items-center gap-3 text-xs text-muted-foreground ms-6">
         <span className="inline-flex items-center gap-1">
           <Calendar className="w-3.5 h-3.5" />
-          {meeting.event_count} Event{meeting.event_count !== 1 ? 's' : ''}
+          {meeting.event_count} {t('history.table.col_events')}
         </span>
 
         {meeting.has_custom_query && (
@@ -98,7 +100,7 @@ export function ConversationCard({
             <div className="w-px h-3 bg-border" />
             <span className="inline-flex items-center gap-1">
               <BarChart2 className="w-3.5 h-3.5" />
-              Additional Analysis
+              {t('history.card.additional_analysis')}
             </span>
           </>
         )}

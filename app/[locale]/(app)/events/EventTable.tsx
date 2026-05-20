@@ -20,6 +20,7 @@ import {
   ChevronsRight,
   Users,
 } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface Event {
   id: string;
@@ -64,24 +65,24 @@ interface EventTableProps {
   hasFilters: boolean;
 }
 
-function getStatusBadge(event: Event) {
+function getStatusBadge(event: Event, doneLabel: string, overdueLabel: string, upcomingLabel: string) {
   if (event.completed) {
     return (
       <span className="inline-flex px-2.5 py-1 rounded text-xs font-medium bg-primary/10 text-primary border border-primary/30">
-        Done
+        {doneLabel}
       </span>
     );
   }
   if (isPast(event.start)) {
     return (
       <span className="inline-flex px-2.5 py-1 rounded text-xs font-medium bg-destructive/10 text-destructive border border-destructive/30">
-        Overdue
+        {overdueLabel}
       </span>
     );
   }
   return (
     <span className="inline-flex px-2.5 py-1 rounded text-xs font-medium bg-card text-primary border border-primary/30">
-      Upcoming
+      {upcomingLabel}
     </span>
   );
 }
@@ -107,6 +108,7 @@ export function EventTable({
   onSetRowsPerPage,
   hasFilters,
 }: EventTableProps) {
+  const { t } = useTranslation();
   const selectableEvents = paginatedEvents.filter((e) => e.eventItemId);
   const allOnPageSelected =
     selectableEvents.length > 0 &&
@@ -128,7 +130,7 @@ export function EventTable({
                 onClick={() => onSort('title')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
               >
-                Title <ArrowUpDown className="w-3.5 h-3.5" />
+                {t('events.table.col_title')} <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
             <th className="text-start p-3 font-medium text-muted-foreground">
@@ -136,7 +138,7 @@ export function EventTable({
                 onClick={() => onSort('status')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
               >
-                Status <ArrowUpDown className="w-3.5 h-3.5" />
+                {t('events.table.col_status')} <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
             <th className="text-start p-3 font-medium text-muted-foreground">
@@ -144,7 +146,7 @@ export function EventTable({
                 onClick={() => onSort('assignee')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
               >
-                Assignee <ArrowUpDown className="w-3.5 h-3.5" />
+                {t('events.table.col_assignee')} <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
             <th className="text-start p-3 font-medium text-muted-foreground">
@@ -152,7 +154,7 @@ export function EventTable({
                 onClick={() => onSort('date')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
               >
-                Date <ArrowUpDown className="w-3.5 h-3.5" />
+                {t('events.table.col_date')} <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
             <th className="w-10 p-3"></th>
@@ -163,8 +165,8 @@ export function EventTable({
             <tr>
               <td colSpan={6} className="p-8 text-center text-muted-foreground">
                 {hasFilters
-                  ? 'No events match your filters'
-                  : 'No events found. Upload conversations to create events.'}
+                  ? t('events.no_match')
+                  : t('events.table.empty')}
               </td>
             </tr>
           ) : (
@@ -200,7 +202,7 @@ export function EventTable({
                     </p>
                   )}
                 </td>
-                <td className="p-3">{getStatusBadge(event)}</td>
+                <td className="p-3">{getStatusBadge(event, t('events.table.status_done'), t('events.table.status_overdue'), t('events.table.status_upcoming'))}</td>
                 <td className="p-3">
                   <div className="flex items-center gap-1.5 text-sm text-foreground">
                     <Users className="w-3.5 h-3.5 text-muted-foreground" />
@@ -227,26 +229,26 @@ export function EventTable({
                         icon={Eye}
                         onClick={() => onViewDetails(event)}
                       >
-                        View Details
+                        {t('events.list_item.view_details')}
                       </DropdownItem>
                       <DropdownItem
                         icon={Edit2}
                         onClick={() => onEdit(event)}
                       >
-                        Edit
+                        {t('events.list_item.edit')}
                       </DropdownItem>
                       <DropdownItem
                         icon={Clock}
                         onClick={() => onReschedule(event)}
                       >
-                        Reschedule
+                        {t('events.list_item.reschedule')}
                       </DropdownItem>
                       <DropdownItem
                         icon={Trash2}
                         destructive
                         onClick={() => onDelete(event.id)}
                       >
-                        Delete
+                        {t('common.delete')}
                       </DropdownItem>
                     </DropdownContent>
                   </Dropdown>
@@ -260,11 +262,11 @@ export function EventTable({
       {/* Pagination */}
       <div className="flex items-center justify-between px-4 py-3 border-t border-border">
         <div className="text-sm text-muted-foreground">
-          {selectedIds.length} of {filteredCount} row(s) selected.
+          {selectedIds.length} {t('common.of')} {filteredCount} {t('events.table.rows_selected')}
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-muted-foreground">Rows per page</span>
+            <span className="text-muted-foreground">{t('events.table.rows_per_page')}</span>
             <CustomDropdown
               value={String(rowsPerPage)}
               onChange={(val) => {
@@ -279,7 +281,7 @@ export function EventTable({
             />
           </div>
           <span className="text-sm text-muted-foreground">
-            Page {currentPage} of {totalPages || 1}
+            {t('events.table.page_of')} {currentPage} {t('events.table.of')} {totalPages || 1}
           </span>
           <div className="flex items-center gap-1">
             <button

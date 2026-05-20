@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import DatePicker from '@/components/ui/date-picker';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface Event {
   id: number;
@@ -38,6 +39,7 @@ interface EditEventModalProps {
 }
 
 export default function EditEventModal({ event, isOpen, onClose, onSave }: EditEventModalProps) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     title: event.title || '',
     date: event.date || '',
@@ -83,13 +85,13 @@ export default function EditEventModal({ event, isOpen, onClose, onSave }: EditE
     <MotionDialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Edit Event</DialogTitle>
+          <DialogTitle>{t('events.edit_modal.title')}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5 py-1">
           {/* Title */}
           <div className="space-y-2">
-            <Label htmlFor="edit-title">Title</Label>
+            <Label htmlFor="edit-title">{t('events.edit_modal.label_title')}</Label>
             <Input
               id="edit-title"
               value={formData.title}
@@ -102,12 +104,12 @@ export default function EditEventModal({ event, isOpen, onClose, onSave }: EditE
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5">
               <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
-              Date
+              {t('events.edit_modal.label_date')}
             </Label>
             <DatePicker
               value={dateValue}
               onChange={(date) => setFormData({ ...formData, date })}
-              placeholder="Select date"
+              placeholder={t('events.edit_modal.placeholder_date')}
               required
             />
           </div>
@@ -116,14 +118,14 @@ export default function EditEventModal({ event, isOpen, onClose, onSave }: EditE
           <div className="space-y-2">
             <Label htmlFor="edit-description" className="flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5 text-muted-foreground" />
-              Description
+              {t('events.edit_modal.label_description')}
             </Label>
             <Textarea
               id="edit-description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={4}
-              placeholder="Add event description..."
+              placeholder={t('events.edit_modal.placeholder_description')}
               className="resize-none"
             />
           </div>
@@ -132,13 +134,13 @@ export default function EditEventModal({ event, isOpen, onClose, onSave }: EditE
           <div className="space-y-2">
             <Label htmlFor="edit-location" className="flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
-              Location
+              {t('events.edit_modal.label_location')}
             </Label>
             <Input
               id="edit-location"
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              placeholder="Add location..."
+              placeholder={t('events.edit_modal.placeholder_location')}
             />
           </div>
 
@@ -146,19 +148,19 @@ export default function EditEventModal({ event, isOpen, onClose, onSave }: EditE
           <div className="space-y-2">
             <Label htmlFor="edit-assignee" className="flex items-center gap-1.5">
               <User className="w-3.5 h-3.5 text-muted-foreground" />
-              Assignee
+              {t('events.edit_modal.label_assignee')}
             </Label>
             <Input
               id="edit-assignee"
               value={formData.assignee}
               onChange={(e) => setFormData({ ...formData, assignee: e.target.value })}
-              placeholder="Assign to..."
+              placeholder={t('events.edit_modal.placeholder_assignee')}
             />
           </div>
 
           <DialogFooter className="gap-2 pt-2 border-t border-border sm:justify-between">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
@@ -166,7 +168,7 @@ export default function EditEventModal({ event, isOpen, onClose, onSave }: EditE
               loading={isSaving}
               iconLeft={<Save className="w-4 h-4" />}
             >
-              {isSaving ? 'Saving...' : 'Save Changes'}
+              {isSaving ? t('events.edit_modal.saving') : t('events.edit_modal.save_changes')}
             </Button>
           </DialogFooter>
         </form>

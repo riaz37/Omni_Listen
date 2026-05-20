@@ -11,6 +11,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -28,9 +29,11 @@ export default function ConfirmDialog({
   onCancel,
   title,
   message,
-  confirmLabel = 'Delete',
+  confirmLabel,
   variant = 'danger',
 }: ConfirmDialogProps) {
+  const { t } = useTranslation();
+  const resolvedConfirmLabel = confirmLabel ?? t('common.delete');
   const confirmButtonClass =
     variant === 'danger'
       ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
@@ -61,14 +64,14 @@ export default function ConfirmDialog({
         </AlertDialogHeader>
         <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
           <AlertDialogCancel type="button" className="flex-1 mt-0" onClick={onCancel}>
-            Cancel
+            {t('common.cancel')}
           </AlertDialogCancel>
           <AlertDialogAction
             type="button"
             className={`flex-1 ${confirmButtonClass}`}
             onClick={onConfirm}
           >
-            {confirmLabel}
+            {resolvedConfirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -3,17 +3,18 @@
 import { Monitor, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SettingsSection } from './SettingsSection';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 export function DesktopAppSection() {
+  const { t } = useTranslation();
   return (
     <SettingsSection
       id="desktop"
       icon={<Monitor className="w-5 h-5" />}
-      title="Desktop Application"
+      title={t('settings.desktop.title')}
     >
       <p className="text-sm text-muted-foreground mb-4">
-        Get the full experience with our dedicated desktop application. Record meetings,
-        access your dashboard, and more without opening a browser.
+        {t('settings.desktop.description')}
       </p>
 
       <div className="flex items-center gap-4">
@@ -24,11 +25,11 @@ export function DesktopAppSection() {
             rel="noopener noreferrer"
           >
             <Download className="w-4 h-4" />
-            Download for Windows
+            {t('settings.desktop.download_windows')}
           </a>
         </Button>
         <span className="text-xs text-muted-foreground">
-          Version 1.0.0 &middot; Windows 10/11
+          {t('settings.desktop.version')}
         </span>
       </div>
     </SettingsSection>

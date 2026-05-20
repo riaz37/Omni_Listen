@@ -13,6 +13,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import CustomDropdown from '@/components/ui/custom-dropdown';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface NewNoteData {
   title: string;
@@ -38,12 +39,13 @@ export function AddNoteModal({
   meetings,
   onSubmit,
 }: AddNoteModalProps) {
+  const { t } = useTranslation();
   return (
     <MotionDialog open={show} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Note</DialogTitle>
-          <DialogDescription>Create a new note linked to a conversation</DialogDescription>
+          <DialogTitle>{t('notes.add_modal.title')}</DialogTitle>
+          <DialogDescription>{t('notes.add_modal.desc')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 py-1">
@@ -51,16 +53,16 @@ export function AddNoteModal({
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5">
               <MessageSquare className="w-3.5 h-3.5 text-muted-foreground" />
-              Select Meeting
+              {t('notes.add_modal.label_meeting')}
             </Label>
             <CustomDropdown
               value={newNoteData.meetingId}
               onChange={(val) => setNewNoteData({ ...newNoteData, meetingId: val })}
               options={[
-                { value: '', label: 'Select a meeting...' },
+                { value: '', label: t('notes.add_modal.select_meeting') },
                 ...meetings.map((meeting) => ({
                   value: meeting.job_id,
-                  label: `${format(new Date(meeting.created_at), 'MMM dd, yyyy')} - Meeting`,
+                  label: `${format(new Date(meeting.created_at), 'MMM dd, yyyy')} - ${t('notes.add_modal.meeting_suffix')}`,
                 })),
               ]}
               className="w-full"
@@ -71,15 +73,15 @@ export function AddNoteModal({
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5">
               <Tag className="w-3.5 h-3.5 text-muted-foreground" />
-              Category
+              {t('notes.add_modal.label_category')}
             </Label>
             <CustomDropdown
               value={newNoteData.category}
               onChange={(val) => setNewNoteData({ ...newNoteData, category: val })}
               options={[
-                { value: 'GENERAL', label: 'General' },
-                { value: 'BUDGET', label: 'Budget' },
-                { value: 'DECISION', label: 'Decision' },
+                { value: 'GENERAL', label: t('notes.category_general') },
+                { value: 'BUDGET', label: t('notes.stat_budget') },
+                { value: 'DECISION', label: t('notes.category_decision') },
               ]}
               className="w-full"
             />
@@ -89,13 +91,13 @@ export function AddNoteModal({
           <div className="space-y-2">
             <Label htmlFor="note-title" className="flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5 text-muted-foreground" />
-              Title
+              {t('notes.add_modal.label_title')}
             </Label>
             <Input
               id="note-title"
               value={newNoteData.title}
               onChange={(e) => setNewNoteData({ ...newNoteData, title: e.target.value })}
-              placeholder="Give your note a title"
+              placeholder={t('notes.add_modal.placeholder_title')}
               maxLength={100}
             />
           </div>
@@ -104,13 +106,13 @@ export function AddNoteModal({
           <div className="space-y-2">
             <Label htmlFor="note-description" className="flex items-center gap-1.5">
               <AlignLeft className="w-3.5 h-3.5 text-muted-foreground" />
-              Description
+              {t('notes.add_modal.label_description')}
             </Label>
             <Textarea
               id="note-description"
               value={newNoteData.description}
               onChange={(e) => setNewNoteData({ ...newNoteData, description: e.target.value })}
-              placeholder="Add details about this note..."
+              placeholder={t('notes.add_modal.placeholder_description')}
               maxLength={500}
               rows={4}
             />
@@ -119,10 +121,10 @@ export function AddNoteModal({
 
         <DialogFooter className="gap-2 pt-2 border-t border-border sm:justify-between">
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button onClick={onSubmit}>
-            Add Note
+            {t('notes.add_modal.add_btn')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -4,6 +4,7 @@ import {
   Calendar,
   Clock,
 } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface Note {
   id: number;
@@ -21,12 +22,13 @@ interface RecentNotesCardProps {
 }
 
 export function RecentNotesCard({ notes, totalNotes, getCategoryBadge }: RecentNotesCardProps) {
+  const { t } = useTranslation();
   return (
     <div className="bg-card-2 rounded-lg border border-border p-5">
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-foreground">Recent Notes</h2>
+        <h2 className="text-lg font-semibold text-foreground">{t('analytics.notes.title')}</h2>
         <p className="text-sm text-muted-foreground mt-0.5">
-          {totalNotes} total Notes &middot; {notes.length} shown
+          {totalNotes} {t('analytics.notes.total_suffix')} &middot; {notes.length} {t('analytics.notes.shown')}
         </p>
       </div>
       <div className="space-y-3">
@@ -42,12 +44,12 @@ export function RecentNotesCard({ notes, totalNotes, getCategoryBadge }: RecentN
               </div>
             </div>
             <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-              {note.description || 'No description available.'}
+              {note.description || t('analytics.notes.no_description')}
             </p>
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
-                {note.created_at ? format(new Date(note.created_at), 'MMM dd, yyyy') : 'No date'}
+                {note.created_at ? format(new Date(note.created_at), 'MMM dd, yyyy') : t('analytics.notes.no_date')}
               </span>
               <span className="inline-flex items-center gap-1">
                 <Clock className="w-3 h-3" />
@@ -56,7 +58,7 @@ export function RecentNotesCard({ notes, totalNotes, getCategoryBadge }: RecentN
             </div>
           </div>
         )) : (
-          <p className="text-sm text-muted-foreground text-center py-6">No notes yet</p>
+          <p className="text-sm text-muted-foreground text-center py-6">{t('analytics.notes.empty')}</p>
         )}
       </div>
     </div>

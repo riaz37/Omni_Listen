@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import { Circle, CheckCircle2 } from 'lucide-react';
 import type { CalendarEvent } from '@/lib/types';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface EventListSidebarProps {
   events: CalendarEvent[];
@@ -10,6 +11,7 @@ interface EventListSidebarProps {
 }
 
 export function EventListSidebar({ events, onSelectEvent, onToggleCompletion, onClose }: EventListSidebarProps) {
+  const { t } = useTranslation();
   return (
     <>
       <div
@@ -18,7 +20,7 @@ export function EventListSidebar({ events, onSelectEvent, onToggleCompletion, on
       />
       <div className="fixed end-0 top-0 h-full w-96 bg-card border-s border-border shadow-xl z-50 flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-lg font-bold text-foreground">Event List</h2>
+          <h2 className="text-lg font-bold text-foreground">{t('calendar.event_list.title')}</h2>
           <button
             onClick={onClose}
             className="text-muted-foreground hover:text-foreground"
@@ -31,7 +33,7 @@ export function EventListSidebar({ events, onSelectEvent, onToggleCompletion, on
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {events.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">No events</p>
+              <p className="text-muted-foreground">{t('calendar.event_list.no_events')}</p>
             </div>
           ) : (
             events.map((event, index) => {
@@ -65,7 +67,7 @@ export function EventListSidebar({ events, onSelectEvent, onToggleCompletion, on
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <button className="px-2 py-1 text-xs border border-border rounded text-foreground hover:bg-muted">
-                          Notify
+                          {t('calendar.event_list.notify')}
                         </button>
                         <button className="text-muted-foreground hover:text-foreground">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,9 +78,9 @@ export function EventListSidebar({ events, onSelectEvent, onToggleCompletion, on
                     </div>
                     <div className="ms-8 space-y-1 text-sm text-muted-foreground">
                       <div className="flex items-center gap-4">
-                        <span>Speaker: {event.assignee || '-'}</span>
-                        <span>Sync: {event.synced ? 'Yes' : 'No'}</span>
-                        <span>Status: {event.completed ? 'Done' : 'Pending'}</span>
+                        <span>{t('calendar.event_list.speaker')} {event.assignee || '-'}</span>
+                        <span>{t('calendar.event_list.sync')} {event.synced ? t('common.yes') : t('common.no')}</span>
+                        <span>{t('calendar.event_list.status')} {event.completed ? t('calendar.event_list.status_done') : t('calendar.event_list.status_pending')}</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <span>{format(event.start, 'MMM dd, yyyy')}</span>
@@ -104,7 +106,7 @@ export function EventListSidebar({ events, onSelectEvent, onToggleCompletion, on
                           ? 'bg-primary/10 text-primary'
                           : 'bg-accent text-accent-foreground'
                     }`}>
-                      {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
+                      {t(`calendar.create_modal.type_${event.type}`)}
                     </span>
                   </div>
                   {event.description && (

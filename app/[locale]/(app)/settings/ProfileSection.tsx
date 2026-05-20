@@ -37,7 +37,7 @@ export function ProfileSection() {
     <SettingsSection
       id="profile"
       icon={<User className="w-5 h-5" />}
-      title="Profile"
+      title={t('settings.nav.item_profile')}
     >
       <div className="flex items-center gap-4">
         {user?.picture && (

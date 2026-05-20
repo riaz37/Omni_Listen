@@ -19,6 +19,7 @@ import {
   Link2,
   RefreshCw,
 } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 type SortColumn = 'title' | 'events' | 'date';
 
@@ -63,6 +64,7 @@ export function ConversationTable({
   onSetRowsPerPage,
   hasFilters,
 }: ConversationTableProps) {
+  const { t } = useTranslation();
   const allOnPageSelected =
     paginatedConversations.length > 0 &&
     paginatedConversations.every((c) => selectedIds.includes(c.id));
@@ -83,7 +85,7 @@ export function ConversationTable({
                 onClick={() => onSort('title')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
               >
-                Title <ArrowUpDown className="w-3.5 h-3.5" />
+                {t('history.table.col_title')} <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
             <th className="text-start p-3 font-medium text-muted-foreground">
@@ -91,18 +93,18 @@ export function ConversationTable({
                 onClick={() => onSort('events')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
               >
-                Events <ArrowUpDown className="w-3.5 h-3.5" />
+                {t('history.table.col_events')} <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
             <th className="text-start p-3 font-medium text-muted-foreground">
-              Status
+              {t('history.table.col_status')}
             </th>
             <th className="text-start p-3 font-medium text-muted-foreground">
               <button
                 onClick={() => onSort('date')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
               >
-                Date <ArrowUpDown className="w-3.5 h-3.5" />
+                {t('history.table.col_date')} <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
             <th className="w-10 p-3"></th>
@@ -113,8 +115,8 @@ export function ConversationTable({
             <tr>
               <td colSpan={6} className="p-8 text-center text-muted-foreground">
                 {hasFilters
-                  ? 'No conversations match your search'
-                  : 'No conversations found. Record your first conversation to get started.'}
+                  ? t('history.table.no_match')
+                  : t('history.table.empty')}
               </td>
             </tr>
           ) : (
@@ -134,7 +136,7 @@ export function ConversationTable({
                     className="font-medium text-foreground cursor-pointer hover:text-primary"
                     onClick={() => onView(conversation.job_id)}
                   >
-                    {conversation.title || 'Conversation Analysis'}
+                    {conversation.title || t('history.card.default_title')}
                   </div>
                   {conversation.summary_preview && (
                     <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
@@ -144,8 +146,7 @@ export function ConversationTable({
                 </td>
                 <td className="p-3">
                   <span className="inline-flex px-2.5 py-1 rounded text-xs font-medium bg-muted text-foreground">
-                    {conversation.event_count} Event
-                    {conversation.event_count !== 1 ? 's' : ''}
+                    {conversation.event_count} {t('history.table.col_events')}
                   </span>
                 </td>
                 <td className="p-3">
@@ -160,7 +161,7 @@ export function ConversationTable({
                           className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
                         >
                           <RefreshCw className="w-3 h-3" />
-                          Retry Extraction
+                          {t('history.table.status_retry')}
                         </button>
                       );
                     }
@@ -168,7 +169,7 @@ export function ConversationTable({
                       return (
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium bg-muted text-muted-foreground">
                           <RefreshCw className="w-3 h-3 animate-spin" />
-                          Retrying...
+                          {t('history.table.status_retrying')}
                         </span>
                       );
                     }
@@ -176,20 +177,20 @@ export function ConversationTable({
                       return (
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-primary/10 text-primary rounded text-xs font-medium">
                           <Link2 className="w-3 h-3" />
-                          Synced
+                          {t('history.table.status_synced')}
                         </span>
                       );
                     }
                     if (conversation.has_custom_query) {
                       return (
                         <span className="inline-flex px-2.5 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
-                          Additional Analysis
+                          {t('history.table.status_analysis')}
                         </span>
                       );
                     }
                     return (
                       <span className="inline-flex px-2.5 py-1 rounded text-xs font-medium bg-muted text-muted-foreground">
-                        Analyzed
+                        {t('history.table.status_analyzed')}
                       </span>
                     );
                   })()}
@@ -209,14 +210,14 @@ export function ConversationTable({
                         icon={Eye}
                         onClick={() => onView(conversation.job_id)}
                       >
-                        View Details
+                        {t('history.table.view_details')}
                       </DropdownItem>
                       {conversation.failed_at_stage === 'extraction_failed' && (
                         <DropdownItem
                           icon={RefreshCw}
                           onClick={() => onRetry(conversation.job_id)}
                         >
-                          Retry Extraction
+                          {t('history.table.status_retry')}
                         </DropdownItem>
                       )}
                       <DropdownItem
@@ -224,7 +225,7 @@ export function ConversationTable({
                         destructive
                         onClick={() => onDelete(conversation.job_id)}
                       >
-                        Delete
+                        {t('common.delete')}
                       </DropdownItem>
                     </DropdownContent>
                   </Dropdown>
@@ -238,11 +239,11 @@ export function ConversationTable({
       {/* Pagination */}
       <div className="flex items-center justify-between px-4 py-3 border-t border-border">
         <div className="text-sm text-muted-foreground">
-          {selectedIds.length} of {filteredCount} row(s) selected.
+          {selectedIds.length} {t('common.of')} {filteredCount} {t('history.table.rows_selected')}
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-muted-foreground">Rows per page</span>
+            <span className="text-muted-foreground">{t('history.table.rows_per_page')}</span>
             <CustomDropdown
               value={String(rowsPerPage)}
               onChange={(val) => {
@@ -257,7 +258,7 @@ export function ConversationTable({
             />
           </div>
           <span className="text-sm text-muted-foreground">
-            Page {currentPage} of {totalPages || 1}
+            {t('history.table.page_of')} {currentPage} {t('history.table.of')} {totalPages || 1}
           </span>
           <div className="flex items-center gap-1">
             <button

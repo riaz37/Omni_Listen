@@ -17,6 +17,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface Note {
   id: string;
@@ -74,6 +75,7 @@ export function NoteTable({
   isEmpty,
   hasFilters,
 }: NoteTableProps) {
+  const { t } = useTranslation();
   const allOnPageSelected =
     paginatedNotes.length > 0 &&
     paginatedNotes.every((n) =>
@@ -96,7 +98,7 @@ export function NoteTable({
                 onClick={() => onSort('title')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
               >
-                Title <ArrowUpDown className="w-3.5 h-3.5" />
+                {t('notes.table.col_title')} <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
             <th className="text-start p-3 font-medium text-muted-foreground">
@@ -104,7 +106,7 @@ export function NoteTable({
                 onClick={() => onSort('category')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
               >
-                Category <ArrowUpDown className="w-3.5 h-3.5" />
+                {t('notes.table.col_category')} <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
             <th className="text-start p-3 font-medium text-muted-foreground">
@@ -112,7 +114,7 @@ export function NoteTable({
                 onClick={() => onSort('source')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
               >
-                Source <ArrowUpDown className="w-3.5 h-3.5" />
+                {t('notes.table.col_source')} <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
             <th className="text-start p-3 font-medium text-muted-foreground">
@@ -120,7 +122,7 @@ export function NoteTable({
                 onClick={() => onSort('date')}
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
               >
-                Date <ArrowUpDown className="w-3.5 h-3.5" />
+                {t('notes.table.col_date')} <ArrowUpDown className="w-3.5 h-3.5" />
               </button>
             </th>
             <th className="w-10 p-3"></th>
@@ -131,8 +133,8 @@ export function NoteTable({
             <tr>
               <td colSpan={6} className="p-8 text-center text-muted-foreground">
                 {hasFilters
-                  ? 'No notes match your filters'
-                  : 'No notes found. Upload conversations to create notes.'}
+                  ? t('notes.table.no_match')
+                  : t('notes.table.empty')}
               </td>
             </tr>
           ) : (
@@ -194,14 +196,14 @@ export function NoteTable({
                     </DropdownTrigger>
                     <DropdownContent align="end">
                       <DropdownItem icon={Eye} onClick={() => onView(note)}>
-                        View Details
+                        {t('notes.card.view_details')}
                       </DropdownItem>
                       <DropdownItem
                         icon={Trash2}
                         destructive
                         onClick={() => onDelete(note.id)}
                       >
-                        Delete
+                        {t('common.delete')}
                       </DropdownItem>
                     </DropdownContent>
                   </Dropdown>
@@ -215,11 +217,11 @@ export function NoteTable({
       {/* Pagination */}
       <div className="flex items-center justify-between px-4 py-3 border-t border-border">
         <div className="text-sm text-muted-foreground">
-          {selectedIds.length} of {filteredNotesCount} row(s) selected.
+          {selectedIds.length} {t('common.of')} {filteredNotesCount} {t('notes.table.rows_selected')}
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-muted-foreground">Rows per page</span>
+            <span className="text-muted-foreground">{t('notes.table.rows_per_page')}</span>
             <CustomDropdown
               value={String(rowsPerPage)}
               onChange={(val) => {
@@ -234,7 +236,7 @@ export function NoteTable({
             />
           </div>
           <span className="text-sm text-muted-foreground">
-            Page {currentPage} of {totalPages || 1}
+            {t('notes.table.page_of')} {currentPage} {t('notes.table.of')} {totalPages || 1}
           </span>
           <div className="flex items-center gap-1">
             <button

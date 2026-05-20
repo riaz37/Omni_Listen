@@ -9,10 +9,12 @@ import { SettingsSection } from './SettingsSection';
 import { useConfirmDialog } from './ConfirmDialogContext';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import PasswordConfirmDialog from '@/components/PasswordConfirmDialog';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 export function CalendarSection() {
   const { user, refreshUser } = useRequireAuth();
   const { confirm } = useConfirmDialog();
+  const { t } = useTranslation();
   const [connecting, setConnecting] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
@@ -65,9 +67,9 @@ export function CalendarSection() {
       setPasswordDialogOpen(true);
     } else {
       confirm({
-        title: 'Disconnect calendar',
-        message: 'Are you sure you want to disconnect your calendar?',
-        confirmLabel: 'Disconnect',
+        title: t('settings.cal.disconnect_dialog_title'),
+        message: t('settings.cal.disconnect_dialog_msg'),
+        confirmLabel: t('settings.cal.disconnect_dialog_confirm'),
         variant: 'warning',
         onConfirm: async () => {
           try {
@@ -109,34 +111,32 @@ export function CalendarSection() {
       <SettingsSection
         id="calendar"
         icon={<Calendar className="w-5 h-5" />}
-        title="Google Calendar Integration"
+        title={t('settings.cal.title')}
       >
         {user?.calendar_connected ? (
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-primary bg-primary/5 px-4 py-3 rounded-lg text-sm">
               <Check className="w-4 h-4 shrink-0" />
-              <span className="font-medium">Calendar Connected</span>
+              <span className="font-medium">{t('settings.cal.connected')}</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Conversation events will be automatically synced to your Google Calendar
-              when you enable &quot;Calendar Sync&quot; in the output fields.
+              {t('settings.cal.connected_desc')}
             </p>
             <Button variant="destructive" onClick={handleDisconnect}>
-              Disconnect Calendar
+              {t('settings.cal.disconnect')}
             </Button>
           </div>
         ) : (
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 px-4 py-3 rounded-lg text-sm">
               <X className="w-4 h-4 shrink-0" />
-              <span className="font-medium">Calendar Not Connected</span>
+              <span className="font-medium">{t('settings.cal.not_connected')}</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Connect your Google Calendar to automatically create events from conversation
-              action items when you enable &quot;Calendar Sync&quot; in the output fields.
+              {t('settings.cal.not_connected_desc')}
             </p>
             <Button onClick={handleConnect} disabled={connecting} loading={connecting}>
-              Connect Google Calendar
+              {t('settings.cal.connect')}
             </Button>
           </div>
         )}
@@ -144,9 +144,9 @@ export function CalendarSection() {
 
       <PasswordConfirmDialog
         isOpen={passwordDialogOpen}
-        title="Disconnect calendar"
-        description="Enter your password to confirm disconnecting your Google Calendar."
-        confirmLabel="Disconnect"
+        title={t('settings.cal.disconnect_pw_title')}
+        description={t('settings.cal.disconnect_pw_desc')}
+        confirmLabel={t('settings.cal.disconnect_dialog_confirm')}
         isLoading={disconnecting}
         error={disconnectError}
         onConfirm={handleDisconnectWithPassword}

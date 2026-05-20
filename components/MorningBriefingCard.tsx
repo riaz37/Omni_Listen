@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Sun, RefreshCw, X } from 'lucide-react';
 import { briefingAPI } from '@/lib/api';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 const STORAGE_KEY = 'morning-briefing-position';
 const BUBBLE_SIZE = 56; // w-14 = 56px
@@ -42,6 +43,7 @@ export default function MorningBriefingBubble() {
     // DESIGN EXCEPTION: Amber/orange gradient is intentional for "morning sun" theming.
     // See DESIGN.md for brand color rules (green-only accent).
     const queryClient = useQueryClient();
+    const { t } = useTranslation();
     const { data: briefing, isLoading: loading } = useQuery<BriefingData>({
         queryKey: ['morning-briefing'],
         queryFn: () => briefingAPI.getTodaysBriefing(),
@@ -186,21 +188,21 @@ export default function MorningBriefingBubble() {
                     <div className="bg-gradient-to-r from-amber-400 to-orange-400 px-4 py-3 flex items-center justify-between">
                         <div className="flex items-center gap-2 text-white">
                             <Sun className="w-5 h-5" />
-                            <span className="font-semibold">Good Morning!</span>
+                            <span className="font-semibold">{t('common_ui.morning.good_morning')}</span>
                         </div>
                         <div className="flex items-center gap-1">
                             <button
                                 onClick={handleRegenerate}
                                 disabled={regenerating}
                                 className="p-1.5 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-colors"
-                                title="Refresh"
+                                title={t('common_ui.morning.refresh')}
                             >
                                 <RefreshCw className={`w-4 h-4 ${regenerating ? 'animate-spin' : ''}`} />
                             </button>
                             <button
                                 onClick={() => setIsExpanded(false)}
                                 className="p-1.5 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-colors"
-                                title="Close"
+                                title={t('common.close')}
                             >
                                 <X className="w-4 h-4" />
                             </button>
@@ -221,13 +223,13 @@ export default function MorningBriefingBubble() {
                             </div>
                         ) : (
                             <div className="text-center py-4">
-                                <p className="text-sm text-muted-foreground mb-3">No briefing yet</p>
+                                <p className="text-sm text-muted-foreground mb-3">{t('common_ui.morning.no_briefing')}</p>
                                 <button
                                     onClick={handleRegenerate}
                                     disabled={regenerating}
                                     className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm rounded-lg font-medium transition-colors disabled:opacity-50"
                                 >
-                                    {regenerating ? 'Generating...' : 'Generate Briefing'}
+                                    {regenerating ? t('common_ui.morning.generating') : t('common_ui.morning.generate_btn')}
                                 </button>
                             </div>
                         )}
@@ -266,7 +268,7 @@ export default function MorningBriefingBubble() {
                 {/* Tooltip — hidden while dragging */}
                 {!isDragging && (
                     <span className="absolute start-full ms-3 px-3 py-1.5 bg-foreground text-background text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                        Morning Briefing
+                        {t('common_ui.morning.tooltip')}
                     </span>
                 )}
             </div>

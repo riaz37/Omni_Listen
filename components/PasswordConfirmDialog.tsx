@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 const schema = z.object({
   password: z.string().min(1, 'Password is required'),
@@ -38,12 +39,14 @@ export default function PasswordConfirmDialog({
   isOpen,
   title,
   description,
-  confirmLabel = 'Confirm',
+  confirmLabel,
   isLoading,
   error,
   onConfirm,
   onCancel,
 }: PasswordConfirmDialogProps) {
+  const { t } = useTranslation();
+  const resolvedConfirmLabel = confirmLabel ?? t('common.submit');
   const {
     register,
     handleSubmit,
@@ -81,7 +84,7 @@ export default function PasswordConfirmDialog({
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="confirm-password">Your password</Label>
+            <Label htmlFor="confirm-password">{t('common_ui.password_dialog.your_password')}</Label>
             <Input
               id="confirm-password"
               type="password"
@@ -106,7 +109,7 @@ export default function PasswordConfirmDialog({
               onClick={onCancel}
               disabled={isLoading}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
@@ -115,7 +118,7 @@ export default function PasswordConfirmDialog({
               disabled={isLoading}
             >
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-              {confirmLabel}
+              {resolvedConfirmLabel}
             </Button>
           </DialogFooter>
         </form>

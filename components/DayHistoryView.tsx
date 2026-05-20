@@ -5,6 +5,7 @@ import { Calendar, FileText, RefreshCw, Sparkles, ChevronDown, ChevronUp, Extern
 import { formatDate } from '@/lib/utils';
 import { useMemo, useState, useEffect } from 'react';
 import { summaryAPI } from '@/lib/api';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface Meeting {
     job_id: string;
@@ -37,6 +38,7 @@ interface SummaryData {
 
 function DayGroupItem({ group }: { group: DayGroup }) {
     const router = useRouter();
+    const { t } = useTranslation();
     const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
     const [loading, setLoading] = useState(false);
     const [loadingSummary, setLoadingSummary] = useState(true);
@@ -133,7 +135,7 @@ function DayGroupItem({ group }: { group: DayGroup }) {
                         <span className="flex items-center gap-1.5 px-3 py-1 bg-card rounded-full border border-border">
                             <FileText className="w-4 h-4 text-primary" />
                             <span className="font-medium">{group.meetingCount}</span>
-                            <span>meeting{group.meetingCount !== 1 ? 's' : ''}</span>
+                            <span>{group.meetingCount !== 1 ? t('history.day_view.meetings_plural') : t('history.day_view.meetings_suffix')}</span>
                         </span>
                     </div>
                 </div>
@@ -162,7 +164,7 @@ function DayGroupItem({ group }: { group: DayGroup }) {
                         <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2 text-text-primary">
                                 <Sparkles className="w-4 h-4" />
-                                <h4 className="text-sm font-semibold uppercase tracking-wide">Daily Summary</h4>
+                                <h4 className="text-sm font-semibold uppercase tracking-wide">{t('history.day_view.daily_summary')}</h4>
                             </div>
                             <button
                                 onClick={handleRegenerate}
@@ -170,7 +172,7 @@ function DayGroupItem({ group }: { group: DayGroup }) {
                                 className="text-xs flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
                             >
                                 <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
-                                {loading ? 'Updating...' : 'Regenerate'}
+                                {loading ? t('history.day_view.updating') : t('history.day_view.regenerate')}
                             </button>
                         </div>
 
@@ -203,12 +205,12 @@ function DayGroupItem({ group }: { group: DayGroup }) {
                                     {isExpanded ? (
                                         <>
                                             <ChevronUp className="w-4 h-4" />
-                                            Click to collapse
+                                            {t('history.day_view.collapse')}
                                         </>
                                     ) : (
                                         <>
                                             <ChevronDown className="w-4 h-4" />
-                                            Click to expand
+                                            {t('history.day_view.expand')}
                                         </>
                                     )}
                                 </span>
@@ -219,14 +221,14 @@ function DayGroupItem({ group }: { group: DayGroup }) {
                     // No summary yet
                     <div className="flex flex-col items-center justify-center py-6 text-center">
                         <Sparkles className="w-8 h-8 text-muted-foreground/40 mb-2" />
-                        <p className="text-sm text-muted-foreground mb-3">No summary generated yet</p>
+                        <p className="text-sm text-muted-foreground mb-3">{t('history.day_view.no_summary')}</p>
                         <button
                             onClick={handleRegenerate}
                             disabled={loading}
                             className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground text-sm font-medium rounded-lg flex items-center gap-2 transition-colors disabled:bg-primary/70"
                         >
                             <Sparkles className="w-4 h-4" />
-                            {loading ? 'Generating...' : 'Generate Daily Summary'}
+                            {loading ? t('history.day_view.generating') : t('history.day_view.generate_btn')}
                         </button>
                     </div>
                 )}
