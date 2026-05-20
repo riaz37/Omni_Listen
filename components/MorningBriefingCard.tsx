@@ -45,11 +45,11 @@ export default function MorningBriefingBubble() {
     // See DESIGN.md for brand color rules (green-only accent).
     const queryClient = useQueryClient();
     const { t } = useTranslation();
-    const { user, isRevalidated } = useAuth();
+    const { user } = useAuth();
     const { data: briefing, isLoading: loading } = useQuery<BriefingData>({
         queryKey: ['morning-briefing'],
         queryFn: () => briefingAPI.getTodaysBriefing(),
-        enabled: !!user && isRevalidated,
+        enabled: !!user,
         staleTime: 10 * 60 * 1000,
         retry: (failureCount, error: any) => error?.response?.status === 401 ? false : failureCount < 2,
     });

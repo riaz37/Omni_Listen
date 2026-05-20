@@ -75,9 +75,10 @@
   border-radius: 6px;
 }
 
-/* Ensure minimum row height for events to stack */
+/* Let react-big-calendar control row heights to avoid clipping when
+   the container is shorter than 6 rows × a fixed min-height. */
 .rbc-month-row {
-  min-height: 100px;
+  min-height: 0;
 }
 
 .rbc-month-view .rbc-row-content {

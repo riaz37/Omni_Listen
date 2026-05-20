@@ -320,7 +320,7 @@ export default function EventsPage() {
           {view === 'yearly' ? (
             <YearlyView currentDate={currentDate} />
           ) : (
-            <div style={{ height: 'calc(100vh - 280px)', minHeight: '400px' }}>
+            <div style={{ height: 'calc(100vh - 280px)', minHeight: '620px' }}>
               <Calendar
                 localizer={localizer}
                 events={filteredEvents}
