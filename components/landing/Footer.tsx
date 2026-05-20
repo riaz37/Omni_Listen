@@ -7,21 +7,21 @@ import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { useTranslation } from '@/lib/i18n/use-translation';
 
 const productLinks = [
-  { label: 'Features', href: '#features' },
-  { label: 'Pricing', href: '/pricing' },
-  { label: 'Listen', href: '/listen' },
+  { labelKey: 'marketing.nav.features', href: '#features' },
+  { labelKey: 'marketing.nav.pricing', href: '/pricing' },
+  { labelKey: 'marketing.nav.listen', href: '/listen' },
 ];
 
 const companyLinks = [
-  { label: 'About Us', href: '/about' },
-  { label: 'Contact', href: '/contact' },
+  { labelKey: 'marketing.nav.about', href: '/about' },
+  { labelKey: 'marketing.nav.contact', href: '/contact' },
 ];
 
 const legalLinks = [
-  { label: 'Privacy Policy', href: '/privacy' },
-  { label: 'Terms of Service', href: '/terms' },
-  { label: 'Cookie Policy', href: '/cookies' },
-  { label: 'Security', href: '/security' },
+  { labelKey: 'common.privacy_policy', href: '/privacy' },
+  { labelKey: 'marketing.footer.terms_of_service', href: '/terms' },
+  { labelKey: 'marketing.footer.cookie_policy', href: '/cookies' },
+  { labelKey: 'marketing.footer.security', href: '/security' },
 ];
 
 const socialLinks = [
@@ -80,12 +80,12 @@ export default function Footer() {
             <h4 className="font-bold text-foreground mb-4">{t('marketing.footer.product')}</h4>
             <ul className="space-y-1">
               {productLinks.map((link) => (
-                <li key={link.label}>
+                <li key={link.labelKey}>
                   <Link
                     href={link.href.startsWith('/') ? lp(link.href) : link.href}
                     className="text-muted-foreground hover:text-foreground transition-colors inline-block py-2.5"
                   >
-                    {link.label}
+                    {t(link.labelKey)}
                   </Link>
                 </li>
               ))}
@@ -97,12 +97,12 @@ export default function Footer() {
             <h4 className="font-bold text-foreground mb-4">{t('marketing.footer.company')}</h4>
             <ul className="space-y-1">
               {companyLinks.map((link) => (
-                <li key={link.label}>
+                <li key={link.labelKey}>
                   <Link
                     href={lp(link.href)}
                     className="text-muted-foreground hover:text-foreground transition-colors inline-block py-2.5"
                   >
-                    {link.label}
+                    {t(link.labelKey)}
                   </Link>
                 </li>
               ))}
@@ -114,12 +114,12 @@ export default function Footer() {
             <h4 className="font-bold text-foreground mb-4">{t('marketing.footer.legal')}</h4>
             <ul className="space-y-1">
               {legalLinks.map((link) => (
-                <li key={link.label}>
+                <li key={link.labelKey}>
                   <Link
                     href={lp(link.href)}
                     className="text-muted-foreground hover:text-foreground transition-colors inline-block py-2.5"
                   >
-                    {link.label}
+                    {t(link.labelKey)}
                   </Link>
                 </li>
               ))}
