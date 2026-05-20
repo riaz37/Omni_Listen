@@ -44,7 +44,7 @@ export default function SignUpPage() {
       setShowCalendarModal(true);
     } else {
       // Calendar already connected, go to dashboard
-      router.push('/listen');
+      router.push(lp('/listen'));
     }
   };
 
@@ -55,7 +55,7 @@ export default function SignUpPage() {
       window.location.href = authorization_url;
     } catch (error) {
       setShowCalendarModal(false);
-      router.push('/listen');
+      router.push(lp('/listen'));
     } finally {
       setIsConnectingCalendarModal(false);
     }
@@ -63,7 +63,7 @@ export default function SignUpPage() {
 
   const handleSkipCalendar = () => {
     setShowCalendarModal(false);
-    router.push('/listen');
+    router.push(lp('/listen'));
   };
 
   const handleResend = async () => {
@@ -171,7 +171,7 @@ export default function SignUpPage() {
       } catch (redirectError) {
         clearTimeout(timeoutId);
         // If redirect fails, still go to dashboard
-        router.push('/listen');
+        router.push(lp('/listen'));
       }
     } catch (error: any) {
       let errorMessage = error.response?.data?.detail || 'Sign up failed. Please try again.';
@@ -228,7 +228,7 @@ export default function SignUpPage() {
       >
         {/* Logo and Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
+          <Link href={lp("/")} className="inline-flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
             <img
               src="/logo-black.png"
               alt="Omni Listen"
@@ -475,7 +475,7 @@ export default function SignUpPage() {
 
         {/* Footer */}
         <p className="text-center text-muted-foreground text-xs mt-6">
-          {t('auth.signup.terms_prefix')} <Link href="/terms" className="hover:text-foreground underline">{t('common.terms')}</Link> {t('auth.signup.terms_and')} <Link href="/privacy" className="hover:text-foreground underline">{t('common.privacy_policy')}</Link>
+          {t('auth.signup.terms_prefix')} <Link href={lp("/terms")} className="hover:text-foreground underline">{t('common.terms')}</Link> {t('auth.signup.terms_and')} <Link href={lp("/privacy")} className="hover:text-foreground underline">{t('common.privacy_policy')}</Link>
         </p>
       </motion.div>
     </div>

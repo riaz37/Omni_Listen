@@ -31,6 +31,7 @@ type SortColumn = 'title' | 'status' | 'assignee' | 'date';
 export default function EventsPage() {
   const { t } = useTranslation();
   const router = useRouter();
+  const lp = useLocalePath();
   const { user, loading } = useRequireAuth();
 
   const {
@@ -296,7 +297,7 @@ export default function EventsPage() {
                 description={t('events.empty_description')}
                 action={{
                   label: t('events.go_to_listen'),
-                  onClick: () => router.push('/listen'),
+                  onClick: () => router.push(lp('/listen')),
                 }}
               />
             </div>

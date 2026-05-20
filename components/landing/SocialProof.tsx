@@ -3,13 +3,7 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
 import { Users, Headphones, Globe, Star } from 'lucide-react';
-
-const stats = [
-  { icon: Headphones, value: 10000, suffix: '+', label: 'Conversations Captured' },
-  { icon: Star, value: 99, suffix: '%', label: 'Transcription Accuracy' },
-  { icon: Users, value: 50, suffix: '+', label: 'Teams Trust Us' },
-  { icon: Globe, value: 2, suffix: '', label: 'Languages Supported' },
-];
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
   const [count, setCount] = useState(value);
@@ -45,6 +39,35 @@ function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
 }
 
 export default function SocialProof() {
+  const { t } = useTranslation();
+
+  const stats = [
+    {
+      icon: Headphones,
+      value: 10000,
+      suffix: '+',
+      label: t('marketing.social_proof.stat1_label'),
+    },
+    {
+      icon: Star,
+      value: 99,
+      suffix: '%',
+      label: t('marketing.social_proof.stat2_label'),
+    },
+    {
+      icon: Users,
+      value: 50,
+      suffix: '+',
+      label: t('marketing.social_proof.stat3_label'),
+    },
+    {
+      icon: Globe,
+      value: 2,
+      suffix: '',
+      label: t('marketing.social_proof.stat4_label'),
+    },
+  ];
+
   return (
     <section className="py-16 bg-muted/50 border-y border-border/50">
       <div className="max-w-7xl mx-auto px-4">

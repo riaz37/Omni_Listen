@@ -23,6 +23,7 @@ export default function FloatingStatusIndicator() {
 
     const router = useRouter();
     const pathname = usePathname();
+    const lp = useLocalePath();
 
     // Don't show if we are already on the dashboard (where the main controls are)
     // UNLESS we are on a different "view" of the dashboard (but dashboard is single page currently)
@@ -43,9 +44,9 @@ export default function FloatingStatusIndicator() {
         if (isProcessing && processingJobId) {
             // If processing is complete, maybe go to meeting? 
             // But for now, just go to dashboard to see progress
-            router.push('/listen');
+            router.push(lp('/listen'));
         } else {
-            router.push('/listen');
+            router.push(lp('/listen'));
         }
     };
 

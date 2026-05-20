@@ -3,36 +3,35 @@
 import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Quote, ChevronLeft, ChevronRight } from 'lucide-react';
-
-const testimonials = [
-  {
-    quote:
-      'OmniListen changed how I handle conversations. I used to lose track of action items constantly. Now everything is captured and synced automatically.',
-    name: 'Sarah Chen',
-    role: 'Product Manager',
-    company: 'TechFlow Inc.',
-    avatar: 'SC',
-  },
-  {
-    quote:
-      'The transcription accuracy is incredible, even with heavy accents and technical jargon. We switched from Otter and never looked back.',
-    name: 'Ahmed Al-Rashid',
-    role: 'Engineering Lead',
-    company: 'DataScale',
-    avatar: 'AR',
-  },
-  {
-    quote:
-      'I have 6-8 conversations a day. Having every decision, task, and deadline automatically extracted saves me at least an hour of manual note-taking.',
-    name: 'Maria Rodriguez',
-    role: 'VP of Operations',
-    company: 'GrowthLab',
-    avatar: 'MR',
-  },
-];
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 export default function Testimonials() {
+  const { t } = useTranslation();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const testimonials = [
+    {
+      quote: t('marketing.testimonials.t1_quote'),
+      name: 'Sarah Chen',
+      role: t('marketing.testimonials.t1_role'),
+      company: 'TechFlow Inc.',
+      avatar: 'SC',
+    },
+    {
+      quote: t('marketing.testimonials.t2_quote'),
+      name: 'Ahmed Al-Rashid',
+      role: t('marketing.testimonials.t2_role'),
+      company: 'DataScale',
+      avatar: 'AR',
+    },
+    {
+      quote: t('marketing.testimonials.t3_quote'),
+      name: 'Maria Rodriguez',
+      role: t('marketing.testimonials.t3_role'),
+      company: 'GrowthLab',
+      avatar: 'MR',
+    },
+  ];
 
   function scroll(direction: 'left' | 'right') {
     const container = scrollContainerRef.current;
@@ -57,10 +56,10 @@ export default function Testimonials() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl sm:text-5xl font-display font-normal text-foreground mb-4 tracking-tight">
-              Loved by Teams
+              {t('marketing.testimonials.title')}
             </h2>
             <p className="text-lg text-muted-foreground">
-              See what people are saying about OmniListen.
+              {t('marketing.testimonials.subtitle')}
             </p>
           </motion.div>
 

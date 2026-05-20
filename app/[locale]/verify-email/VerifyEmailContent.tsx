@@ -13,6 +13,7 @@ import { useLocalePath } from '@/lib/i18n/use-locale-path';
 export default function VerifyEmailContent() {
   const { t } = useTranslation();
   const router = useRouter();
+  const lp = useLocalePath();
   const searchParams = useSearchParams();
 
   const [token, setToken] = useState('');
@@ -54,7 +55,7 @@ export default function VerifyEmailContent() {
 
       // Redirect to sign in after verification
       redirectTimerRef.current = setTimeout(() => {
-        router.push('/signin?verified=true');
+        router.push(lp('/signin') + '?verified=true');
       }, 500);
     } catch (error: any) {
       const errorMsg = error.response?.data?.detail || 'Failed to verify email. The link may be invalid or expired.';
@@ -117,7 +118,7 @@ export default function VerifyEmailContent() {
       >
         {/* Logo and Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
+          <Link href={lp("/")} className="inline-flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
             <img
               src="/logo-black.png"
               alt="Omni Listen"
@@ -194,7 +195,7 @@ export default function VerifyEmailContent() {
                   )}
                 </button>
                 <Link
-                  href="/signin"
+                  href={lp("/signin")}
                   className="block w-full px-6 py-3 border border-border text-foreground rounded-xl font-medium transition-colors text-center hover:bg-muted"
                 >
                   {t('auth.verify.back_to_signin')}

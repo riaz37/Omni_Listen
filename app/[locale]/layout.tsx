@@ -59,17 +59,17 @@ export default async function RootLayout({
       <LocaleAttributes locale={locale} dir={dir} />
       <ReactQueryProvider>
         <ThemeProvider>
-          <AuthProvider>
-            <ConfigProvider>
-              <GlobalStateProvider>
-                <I18nProvider locale={locale as Locale} dictionary={dictionary}>
+          <I18nProvider locale={locale as Locale} dictionary={dictionary}>
+            <AuthProvider>
+              <ConfigProvider>
+                <GlobalStateProvider>
                   {children}
                   <FloatingStatusIndicator />
                   <Toaster />
-                </I18nProvider>
-              </GlobalStateProvider>
-            </ConfigProvider>
-          </AuthProvider>
+                </GlobalStateProvider>
+              </ConfigProvider>
+            </AuthProvider>
+          </I18nProvider>
         </ThemeProvider>
       </ReactQueryProvider>
     </>

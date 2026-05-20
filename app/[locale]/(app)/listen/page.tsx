@@ -53,6 +53,7 @@ const CHIP_QUERIES: Record<string, string> = {
 export default function DashboardPage() {
   const { t } = useTranslation();
   const router = useRouter();
+  const lp = useLocalePath();
   const { user, loading, isRevalidated, refreshUser, isLoggingOut } = useAuth();
   const { config, updateConfig } = useConfig();
 
@@ -105,7 +106,7 @@ export default function DashboardPage() {
   // Protect route
   useEffect(() => {
     if (!loading && !user && !isLoggingOut) {
-      router.push('/signin');
+      router.push(lp('/signin'));
     }
   }, [user, loading, isLoggingOut, router]);
 

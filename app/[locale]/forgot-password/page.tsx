@@ -63,7 +63,7 @@ export default function ForgotPasswordPage() {
       >
         {/* Logo and Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
+          <Link href={lp("/")} className="inline-flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
             <img
               src="/logo-black.png"
               alt="Omni Listen"
@@ -171,7 +171,7 @@ export default function ForgotPasswordPage() {
           {/* Back to Sign In */}
           <div className="mt-8 pt-6 border-t border-border text-center">
             <Link
-              href="/signin"
+              href={lp("/signin")}
               className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
@@ -183,7 +183,7 @@ export default function ForgotPasswordPage() {
         {/* Footer */}
         <p className="text-center text-muted-foreground text-xs mt-6">
           {t('auth.forgot.remember_password')}{' '}
-          <Link href="/signin" className="text-primary hover:text-text-primary font-bold transition-colors">
+          <Link href={lp("/signin")} className="text-primary hover:text-text-primary font-bold transition-colors">
             {t('auth.forgot.signin_link')}
           </Link>
         </p>

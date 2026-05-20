@@ -4,58 +4,61 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Check, ArrowRight } from 'lucide-react';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
-
-const tiers = [
-  {
-    name: 'Public Beta',
-    price: '$0',
-    period: '/mo',
-    description: 'Full access during beta. No credit card required.',
-    features: [
-      'Unlimited Recordings',
-      'Advanced AI Transcription',
-      'Smart Action Items',
-      'Google Calendar Sync',
-    ],
-    cta: 'Start Free Now',
-    href: '/signup',
-    highlighted: true,
-    badge: 'CURRENTLY ACTIVE',
-  },
-  {
-    name: 'Pro',
-    price: 'Soon',
-    period: '',
-    description: 'For growing teams that need more.',
-    features: [
-      'All Beta Features',
-      'Team Collaboration',
-      'Custom Vocabularies',
-    ],
-    cta: 'Notify Me',
-    href: null,
-    highlighted: false,
-    badge: null,
-  },
-  {
-    name: 'Enterprise',
-    price: 'Soon',
-    period: '',
-    description: 'For organizations with advanced needs.',
-    features: [
-      'SSO & Admin Controls',
-      'Dedicated Support',
-      'On-premise Deployment',
-    ],
-    cta: 'Contact Sales',
-    href: null,
-    highlighted: false,
-    badge: null,
-  },
-];
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 export default function PricingTeaser() {
   const lp = useLocalePath();
+  const { t } = useTranslation();
+
+  const tiers = [
+    {
+      name: t('marketing.pricing_teaser.tier1_name'),
+      price: t('marketing.pricing_teaser.tier1_price'),
+      period: t('marketing.pricing_teaser.tier1_period'),
+      description: t('marketing.pricing_teaser.tier1_desc'),
+      features: [
+        t('marketing.pricing_teaser.tier1_f1'),
+        t('marketing.pricing_teaser.tier1_f2'),
+        t('marketing.pricing_teaser.tier1_f3'),
+        t('marketing.pricing_teaser.tier1_f4'),
+      ],
+      cta: t('marketing.pricing_teaser.tier1_cta'),
+      href: '/signup',
+      highlighted: true,
+      badge: t('marketing.pricing_teaser.tier1_badge'),
+    },
+    {
+      name: t('marketing.pricing_teaser.tier2_name'),
+      price: t('marketing.pricing_teaser.tier2_price'),
+      period: '',
+      description: t('marketing.pricing_teaser.tier2_desc'),
+      features: [
+        t('marketing.pricing_teaser.tier2_f1'),
+        t('marketing.pricing_teaser.tier2_f2'),
+        t('marketing.pricing_teaser.tier2_f3'),
+      ],
+      cta: t('marketing.pricing_teaser.tier2_cta'),
+      href: null,
+      highlighted: false,
+      badge: null,
+    },
+    {
+      name: t('marketing.pricing_teaser.tier3_name'),
+      price: t('marketing.pricing_teaser.tier3_price'),
+      period: '',
+      description: t('marketing.pricing_teaser.tier3_desc'),
+      features: [
+        t('marketing.pricing_teaser.tier3_f1'),
+        t('marketing.pricing_teaser.tier3_f2'),
+        t('marketing.pricing_teaser.tier3_f3'),
+      ],
+      cta: t('marketing.pricing_teaser.tier3_cta'),
+      href: null,
+      highlighted: false,
+      badge: null,
+    },
+  ];
+
   return (
     <section className="py-24 sm:py-32 bg-muted/30 border-y border-border/50">
       <div className="max-w-7xl mx-auto px-4">
@@ -67,10 +70,10 @@ export default function PricingTeaser() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl sm:text-5xl font-display font-normal text-foreground mb-4">
-            Simple, Transparent Pricing
+            {t('marketing.pricing_teaser.title')}
           </h2>
           <p className="text-lg text-muted-foreground">
-            Start free. Upgrade when you need to.
+            {t('marketing.pricing_teaser.subtitle')}
           </p>
         </motion.div>
 
@@ -142,7 +145,7 @@ export default function PricingTeaser() {
             href={lp('/pricing')}
             className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground font-medium transition-colors py-3"
           >
-            See full pricing details
+            {t('marketing.pricing_teaser.see_full')}
             <ArrowRight className="w-4 h-4" />
           </Link>
         </motion.div>

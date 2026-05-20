@@ -3,36 +3,38 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
-
-const faqs = [
-  {
-    question: 'What is OmniListen?',
-    answer: 'OmniListen is your AI personal assistant that listens, transcribes, and extracts actionable insights from any conversation. It automatically identifies tasks, events, decisions, and key notes, then syncs them to your calendar and dashboard.',
-  },
-  {
-    question: 'How accurate is the transcription?',
-    answer: 'Our AI achieves 99% transcription accuracy in optimal conditions using Gemini 2.0 Flash. Accuracy remains high even with background noise, accents, and technical jargon.',
-  },
-  {
-    question: 'Does it work with my calendar?',
-    answer: 'Yes. OmniListen integrates directly with Google Calendar. Events and deadlines detected in your conversations are automatically pushed to your calendar with full context.',
-  },
-  {
-    question: 'Is my data secure?',
-    answer: 'Absolutely. All data is encrypted at rest and in transit. We follow industry best practices for data security and privacy. Your recordings and transcripts are accessible only to you.',
-  },
-  {
-    question: 'What languages are supported?',
-    answer: 'Currently, OmniListen supports English and Arabic with full transcription and analysis capabilities. We are working on adding more languages.',
-  },
-  {
-    question: 'Is there a free plan?',
-    answer: 'Yes. During our public beta, all features are completely free with no limits on recordings or transcription. No credit card required to get started.',
-  },
-];
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 export default function FAQ() {
+  const { t } = useTranslation();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const faqs = [
+    {
+      question: t('marketing.faq.q1'),
+      answer: t('marketing.faq.a1'),
+    },
+    {
+      question: t('marketing.faq.q2'),
+      answer: t('marketing.faq.a2'),
+    },
+    {
+      question: t('marketing.faq.q3'),
+      answer: t('marketing.faq.a3'),
+    },
+    {
+      question: t('marketing.faq.q4'),
+      answer: t('marketing.faq.a4'),
+    },
+    {
+      question: t('marketing.faq.q5'),
+      answer: t('marketing.faq.a5'),
+    },
+    {
+      question: t('marketing.faq.q6'),
+      answer: t('marketing.faq.a6'),
+    },
+  ];
 
   const toggle = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -49,10 +51,10 @@ export default function FAQ() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl sm:text-5xl font-display font-normal text-foreground mb-4">
-            Frequently Asked Questions
+            {t('marketing.faq.title')}
           </h2>
           <p className="text-lg text-muted-foreground">
-            Everything you need to know about OmniListen.
+            {t('marketing.faq.subtitle')}
           </p>
         </motion.div>
 

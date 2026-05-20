@@ -32,6 +32,7 @@ type SortColumn = 'title' | 'events' | 'date';
 export default function HistoryPage() {
   const { t } = useTranslation();
   const router = useRouter();
+  const lp = useLocalePath();
   const { user, loading } = useRequireAuth();
 
   const queryClient = useQueryClient();
@@ -349,7 +350,7 @@ export default function HistoryPage() {
                       description={t('history.empty_description')}
                       action={{
                         label: t('history.go_to_listen'),
-                        onClick: () => router.push('/listen'),
+                        onClick: () => router.push(lp('/listen')),
                       }}
                     />
                   </div>

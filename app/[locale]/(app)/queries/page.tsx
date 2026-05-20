@@ -29,6 +29,7 @@ interface QueryResult {
 export default function QueriesPage() {
   const { t } = useTranslation();
   const router = useRouter();
+  const lp = useLocalePath();
   const { user, loading: authLoading } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
@@ -269,7 +270,7 @@ export default function QueriesPage() {
               </p>
               {!searchTerm && filterType === 'all' && (
                 <Button
-                  onClick={() => router.push('/listen')}
+                  onClick={() => router.push(lp('/listen'))}
                   iconLeft={<MessageSquare className="w-4 h-4" />}
                   size="lg"
                 >

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { normalizeUrgency } from '@/lib/utils';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -85,6 +84,7 @@ export default function DashboardRecentConversations({
   onDeleteEvent,
   onRecentConversationRetried,
 }: DashboardRecentConversationsProps) {
+  const lp = useLocalePath();
   const [retryingIds, setRetryingIds] = useState<Set<string>>(new Set());
 
   const handleRetry = useCallback(async (jobId: string) => {
@@ -198,7 +198,7 @@ export default function DashboardRecentConversations({
               </div>
             )}
             {upcomingEvents.length > 0 && (
-              <Button variant="link" onClick={() => router.push('/events')} className="mt-4 w-full text-primary">
+              <Button variant="link" onClick={() => router.push(lp('/events'))} className="mt-4 w-full text-primary">
                 View all events →
               </Button>
             )}
@@ -332,7 +332,7 @@ export default function DashboardRecentConversations({
                 <p className="text-xs text-muted-foreground mt-1">Processed conversations will appear here</p>
               </div>
             )}
-            <Button variant="link" onClick={() => router.push('/history')} className="mt-4 w-full text-primary">
+            <Button variant="link" onClick={() => router.push(lp('/history'))} className="mt-4 w-full text-primary">
               View all history →
             </Button>
           </TabsContent>

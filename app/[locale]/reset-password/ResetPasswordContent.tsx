@@ -14,6 +14,7 @@ import { useLocalePath } from '@/lib/i18n/use-locale-path';
 export default function ResetPasswordContent() {
   const { t } = useTranslation();
   const router = useRouter();
+  const lp = useLocalePath();
   const searchParams = useSearchParams();
 
   const [token, setToken] = useState('');
@@ -75,7 +76,7 @@ export default function ResetPasswordContent() {
 
       // Redirect to signin after 2 seconds
       setTimeout(() => {
-        router.push('/signin');
+        router.push(lp('/signin'));
       }, 2000);
     } catch (error: any) {
       const errorMsg = error.response?.data?.detail || 'Failed to reset password. The link may be invalid or expired.';
@@ -137,7 +138,7 @@ export default function ResetPasswordContent() {
       >
         {/* Logo and Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
+          <Link href={lp("/")} className="inline-flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
             <img
               src="/logo-black.png"
               alt="Omni Listen"
@@ -296,7 +297,7 @@ export default function ResetPasswordContent() {
           {/* Back to Sign In */}
           <div className="mt-8 pt-6 border-t border-border text-center">
             <Link
-              href="/signin"
+              href={lp("/signin")}
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               {t('auth.reset.back_to_signin')}
@@ -307,7 +308,7 @@ export default function ResetPasswordContent() {
         {/* Footer */}
         <p className="text-center text-muted-foreground text-xs mt-6">
           {t('auth.reset.remember_password')}{' '}
-          <Link href="/signin" className="text-primary hover:text-text-primary font-bold transition-colors">
+          <Link href={lp("/signin")} className="text-primary hover:text-text-primary font-bold transition-colors">
             {t('auth.reset.signin_link')}
           </Link>
         </p>

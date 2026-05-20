@@ -19,6 +19,7 @@ import PageEntrance from '@/components/ui/page-entrance';
 
 export default function ConversationDetailClient() {
     const router = useRouter();
+    const lp = useLocalePath();
     const searchParams = useSearchParams();
     const jobId = searchParams.get('id');
 
@@ -31,7 +32,7 @@ export default function ConversationDetailClient() {
 
     useEffect(() => {
         if (!loading && !user && !isLoggingOut) {
-            router.push('/signin');
+            router.push(lp('/signin'));
         } else if (user && jobId) {
             loadConversation();
         }
@@ -47,7 +48,7 @@ export default function ConversationDetailClient() {
             // Show specific error message
             if (error.response?.status === 404) {
                 toast.error('Conversation not found');
-                router.push('/history');
+                router.push(lp('/history'));
             } else {
                 const errorMsg = error.response?.data?.detail || error.message || 'Failed to load conversation';
                 toast.error(`Error loading conversation: ${errorMsg}`);

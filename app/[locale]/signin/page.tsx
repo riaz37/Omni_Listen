@@ -341,7 +341,7 @@ export default function SignInPage() {
       >
         {/* Logo and Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
+          <Link href={lp("/")} className="inline-flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
             <img
               src="/logo-black.png"
               alt="Omni Listen"
@@ -552,7 +552,7 @@ export default function SignInPage() {
         />
 
         <p className="text-center text-muted-foreground text-xs mt-6">
-          {t('auth.signin.terms_prefix')} <Link href="/terms" className="hover:text-foreground underline">{t('common.terms')}</Link> {t('auth.signin.terms_and')} <Link href="/privacy" className="hover:text-foreground underline">{t('common.privacy_policy')}</Link>
+          {t('auth.signin.terms_prefix')} <Link href={lp("/terms")} className="hover:text-foreground underline">{t('common.terms')}</Link> {t('auth.signin.terms_and')} <Link href={lp("/privacy")} className="hover:text-foreground underline">{t('common.privacy_policy')}</Link>
         </p>
       </motion.div>
     </div>
