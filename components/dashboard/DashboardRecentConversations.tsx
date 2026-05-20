@@ -208,7 +208,7 @@ export default function DashboardRecentConversations({
           <TabsContent value="tasks">
             {isLoading ? <SidebarSkeleton /> : tasks.length > 0 ? (
               <div className="space-y-2 max-h-96 overflow-y-auto">
-                {tasks.map((task) => {
+                {tasks.slice(0, 15).map((task) => {
                   const isUrgent = normalizeUrgency(task.urgency) === 'yes';
                   return (
                     <div key={task.id} className={`p-4 rounded-lg border border-border transition-all ${task.completed ? 'bg-muted/50 opacity-70' : 'bg-card'} relative`}>
@@ -263,6 +263,11 @@ export default function DashboardRecentConversations({
                 <p className="text-sm text-muted-foreground">No tasks yet</p>
                 <p className="text-xs text-muted-foreground mt-1">Tasks will appear here from your conversations</p>
               </div>
+            )}
+            {tasks.length > 0 && (
+              <Button variant="link" onClick={() => router.push(lp('/tasks'))} className="mt-4 w-full text-primary">
+                View all tasks →
+              </Button>
             )}
           </TabsContent>
 
