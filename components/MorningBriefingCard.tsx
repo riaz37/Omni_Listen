@@ -36,7 +36,7 @@ function getSavedPosition(): { x: number; y: number } | null {
                 y: clamp(pos.y, EDGE_PADDING, maxY),
             };
         }
-    } catch {}
+    } catch { }
     return null;
 }
 
@@ -59,9 +59,22 @@ export default function MorningBriefingBubble() {
         const saved = getSavedPosition();
         if (saved) return saved;
         if (typeof window === 'undefined') return null;
-        return { x: window.innerWidth - BUBBLE_SIZE - EDGE_PADDING - 8, y: window.innerHeight - BUBBLE_SIZE - EDGE_PADDING - 8 };
+        return {
+            x: window.innerWidth - BUBBLE_SIZE - EDGE_PADDING - 8,
+            y: window.innerHeight - BUBBLE_SIZE - EDGE_PADDING - 8,
+        };
     });
     const [isDragging, setIsDragging] = useState(false);
+
+    // SSR produces null (window unavailable); initialize to bottom-right on client mount
+    useEffect(() => {
+        if (position !== null) return;
+        const saved = getSavedPosition();
+        setPosition(saved ?? {
+            x: window.innerWidth - BUBBLE_SIZE - EDGE_PADDING - 8,
+            y: window.innerHeight - BUBBLE_SIZE - EDGE_PADDING - 8,
+        });
+    }, []);
     const dragRef = useRef<{ startX: number; startY: number; startPosX: number; startPosY: number } | null>(null);
     const bubbleRef = useRef<HTMLDivElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
