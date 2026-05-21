@@ -2,9 +2,10 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { toast } from 'sonner';
+import type { User } from '@/lib/types';
 
 interface UseWebSocketNotificationsProps {
-  user: any;
+  user: User | null;
   refreshUser: () => Promise<void>;
 }
 

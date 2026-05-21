@@ -131,6 +131,39 @@ export interface ApiKeyData {
   last_used_at?: string;
 }
 
+// Raw API response shapes (as returned by /api/all-events, /api/all-notes, /api/meetings)
+export interface RawEvent {
+  id: number;
+  title?: string;
+  date: string;
+  assignee?: string;
+  description?: string;
+  urgency?: string;
+  completed?: boolean;
+  meeting_id?: string;
+  category?: string;
+}
+
+export interface RawNote {
+  id: number;
+  title?: string;
+  created_at?: string;
+  completed?: boolean;
+  category?: string;
+  note_type?: string;
+  description?: string;
+  urgency?: string;
+  meeting_id?: string;
+  assignee?: string;
+}
+
+export interface RawMeetingSummary {
+  job_id: string;
+  title?: string;
+  created_at: string;
+  failed_at_stage?: string | null;
+}
+
 export type RecordingStatus = 'recording' | 'stopped' | 'processed' | 'failed';
 
 export interface RecordingEntry {

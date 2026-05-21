@@ -3,8 +3,40 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { conversationsAPI, analyticsAPI } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { sortByUrgencyThenDate } from '@/lib/utils';
+import type { User, RawEvent, RawNote, RawMeetingSummary } from '@/lib/types';
 
-export function useDashboardData(user: any, loading: boolean, isLoggingOut: boolean) {
+interface UpcomingEvent {
+  id: number;
+  title: string;
+  date: Date;
+  assignee?: string;
+  description: string;
+  urgency: string;
+  completed: boolean;
+  conversationId: string;
+}
+
+interface Task {
+  id: number;
+  title: string;
+  date: Date;
+  completed: boolean;
+  type: 'dated_events' | 'notes';
+  category?: string;
+  description: string;
+  urgency: string;
+  conversationId: string;
+  assignee?: string;
+}
+
+interface RecentConversation {
+  job_id: string;
+  title: string;
+  created_at: Date;
+  failed_at_stage: string | null;
+}
+
+export function useDashboardData(user: User | null, loading: boolean, isLoggingOut: boolean) {
   const queryClient = useQueryClient();
   const { isRevalidated } = useAuth();
   // isRevalidated ensures the server has confirmed the token before firing queries.
@@ -12,7 +44,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
   // if the token expired between sessions.
   const enabled = !!user && !loading && !isLoggingOut && isRevalidated;
 
-  const { data: rawEvents = [], isPending: eventsPending } = useQuery({
+  const { data: rawEvents = [], isPending: eventsPending } = useQuery<RawEvent[]>({
     queryKey: ['events'],
     queryFn: async () => {
       const r = await conversationsAPI.getAllEvents();
@@ -22,7 +54,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: rawNotes = [], isPending: notesPending } = useQuery({
+  const { data: rawNotes = [], isPending: notesPending } = useQuery<RawNote[]>({
     queryKey: ['notes'],
     queryFn: async () => {
       const r = await conversationsAPI.getAllNotes();
@@ -39,7 +71,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: conversationsResponse, isPending: convPending } = useQuery({
+  const { data: conversationsResponse, isPending: convPending } = useQuery<{ meetings: RawMeetingSummary[] }>({
     queryKey: ['conversations', 'recent'],
     queryFn: () => conversationsAPI.getConversations(5, 0),
     enabled,
@@ -48,10 +80,10 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
 
   const isSidebarLoading = enabled && (eventsPending || notesPending || convPending);
 
-  const upcomingEvents = useMemo(() => {
+  const upcomingEvents = useMemo<UpcomingEvent[]>(() => {
     const now = new Date();
-    const allEvents: any[] = [];
-    rawEvents.forEach((event: any) => {
+    const allEvents: UpcomingEvent[] = [];
+    rawEvents.forEach((event) => {
       try {
         if (event.date) {
           const eventDate = new Date(event.date);
@@ -77,9 +109,9 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
     return allEvents.slice(0, 5);
   }, [rawEvents]);
 
-  const tasks = useMemo(() => {
-    const allTasks: any[] = [];
-    rawEvents.forEach((event: any) => {
+  const tasks = useMemo<Task[]>(() => {
+    const allTasks: Task[] = [];
+    rawEvents.forEach((event) => {
       try {
         allTasks.push({
           id: event.id,
@@ -95,7 +127,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
         });
       } catch (err) {}
     });
-    rawNotes.forEach((note: any) => {
+    rawNotes.forEach((note) => {
       try {
         allTasks.push({
           id: note.id,
@@ -114,9 +146,9 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
     return [...allTasks].sort(sortByUrgencyThenDate);
   }, [rawEvents, rawNotes]);
 
-  const recentConversations = useMemo(() => {
+  const recentConversations = useMemo<RecentConversation[]>(() => {
     if (!conversationsResponse?.meetings) return [];
-    return conversationsResponse.meetings.map((item: any) => ({
+    return conversationsResponse.meetings.map((item) => ({
       job_id: item.job_id,
       title: item.title || 'Conversation Analysis',
       created_at: new Date(item.created_at),
@@ -127,7 +159,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
   const handleToggleTask = async (taskId: number, completed: boolean) => {
     try {
       await conversationsAPI.toggleTaskCompletion(taskId, completed);
-      queryClient.setQueryData(['events'], (old: any[] = []) =>
+      queryClient.setQueryData<RawEvent[]>(['events'], (old = []) =>
         old.map(e => e.id === taskId ? { ...e, completed } : e)
       );
     } catch (error) {}
@@ -136,7 +168,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
   const handleDeleteTask = async (taskId: number) => {
     try {
       await conversationsAPI.deleteEvent(taskId);
-      queryClient.setQueryData(['events'], (old: any[] = []) =>
+      queryClient.setQueryData<RawEvent[]>(['events'], (old = []) =>
         old.filter(e => e.id !== taskId)
       );
     } catch (error) {}
@@ -146,7 +178,7 @@ export function useDashboardData(user: any, loading: boolean, isLoggingOut: bool
     if (!confirm('Are you sure you want to delete this event?')) return;
     try {
       await conversationsAPI.deleteEvent(eventId);
-      queryClient.setQueryData(['events'], (old: any[] = []) =>
+      queryClient.setQueryData<RawEvent[]>(['events'], (old = []) =>
         old.filter(e => e.id !== eventId)
       );
     } catch (error) {}
