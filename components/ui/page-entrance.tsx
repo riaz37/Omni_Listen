@@ -94,7 +94,7 @@ export default function PageEntrance({
     <motion.div
       className={className}
       variants={containerVariants}
-      initial="hidden"
+      initial={firstVisit ? "hidden" : false}
       animate="visible"
     >
       {Array.isArray(children)

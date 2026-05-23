@@ -257,8 +257,8 @@ export default function ConversationDetailClient() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Content */}
                     <div className="lg:col-span-2 space-y-6">
-                        {/* Key Takeaways / Summary */}
-                        {(conversation.key_takeaways || conversation.final_summary) && (
+                        {/* Key Takeaways / Summary — skip empty {} from failed extractions */}
+                        {(conversation.key_takeaways || (conversation.final_summary && Object.keys(conversation.final_summary).length > 0)) && (
                             <ConversationKeyTakeaways
                                 summary={conversation.key_takeaways || conversation.final_summary}
                             />
