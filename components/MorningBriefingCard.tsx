@@ -55,25 +55,29 @@ export default function MorningBriefingBubble() {
     });
     const [regenerating, setRegenerating] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
-    const [position, setPosition] = useState<{ x: number; y: number } | null>(() => {
-        const saved = getSavedPosition();
-        if (saved) return saved;
-        if (typeof window === 'undefined') return null;
-        return {
-            x: window.innerWidth - BUBBLE_SIZE - EDGE_PADDING - 8,
-            y: window.innerHeight - BUBBLE_SIZE - EDGE_PADDING - 8,
-        };
-    });
+    const [position, setPosition] = useState<{ x: number; y: number } | null>(() => getSavedPosition());
     const [isDragging, setIsDragging] = useState(false);
 
-    // SSR produces null (window unavailable); initialize to bottom-right on client mount
+    // SSR produces null (window unavailable); initialize to sidebar bottom-right on client mount
     useEffect(() => {
         if (position !== null) return;
         const saved = getSavedPosition();
-        setPosition(saved ?? {
-            x: window.innerWidth - BUBBLE_SIZE - EDGE_PADDING - 8,
-            y: window.innerHeight - BUBBLE_SIZE - EDGE_PADDING - 8,
-        });
+        if (saved) { setPosition(saved); return; }
+        const maxX = window.innerWidth - BUBBLE_SIZE - EDGE_PADDING;
+        const maxY = window.innerHeight - BUBBLE_SIZE - EDGE_PADDING;
+        const sidebar = document.getElementById('dashboard-sidebar');
+        if (sidebar) {
+            const rect = sidebar.getBoundingClientRect();
+            setPosition({
+                x: clamp(rect.right - BUBBLE_SIZE / 2, EDGE_PADDING, maxX),
+                y: clamp(rect.bottom - BUBBLE_SIZE - EDGE_PADDING, EDGE_PADDING, maxY),
+            });
+        } else {
+            setPosition({
+                x: window.innerWidth - BUBBLE_SIZE - EDGE_PADDING - 8,
+                y: window.innerHeight - BUBBLE_SIZE - EDGE_PADDING - 8,
+            });
+        }
     }, []);
     const dragRef = useRef<{ startX: number; startY: number; startPosX: number; startPosY: number } | null>(null);
     const bubbleRef = useRef<HTMLDivElement>(null);
