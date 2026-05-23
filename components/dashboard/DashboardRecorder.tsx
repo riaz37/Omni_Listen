@@ -300,8 +300,8 @@ export default function DashboardRecorder({
 
   return (
     <div className="lg:col-span-2">
-      <div>
-        <div className="bg-card rounded-lg shadow-sm border border-border p-1">
+      <div className="h-full">
+        <div className="bg-card rounded-lg shadow-sm border border-border p-1 h-full flex flex-col">
           {/* Segmented Control Tabs */}
           <div className="relative grid grid-cols-2 p-1 bg-muted/50 rounded-lg mb-3 border border-border">
             {/* Sliding indicator */}
@@ -334,7 +334,7 @@ export default function DashboardRecorder({
             </Button>
           </div>
 
-          <div className="px-4 pb-4">
+          <div className="px-4 pb-4 flex-1 flex flex-col">
             {/* Download Window — shown above spinner so it survives auto-process */}
             {downloadSecondsLeft !== null && downloadSecondsLeft > 0 && (
               <div className="flex items-center gap-2 mb-4">
@@ -353,7 +353,7 @@ export default function DashboardRecorder({
               </div>
             )}
             {!isProcessing ? (
-              <div className="space-y-6">
+              <div className="space-y-6 flex-1 flex flex-col">
                 {inputMode === 'upload' && (
                   <>
                     <label
@@ -419,7 +419,7 @@ export default function DashboardRecorder({
 
                 {/* Record Mode */}
                 {inputMode === 'record' && (
-                  <div className="flex flex-col items-center justify-center py-2 space-y-3">
+                  <div className="flex flex-col items-center justify-center flex-1 py-2 space-y-3">
                     {/* Timer */}
                     <div className="relative">
                       <div className="text-4xl sm:text-5xl font-light text-foreground tracking-tight font-mono">

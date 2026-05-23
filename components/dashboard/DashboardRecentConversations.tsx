@@ -137,7 +137,7 @@ export default function DashboardRecentConversations({
           {/* Upcoming Events Tab */}
           <TabsContent value="upcoming">
             {isLoading ? <SidebarSkeleton /> : upcomingEvents.length > 0 ? (
-              <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+              <div className="space-y-2 h-[380px] overflow-y-auto pr-1">
                 {upcomingEvents.map((event, index) => {
                   const isUrgent = normalizeUrgency(event.urgency) === 'yes';
                   return (
@@ -207,7 +207,7 @@ export default function DashboardRecentConversations({
           {/* Tasks Tab */}
           <TabsContent value="tasks">
             {isLoading ? <SidebarSkeleton /> : tasks.length > 0 ? (
-              <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+              <div className="space-y-2 h-[380px] overflow-y-auto pr-1">
                 {tasks.slice(0, 15).map((task) => {
                   const isUrgent = normalizeUrgency(task.urgency) === 'yes';
                   return (
@@ -274,7 +274,7 @@ export default function DashboardRecentConversations({
           {/* Recent Conversations Tab */}
           <TabsContent value="meetings">
             {isLoading ? <SidebarSkeleton /> : recentConversations.length > 0 ? (
-              <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+              <div className="space-y-2 h-[380px] overflow-y-auto pr-1">
                 {recentConversations.map((meeting) => {
                   const isRetrying = retryingIds.has(meeting.job_id) || meeting.failed_at_stage === 'pending_extraction';
                   const isFailed = !isRetrying && meeting.failed_at_stage === 'extraction_failed';
