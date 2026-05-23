@@ -216,7 +216,7 @@ export default function ConversationDetailClient() {
                             <p className="text-sm text-muted-foreground mt-1">{formatDate(conversation.created_at)}</p>
                         </div>
                         <div className="flex gap-3">
-                            {conversation?.failed_at_stage === 'extraction_failed' && (
+                            {(conversation?.failed_at_stage === 'extraction_failed' || conversation?.final_summary?.english === 'Error') && (
                                 <Button
                                     onClick={handleRetry}
                                     disabled={retrying}
@@ -257,8 +257,8 @@ export default function ConversationDetailClient() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Content */}
                     <div className="lg:col-span-2 space-y-6">
-                        {/* Key Takeaways / Summary — skip empty {} from failed extractions */}
-                        {(conversation.key_takeaways || (conversation.final_summary && Object.keys(conversation.final_summary).length > 0)) && (
+                        {/* Key Takeaways / Summary — skip empty {} or error sentinel from failed extractions */}
+                        {(conversation.key_takeaways || (conversation.final_summary && Object.keys(conversation.final_summary).length > 0 && conversation.final_summary.english !== 'Error')) && (
                             <ConversationKeyTakeaways
                                 summary={conversation.key_takeaways || conversation.final_summary}
                             />
