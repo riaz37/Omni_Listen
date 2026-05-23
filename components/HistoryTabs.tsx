@@ -9,8 +9,8 @@ interface HistoryTabsProps {
 }
 
 const tabs = [
-    { id: 'conversations' as const, labelKey: 'history.tabs.conversations' },
     { id: 'days' as const, labelKey: 'history.tabs.days' },
+    { id: 'conversations' as const, labelKey: 'history.tabs.conversations' },
 ];
 
 export default function HistoryTabs({ activeView, onViewChange }: HistoryTabsProps) {

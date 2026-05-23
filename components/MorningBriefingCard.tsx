@@ -281,9 +281,9 @@ export default function MorningBriefingBubble() {
                     </span>
                 )}
 
-                {/* Tooltip — hidden while dragging */}
+                {/* Tooltip — hidden while dragging, flips left when bubble is near right edge */}
                 {!isDragging && (
-                    <span className="absolute start-full ms-3 px-3 py-1.5 bg-foreground text-background text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                    <span className={`absolute px-3 py-1.5 bg-foreground text-background text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none ${isNearRight ? 'end-full me-3' : 'start-full ms-3'}`}>
                         {t('common_ui.morning.tooltip')}
                     </span>
                 )}

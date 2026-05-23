@@ -42,7 +42,7 @@ export default function HistoryPage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedConversationIds, setSelectedConversationIds] = useState<number[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [historyView, setHistoryView] = useState<'conversations' | 'days'>('conversations');
+  const [historyView, setHistoryView] = useState<'conversations' | 'days'>('days');
   const [searchQuery, setSearchQuery] = useState('');
   const [confirmDialog, setConfirmDialog] = useState<{
     title: string;
@@ -198,7 +198,7 @@ export default function HistoryPage() {
       if (sortColumn === 'title') return (a.title || '').localeCompare(b.title || '') * dir;
       if (sortColumn === 'events') return (a.event_count - b.event_count) * dir;
       if (sortColumn === 'date') {
-        return (new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) * dir;
+        return (new Date(a.created_at).getTime() - new Date(b.created_at).getTime()) * dir;
       }
       return 0;
     });
