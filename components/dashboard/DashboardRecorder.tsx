@@ -303,7 +303,7 @@ export default function DashboardRecorder({
       <div>
         <div className="bg-card rounded-lg shadow-sm border border-border p-1">
           {/* Segmented Control Tabs */}
-          <div className="relative grid grid-cols-2 p-1 bg-muted/50 rounded-lg mb-6 border border-border">
+          <div className="relative grid grid-cols-2 p-1 bg-muted/50 rounded-lg mb-3 border border-border">
             {/* Sliding indicator */}
             <motion.div
               className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-card shadow-sm ring-1 ring-black/5 rounded-md"
@@ -334,7 +334,7 @@ export default function DashboardRecorder({
             </Button>
           </div>
 
-          <div className="px-6 pb-8">
+          <div className="px-4 pb-4">
             {/* Download Window — shown above spinner so it survives auto-process */}
             {downloadSecondsLeft !== null && downloadSecondsLeft > 0 && (
               <div className="flex items-center gap-2 mb-4">
@@ -419,10 +419,10 @@ export default function DashboardRecorder({
 
                 {/* Record Mode */}
                 {inputMode === 'record' && (
-                  <div className="flex flex-col items-center justify-center py-4 space-y-5">
+                  <div className="flex flex-col items-center justify-center py-2 space-y-3">
                     {/* Timer */}
                     <div className="relative">
-                      <div className="text-5xl sm:text-6xl font-light text-foreground tracking-tight font-mono">
+                      <div className="text-4xl sm:text-5xl font-light text-foreground tracking-tight font-mono">
                         {formatTime(recordingTime)}
                       </div>
                       {isRecording && (
@@ -436,13 +436,13 @@ export default function DashboardRecorder({
                     </div>
 
                     {/* Visualizer Placeholder */}
-                    <div className="h-24 flex items-end gap-1.5 justify-center w-full max-w-lg px-4">
-                      {[...Array(24)].map((_, i) => {
-                        const baseHeight = Math.sin((i / 24) * Math.PI * 3) * 35 + 50;
+                    <div className="h-10 flex items-end gap-1 justify-center w-full max-w-lg px-4">
+                      {[...Array(20)].map((_, i) => {
+                        const baseHeight = Math.sin((i / 20) * Math.PI * 3) * 35 + 50;
                         return (
                           <motion.div
                             key={i}
-                            className={`w-2.5 rounded-full ${isRecording ? 'bg-primary' : 'bg-muted-foreground/20'}`}
+                            className={`w-2 rounded-full ${isRecording ? 'bg-primary' : 'bg-muted-foreground/20'}`}
                             animate={isRecording && !isPaused ? {
                               height: [`${baseHeight * 0.4}%`, `${baseHeight}%`, `${baseHeight * 0.6}%`],
                               opacity: 1,
@@ -462,7 +462,7 @@ export default function DashboardRecorder({
                     </div>
 
                     {/* Controls */}
-                    <div className="flex items-center gap-8">
+                    <div className="flex items-center gap-5">
                       {!isRecording && recoveredRecording ? (
                         <div className="w-full rounded-xl border border-amber-500/30 bg-amber-500/5 p-5 space-y-4">
                           <div className="flex items-start gap-3">
@@ -508,37 +508,37 @@ export default function DashboardRecorder({
                       ) : !isRecording ? (
                         <Button
                           onClick={onStartRecording}
-                          className="group relative w-20 h-20 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 focus:ring-4 focus:ring-primary/20"
+                          className="group relative w-16 h-16 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 focus:ring-4 focus:ring-primary/20"
                         >
-                          <Mic className="w-12 h-12 group-hover:scale-110 transition-transform duration-300" />
+                          <Mic className="w-8 h-8 group-hover:scale-110 transition-transform duration-300" />
                         </Button>
                       ) : (
                         <>
                           <Button
                             variant="secondary"
                             onClick={isPaused ? onResumeRecording : onPauseRecording}
-                            className="w-16 h-16 rounded-full shadow-sm hover:shadow-md"
+                            className="w-12 h-12 rounded-full shadow-sm hover:shadow-md"
                             title={isPaused ? "Resume recording" : "Pause recording"}
                           >
-                            {isPaused ? <Play className="w-6 h-6 fill-current" /> : <Pause className="w-6 h-6 fill-current" />}
+                            {isPaused ? <Play className="w-5 h-5 fill-current" /> : <Pause className="w-5 h-5 fill-current" />}
                           </Button>
                           <Button
                             onClick={() => {
                               onSetAutoProcess(true);
                               onStopRecording();
                             }}
-                            className="group w-20 h-20 rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-xl hover:shadow-2xl hover:scale-105"
+                            className="group w-16 h-16 rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-xl hover:shadow-2xl hover:scale-105"
                             title="Stop and process"
                           >
-                            <Square className="w-8 h-8 fill-current group-hover:scale-90 transition-transform duration-200" />
+                            <Square className="w-6 h-6 fill-current group-hover:scale-90 transition-transform duration-200" />
                           </Button>
                           <Button
                             variant="secondary"
                             onClick={onCancelRecording}
-                            className="w-16 h-16 rounded-full shadow-sm hover:shadow-md"
+                            className="w-12 h-12 rounded-full shadow-sm hover:shadow-md"
                             title="Cancel recording"
                           >
-                            <X className="w-6 h-6" />
+                            <X className="w-5 h-5" />
                           </Button>
                         </>
                       )}
