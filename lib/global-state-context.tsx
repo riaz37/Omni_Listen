@@ -341,9 +341,12 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
             pollJobStatus(persistedJobId);
         }
         return () => {
-            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+            if (pollIntervalRef.current) {
+                clearInterval(pollIntervalRef.current);
+                pollIntervalRef.current = null;
+            }
         };
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const startProcessing = async (file: File, config: any) => {
         setIsProcessing(true);
@@ -363,17 +366,31 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const pollJobStatus = (id: string) => {
-        if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    const pollJobStatus = useCallback((id: string) => {
+        // Cancel any existing poll
+        if (pollIntervalRef.current) {
+            clearInterval(pollIntervalRef.current);
+            pollIntervalRef.current = null;
+        }
 
-        pollIntervalRef.current = setInterval(async () => {
+        let intervalMs = 2000;
+        let attempts = 0;
+        const MAX_ATTEMPTS = 60;
+
+        const tick = async () => {
+            if (attempts >= MAX_ATTEMPTS) {
+                setIsProcessing(false);
+                setProcessingStatus('Timed out waiting for result. Please refresh.');
+                return;
+            }
+            attempts++;
+
             try {
                 const statusData = await conversationsAPI.getJobStatus(id);
                 setProcessingProgress(statusData.overall_progress);
 
                 const stages = statusData.stages || {};
                 let currentStatus = 'Processing...';
-
                 if (stages.vad?.status === 'in_progress') currentStatus = '🎵 Detecting speech...';
                 else if (stages.enhancement?.status === 'in_progress') currentStatus = '🔊 Enhancing audio quality...';
                 else if (stages.transcription?.status === 'in_progress') currentStatus = '📝 Transcribing audio...';
@@ -381,27 +398,41 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
                 else if (stages.extraction?.status === 'in_progress') currentStatus = '🤖 Extracting key insights...';
                 else if (stages.calendar?.status === 'in_progress') currentStatus = '📅 Syncing to calendar...';
                 else if (statusData.status === 'completed') currentStatus = '✅ Complete!';
+                else if (statusData.status === 'failed') currentStatus = '❌ Failed';
 
                 setProcessingStatus(currentStatus);
 
                 if (statusData.status === 'completed' || statusData.status === 'failed') {
                     if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+                    pollIntervalRef.current = null;
                     setIsProcessing(false);
                     localStorage.removeItem('processingJobId');
-
                     if (statusData.status === 'failed') {
                         setProcessingStatus(`Failed: ${statusData.error}`);
                     }
+                    return;
                 }
             } catch (error: any) {
                 console.error('Status check failed:', error);
                 if (error?.response?.status === 404 || error?.message?.includes('404')) {
                     if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+                    pollIntervalRef.current = null;
                     resetProcessing();
+                    return;
                 }
             }
-        }, 2000);
-    };
+
+            // Exponential backoff with jitter, capped at 15s
+            intervalMs = Math.min(intervalMs * 1.4 + Math.random() * 500, 15000);
+            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+            pollIntervalRef.current = setInterval(tick, intervalMs);
+        };
+
+        // Initial poll after jittered delay (500–1500ms)
+        const jitteredStart = 500 + Math.random() * 1000;
+        pollIntervalRef.current = setInterval(tick, jitteredStart);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const resetProcessing = () => {
         setProcessingJobId(null);
