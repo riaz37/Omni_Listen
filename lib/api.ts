@@ -421,7 +421,7 @@ export const presetsAPI = {
 export const calendarAPI = {
   getAuthUrl: async (redirectUri?: string) => {
     const finalRedirectUri = redirectUri ?? (typeof window !== 'undefined'
-      ? `${window.location.origin}/signin`
+      ? `${window.location.origin}/en/signin`
       : undefined);
     const response = await api.get('/api/calendar/auth-url', {
       params: finalRedirectUri ? { redirect_uri: finalRedirectUri } : undefined,
@@ -431,7 +431,7 @@ export const calendarAPI = {
 
   handleCallback: async (code: string, state: string, redirectUri?: string) => {
     const finalRedirectUri = redirectUri ?? (typeof window !== 'undefined'
-      ? `${window.location.origin}/signin`
+      ? `${window.location.origin}/en/signin`
       : undefined);
     const response = await api.post('/api/calendar/callback', {
       code, state, ...(finalRedirectUri ? { redirect_uri: finalRedirectUri } : {}),
