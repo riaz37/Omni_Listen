@@ -165,6 +165,16 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
       if (editingPreset) {
         await presetsAPI.updatePreset(editingPreset.id, data);
         toast.success('Preset updated successfully!', { duration: 2000 });
+        // If this is the active preset, sync changes into the live config
+        if (editingPreset.name === activeRoleName) {
+          setConfig({
+            ...config,
+            role: formData.role,
+            output_fields: formData.output_fields as any,
+            user_input: formData.user_input,
+            custom_field_only: formData.custom_field_only,
+          });
+        }
       } else {
         await presetsAPI.createPreset(data);
         toast.success('Preset created successfully!', { duration: 2000 });
