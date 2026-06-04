@@ -36,7 +36,7 @@ function getSavedPosition(): { x: number; y: number } | null {
                 y: clamp(pos.y, EDGE_PADDING, maxY),
             };
         }
-    } catch {}
+    } catch { }
     return null;
 }
 
@@ -55,13 +55,30 @@ export default function MorningBriefingBubble() {
     });
     const [regenerating, setRegenerating] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
-    const [position, setPosition] = useState<{ x: number; y: number } | null>(() => {
-        const saved = getSavedPosition();
-        if (saved) return saved;
-        if (typeof window === 'undefined') return null;
-        return { x: window.innerWidth - BUBBLE_SIZE - EDGE_PADDING - 8, y: window.innerHeight - BUBBLE_SIZE - EDGE_PADDING - 8 };
-    });
+    const [position, setPosition] = useState<{ x: number; y: number } | null>(() => getSavedPosition());
     const [isDragging, setIsDragging] = useState(false);
+
+    // SSR produces null (window unavailable); initialize to sidebar bottom-right on client mount
+    useEffect(() => {
+        if (position !== null) return;
+        const saved = getSavedPosition();
+        if (saved) { setPosition(saved); return; }
+        const maxX = window.innerWidth - BUBBLE_SIZE - EDGE_PADDING;
+        const maxY = window.innerHeight - BUBBLE_SIZE - EDGE_PADDING;
+        const sidebar = document.getElementById('dashboard-sidebar');
+        if (sidebar) {
+            const rect = sidebar.getBoundingClientRect();
+            setPosition({
+                x: clamp(rect.right - BUBBLE_SIZE / 2, EDGE_PADDING, maxX),
+                y: clamp(rect.bottom - BUBBLE_SIZE - EDGE_PADDING, EDGE_PADDING, maxY),
+            });
+        } else {
+            setPosition({
+                x: window.innerWidth - BUBBLE_SIZE - EDGE_PADDING - 8,
+                y: window.innerHeight - BUBBLE_SIZE - EDGE_PADDING - 8,
+            });
+        }
+    }, []);
     const dragRef = useRef<{ startX: number; startY: number; startPosX: number; startPosY: number } | null>(null);
     const bubbleRef = useRef<HTMLDivElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
@@ -268,9 +285,9 @@ export default function MorningBriefingBubble() {
                     </span>
                 )}
 
-                {/* Tooltip — hidden while dragging */}
+                {/* Tooltip — hidden while dragging, flips left when bubble is near right edge */}
                 {!isDragging && (
-                    <span className="absolute start-full ms-3 px-3 py-1.5 bg-foreground text-background text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                    <span className={`absolute px-3 py-1.5 bg-foreground text-background text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none ${isNearRight ? 'end-full me-3' : 'start-full ms-3'}`}>
                         {t('common_ui.morning.tooltip')}
                     </span>
                 )}

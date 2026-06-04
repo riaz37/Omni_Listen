@@ -300,10 +300,10 @@ export default function DashboardRecorder({
 
   return (
     <div className="lg:col-span-2">
-      <div>
-        <div className="bg-card rounded-lg shadow-sm border border-border p-1">
+      <div className="h-full">
+        <div className="bg-card rounded-lg shadow-sm border border-border p-1 h-full flex flex-col">
           {/* Segmented Control Tabs */}
-          <div className="relative grid grid-cols-2 p-1 bg-muted/50 rounded-lg mb-6 border border-border">
+          <div className="relative grid grid-cols-2 p-1 bg-muted/50 rounded-lg mb-3 border border-border">
             {/* Sliding indicator */}
             <motion.div
               className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-card shadow-sm ring-1 ring-black/5 rounded-md"
@@ -334,7 +334,7 @@ export default function DashboardRecorder({
             </Button>
           </div>
 
-          <div className="px-6 pb-8">
+          <div className="px-6 pb-6 flex-1 flex flex-col">
             {/* Download Window — shown above spinner so it survives auto-process */}
             {downloadSecondsLeft !== null && downloadSecondsLeft > 0 && (
               <div className="flex items-center gap-2 mb-4">
@@ -353,7 +353,7 @@ export default function DashboardRecorder({
               </div>
             )}
             {!isProcessing ? (
-              <div className="space-y-6">
+              <div className="space-y-6 flex-1 flex flex-col">
                 {inputMode === 'upload' && (
                   <>
                     <label
@@ -419,7 +419,7 @@ export default function DashboardRecorder({
 
                 {/* Record Mode */}
                 {inputMode === 'record' && (
-                  <div className="flex flex-col items-center justify-center py-4 space-y-5">
+                  <div className="flex flex-col items-center justify-center flex-1 py-2 space-y-5">
                     {/* Timer */}
                     <div className="relative">
                       <div className="text-5xl sm:text-6xl font-light text-foreground tracking-tight font-mono">
@@ -436,13 +436,13 @@ export default function DashboardRecorder({
                     </div>
 
                     {/* Visualizer Placeholder */}
-                    <div className="h-24 flex items-end gap-1.5 justify-center w-full max-w-lg px-4">
-                      {[...Array(24)].map((_, i) => {
-                        const baseHeight = Math.sin((i / 24) * Math.PI * 3) * 35 + 50;
+                    <div className="h-16 flex items-end gap-1.5 justify-center w-full max-w-lg px-4">
+                      {[...Array(20)].map((_, i) => {
+                        const baseHeight = Math.sin((i / 20) * Math.PI * 3) * 35 + 50;
                         return (
                           <motion.div
                             key={i}
-                            className={`w-2.5 rounded-full ${isRecording ? 'bg-primary' : 'bg-muted-foreground/20'}`}
+                            className={`w-2 rounded-full ${isRecording ? 'bg-primary' : 'bg-muted-foreground/20'}`}
                             animate={isRecording && !isPaused ? {
                               height: [`${baseHeight * 0.4}%`, `${baseHeight}%`, `${baseHeight * 0.6}%`],
                               opacity: 1,
@@ -510,7 +510,7 @@ export default function DashboardRecorder({
                           onClick={onStartRecording}
                           className="group relative w-20 h-20 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 focus:ring-4 focus:ring-primary/20"
                         >
-                          <Mic className="w-12 h-12 group-hover:scale-110 transition-transform duration-300" />
+                          <Mic className="w-10 h-10 group-hover:scale-110 transition-transform duration-300" />
                         </Button>
                       ) : (
                         <>

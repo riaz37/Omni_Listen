@@ -116,7 +116,7 @@ export default function DashboardRecentConversations({
   }, [router, onRecentConversationRetried]);
 
   return (
-    <div className="lg:col-span-1">
+    <div id="dashboard-sidebar" className="lg:col-span-1">
       <div className="bg-card-2 rounded-lg shadow border border-border p-6 sticky top-4">
         <Tabs defaultValue="upcoming">
           <TabsList className="grid w-full grid-cols-3 mb-4 h-auto p-1">
@@ -137,15 +137,15 @@ export default function DashboardRecentConversations({
           {/* Upcoming Events Tab */}
           <TabsContent value="upcoming">
             {isLoading ? <SidebarSkeleton /> : upcomingEvents.length > 0 ? (
-              <div className="space-y-3 max-h-96 overflow-y-auto">
+              <div className="space-y-2 h-[320px] overflow-y-auto pr-1">
                 {upcomingEvents.map((event, index) => {
                   const isUrgent = normalizeUrgency(event.urgency) === 'yes';
                   return (
                     <div
                       key={index}
-                      className={`p-4 rounded-lg border border-border transition-colors relative ${event.completed ? 'bg-muted/50 opacity-70' : 'bg-card'}`}
+                      className={`p-3 rounded-lg border border-border transition-colors relative ${event.completed ? 'bg-muted/50 opacity-70' : 'bg-card'}`}
                     >
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center justify-between mb-1">
                         <div>
                           {isUrgent && (
                             <span className="px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-medium rounded-full">
@@ -164,8 +164,8 @@ export default function DashboardRecentConversations({
                           </Button>
                         </div>
                       </div>
-                      <h3 className="font-medium text-sm text-foreground mb-1">{event.title}</h3>
-                      {event.description && <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{event.description}</p>}
+                      <h3 className="font-medium text-sm text-foreground mb-0.5">{event.title}</h3>
+                      {event.description && <p className="text-xs text-muted-foreground mb-2 line-clamp-1">{event.description}</p>}
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span>{event.assignee || 'Unassigned'}</span>
                         <div className="flex items-center gap-1">
@@ -207,12 +207,12 @@ export default function DashboardRecentConversations({
           {/* Tasks Tab */}
           <TabsContent value="tasks">
             {isLoading ? <SidebarSkeleton /> : tasks.length > 0 ? (
-              <div className="space-y-2 max-h-96 overflow-y-auto">
+              <div className="space-y-2 h-[320px] overflow-y-auto pr-1">
                 {tasks.slice(0, 15).map((task) => {
                   const isUrgent = normalizeUrgency(task.urgency) === 'yes';
                   return (
-                    <div key={task.id} className={`p-4 rounded-lg border border-border transition-all ${task.completed ? 'bg-muted/50 opacity-70' : 'bg-card'} relative`}>
-                      <div className="flex items-center justify-between mb-2">
+                    <div key={task.id} className={`p-3 rounded-lg border border-border transition-all ${task.completed ? 'bg-muted/50 opacity-70' : 'bg-card'} relative`}>
+                      <div className="flex items-center justify-between mb-1">
                         <div>
                           {isUrgent && <span className="px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-medium rounded-full">Urgent</span>}
                         </div>
@@ -229,10 +229,10 @@ export default function DashboardRecentConversations({
                           </Button>
                         </div>
                       </div>
-                      <h3 className={`font-medium text-sm text-foreground mb-1 ${task.meetingId ? 'cursor-pointer' : ''}`} onClick={() => task.meetingId && router.push(lp(`/conversation?id=${task.meetingId}`))}>
+                      <h3 className={`font-medium text-sm text-foreground mb-0.5 ${task.meetingId ? 'cursor-pointer' : ''}`} onClick={() => task.meetingId && router.push(lp(`/conversation?id=${task.meetingId}`))}>
                         {task.title}
                       </h3>
-                      {task.description && <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{task.description}</p>}
+                      {task.description && <p className="text-xs text-muted-foreground mb-2 line-clamp-1">{task.description}</p>}
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span>{task.assignee || 'Unassigned'}</span>
                         <div className="flex items-center gap-1">
@@ -274,7 +274,7 @@ export default function DashboardRecentConversations({
           {/* Recent Conversations Tab */}
           <TabsContent value="meetings">
             {isLoading ? <SidebarSkeleton /> : recentConversations.length > 0 ? (
-              <div className="space-y-2 max-h-96 overflow-y-auto">
+              <div className="space-y-2 h-[320px] overflow-y-auto pr-1">
                 {recentConversations.map((meeting) => {
                   const isRetrying = retryingIds.has(meeting.job_id) || meeting.failed_at_stage === 'pending_extraction';
                   const isFailed = !isRetrying && meeting.failed_at_stage === 'extraction_failed';

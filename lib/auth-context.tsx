@@ -86,7 +86,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (tokens: { access_token: string; refresh_token: string; user: User }) => {
     sessionStorage.setItem('access_token', tokens.access_token);
     sessionStorage.setItem('refresh_token', tokens.refresh_token);
+    sessionStorage.setItem('cached_user', JSON.stringify(tokens.user));
+    sessionStorage.removeItem('omni-presets-cache');
     setUser(tokens.user);
+    setIsRevalidated(true);
+    setLoading(false);
     setIsLoggingOut(false);
 
     // Try to send token to extension (auto-connect)
@@ -119,6 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       sessionStorage.removeItem('cached_user');
       sessionStorage.removeItem('processingJobId');
       setUser(null);
+      setIsRevalidated(false);
       setIsLoggingOut(false);
     }, 1000);
   };

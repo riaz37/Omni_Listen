@@ -306,6 +306,12 @@ export const conversationsAPI = {
     return response.data;
   },
 
+  // BFF: single request returning limited events, notes, and conversations for the dashboard
+  getDashboard: async (): Promise<{ events: any[]; notes: any[]; conversations: any[] }> => {
+    const response = await api.get('/api/dashboard');
+    return response.data;
+  },
+
   // Direct queries for events/notes (works even if meeting is deleted)
   getAllEvents: async () => {
     const response = await api.get('/api/all-events');
