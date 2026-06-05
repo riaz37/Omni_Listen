@@ -301,6 +301,7 @@ export const conversationsAPI = {
     title?: string;
     description?: string;
     category?: string;
+    completed?: boolean;
   }) => {
     const response = await api.patch(`/api/notes/${noteId}`, updates);
     return response.data;

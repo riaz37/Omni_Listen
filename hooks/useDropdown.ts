@@ -20,7 +20,16 @@ export function useDropdown(onClose?: () => void) {
     if (!isOpen) return;
 
     function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const dropdownId = ref.current?.dataset.dropdownId;
+      const portalMatch =
+        target instanceof Element
+          ? target.closest<HTMLElement>('[data-dropdown-id]')
+          : null;
+      const isSameDropdownPortal =
+        !!dropdownId && portalMatch?.dataset.dropdownId === dropdownId;
+
+      if (ref.current && !ref.current.contains(target) && !isSameDropdownPortal) {
         close();
       }
     }
@@ -55,9 +64,10 @@ export function useDropdownKeyboard(
   const itemsRef = useRef<(HTMLElement | null)[]>([]);
 
   useEffect(() => {
-    if (!isOpen) {
-      setFocusIndex(-1);
-    }
+    if (isOpen) return;
+
+    const timeout = window.setTimeout(() => setFocusIndex(-1), 0);
+    return () => window.clearTimeout(timeout);
   }, [isOpen]);
 
   useEffect(() => {

@@ -10,6 +10,7 @@ import {
   useRef,
   type ReactNode,
 } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { ChevronDown, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -126,6 +127,11 @@ export function DropdownContent({
     useDropdownContext();
 
   const [focusIndex, setFocusIndex] = useState(-1);
+  const [position, setPosition] = useState<{
+    top: number;
+    left?: number;
+    right?: number;
+  } | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const getItems = useCallback(() => {
@@ -137,8 +143,40 @@ export function DropdownContent({
 
   // Reset focus index when menu closes
   useEffect(() => {
-    if (!isOpen) setFocusIndex(-1);
+    if (isOpen) return;
+
+    const timeout = window.setTimeout(() => {
+      setPosition(null);
+      setFocusIndex(-1);
+    }, 0);
+    return () => window.clearTimeout(timeout);
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const updatePosition = () => {
+      const trigger = document.getElementById(triggerId);
+      if (!trigger) return;
+
+      const rect = trigger.getBoundingClientRect();
+      const nextPosition =
+        align === 'end'
+          ? { top: rect.bottom + 8, right: window.innerWidth - rect.right }
+          : { top: rect.bottom + 8, left: rect.left };
+
+      setPosition(nextPosition);
+    };
+
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [align, isOpen, triggerId]);
 
   // Move DOM focus when focusIndex changes
   useEffect(() => {
@@ -187,25 +225,31 @@ export function DropdownContent({
     [close, focusIndex, getItems, triggerId],
   );
 
-  const alignClass = align === 'end' ? 'end-0' : 'start-0';
-
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          ref={contentRef}
-          id={contentId}
-          role={mode === 'select' ? 'listbox' : 'menu'}
-          aria-labelledby={triggerId}
-          onKeyDown={handleKeyDown}
-          className={`absolute ${alignClass} top-full mt-2 min-w-[12rem] bg-popover border border-border rounded-lg shadow-dropdown z-50 p-1 overflow-hidden ${className}`}
-          initial={{ opacity: 0, scale: 0.95, y: -4 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: -4 }}
-          transition={{ duration: DURATIONS.fast, ease: EASINGS.easeOut }}
-        >
-          {children}
-        </motion.div>
+        createPortal(
+          <motion.div
+            ref={contentRef}
+            id={contentId}
+            data-dropdown-id={dropdownId}
+            role={mode === 'select' ? 'listbox' : 'menu'}
+            aria-labelledby={triggerId}
+            onKeyDown={handleKeyDown}
+            className={`fixed min-w-[12rem] bg-popover border border-border rounded-lg shadow-dropdown z-50 p-1 overflow-hidden ${className}`}
+            style={{
+              ...(position ?? {}),
+              visibility: position ? 'visible' : 'hidden',
+            }}
+            initial={{ opacity: 0, scale: 0.95, y: -4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -4 }}
+            transition={{ duration: DURATIONS.fast, ease: EASINGS.easeOut }}
+          >
+            {children}
+          </motion.div>,
+          document.body,
+        )
       )}
     </AnimatePresence>
   );

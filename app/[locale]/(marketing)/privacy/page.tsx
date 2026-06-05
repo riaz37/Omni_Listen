@@ -1,8 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import LandingNav from '@/components/landing/LandingNav';
-import Footer from '@/components/landing/Footer';
 
 type Lang = 'en' | 'ar';
 
@@ -346,8 +344,7 @@ export default function PrivacyPage() {
     const t = content[lang];
 
     return (
-        <div className="min-h-screen bg-background" dir={lang === 'ar' ? 'rtl' : 'ltr'} lang={lang}>
-            <LandingNav />
+        <div dir={lang === 'ar' ? 'rtl' : 'ltr'} lang={lang}>
             <div className="h-16" />
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -540,7 +537,6 @@ export default function PrivacyPage() {
                     </footer>
                 </article>
             </div>
-            <Footer />
         </div>
     );
 }
