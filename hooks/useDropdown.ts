@@ -22,10 +22,10 @@ export function useDropdown(onClose?: () => void) {
     function handleClickOutside(e: MouseEvent) {
       const target = e.target as Node;
       const dropdownId = ref.current?.dataset.dropdownId;
+      const targetElement =
+        target instanceof Element ? target : target.parentElement;
       const portalMatch =
-        target instanceof Element
-          ? target.closest<HTMLElement>('[data-dropdown-id]')
-          : null;
+        targetElement?.closest<HTMLElement>('[data-dropdown-id]') ?? null;
       const isSameDropdownPortal =
         !!dropdownId && portalMatch?.dataset.dropdownId === dropdownId;
 

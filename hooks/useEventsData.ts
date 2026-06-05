@@ -187,7 +187,6 @@ export function useEventsData(user: unknown) {
   };
 
   const handleDeleteEvent = async (eventId: string) => {
-    if (!confirm('Are you sure you want to delete this event?')) return;
     try {
       const numericId = parseInt(eventId.replace('event-', ''));
       await conversationsAPI.deleteEvent(numericId);
@@ -206,7 +205,6 @@ export function useEventsData(user: unknown) {
       toast.error('No events selected');
       return;
     }
-    if (!confirm(`Are you sure you want to delete ${selectedEventIds.length} selected event(s)?`)) return;
 
     setIsDeleting(true);
     try {
@@ -231,7 +229,6 @@ export function useEventsData(user: unknown) {
       toast.error('No events to delete');
       return;
     }
-    if (!confirm(`Are you sure you want to delete ALL ${events.length} event(s)? This action cannot be undone.`)) return;
 
     setIsDeleting(true);
     try {

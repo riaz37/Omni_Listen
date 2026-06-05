@@ -131,6 +131,7 @@ export function DropdownContent({
     top: number;
     left?: number;
     right?: number;
+    maxHeight?: number;
   } | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -160,10 +161,27 @@ export function DropdownContent({
       if (!trigger) return;
 
       const rect = trigger.getBoundingClientRect();
+      const gap = 8;
+      const viewportPadding = 8;
+      const menuHeight = contentRef.current?.offsetHeight ?? 0;
+      const spaceBelow = window.innerHeight - rect.bottom - gap - viewportPadding;
+      const spaceAbove = rect.top - gap - viewportPadding;
+      const openUp = menuHeight > spaceBelow && spaceAbove > spaceBelow;
+      const availableHeight = Math.max(
+        viewportPadding,
+        openUp ? spaceAbove : spaceBelow,
+      );
+      const top = openUp
+        ? Math.max(viewportPadding, rect.top - menuHeight - gap)
+        : rect.bottom + gap;
       const nextPosition =
         align === 'end'
-          ? { top: rect.bottom + 8, right: window.innerWidth - rect.right }
-          : { top: rect.bottom + 8, left: rect.left };
+          ? {
+              top,
+              right: window.innerWidth - rect.right,
+              maxHeight: availableHeight,
+            }
+          : { top, left: rect.left, maxHeight: availableHeight };
 
       setPosition(nextPosition);
     };
@@ -225,10 +243,13 @@ export function DropdownContent({
     [close, focusIndex, getItems, triggerId],
   );
 
-  return (
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        createPortal(
           <motion.div
             ref={contentRef}
             id={contentId}
@@ -236,7 +257,7 @@ export function DropdownContent({
             role={mode === 'select' ? 'listbox' : 'menu'}
             aria-labelledby={triggerId}
             onKeyDown={handleKeyDown}
-            className={`fixed min-w-[12rem] bg-popover border border-border rounded-lg shadow-dropdown z-50 p-1 overflow-hidden ${className}`}
+            className={`fixed min-w-[12rem] bg-popover border border-border rounded-lg shadow-dropdown z-50 p-1 overflow-x-hidden overflow-y-auto ${className}`}
             style={{
               ...(position ?? {}),
               visibility: position ? 'visible' : 'hidden',
@@ -247,11 +268,10 @@ export function DropdownContent({
             transition={{ duration: DURATIONS.fast, ease: EASINGS.easeOut }}
           >
             {children}
-          </motion.div>,
-          document.body,
-        )
+          </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
 
