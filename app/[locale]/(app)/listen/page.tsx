@@ -90,6 +90,13 @@ export default function DashboardPage() {
   const [activeRole, setActiveRole] = useState<string | null>(null);
   const [activeTemplate, setActiveTemplate] = useState<string | null>(null);
   const [localRolePrefs, setLocalRolePrefs] = useState<Record<string, string>>({});
+  // Guard: only write user_input from DB on the very first preset load.
+  // Subsequent refreshUser() calls must not overwrite text the user is actively editing.
+  const hasLoadedInitialConfig = useRef(false);
+  // Stable ref to config so loadPreset can read current user_input without adding config to
+  // its dep array (which would re-trigger the effect on every keystroke).
+  const configRef = useRef(config);
+  useEffect(() => { configRef.current = config; });
 
   // Initialize localRolePrefs from user profile
   useEffect(() => {
@@ -276,29 +283,43 @@ export default function DashboardPage() {
           targetPreset = response.presets?.find((p: any) => p.is_default);
         }
 
-        // Dashboard additional analysis is role-independent — always use last_custom_query
+        // Dashboard additional analysis is role-independent — always use last_custom_query,
+        // but only when there is nothing already in the textarea. Two cases where we skip:
+        //   1. Same component lifecycle: after the first load, refreshUser() calls must not
+        //      overwrite text the user is actively editing (hasLoadedInitialConfig guard).
+        //   2. Back-navigation: ConfigProvider persists across client-side navigation, so
+        //      config.user_input already holds what the user had — don't clobber it with a
+        //      potentially stale user.last_custom_query from the AuthContext.
+        const isFirstLoad = !hasLoadedInitialConfig.current;
+        const currentUserInput = configRef.current.user_input;
+        const shouldInitUserInput = isFirstLoad && !currentUserInput.trim();
         const dashboardQuery = user?.last_custom_query ?? '';
 
         if (targetPreset) {
           updateConfig({
             role: targetPreset.config.role,
             output_fields: targetPreset.config.output_fields,
-            user_input: dashboardQuery,
+            ...(shouldInitUserInput ? { user_input: dashboardQuery } : {}),
           });
-          lastSavedQuery.current = dashboardQuery;
-          setActiveRole(targetPreset.name);
-
-          for (const [templateId, query] of Object.entries(CHIP_QUERIES)) {
-            if (dashboardQuery === query) {
-              setActiveTemplate(templateId);
-              break;
+          if (shouldInitUserInput) {
+            lastSavedQuery.current = dashboardQuery;
+            for (const [templateId, query] of Object.entries(CHIP_QUERIES)) {
+              if (dashboardQuery === query) {
+                setActiveTemplate(templateId);
+                break;
+              }
             }
           }
+          setActiveRole(targetPreset.name);
         } else {
           setActiveRole('Custom');
-          updateConfig({ user_input: dashboardQuery });
-          lastSavedQuery.current = dashboardQuery;
+          if (shouldInitUserInput) {
+            updateConfig({ user_input: dashboardQuery });
+            lastSavedQuery.current = dashboardQuery;
+          }
         }
+
+        hasLoadedInitialConfig.current = true;
       } catch (error) {
       }
     };
