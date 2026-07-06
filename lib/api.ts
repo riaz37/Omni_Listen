@@ -15,114 +15,81 @@ function getSignInUrl(): string {
 // Create axios instance
 export const api = axios.create({
   baseURL: API_URL,
+  withCredentials: true,  // send cookies on every cross-origin request
   headers: {
     'Content-Type': 'application/json',
   },
   timeout: 15000, // 15s default for all standard requests
 });
 
-// Request interceptor to add auth token and user timezone
+// Request interceptor — only attaches the timezone header.
+// Auth is now handled by HttpOnly cookies sent automatically by the browser.
 api.interceptors.request.use(
   (config) => {
     if (typeof window !== 'undefined') {
-      const token = sessionStorage.getItem('access_token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-
-      // Add user's current timezone to all requests
-      // This auto-updates when user travels to a different timezone
       try {
         const userTimezone = getUserTimezone();
         config.headers['X-User-Timezone'] = userTimezone;
-      } catch (error) {
+      } catch {
+        // getUserTimezone failed — no header attached, backend uses UTC
       }
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error),
 );
 
-// Token refresh promise to prevent concurrent refresh requests
-let refreshTokenPromise: Promise<string> | null = null;
+// Token refresh promise — prevents concurrent refresh requests.
+let refreshTokenPromise: Promise<void> | null = null;
 
-// Response interceptor to handle token refresh with rotation
+// Response interceptor to handle token refresh via HttpOnly cookie rotation.
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // If token expired, try to refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
-        const refreshToken = typeof window !== 'undefined' ? sessionStorage.getItem('refresh_token') : null;
-        if (!refreshToken) {
-          // Access token rejected with no refresh token — clear stale session and redirect
-          if (typeof window !== 'undefined' && sessionStorage.getItem('access_token')) {
-            sessionStorage.removeItem('access_token');
-            sessionStorage.removeItem('cached_user');
-            window.location.href = getSignInUrl();
-          }
-          return Promise.reject(error);
-        }
-
-        // If a refresh is already in progress, wait for it
         if (!refreshTokenPromise) {
           refreshTokenPromise = (async () => {
             try {
-              const response = await axios.post(`${API_URL}/api/auth/refresh`, {
-                refresh_token: refreshToken,
-              });
-
-              const { access_token, refresh_token: new_refresh_token } = response.data;
-
-              // Store both new tokens (implements refresh token rotation)
-              if (typeof window !== 'undefined') {
-                sessionStorage.setItem('access_token', access_token);
-                if (new_refresh_token) {
-                  sessionStorage.setItem('refresh_token', new_refresh_token);
-                }
-              }
-              return access_token;
-            } catch (err) {
-              throw err;
+              // Web: refresh_token cookie sent automatically (withCredentials).
+              // Empty body — the cookie carries the token.
+              await axios.post(`${API_URL}/api/auth/refresh`, {}, { withCredentials: true });
             } finally {
               refreshTokenPromise = null;
             }
           })();
         }
 
-        // Wait for the refresh to complete
-        const access_token = await refreshTokenPromise;
-
-        // Retry the original request with new token
-        const newConfig = {
-          ...originalRequest,
-          headers: {
-            ...originalRequest.headers,
-            Authorization: `Bearer ${access_token}`,
-          },
-        };
-
-        return api(newConfig);
-      } catch (refreshError) {
-        // Refresh failed, redirect to login
+        await refreshTokenPromise;
+        // Retry with fresh cookie (browser sends it automatically).
+        return api(originalRequest);
+      } catch {
+        // Refresh failed — clear display cache and redirect to sign-in.
         if (typeof window !== 'undefined') {
-          sessionStorage.removeItem('access_token');
-          sessionStorage.removeItem('refresh_token');
-          sessionStorage.removeItem('cached_user');
-          window.location.href = getSignInUrl();
+          localStorage.removeItem('cached_user');
+          // Don't hard-redirect when already on an auth page — doing so causes an
+          // infinite reload loop: checkAuth calls /api/auth/me with no valid cookie,
+          // the interceptor fires, hard-reloads /signin, and repeats forever.
+          const onAuthPage = /\/(signin|signup)(\/|$|\?)/.test(window.location.pathname);
+          if (!onAuthPage) {
+            try {
+              await axios.post(`${API_URL}/api/auth/logout`, {}, { withCredentials: true });
+            } catch {
+              // Best-effort cookie clear
+            }
+            window.location.href = getSignInUrl();
+          }
         }
-        return Promise.reject(refreshError);
+        return Promise.reject(error);
       }
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 // Authentication API
@@ -210,6 +177,11 @@ export const authAPI = {
 
   resendVerification: async (email: string) => {
     const response = await api.post('/api/auth/resend-verification', { email });
+    return response.data;
+  },
+
+  logout: async () => {
+    const response = await api.post('/api/auth/logout');
     return response.data;
   },
 };
@@ -301,7 +273,6 @@ export const conversationsAPI = {
     title?: string;
     description?: string;
     category?: string;
-    completed?: boolean;
   }) => {
     const response = await api.patch(`/api/notes/${noteId}`, updates);
     return response.data;

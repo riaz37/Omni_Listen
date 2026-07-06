@@ -21,6 +21,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import { useElectronSync } from '@/hooks/useElectronSync';
 import { useWebSocketNotifications } from '@/hooks/useWebSocketNotifications';
 import { useDashboardData } from '@/hooks/useDashboardData';
+import { useAutonomous } from '@/hooks/useAutonomous';
 import * as vault from '@/lib/recording-vault';
 import { useTranslation } from '@/lib/i18n/use-translation';
 
@@ -84,7 +85,7 @@ export default function DashboardPage() {
     triggerDownload,
   } = useGlobalState();
 
-  const [inputMode, setInputMode] = useState<'upload' | 'record'>('record');
+  const [inputMode, setInputMode] = useState<'upload' | 'record' | 'auto'>('record');
   const [file, setFile] = useState<File | null>(null);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [activeRole, setActiveRole] = useState<string | null>(null);
@@ -145,6 +146,8 @@ export default function DashboardPage() {
     handleDeleteTask,
     handleDeleteEvent,
   } = useDashboardData(user, loading, isLoggingOut);
+
+  const autonomous = useAutonomous();
 
   const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
 
@@ -562,6 +565,16 @@ export default function DashboardPage() {
             onRetryRecovery={handleRetryRecovery}
             downloadSecondsLeft={downloadSecondsLeft}
             onTriggerDownload={triggerDownload}
+            autonomousState={autonomous.state}
+            autonomousSettings={autonomous.settings}
+            onAutonomousPrepare={autonomous.prepare}
+            onAutonomousStart={autonomous.start}
+            onAutonomousPause={autonomous.pause}
+            onAutonomousResume={autonomous.resume}
+            onAutonomousUploadNow={autonomous.uploadNow}
+            onAutonomousDiscard={autonomous.discard}
+            onAutonomousUploadAndStop={autonomous.uploadAndStop}
+            onAutonomousSaveSettings={autonomous.saveSettings}
           />
 
           {/* Sidebar */}

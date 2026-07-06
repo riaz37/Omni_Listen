@@ -18,38 +18,44 @@ export function useWebSocketNotifications({ user, refreshUser }: UseWebSocketNot
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
     const wsUrlBase = apiUrl.replace(/^http/, 'ws');
-    const token = localStorage.getItem('access_token');
-
-    if (!token) return;
-
-    // Connect WITHOUT token in URL (security: prevents token exposure in browser logs)
-    const wsUrl = `${wsUrlBase}/ws/notifications`;
-    const ws = new WebSocket(wsUrl);
+    const ws = new WebSocket(`${wsUrlBase}/ws/notifications`);
 
     ws.onopen = () => {
-      // Authenticate via message after connection is established
-      ws.send(JSON.stringify({ type: 'auth', token }));
+      // Web browsers: HttpOnly cookie is sent automatically in the WebSocket upgrade
+      // request — server authenticates from the cookie, no message needed.
+      // Electron / extension: no cookie; send token from localStorage as auth message.
+      const token = typeof localStorage !== 'undefined'
+        ? localStorage.getItem('access_token')
+        : null;
+      if (token) {
+        ws.send(JSON.stringify({ type: 'auth', token }));
+      }
     };
 
     ws.onmessage = async (event) => {
       try {
         const data = JSON.parse(event.data);
 
-        // Handle auth confirmation silently
+        // Auth confirmation — handled silently.
         if (data.type === 'auth') return;
 
         if (data.type === 'calendar.disconnected') {
           await refreshUser();
-          toast.error("Calendar Disconnected! Please sign in again.", { duration: 5000 });
+          toast.error('Calendar Disconnected! Please sign in again.', { duration: 5000 });
           router.push(lp('/settings'));
         }
-      } catch (e) {
-        // WS message parse error handled silently
+      } catch {
+        // WS message parse errors handled silently.
       }
     };
 
     return () => {
-      ws.close();
+      // Only close once the handshake is done (or in progress) to avoid the
+      // "WebSocket is closed before the connection is established" browser error
+      // that fires when cleanup runs mid-CONNECTING during fast navigation.
+      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+        ws.close();
+      }
     };
-  }, [user, router, toast]);
+  }, [user, router, lp, refreshUser]);
 }

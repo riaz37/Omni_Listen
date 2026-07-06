@@ -10,6 +10,7 @@ import { ProfileSection } from './ProfileSection';
 import { CalendarSection } from './CalendarSection';
 import { ExtensionSection } from './ExtensionSection';
 import { DesktopAppSection } from './DesktopAppSection';
+import { AutonomousSection } from './AutonomousSection';
 import { WebhooksSection } from './WebhooksSection';
 import { ApiKeysSection } from './ApiKeysSection';
 
@@ -52,6 +53,7 @@ export default function SettingsPage() {
                 {/* Apps & Devices */}
                 <ExtensionSection />
                 <DesktopAppSection />
+                <AutonomousSection />
 
                 {/* Developer */}
                 <WebhooksSection />

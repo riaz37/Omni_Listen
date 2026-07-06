@@ -31,8 +31,6 @@ interface Task {
   urgency?: 'yes' | 'no' | 'high' | 'medium' | 'low';
 }
 
-const UNSCHEDULED_NOTE_DATE = '9999-12-31T23:59:59.999Z';
-
 export default function TasksPage() {
   const { t } = useTranslation();
   const { user, loading, isRevalidated } = useRequireAuth();
@@ -104,7 +102,7 @@ export default function TasksPage() {
           id: note.id,
           title: note.title || 'Untitled Note',
           description: note.description || note.details,
-          date: new Date(note.created_at ?? note.updated_at ?? note.date ?? UNSCHEDULED_NOTE_DATE),
+          date: new Date(note.created_at || Date.now()),
           completed: note.completed || false,
           type: 'notes',
           category: note.category || note.note_type,
@@ -117,47 +115,28 @@ export default function TasksPage() {
     return [...allTasks].sort(sortByUrgencyThenDate);
   }, [rawEvents, rawNotes]);
 
-  const handleToggleTask = async (task: Task, completed: boolean) => {
+  const handleToggleTask = async (taskId: number, completed: boolean) => {
     try {
-      if (task.type === 'notes') {
-        await conversationsAPI.updateNote(task.id, { completed });
-        queryClient.setQueryData(['notes'], (old: any[] = []) =>
-          old.map(n => n.id === task.id ? { ...n, completed } : n)
-        );
-      } else {
-        await conversationsAPI.toggleTaskCompletion(task.id, completed);
-        queryClient.setQueryData(['events'], (old: any[] = []) =>
-          old.map(e => e.id === task.id ? { ...e, completed } : e)
-        );
-      }
+      await conversationsAPI.toggleTaskCompletion(taskId, completed);
+      queryClient.setQueryData(['events'], (old: any[] = []) =>
+        old.map(e => e.id === taskId ? { ...e, completed } : e)
+      );
       toast.success(completed ? 'Task marked as completed' : 'Task marked as incomplete');
     } catch (error) {
       toast.error('Failed to update task status');
     }
   };
 
-  const handleDeleteTask = (task: Task) => {
+  const handleDeleteTask = (taskId: number) => {
     setConfirmDialog({
       title: t('dashboard.delete_task_title'),
       message: 'Are you sure you want to delete this task?',
       onConfirm: async () => {
         try {
-          if (task.type === 'notes') {
-            await conversationsAPI.deleteNote(task.id);
-            queryClient.setQueryData(['notes'], (old: any[] = []) =>
-              old.filter(n => n.id !== task.id)
-            );
-          } else {
-            await conversationsAPI.deleteEvent(task.id);
-            queryClient.setQueryData(['events'], (old: any[] = []) =>
-              old.filter(e => e.id !== task.id)
-            );
-          }
-          setSelectedIds(prev => prev.filter(id => id !== task.id));
-          await Promise.all([
-            queryClient.invalidateQueries({ queryKey: ['events'] }),
-            queryClient.invalidateQueries({ queryKey: ['notes'] }),
-          ]);
+          await conversationsAPI.deleteEvent(taskId);
+          queryClient.setQueryData(['events'], (old: any[] = []) =>
+            old.filter(e => e.id !== taskId)
+          );
           toast.success('Task deleted successfully');
         } catch (error) {
           toast.error('Failed to delete task');

@@ -1,53 +1,57 @@
 'use client';
 
-import { useState } from 'react';
-import { Chrome, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Chrome, CheckCircle2, Circle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SettingsSection } from './SettingsSection';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useTranslation } from '@/lib/i18n/use-translation';
+import { checkExtensionInstalled, sendTokenToExtension } from '@/lib/extension';
+
+const EDGE_STORE_URL =
+  'https://microsoftedge.microsoft.com/addons/detail/esapailisten/edipmfpeajaajboenhdlcebebgapimgl?hl=en-US';
+
+type ConnectionState = 'loading' | 'connected' | 'not-connected';
 
 export function ExtensionSection() {
   const { user } = useRequireAuth();
   const { t } = useTranslation();
-  const [syncing, setSyncing] = useState(false);
-  const [status, setStatus] = useState<'unknown' | 'synced' | 'error'>('unknown');
-  const [message, setMessage] = useState('');
+  const [connectionState, setConnectionState] = useState<ConnectionState>('loading');
+  const [connecting, setConnecting] = useState(false);
 
-  const handleSync = async () => {
-    setSyncing(true);
-    setMessage('');
-    setStatus('unknown');
+  useEffect(() => {
+    let cancelled = false;
 
+    checkExtensionInstalled().then((status) => {
+      if (!cancelled) {
+        setConnectionState(status.connected ? 'connected' : 'not-connected');
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleConnect = async () => {
+    setConnecting(true);
     try {
-      const token = sessionStorage.getItem('access_token');
+      const token = localStorage.getItem('access_token');
+      const refreshToken = localStorage.getItem('refresh_token') ?? undefined;
 
-      if (!token) {
-        setStatus('error');
-        setMessage('No auth token found. Please log in again.');
-        setSyncing(false);
-        return;
+      if (token) {
+        const sent = await sendTokenToExtension(token, user?.id, refreshToken);
+        if (sent) {
+          setConnectionState('connected');
+          setConnecting(false);
+          return;
+        }
       }
 
-      const { sendTokenToExtension } = await import('@/lib/extension');
-      const autoConnected = await sendTokenToExtension(token, user?.id);
-
-      if (autoConnected) {
-        await navigator.clipboard.writeText(token);
-        setStatus('synced');
-        setMessage('Connected automatically! Token copied to clipboard.');
-        setSyncing(false);
-        return;
-      }
-
-      await navigator.clipboard.writeText(token);
-      setStatus('synced');
-      setMessage('Token copied! Paste it in the extension popup.');
-      setSyncing(false);
-    } catch {
-      setStatus('error');
-      setMessage('Failed to connect. Try manual copy.');
-      setSyncing(false);
+      // No token or send failed — open Edge Store so user can install/connect
+      window.open(EDGE_STORE_URL, '_blank', 'noopener,noreferrer');
+    } finally {
+      setConnecting(false);
     }
   };
 
@@ -62,40 +66,34 @@ export function ExtensionSection() {
           {t('settings.ext.description')}
         </p>
 
-        <div className="bg-muted/50 border border-border rounded-lg p-4">
-          <h3 className="font-medium text-foreground mb-2 text-sm">{t('settings.ext.how_to_connect')}</h3>
-          <ol className="list-decimal list-inside text-sm text-muted-foreground space-y-2">
-            <li>
-              <a
-                href="https://microsoftedge.microsoft.com/addons/detail/esapailisten/edipmfpeajaajboenhdlcebebgapimgl?hl=en-US"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
-              >
-                {t('settings.ext.step1')}
-              </a>
-            </li>
-            <li>{t('settings.ext.step2')}</li>
-            <li>{t('settings.ext.step3')}</li>
-          </ol>
+        {/* Connection status badge */}
+        <div className="flex items-center gap-2 text-sm">
+          {connectionState === 'loading' && (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+              <span className="text-muted-foreground">Checking extension…</span>
+            </>
+          )}
+          {connectionState === 'connected' && (
+            <>
+              <CheckCircle2 className="w-4 h-4 text-green-500 dark:text-green-400" />
+              <span className="text-green-600 dark:text-green-400 font-medium">
+                Extension connected
+              </span>
+            </>
+          )}
+          {connectionState === 'not-connected' && (
+            <>
+              <Circle className="w-4 h-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Extension not connected</span>
+            </>
+          )}
         </div>
 
-        {message && (
-          <div className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm ${
-            status === 'synced' ? 'text-primary bg-primary/5' :
-            status === 'error' ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20' :
-            'text-muted-foreground bg-muted'
-          }`}>
-            {status === 'synced' && <CheckCircle2 className="w-4 h-4 shrink-0" />}
-            {status === 'error' && <AlertCircle className="w-4 h-4 shrink-0" />}
-            <span className="font-medium">{message}</span>
-          </div>
-        )}
-
         <Button
-          onClick={handleSync}
-          disabled={syncing}
-          loading={syncing}
+          onClick={handleConnect}
+          disabled={connecting || connectionState === 'loading'}
+          loading={connecting}
           iconLeft={<Chrome className="w-4 h-4" />}
         >
           {t('settings.ext.connect_btn')}
