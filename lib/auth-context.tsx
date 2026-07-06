@@ -41,37 +41,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = sessionStorage.getItem('access_token');
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
-      // Serve cached user immediately so pages can render without waiting
-      const cached = sessionStorage.getItem('cached_user');
+      // Show cached user immediately to prevent flash of loading state.
+      // Cookie auth means we can't check localStorage for a token — always
+      // call /api/auth/me and let the HttpOnly cookie decide.
+      const cached = localStorage.getItem('cached_user');
       if (cached) {
         try {
           setUser(JSON.parse(cached));
           setLoading(false);
         } catch {
-          sessionStorage.removeItem('cached_user');
+          localStorage.removeItem('cached_user');
         }
       }
 
-      // Revalidate in background
+      // Revalidate in background — cookie is sent automatically (withCredentials).
       try {
         const userData = await authAPI.getCurrentUser();
-        sessionStorage.setItem('cached_user', JSON.stringify(userData));
+        localStorage.setItem('cached_user', JSON.stringify(userData));
         setUser(userData);
       } catch (error: any) {
-        // Only clear the token on 401 (invalid/expired). A 403 means the
-        // token is valid but the user lacks a specific permission (e.g. email
-        // not yet verified) — keep the token so in-flight requests (like the
-        // Google Calendar OAuth callback) can still authenticate.
+        // 401 = no valid cookie → clear display cache and treat as logged out.
+        // 403 = valid cookie but email unverified → keep user in state so OAuth
+        // callbacks (e.g. Google Calendar) can still complete.
         if (error?.response?.status === 401) {
-          sessionStorage.removeItem('access_token');
-          sessionStorage.removeItem('refresh_token');
-          sessionStorage.removeItem('cached_user');
+          localStorage.removeItem('cached_user');
           setUser(null);
         }
       } finally {
@@ -84,43 +77,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (tokens: { access_token: string; refresh_token: string; user: User }) => {
-    sessionStorage.setItem('access_token', tokens.access_token);
-    sessionStorage.setItem('refresh_token', tokens.refresh_token);
-    sessionStorage.setItem('cached_user', JSON.stringify(tokens.user));
+    // Tokens are in HttpOnly cookies set by the backend — not stored in localStorage.
+    // Only the display cache and React state are written here.
+    localStorage.setItem('cached_user', JSON.stringify(tokens.user));
     sessionStorage.removeItem('omni-presets-cache');
     setUser(tokens.user);
     setIsRevalidated(true);
     setLoading(false);
     setIsLoggingOut(false);
 
-    // Try to send token to extension (auto-connect)
+    // Auto-connect extension at login time using the token from the response body.
+    // Extension uses Bearer auth; HttpOnly cookies are web-only.
     try {
       const { sendTokenToExtension } = await import('./extension');
-      sendTokenToExtension(tokens.access_token, tokens.user.id);
-    } catch (e) {
-      // Extension communication is optional, ignore errors
+      sendTokenToExtension(tokens.access_token, tokens.user.id, tokens.refresh_token);
+    } catch {
+      // Extension communication is optional.
     }
   };
 
   const logout = async () => {
     setIsLoggingOut(true);
 
-    // Notify extension to clear auth
     try {
       const { notifyExtensionLogout } = await import('./extension');
       notifyExtensionLogout();
-    } catch (e) {
-      // Extension communication is optional, ignore errors
+    } catch {
+      // Extension communication is optional.
     }
 
-    // Navigate first to avoid protected route redirects (like /listen -> /signin)
+    // Clear server-side HttpOnly cookies.
+    try {
+      await authAPI.logout();
+    } catch {
+      // Best-effort — proceed with local cleanup even if the endpoint fails.
+    }
+
+    // Navigate first to avoid protected route redirects (like /listen -> /signin).
     router.push(lp('/'));
 
-    // Clear state after a brief delay to allow navigation to start
     setTimeout(() => {
-      sessionStorage.removeItem('access_token');
-      sessionStorage.removeItem('refresh_token');
-      sessionStorage.removeItem('cached_user');
+      localStorage.removeItem('cached_user');
       sessionStorage.removeItem('processingJobId');
       setUser(null);
       setIsRevalidated(false);

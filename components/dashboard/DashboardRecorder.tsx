@@ -26,6 +26,9 @@ import type { RecordingEntry } from '@/lib/types';
 import * as vault from '@/lib/recording-vault';
 import { downloadBlob } from '@/lib/download-blob';
 import { toast } from 'sonner';
+import { Bot } from 'lucide-react';
+import AutonomousTab from './AutonomousTab';
+import type { AutonomousState, AutonomousSettings } from '@/lib/autonomous/types';
 
 interface RecorderConfig {
   user_input: string;
@@ -34,8 +37,8 @@ interface RecorderConfig {
 }
 
 interface DashboardRecorderProps {
-  inputMode: 'upload' | 'record';
-  setInputMode: (mode: 'upload' | 'record') => void;
+  inputMode: 'upload' | 'record' | 'auto';
+  setInputMode: (mode: 'upload' | 'record' | 'auto') => void;
   isRecording: boolean;
   isPaused: boolean;
   isProcessing: boolean;
@@ -64,6 +67,16 @@ interface DashboardRecorderProps {
   onRetryRecovery: (id: string) => void;
   downloadSecondsLeft: number | null;
   onTriggerDownload: () => void;
+  autonomousState: AutonomousState;
+  autonomousSettings: AutonomousSettings | null;
+  onAutonomousPrepare: () => void;
+  onAutonomousStart: () => void;
+  onAutonomousPause: () => void;
+  onAutonomousResume: () => void;
+  onAutonomousUploadNow: () => void;
+  onAutonomousDiscard: () => void;
+  onAutonomousUploadAndStop: () => void;
+  onAutonomousSaveSettings: (s: AutonomousSettings) => void;
 }
 
 export default function DashboardRecorder({
@@ -97,6 +110,16 @@ export default function DashboardRecorder({
   onRetryRecovery,
   downloadSecondsLeft,
   onTriggerDownload,
+  autonomousState,
+  autonomousSettings,
+  onAutonomousPrepare,
+  onAutonomousStart,
+  onAutonomousPause,
+  onAutonomousResume,
+  onAutonomousUploadNow,
+  onAutonomousDiscard,
+  onAutonomousUploadAndStop,
+  onAutonomousSaveSettings,
 }: DashboardRecorderProps) {
   const [showAnalysisBox, setShowAnalysisBox] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -303,20 +326,28 @@ export default function DashboardRecorder({
       <div className="h-full">
         <div className="bg-card rounded-lg shadow-sm border border-border p-1 h-full flex flex-col">
           {/* Segmented Control Tabs */}
-          <div className="relative grid grid-cols-2 p-1 bg-muted/50 rounded-lg mb-3 border border-border">
+          <div className="relative grid grid-cols-3 p-1 bg-muted/50 rounded-lg mb-3 border border-border">
             {/* Sliding indicator */}
             <motion.div
-              className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-card shadow-sm ring-1 ring-black/5 rounded-md"
-              animate={{ x: inputMode === 'record' ? 4 : 'calc(100% + 4px)' }}
+              className="absolute top-1 bottom-1 w-[calc(33.33%-4px)] bg-card shadow-sm ring-1 ring-black/5 rounded-md"
+              animate={{
+                x:
+                  inputMode === 'record'
+                    ? 4
+                    : inputMode === 'upload'
+                    ? 'calc(100% + 4px)'
+                    : 'calc(200% + 4px)',
+              }}
               transition={{ type: 'spring', stiffness: 300, damping: 24, mass: 0.8 }}
             />
             <Button
               variant="ghost"
               onClick={() => setInputMode('record')}
-              className={`relative z-10 gap-2 py-3 h-auto text-sm font-semibold rounded-md ${inputMode === 'record'
-                ? 'text-primary hover:text-primary'
-                : 'text-muted-foreground hover:text-foreground'
-                }`}
+              className={`relative z-10 gap-2 py-3 h-auto text-sm font-semibold rounded-md ${
+                inputMode === 'record'
+                  ? 'text-primary hover:text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
             >
               <AudioLines className="w-4 h-4" />
               Voice
@@ -324,13 +355,26 @@ export default function DashboardRecorder({
             <Button
               variant="ghost"
               onClick={() => setInputMode('upload')}
-              className={`relative z-10 gap-2 py-3 h-auto text-sm font-semibold rounded-md ${inputMode === 'upload'
-                ? 'text-primary hover:text-primary'
-                : 'text-muted-foreground hover:text-foreground'
-                }`}
+              className={`relative z-10 gap-2 py-3 h-auto text-sm font-semibold rounded-md ${
+                inputMode === 'upload'
+                  ? 'text-primary hover:text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
             >
               <Upload className="w-4 h-4" />
               File Upload
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setInputMode('auto')}
+              className={`relative z-10 gap-2 py-3 h-auto text-sm font-semibold rounded-md ${
+                inputMode === 'auto'
+                  ? 'text-primary hover:text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Bot className="w-4 h-4" />
+              Auto
             </Button>
           </div>
 
@@ -415,6 +459,21 @@ export default function DashboardRecorder({
                       {(inputMode === 'upload' && !file) ? 'Select a file to process' : 'Process Audio'}
                     </Button>
                   </>
+                )}
+
+                {inputMode === 'auto' && (
+                  <AutonomousTab
+                    state={autonomousState}
+                    settings={autonomousSettings}
+                    onPrepare={onAutonomousPrepare}
+                    onStart={onAutonomousStart}
+                    onPause={onAutonomousPause}
+                    onResume={onAutonomousResume}
+                    onUploadNow={onAutonomousUploadNow}
+                    onDiscard={onAutonomousDiscard}
+                    onUploadAndStop={onAutonomousUploadAndStop}
+                    onSaveSettings={onAutonomousSaveSettings}
+                  />
                 )}
 
                 {/* Record Mode */}

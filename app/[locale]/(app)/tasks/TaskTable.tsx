@@ -54,8 +54,8 @@ interface TaskTableProps {
   onSort: (column: SortColumn) => void;
   onToggleSelect: (id: number) => void;
   onSelectAllOnPage: () => void;
-  onToggleTask: (task: Task, completed: boolean) => void;
-  onDeleteTask: (task: Task) => void;
+  onToggleTask: (taskId: number, completed: boolean) => void;
+  onDeleteTask: (taskId: number) => void;
   onSetCurrentPage: (page: number | ((prev: number) => number)) => void;
   onSetRowsPerPage: (rows: number) => void;
 }
@@ -189,10 +189,10 @@ export function TaskTable({
                         <MoreHorizontal className="w-4 h-4" />
                       </DropdownTrigger>
                       <DropdownContent align="end">
-                        <DropdownItem icon={CheckCircle2} onClick={() => onToggleTask(task, !task.completed)}>
+                        <DropdownItem icon={CheckCircle2} onClick={() => onToggleTask(task.id, !task.completed)}>
                           {task.completed ? t('tasks.mark_incomplete') : t('tasks.mark_done')}
                         </DropdownItem>
-                        <DropdownItem icon={Trash2} destructive onClick={() => onDeleteTask(task)}>
+                        <DropdownItem icon={Trash2} destructive onClick={() => onDeleteTask(task.id)}>
                           {t('common.delete')}
                         </DropdownItem>
                       </DropdownContent>

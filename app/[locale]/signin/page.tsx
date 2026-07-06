@@ -23,7 +23,7 @@ export default function SignInPage() {
   const lp = useLocalePath();
   const { t } = useTranslation();
   const router = useRouter();
-  const { user, login, refreshUser } = useAuth();
+  const { user, login, refreshUser, loading, isRevalidated } = useAuth();
 
   const [isConnectingCalendar, setIsConnectingCalendar] = useState(false);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
@@ -40,6 +40,16 @@ export default function SignInPage() {
   });
 
   const processedRef = useRef(false);
+
+  // Redirect already-authenticated users directly to the dashboard.
+  // Gate on isRevalidated (not just loading) so a stale cached_user doesn't
+  // trigger a premature redirect before the backend confirms the session — which
+  // would cause a /listen → 401 → /signin loop while Render cold-starts.
+  useEffect(() => {
+    if (isRevalidated && user) {
+      router.push(lp('/listen'));
+    }
+  }, [user, isRevalidated]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

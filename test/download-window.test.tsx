@@ -191,6 +191,22 @@ describe('DashboardRecorder download button', () => {
     onRetryRecovery: vi.fn(),
     downloadSecondsLeft: null,
     onTriggerDownload: vi.fn(),
+    autonomousState: {
+      status: 'idle' as const,
+      utteranceCount: 0,
+      error: null,
+      loadingProgress: null,
+      pendingUploads: 0,
+    },
+    autonomousSettings: null,
+    onAutonomousPrepare: vi.fn(),
+    onAutonomousStart: vi.fn(),
+    onAutonomousPause: vi.fn(),
+    onAutonomousResume: vi.fn(),
+    onAutonomousUploadNow: vi.fn(),
+    onAutonomousDiscard: vi.fn(),
+    onAutonomousUploadAndStop: vi.fn(),
+    onAutonomousSaveSettings: vi.fn(),
   };
 
   it('does not show download button when downloadSecondsLeft is null', () => {

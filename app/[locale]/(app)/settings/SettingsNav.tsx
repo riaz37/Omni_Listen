@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { User, Calendar, Chrome, Monitor, Webhook, Key } from 'lucide-react';
+import { User, Calendar, Chrome, Monitor, Bot, Webhook, Key } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/lib/i18n/use-translation';
 
@@ -23,6 +23,7 @@ export function SettingsNav() {
       items: [
         { id: 'extension', label: t('settings.nav.item_extension'), icon: <Chrome className="w-4 h-4" /> },
         { id: 'desktop', label: t('settings.nav.item_desktop'), icon: <Monitor className="w-4 h-4" /> },
+        { id: 'autonomous', label: 'Autonomous', icon: <Bot className="w-4 h-4" /> },
       ],
     },
     {
