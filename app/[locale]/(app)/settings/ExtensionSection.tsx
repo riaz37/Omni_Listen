@@ -7,6 +7,7 @@ import { SettingsSection } from './SettingsSection';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useTranslation } from '@/lib/i18n/use-translation';
 import { checkExtensionInstalled, sendTokenToExtension } from '@/lib/extension';
+import { authAPI } from '@/lib/api';
 
 const EDGE_STORE_URL =
   'https://microsoftedge.microsoft.com/addons/detail/esapailisten/edipmfpeajaajboenhdlcebebgapimgl?hl=en-US';
@@ -36,19 +37,21 @@ export function ExtensionSection() {
   const handleConnect = async () => {
     setConnecting(true);
     try {
-      const token = localStorage.getItem('access_token');
-      const refreshToken = localStorage.getItem('refresh_token') ?? undefined;
-
-      if (token) {
-        const sent = await sendTokenToExtension(token, user?.id, refreshToken);
+      // Mint a token pair dedicated to the extension — sharing the web
+      // session's single-use refresh token would break both sessions.
+      const { installed } = await checkExtensionInstalled();
+      if (installed) {
+        const extTokens = await authAPI.mintExtensionToken();
+        const sent = await sendTokenToExtension(extTokens.access_token, user?.id, extTokens.refresh_token);
         if (sent) {
           setConnectionState('connected');
-          setConnecting(false);
           return;
         }
       }
 
-      // No token or send failed — open Edge Store so user can install/connect
+      // Not installed or send failed — open Edge Store so user can install/connect
+      window.open(EDGE_STORE_URL, '_blank', 'noopener,noreferrer');
+    } catch {
       window.open(EDGE_STORE_URL, '_blank', 'noopener,noreferrer');
     } finally {
       setConnecting(false);
