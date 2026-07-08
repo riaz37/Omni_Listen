@@ -12,9 +12,6 @@ import {
   X,
   ChevronDown,
   ChevronUp,
-  Landmark,
-  ListChecks,
-  Settings,
   AlertTriangle,
   RotateCcw,
   Download,
@@ -25,14 +22,21 @@ import { Button } from '@/components/ui/button';
 import type { RecordingEntry } from '@/lib/types';
 import * as vault from '@/lib/recording-vault';
 import { downloadBlob } from '@/lib/download-blob';
+import { QUICK_CHIPS } from '@/lib/quick-chips';
 import { toast } from 'sonner';
 import { Bot } from 'lucide-react';
 import AutonomousTab from './AutonomousTab';
 import type { AutonomousState, AutonomousSettings } from '@/lib/autonomous/types';
+import type { SummaryStyle } from '@/lib/config-context';
+import { Dropdown, DropdownTrigger, DropdownContent, DropdownItem } from '@/components/ui/dropdown';
+
+// Chips shown before the "+N more" expander in the Quick Access row.
+const VISIBLE_QUICK_CHIPS = 4;
 
 interface RecorderConfig {
   user_input: string;
   custom_field_only: boolean;
+  summary_style?: SummaryStyle;
   [key: string]: any;
 }
 
@@ -122,6 +126,7 @@ export default function DashboardRecorder({
   onAutonomousSaveSettings,
 }: DashboardRecorderProps) {
   const [showAnalysisBox, setShowAnalysisBox] = useState(false);
+  const [showAllChips, setShowAllChips] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -165,6 +170,61 @@ export default function DashboardRecorder({
     }
   };
 
+  const SUMMARY_STYLE_OPTIONS = [
+    { value: 'concise', label: 'Concise', hint: 'Quick bullets' },
+    { value: 'detailed', label: 'Detailed', hint: 'Bullets with full context' },
+    { value: 'executive', label: 'Executive', hint: 'Overview + key points' },
+  ] as const;
+
+  const renderSummaryStyleSelector = () => {
+    const current = config.summary_style ?? 'concise';
+    const disabled = config.custom_field_only;
+    const currentOption =
+      SUMMARY_STYLE_OPTIONS.find((opt) => opt.value === current) ?? SUMMARY_STYLE_OPTIONS[0];
+    return (
+      <div className="flex items-center justify-between gap-3 rounded-lg text-start border border-border px-4 py-3 mb-3">
+        <div className="min-w-0">
+          <p className="font-semibold text-foreground text-sm">Summary style</p>
+          <p className="text-xs text-muted-foreground truncate">
+            {disabled ? 'Not used when standard extraction is skipped' : currentOption.hint}
+          </p>
+        </div>
+        {disabled ? (
+          <Button
+            variant="ghost"
+            disabled
+            className="h-auto px-3 py-2 border border-border rounded-lg text-sm font-medium text-muted-foreground shrink-0"
+          >
+            {currentOption.label}
+            <ChevronDown className="w-4 h-4 ms-1.5" />
+          </Button>
+        ) : (
+          <Dropdown
+            mode="select"
+            value={current}
+            onValueChange={(v) => updateConfig({ summary_style: v as SummaryStyle })}
+            className="shrink-0"
+          >
+            <DropdownTrigger className="flex items-center gap-1.5 px-3 py-2 border border-border rounded-lg bg-card text-foreground hover:bg-muted transition-colors text-sm font-medium cursor-pointer">
+              {currentOption.label}
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            </DropdownTrigger>
+            <DropdownContent align="end" className="min-w-[15rem]">
+              {SUMMARY_STYLE_OPTIONS.map((opt) => (
+                <DropdownItem key={opt.value} value={opt.value}>
+                  <span className="flex flex-col items-start text-start">
+                    <span className="font-medium">{opt.label}</span>
+                    <span className="text-xs text-muted-foreground">{opt.hint}</span>
+                  </span>
+                </DropdownItem>
+              ))}
+            </DropdownContent>
+          </Dropdown>
+        )}
+      </div>
+    );
+  };
+
   const renderAnalysisBox = (mode: 'upload' | 'record') => {
     const checkboxId = mode === 'upload' ? 'custom_field_only' : 'custom_field_only_record';
 
@@ -181,6 +241,18 @@ export default function DashboardRecorder({
     const isChipActive = (query: string) => {
       return mode === 'upload' ? config.user_input.trim() === query : config.user_input === query;
     };
+
+    // Collapsed view shows the first few chips; an active chip hidden behind
+    // the fold is appended so its selected state stays visible.
+    const activeChip = QUICK_CHIPS.find((chip) => isChipActive(chip.query));
+    const visibleChips = showAllChips
+      ? QUICK_CHIPS
+      : [
+          ...QUICK_CHIPS.slice(0, VISIBLE_QUICK_CHIPS),
+          ...(activeChip && QUICK_CHIPS.indexOf(activeChip) >= VISIBLE_QUICK_CHIPS
+            ? [activeChip]
+            : []),
+        ];
 
     return (
       <div className="rounded-lg text-start border border-border">
@@ -218,48 +290,34 @@ export default function DashboardRecorder({
                 </p>
               </div>
 
-              {/* Quick Access Cards */}
+              {/* Quick Access Chips — first few visible, rest behind "+N more" */}
               <div className="mb-3">
                 <p className="text-xs font-medium text-muted-foreground mb-2">Quick Access</p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="flex flex-wrap gap-2">
+                  {visibleChips.map((chip) => (
+                    <Button
+                      key={chip.id}
+                      variant="ghost"
+                      onClick={() => handleChipClick(chip.query)}
+                      title={chip.query}
+                      className={`h-auto px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 text-xs font-medium ${
+                        isChipActive(chip.query)
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border bg-card text-foreground hover:border-primary/50'
+                      }`}
+                    >
+                      <chip.icon className="w-3.5 h-3.5 shrink-0" />
+                      {chip.title}
+                    </Button>
+                  ))}
                   <Button
                     variant="ghost"
-                    onClick={() => handleChipClick("What were the main budget concerns discussed?")}
-                    className={`p-3 h-auto rounded-lg border text-start flex flex-col items-start overflow-hidden min-w-0 ${
-                      isChipActive("What were the main budget concerns discussed?")
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border bg-card hover:border-primary/50'
-                    }`}
+                    onClick={() => setShowAllChips(!showAllChips)}
+                    className="h-auto px-3 py-1.5 rounded-full border border-dashed border-border inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:border-primary/50 hover:text-foreground"
                   >
-                    <Landmark className="w-4 h-4 text-muted-foreground mb-2 shrink-0" />
-                    <p className="text-sm font-semibold text-foreground truncate w-full">Budget concerns</p>
-                    <p className="text-xs text-muted-foreground truncate w-full">What were the main budget concerns discuss...</p>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => handleChipClick("List all action items with assigned owners and deadlines")}
-                    className={`p-3 h-auto rounded-lg border text-start flex flex-col items-start overflow-hidden min-w-0 ${
-                      isChipActive("List all action items with assigned owners and deadlines")
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border bg-card hover:border-primary/50'
-                    }`}
-                  >
-                    <ListChecks className="w-4 h-4 text-muted-foreground mb-2 shrink-0" />
-                    <p className="text-sm font-semibold text-foreground truncate w-full">Action Items</p>
-                    <p className="text-xs text-muted-foreground truncate w-full">List all action items with assigned owners and dea...</p>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => handleChipClick("Summarize all technical decisions and their rationale")}
-                    className={`p-3 h-auto rounded-lg border text-start flex flex-col items-start overflow-hidden min-w-0 ${
-                      isChipActive("Summarize all technical decisions and their rationale")
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border bg-card hover:border-primary/50'
-                    }`}
-                  >
-                    <Settings className="w-4 h-4 text-muted-foreground mb-2 shrink-0" />
-                    <p className="text-sm font-semibold text-foreground truncate w-full">Technical decisions</p>
-                    <p className="text-xs text-muted-foreground truncate w-full">Summarize all technical decisions and their ratio...</p>
+                    {showAllChips
+                      ? 'Show less'
+                      : `+${QUICK_CHIPS.length - visibleChips.length} more`}
                   </Button>
                 </div>
               </div>
@@ -448,6 +506,7 @@ export default function DashboardRecorder({
                     </label>
 
                     {/* Additional Analysis for Upload */}
+                    {renderSummaryStyleSelector()}
                     {renderAnalysisBox('upload')}
 
                     {/* Process Button */}
@@ -615,6 +674,7 @@ export default function DashboardRecorder({
 
                     {/* Additional Analysis for Recording */}
                     <div className="w-full max-w-2xl">
+                      {renderSummaryStyleSelector()}
                       {renderAnalysisBox('record')}
                     </div>
 

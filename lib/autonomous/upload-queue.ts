@@ -1,4 +1,5 @@
 import { openDB, type IDBPDatabase } from 'idb';
+import type { SummaryStyle } from '@/lib/config-context';
 
 const DB_NAME = 'autonomous-upload-queue';
 const DB_VERSION = 1;
@@ -21,6 +22,21 @@ interface QueueItem {
   attempts: number;
   nextRetryAt: number;
   createdAt: number;
+}
+
+function readSavedSummaryStyle(): SummaryStyle {
+  try {
+    const raw = typeof localStorage !== 'undefined'
+      ? localStorage.getItem('processing_config')
+      : null;
+    if (raw) {
+      const style = JSON.parse(raw).summary_style;
+      if (style === 'concise' || style === 'detailed' || style === 'executive') return style;
+    }
+  } catch {
+    // Corrupt localStorage — fall through to default
+  }
+  return 'concise';
 }
 
 export class UploadQueue {
@@ -140,7 +156,10 @@ export class UploadQueue {
     try {
       const form = new FormData();
       form.append('file', next.wavBlob, `autonomous_${next.id}.wav`);
-      const config: Record<string, unknown> = { custom_field_only: false };
+      const config: Record<string, unknown> = {
+        custom_field_only: false,
+        summary_style: readSavedSummaryStyle(),
+      };
       const userInput = (next.userInput ?? '').trim();
       if (userInput) config.user_input = userInput;
       form.append('config', JSON.stringify(config));

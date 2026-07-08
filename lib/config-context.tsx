@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+export type SummaryStyle = 'concise' | 'detailed' | 'executive';
+
 interface ProcessingConfig {
   role: string;
   output_fields: {
@@ -17,6 +19,7 @@ interface ProcessingConfig {
   };
   user_input: string;
   custom_field_only: boolean;
+  summary_style: SummaryStyle;
 }
 
 interface ConfigContextType {
@@ -40,6 +43,7 @@ const DEFAULT_CONFIG: ProcessingConfig = {
   },
   user_input: '',
   custom_field_only: false,
+  summary_style: 'concise',
 };
 
 const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
@@ -54,8 +58,8 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
       try {
         const parsed = JSON.parse(saved);
         // Always reset user_input to empty - it's now loaded from database (user-specific)
-        parsed.user_input = '';
-        setConfigState(parsed);
+        // Merge over defaults so configs saved before new fields existed stay complete.
+        setConfigState({ ...DEFAULT_CONFIG, ...parsed, user_input: '' });
       } catch (error) {
       }
     }

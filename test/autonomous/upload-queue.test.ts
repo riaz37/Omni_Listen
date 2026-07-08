@@ -67,3 +67,55 @@ describe('UploadQueue.pendingCount', () => {
     expect(q.pendingCount).toBeGreaterThan(0);
   });
 });
+
+describe('UploadQueue config payload', () => {
+  it('includes summary_style from saved processing_config', async () => {
+    localStorage.setItem('processing_config', JSON.stringify({ summary_style: 'detailed' }));
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: async () => ({ job_id: 'job-3' }),
+    });
+
+    const q = new UploadQueue(API_URL);
+    await q.enqueue(makeWav());
+    await vi.runAllTimersAsync();
+
+    const body = (fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body as FormData;
+    const config = JSON.parse(body.get('config') as string);
+    expect(config.summary_style).toBe('detailed');
+    localStorage.removeItem('processing_config');
+  });
+
+  it('defaults summary_style to concise when the saved value is invalid', async () => {
+    localStorage.setItem('processing_config', JSON.stringify({ summary_style: 'bogus' }));
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: async () => ({ job_id: 'job-4' }),
+    });
+
+    const q = new UploadQueue(API_URL);
+    await q.enqueue(makeWav());
+    await vi.runAllTimersAsync();
+
+    const body = (fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body as FormData;
+    const config = JSON.parse(body.get('config') as string);
+    expect(config.summary_style).toBe('concise');
+    localStorage.removeItem('processing_config');
+  });
+
+  it('defaults summary_style to concise when no config is saved', async () => {
+    localStorage.removeItem('processing_config');
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: async () => ({ job_id: 'job-5' }),
+    });
+
+    const q = new UploadQueue(API_URL);
+    await q.enqueue(makeWav());
+    await vi.runAllTimersAsync();
+
+    const body = (fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body as FormData;
+    const config = JSON.parse(body.get('config') as string);
+    expect(config.summary_style).toBe('concise');
+  });
+});
