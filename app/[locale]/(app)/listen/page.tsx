@@ -23,6 +23,7 @@ import { useWebSocketNotifications } from '@/hooks/useWebSocketNotifications';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useAutonomous } from '@/hooks/useAutonomous';
 import * as vault from '@/lib/recording-vault';
+import { getMaxUploadMb, isFileTooLarge } from '@/lib/upload-limits';
 import { useTranslation } from '@/lib/i18n/use-translation';
 
 declare global {
@@ -373,6 +374,13 @@ export default function DashboardPage() {
       return;
     }
 
+    // Reject oversized files before uploading — the backend's 413 arrives
+    // mid-upload and browsers often never surface it, leaving the UI hanging.
+    if (isFileTooLarge(audioSource.size)) {
+      toast.error(`File is too large (${Math.round(audioSource.size / (1024 * 1024))} MB). Maximum upload size is ${getMaxUploadMb()} MB.`);
+      return;
+    }
+
     // Capture recording ID before async operations
     const capturedRecordingId = currentRecordingId;
 
@@ -429,8 +437,12 @@ export default function DashboardPage() {
         }
       }, 5000);
 
-    } catch (error) {
-      toast.error('Upload failed. Please try again.');
+    } catch (error: any) {
+      if (error?.response?.status === 413) {
+        toast.error(`File is too large. Maximum upload size is ${getMaxUploadMb()} MB.`);
+      } else {
+        toast.error('Upload failed. Please try again.');
+      }
     }
   };
 
