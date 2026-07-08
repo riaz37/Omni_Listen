@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { Calendar, FileText, RefreshCw, Sparkles, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { summaryAPI } from '@/lib/api';
 import { useTranslation } from '@/lib/i18n/use-translation';
 
@@ -46,18 +46,63 @@ function DayGroupItem({ group }: { group: DayGroup }) {
     const [loadingSummary, setLoadingSummary] = useState(true);
     const [isExpanded, setIsExpanded] = useState(false);
 
+    // Generation runs server-side in the background (POST returns 202
+    // immediately); poll the GET endpoint until the summary is ready.
+    const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    const stopPolling = useCallback(() => {
+        if (pollTimer.current) {
+            clearInterval(pollTimer.current);
+            pollTimer.current = null;
+        }
+    }, []);
+
+    const startPolling = useCallback(() => {
+        if (pollTimer.current) return;
+        let attempts = 0;
+        pollTimer.current = setInterval(async () => {
+            attempts += 1;
+            if (attempts > 30) { // give up after ~2 minutes
+                stopPolling();
+                setLoading(false);
+                return;
+            }
+            try {
+                const data = await summaryAPI.getDailySummary(group.date);
+                if (data.status === 'generating') return;
+                setSummaryData({
+                    content: data.content,
+                    sources: data.sources || []
+                });
+                stopPolling();
+                setLoading(false);
+            } catch (e) {
+                // 404 — generation finished without a summary (e.g. no meetings)
+                stopPolling();
+                setLoading(false);
+            }
+        }, 4000);
+    }, [group.date, stopPolling]);
+
     useEffect(() => {
         loadSummary();
+        return stopPolling;
     }, [group.date]);
 
     const loadSummary = async () => {
         setLoadingSummary(true);
         try {
             const data = await summaryAPI.getDailySummary(group.date);
-            setSummaryData({
-                content: data.content,
-                sources: data.sources || []
-            });
+            if (data.status === 'generating') {
+                // A generation is already running (e.g. page refresh mid-run)
+                setLoading(true);
+                startPolling();
+            } else {
+                setSummaryData({
+                    content: data.content,
+                    sources: data.sources || []
+                });
+            }
         } catch (e) {
             // Summary might not exist yet
         } finally {
@@ -69,13 +114,9 @@ function DayGroupItem({ group }: { group: DayGroup }) {
         e.stopPropagation();
         setLoading(true);
         try {
-            const data = await summaryAPI.generateDailySummary(group.date);
-            setSummaryData({
-                content: data.content,
-                sources: data.sources || []
-            });
+            await summaryAPI.generateDailySummary(group.date);
+            startPolling(); // loading stays on until polling resolves
         } catch (e) {
-        } finally {
             setLoading(false);
         }
     };
