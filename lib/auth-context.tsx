@@ -86,11 +86,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(false);
     setIsLoggingOut(false);
 
-    // Auto-connect extension at login time using the token from the response body.
-    // Extension uses Bearer auth; HttpOnly cookies are web-only.
+    // Auto-connect extension at login time with a token pair minted just for it.
+    // Never share the web session's refresh token: refresh tokens are single-use,
+    // so two clients rotating the same chain log each other out.
     try {
-      const { sendTokenToExtension } = await import('./extension');
-      sendTokenToExtension(tokens.access_token, tokens.user.id, tokens.refresh_token);
+      const { checkExtensionInstalled, sendTokenToExtension } = await import('./extension');
+      const { installed } = await checkExtensionInstalled();
+      if (installed) {
+        const { authAPI } = await import('./api');
+        const extTokens = await authAPI.mintExtensionToken();
+        sendTokenToExtension(extTokens.access_token, tokens.user.id, extTokens.refresh_token);
+      }
     } catch {
       // Extension communication is optional.
     }

@@ -134,6 +134,13 @@ export const authAPI = {
     return response.data;
   },
 
+  // Dedicated token pair for the browser extension — its own rotation chain,
+  // independent of the web session's cookie tokens.
+  mintExtensionToken: async (): Promise<{ access_token: string; refresh_token: string }> => {
+    const response = await api.post('/api/auth/extension-token', {});
+    return response.data;
+  },
+
   updateProfile: async (name: string) => {
     const response = await api.patch('/api/auth/profile', { name });
     return response.data;
