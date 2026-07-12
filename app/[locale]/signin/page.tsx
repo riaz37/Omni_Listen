@@ -296,28 +296,46 @@ export default function SignInPage() {
     setError('');
     setIsLoading(true);
 
+    let result: any = null;
     try {
-      const result = await authAPI.emailLogin(formData.email, formData.password);
-      login(result);
-      toast.success('Welcome back! Signed in successfully');
-      await redirectAfterLogin(result);
+      result = await authAPI.emailLogin(formData.email, formData.password);
     } catch (error: any) {
-      let errorMsg = error.response?.data?.detail || 'Invalid email or password';
+      let errorMsg: string;
 
-      // Provide helpful messaging for common auth conflicts
-      if (errorMsg.toLowerCase().includes('google') ||
-        errorMsg.toLowerCase().includes('github') ||
-        errorMsg.toLowerCase().includes('oauth')) {
-        errorMsg = `This account was created with Google or GitHub. Please use the corresponding sign-in button above.`;
-      } else if (errorMsg.toLowerCase().includes('not found') ||
-        errorMsg.toLowerCase().includes('does not exist')) {
-        errorMsg = `No account found with this email. Please sign up first or try signing in with Google/GitHub.`;
-      } else if (errorMsg.toLowerCase().includes('password')) {
-        errorMsg = `Incorrect password. Please try again or use "Forgot Password" to reset it.`;
+      if (!error.response) {
+        // Timeout / network failure — no verdict on the credentials was ever
+        // received (the login may even have succeeded server-side). Never
+        // blame the password for this.
+        errorMsg = 'Could not reach the server. Please check your connection and try again.';
+      } else {
+        errorMsg = error.response.data?.detail || 'Invalid email or password';
+
+        // Provide helpful messaging for common auth conflicts
+        if (errorMsg.toLowerCase().includes('google') ||
+          errorMsg.toLowerCase().includes('github') ||
+          errorMsg.toLowerCase().includes('oauth')) {
+          errorMsg = `This account was created with Google or GitHub. Please use the corresponding sign-in button above.`;
+        } else if (errorMsg.toLowerCase().includes('not found') ||
+          errorMsg.toLowerCase().includes('does not exist')) {
+          errorMsg = `No account found with this email. Please sign up first or try signing in with Google/GitHub.`;
+        } else if (error.response.status === 401 && errorMsg.toLowerCase().includes('password')) {
+          errorMsg = `Incorrect password. Please try again or use "Forgot Password" to reset it.`;
+        }
       }
 
       setError(errorMsg);
       toast.error(errorMsg);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      login(result);
+      toast.success('Welcome back! Signed in successfully');
+      await redirectAfterLogin(result);
+    } catch {
+      // Signed in fine — only the post-login navigation hiccuped.
+      router.push(lp('/listen'));
     } finally {
       setIsLoading(false);
     }

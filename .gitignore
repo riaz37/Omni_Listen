@@ -60,3 +60,6 @@ Thumbs.db
 .gstack-report/
 .claude/
 .gstack/
+
+# Build-generated (stamped by scripts/write-version.js on every build)
+/public/version.json

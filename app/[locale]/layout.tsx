@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/lib/theme-context';
 import { Toaster } from '@/components/ui/sonner';
 import { GlobalStateProvider } from '@/lib/global-state-context';
 import FloatingStatusIndicator from '@/components/FloatingStatusIndicator';
+import VersionSkewWatcher from '@/components/VersionSkewWatcher';
 import { ReactQueryProvider } from '../providers';
 import { I18nProvider } from '@/lib/i18n/I18nProvider';
 import { getDictionary } from '@/lib/i18n/get-dictionary';
@@ -65,6 +66,7 @@ export default async function RootLayout({
                 <GlobalStateProvider>
                   {children}
                   <FloatingStatusIndicator />
+                  <VersionSkewWatcher />
                   <Toaster />
                 </GlobalStateProvider>
               </ConfigProvider>

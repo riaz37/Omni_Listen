@@ -8,6 +8,7 @@
   "author": "Omni Listen Team",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/write-version.js",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
