@@ -56,8 +56,10 @@ api.interceptors.response.use(
           refreshTokenPromise = (async () => {
             try {
               // Web: refresh_token cookie sent automatically (withCredentials).
-              // Empty body — the cookie carries the token.
-              await axios.post(`${API_URL}/api/auth/refresh`, {}, { withCredentials: true });
+              // Empty body — the cookie carries the token. Generous timeout:
+              // a cold-started backend can take ~60s to answer, and giving up
+              // early must not be mistaken for an invalid session.
+              await axios.post(`${API_URL}/api/auth/refresh`, {}, { withCredentials: true, timeout: 90000 });
             } finally {
               refreshTokenPromise = null;
             }
@@ -67,9 +69,15 @@ api.interceptors.response.use(
         await refreshTokenPromise;
         // Retry with fresh cookie (browser sends it automatically).
         return api(originalRequest);
-      } catch {
-        // Refresh failed — clear display cache and redirect to sign-in.
-        if (typeof window !== 'undefined') {
+      } catch (refreshError: any) {
+        // Only a definitive rejection from the refresh endpoint means the
+        // session is dead. Network errors, timeouts, and 5xx are transient —
+        // clearing the (still valid) cookies on those turns a backend blip
+        // into a forced re-login.
+        const refreshStatus = refreshError?.response?.status;
+        const sessionDead = refreshStatus === 401 || refreshStatus === 403 || refreshStatus === 422;
+
+        if (sessionDead && typeof window !== 'undefined') {
           localStorage.removeItem('cached_user');
           // Don't hard-redirect when already on an auth page — doing so causes an
           // infinite reload loop: checkAuth calls /api/auth/me with no valid cookie,
@@ -84,7 +92,10 @@ api.interceptors.response.use(
             window.location.href = getSignInUrl();
           }
         }
-        return Promise.reject(error);
+        // Session dead → propagate the original 401 so callers treat it as
+        // signed-out. Transient refresh failure → propagate the refresh error
+        // (network/5xx) so callers do NOT mistake it for an auth rejection.
+        return Promise.reject(sessionDead ? error : refreshError);
       }
     }
 
@@ -173,7 +184,10 @@ export const authAPI = {
   },
 
   emailLogin: async (email: string, password: string) => {
-    const response = await api.post('/api/auth/login', { email, password });
+    // Login must outlive a slow/cold backend: with the default 15s timeout a
+    // server-side-successful login can look like a failure to the client
+    // (and the user gets blamed for a wrong password).
+    const response = await api.post('/api/auth/login', { email, password }, { timeout: 60000 });
     return response.data;
   },
 

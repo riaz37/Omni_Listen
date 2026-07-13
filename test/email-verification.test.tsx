@@ -1,5 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { I18nProvider } from '@/lib/i18n/I18nProvider'
+import type { Dictionary } from '@/lib/i18n/get-dictionary'
+import en from '@/lib/i18n/dictionaries/en.json'
+
+// Pages live under app/[locale]/ and read the i18n context; render them the
+// way the real layout does — inside I18nProvider with the English dictionary.
+const renderWithI18n = (ui: React.ReactElement) =>
+  render(
+    <I18nProvider locale="en" dictionary={en as unknown as Dictionary}>
+      {ui}
+    </I18nProvider>
+  )
 
 const mockPush = vi.fn()
 const mockLogin = vi.fn()
@@ -56,13 +68,13 @@ describe('SignInPage — ?verified=true toast', () => {
 
   it('shows success toast when ?verified=true is in the URL', async () => {
     const { default: SignInPage } = await import('@/app/[locale]/signin/page')
-    render(<SignInPage />)
+    renderWithI18n(<SignInPage />)
     expect(toastSuccess).toHaveBeenCalledWith('Email verified! Sign in to continue.')
   })
 
   it('clears the ?verified param from the URL after showing toast', async () => {
     const { default: SignInPage } = await import('@/app/[locale]/signin/page')
-    render(<SignInPage />)
+    renderWithI18n(<SignInPage />)
     expect(window.history.replaceState).toHaveBeenCalledWith({}, '', '/signin')
   })
 })
@@ -82,9 +94,9 @@ describe('VerifyEmailContent — success redirect', () => {
 
   it('redirects to /signin?verified=true on successful verification', async () => {
     const { default: VerifyEmailContent } = await import('@/app/[locale]/verify-email/VerifyEmailContent')
-    render(<VerifyEmailContent />)
+    renderWithI18n(<VerifyEmailContent />)
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/signin?verified=true')
+      expect(mockPush).toHaveBeenCalledWith('/en/signin?verified=true')
     })
   })
 
@@ -104,7 +116,7 @@ describe('VerifyEmailContent — error state with resend', () => {
 
   it('shows a resend email input and button in the error state', async () => {
     const { default: VerifyEmailContent } = await import('@/app/[locale]/verify-email/VerifyEmailContent')
-    render(<VerifyEmailContent />)
+    renderWithI18n(<VerifyEmailContent />)
     await waitFor(() => screen.getByText('Verification Failed'))
     expect(screen.getByPlaceholderText(/your@email.com/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /resend verification/i })).toBeInTheDocument()
@@ -113,7 +125,7 @@ describe('VerifyEmailContent — error state with resend', () => {
   it('calls resendVerification with the entered email', async () => {
     mockResendVerification.mockResolvedValue({ message: 'sent' })
     const { default: VerifyEmailContent } = await import('@/app/[locale]/verify-email/VerifyEmailContent')
-    render(<VerifyEmailContent />)
+    renderWithI18n(<VerifyEmailContent />)
     await waitFor(() => screen.getByText('Verification Failed'))
     fireEvent.change(screen.getByPlaceholderText(/your@email.com/i), { target: { value: 'test@example.com' } })
     fireEvent.click(screen.getByRole('button', { name: /resend verification/i }))
@@ -135,7 +147,7 @@ describe('SignUpPage — email verification gate', () => {
 
   const fillAndSubmit = async () => {
     const { default: SignUpPage } = await import('@/app/[locale]/signup/page')
-    render(<SignUpPage />)
+    renderWithI18n(<SignUpPage />)
     fireEvent.change(screen.getByPlaceholderText('John Doe'), { target: { value: 'Test User' } })
     fireEvent.change(screen.getByPlaceholderText('you@example.com'), { target: { value: 'test@example.com' } })
     fireEvent.change(screen.getByPlaceholderText('Create a strong password'), { target: { value: 'Password1' } })

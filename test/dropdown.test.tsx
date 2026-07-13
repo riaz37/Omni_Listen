@@ -80,7 +80,7 @@ describe('SelectDropdown', () => {
       toJSON: () => ({}),
     } as DOMRect);
     vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(
-      function getOffsetHeight() {
+      function getOffsetHeight(this: HTMLElement) {
         return this.getAttribute('role') === 'listbox' ? 80 : 0;
       },
     );

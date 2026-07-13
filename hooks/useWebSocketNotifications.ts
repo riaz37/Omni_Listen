@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { toast } from 'sonner';
@@ -13,8 +13,17 @@ export function useWebSocketNotifications({ user, refreshUser }: UseWebSocketNot
   const router = useRouter();
   const lp = useLocalePath();
 
+  // The socket lifecycle must only follow the signed-in user, never callback
+  // identities — refreshUser/lp get new identities on parent re-renders (the
+  // listen page re-renders every second while recording), and having them in
+  // the effect deps produced a reconnect-per-second storm against the backend.
+  const handlersRef = useRef({ refreshUser, router, lp });
+  handlersRef.current = { refreshUser, router, lp };
+
+  const userId = user?.id ?? null;
+
   useEffect(() => {
-    if (!user) return;
+    if (userId === null) return;
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
     const wsUrlBase = apiUrl.replace(/^http/, 'ws');
@@ -40,6 +49,7 @@ export function useWebSocketNotifications({ user, refreshUser }: UseWebSocketNot
         if (data.type === 'auth') return;
 
         if (data.type === 'calendar.disconnected') {
+          const { refreshUser, router, lp } = handlersRef.current;
           await refreshUser();
           toast.error('Calendar Disconnected! Please sign in again.', { duration: 5000 });
           router.push(lp('/settings'));
@@ -57,5 +67,5 @@ export function useWebSocketNotifications({ user, refreshUser }: UseWebSocketNot
         ws.close();
       }
     };
-  }, [user, router, lp, refreshUser]);
+  }, [userId]);
 }
