@@ -153,11 +153,13 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
                 throw new Error('Audio recording is not supported in your browser.');
             }
 
+            // No hard sampleRate constraint — it can throw
+            // OverconstrainedError on devices that don't support 44.1 kHz.
             const stream = await navigator.mediaDevices.getUserMedia({
                 audio: {
                     echoCancellation: true,
                     noiseSuppression: true,
-                    sampleRate: 44100,
+                    autoGainControl: true,
                 },
             });
 
@@ -167,7 +169,12 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
                 else if (MediaRecorder.isTypeSupported('audio/wav')) mimeType = 'audio/wav';
             }
 
-            const recorder = new MediaRecorder(stream, { mimeType });
+            // 128 kbps matches the extension and desktop recorders; the
+            // browser default bitrate can be too low for clean transcription.
+            const recorder = new MediaRecorder(stream, {
+                mimeType,
+                audioBitsPerSecond: 128000,
+            });
             audioChunksRef.current = [];
 
             const recordingId = crypto.randomUUID();
