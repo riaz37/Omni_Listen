@@ -3,6 +3,7 @@
  */
 import axios from 'axios';
 import { getUserTimezone } from './timezone';
+import { uploadWithStallRetry } from './upload-stall';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -209,18 +210,26 @@ export const authAPI = {
 
 // Conversations API
 export const conversationsAPI = {
-  uploadAudio: async (file: File, config: any) => {
+  uploadAudio: async (file: File, config: any, onProgress?: (percent: number) => void) => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('config', JSON.stringify(config));
 
-    const response = await api.post('/api/process-audio', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      timeout: 300000, // 5 min only for large audio file uploads
-    });
-    return response.data;
+    // No flat timeout: a large file on a slow uplink legitimately takes more
+    // than any fixed cap (a 30 MB recording at ~60 KB/s needs ~9 min). The
+    // stall guard aborts only when zero bytes move for a full minute, and
+    // retries once if the transfer drops mid-body.
+    return uploadWithStallRetry(async (signal, onUploadProgress) => {
+      const response = await api.post('/api/process-audio', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        timeout: 0, // disable the 15s instance default; the stall guard governs
+        signal,
+        onUploadProgress,
+      });
+      return response.data;
+    }, { onProgress });
   },
 
   getJobStatus: async (jobId: string) => {

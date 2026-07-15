@@ -361,7 +361,11 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         setProcessingProgress(0);
 
         try {
-            const result = await conversationsAPI.uploadAudio(file, config);
+            const result = await conversationsAPI.uploadAudio(file, config, (percent) => {
+                // Upload percent goes into the status text, not processingProgress —
+                // the poll loop owns that bar with the backend's own 0-100 scale.
+                setProcessingStatus(`Uploading... ${percent}%`);
+            });
             setProcessingJobId(result.job_id);
             localStorage.setItem('processingJobId', result.job_id);
             pollJobStatus(result.job_id);
