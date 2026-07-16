@@ -172,12 +172,12 @@ export default function DashboardRecorder({
 
   const SUMMARY_STYLE_OPTIONS = [
     { value: 'concise', label: 'Concise', hint: 'Quick bullets' },
-    { value: 'detailed', label: 'Detailed', hint: 'Bullets with full context' },
+    { value: 'detailed', label: 'Narrative', hint: 'Story-like recap with names & context' },
     { value: 'executive', label: 'Executive', hint: 'Overview + key points' },
   ] as const;
 
   const renderSummaryStyleSelector = () => {
-    const current = config.summary_style ?? 'concise';
+    const current = config.summary_style ?? 'detailed';
     const disabled = config.custom_field_only;
     const currentOption =
       SUMMARY_STYLE_OPTIONS.find((opt) => opt.value === current) ?? SUMMARY_STYLE_OPTIONS[0];

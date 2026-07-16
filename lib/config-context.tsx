@@ -43,7 +43,7 @@ const DEFAULT_CONFIG: ProcessingConfig = {
   },
   user_input: '',
   custom_field_only: false,
-  summary_style: 'concise',
+  summary_style: 'detailed',
 };
 
 const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
