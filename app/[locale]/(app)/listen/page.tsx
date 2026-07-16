@@ -163,6 +163,17 @@ export default function DashboardPage() {
     });
   };
 
+  const confirmDeleteEvent = (eventId: number) => {
+    setConfirmDialog({
+      title: t('dashboard.delete_event_title'),
+      message: t('dashboard.delete_event_message'),
+      onConfirm: () => {
+        handleDeleteEvent(eventId);
+        setConfirmDialog(null);
+      },
+    });
+  };
+
   // Auto-switch to record tab if recording is active
   useEffect(() => {
     if (isRecording) {
@@ -598,7 +609,7 @@ export default function DashboardPage() {
             router={router}
             onToggleTask={handleToggleTask}
             onDeleteTask={confirmDeleteTask}
-            onDeleteEvent={handleDeleteEvent}
+            onDeleteEvent={confirmDeleteEvent}
             onRecentConversationRetried={() => {
               queryClient.invalidateQueries({ queryKey: ['conversations', 'recent'] });
             }}

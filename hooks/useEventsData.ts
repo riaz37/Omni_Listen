@@ -6,6 +6,7 @@ import { conversationsAPI } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { toast } from 'sonner';
 import { parseISO, format, isFuture, isPast, isToday, differenceInDays } from 'date-fns';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface Event {
   id: string;
@@ -30,6 +31,7 @@ interface Event {
 export function useEventsData(user: unknown) {
   const queryClient = useQueryClient();
   const { isRevalidated } = useAuth();
+  const { t } = useTranslation();
 
   // UI-only state
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,6 +41,7 @@ export function useEventsData(user: unknown) {
   const [itemsPerPage, setItemsPerPage] = useState(25);
   const [selectedEventIds, setSelectedEventIds] = useState<number[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
   const [notificationOverrides, setNotificationOverrides] = useState<Record<string, boolean>>({});
 
   // Modal state
@@ -146,6 +149,7 @@ export function useEventsData(user: unknown) {
       queryClient.setQueryData(['events'], (old: any[] = []) =>
         old.map(e => e.id === event.eventItemId ? { ...e, completed: newCompleted } : e)
       );
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       toast.success(newCompleted ? 'Event marked as completed' : 'Event marked as incomplete');
     } catch (error) {
       toast.error('Failed to update completion status');
@@ -186,13 +190,14 @@ export function useEventsData(user: unknown) {
     toast.info('Calendar sync not yet implemented');
   };
 
-  const handleDeleteEvent = async (eventId: string) => {
+  const performDeleteEvent = async (eventId: string) => {
     try {
       const numericId = parseInt(eventId.replace('event-', ''));
       await conversationsAPI.deleteEvent(numericId);
       queryClient.setQueryData(['events'], (old: any[] = []) =>
         old.filter(e => e.id !== numericId)
       );
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       setSelectedEvent(null);
       toast.success('Event deleted successfully');
     } catch (error) {
@@ -200,18 +205,22 @@ export function useEventsData(user: unknown) {
     }
   };
 
-  const handleBulkDelete = async () => {
-    if (selectedEventIds.length === 0) {
-      toast.error('No events selected');
-      return;
-    }
+  const handleDeleteEvent = (eventId: string) => {
+    setConfirmDialog({
+      title: t('events.delete_confirm_title'),
+      message: t('events.delete_confirm_message'),
+      onConfirm: () => performDeleteEvent(eventId),
+    });
+  };
 
+  const performBulkDelete = async () => {
     setIsDeleting(true);
     try {
       const result = await conversationsAPI.bulkDeleteEvents(selectedEventIds);
       queryClient.setQueryData(['events'], (old: any[] = []) =>
         old.filter(e => !selectedEventIds.includes(e.id))
       );
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       setSelectedEventIds([]);
       toast.success(`Deleted ${result.deleted_count} event(s)`);
       if (result.calendar_deleted > 0) {
@@ -224,16 +233,24 @@ export function useEventsData(user: unknown) {
     }
   };
 
-  const handleDeleteAll = async () => {
-    if (events.length === 0) {
-      toast.error('No events to delete');
+  const handleBulkDelete = () => {
+    if (selectedEventIds.length === 0) {
+      toast.error('No events selected');
       return;
     }
+    setConfirmDialog({
+      title: t('events.bulk_delete_title'),
+      message: t('events.bulk_delete_message').replace('{count}', String(selectedEventIds.length)),
+      onConfirm: performBulkDelete,
+    });
+  };
 
+  const performDeleteAll = async () => {
     setIsDeleting(true);
     try {
       const result = await conversationsAPI.deleteAllEvents();
       queryClient.setQueryData(['events'], []);
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       setSelectedEventIds([]);
       toast.success(`Deleted all ${result.deleted_count} event(s)`);
       if (result.calendar_deleted > 0) {
@@ -244,6 +261,18 @@ export function useEventsData(user: unknown) {
     } finally {
       setIsDeleting(false);
     }
+  };
+
+  const handleDeleteAll = () => {
+    if (events.length === 0) {
+      toast.error('No events to delete');
+      return;
+    }
+    setConfirmDialog({
+      title: t('events.delete_all_title'),
+      message: t('events.delete_all_message').replace('{count}', String(events.length)),
+      onConfirm: performDeleteAll,
+    });
   };
 
   const filteredEvents = useMemo(() => {
@@ -318,6 +347,8 @@ export function useEventsData(user: unknown) {
     showEditModal,
     setShowEditModal,
     isDeleting,
+    confirmDialog,
+    setConfirmDialog,
     handleToggleNotification,
     handleToggleCompletion,
     handleEditEvent,
