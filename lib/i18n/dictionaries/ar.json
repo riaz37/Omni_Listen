@@ -731,6 +731,7 @@
     "subtitle": "عرض وإدارة جميع أحداث محادثاتك والرؤى",
     "stat_total_meetings": "إجمالي الاجتماعات",
     "stat_all_time": "طوال الوقت",
+    "stat_deleted_note": "لا يشمل {count} محذوفة",
     "stat_total_events": "إجمالي الأحداث",
     "stat_avg_duration": "متوسط المدة",
     "stat_per_meeting": "لكل اجتماع",

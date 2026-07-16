@@ -54,15 +54,17 @@ export default function HistoryPage() {
 
   const { data: conversationsData, isLoading: loadingConversations } = useQuery({
     queryKey: ['conversations', 'history'],
-    queryFn: async () => {
-      const data = await conversationsAPI.getConversations();
-      return data.meetings ?? [];
+    queryFn: async (): Promise<{ meetings: any[]; total: number }> => {
+      const data = await conversationsAPI.getConversations(1000);
+      const meetings = data.meetings ?? [];
+      return { meetings, total: data.total ?? meetings.length };
     },
     enabled: !!user && isRevalidated,
     staleTime: 5 * 60 * 1000,
   });
 
-  const conversations = conversationsData ?? [];
+  const conversations = conversationsData?.meetings ?? [];
+  const serverTotal = conversationsData?.total;
 
   useEffect(() => {
     setCurrentPage(1);
@@ -76,8 +78,12 @@ export default function HistoryPage() {
       onConfirm: async () => {
         try {
           await conversationsAPI.deleteConversation(jobId);
-          queryClient.setQueryData(['conversations', 'history'], (old: any[] = []) =>
-            old.filter((m) => m.job_id !== jobId)
+          queryClient.setQueryData(
+            ['conversations', 'history'],
+            (old: { meetings: any[]; total: number } | undefined) => old ? {
+              meetings: old.meetings.filter((m) => m.job_id !== jobId),
+              total: Math.max(0, old.total - 1),
+            } : old
           );
         } catch (error) {
           toast.error('Failed to delete conversation');
@@ -118,8 +124,12 @@ export default function HistoryPage() {
         setIsDeleting(true);
         try {
           const result = await conversationsAPI.bulkDeleteConversations(selectedConversationIds);
-          queryClient.setQueryData(['conversations', 'history'], (old: any[] = []) =>
-            old.filter((m) => !selectedConversationIds.includes(m.id))
+          queryClient.setQueryData(
+            ['conversations', 'history'],
+            (old: { meetings: any[]; total: number } | undefined) => old ? {
+              meetings: old.meetings.filter((m) => !selectedConversationIds.includes(m.id)),
+              total: Math.max(0, old.total - (result.deleted_count ?? selectedConversationIds.length)),
+            } : old
           );
           setSelectedConversationIds([]);
           toast.success(`Deleted ${result.deleted_count} conversation(s)`);
@@ -136,11 +146,19 @@ export default function HistoryPage() {
     router.push(lp(`/conversation?id=${jobId}`));
   };
 
+  const setConversationStage = (jobId: string, stage: string) => {
+    queryClient.setQueryData(
+      ['conversations', 'history'],
+      (old: { meetings: any[]; total: number } | undefined) => old ? {
+        ...old,
+        meetings: old.meetings.map((m) => m.job_id === jobId ? { ...m, failed_at_stage: stage } : m),
+      } : old
+    );
+  };
+
   const handleRetry = async (jobId: string) => {
     setRetryingJobIds((prev) => new Set(prev).add(jobId));
-    queryClient.setQueryData(['conversations', 'history'], (old: any[] = []) =>
-      old.map((m) => m.job_id === jobId ? { ...m, failed_at_stage: 'pending_extraction' } : m)
-    );
+    setConversationStage(jobId, 'pending_extraction');
     try {
       await conversationsAPI.retryExtraction(jobId);
       const poll = setInterval(async () => {
@@ -154,9 +172,7 @@ export default function HistoryPage() {
             clearInterval(poll);
             setRetryingJobIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
             toast.error('Retry failed: ' + (status.error || 'Unknown error'));
-            queryClient.setQueryData(['conversations', 'history'], (old: any[] = []) =>
-              old.map((m) => m.job_id === jobId ? { ...m, failed_at_stage: 'extraction_failed' } : m)
-            );
+            setConversationStage(jobId, 'extraction_failed');
           }
         } catch {
           clearInterval(poll);
@@ -166,9 +182,7 @@ export default function HistoryPage() {
     } catch {
       setRetryingJobIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
       toast.error('Failed to start retry. Please try again.');
-      queryClient.setQueryData(['conversations', 'history'], (old: any[] = []) =>
-        old.map((m) => m.job_id === jobId ? { ...m, failed_at_stage: 'extraction_failed' } : m)
-      );
+      setConversationStage(jobId, 'extraction_failed');
     }
   };
 
@@ -213,12 +227,12 @@ export default function HistoryPage() {
   );
 
   const stats = useMemo(() => {
-    const total = conversations.length;
+    const total = serverTotal ?? conversations.length;
     const synced = conversations.filter((c: any) => c.calendar_synced).length;
     const withAnalysis = conversations.filter((c: any) => c.has_custom_query).length;
     const totalEvents = conversations.reduce((acc: number, c: any) => acc + (c.event_count || 0), 0);
     return { total, synced, withAnalysis, totalEvents };
-  }, [conversations]);
+  }, [conversations, serverTotal]);
 
   const historySkeleton = (
     <div className="min-h-screen bg-background">

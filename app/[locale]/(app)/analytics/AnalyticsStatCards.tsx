@@ -4,6 +4,7 @@ import { useTranslation } from '@/lib/i18n/use-translation';
 
 interface AnalyticsStatCardsProps {
   totalMeetings: number;
+  deletedMeetings?: number;
   totalEvents: number;
   avgDuration: string;
   last30Days: number;
@@ -12,6 +13,7 @@ interface AnalyticsStatCardsProps {
 
 export function AnalyticsStatCards({
   totalMeetings,
+  deletedMeetings = 0,
   totalEvents,
   avgDuration,
   last30Days,
@@ -24,7 +26,12 @@ export function AnalyticsStatCards({
         <div>
           <p className="text-sm text-muted-foreground font-medium">{t('analytics.stat_total_meetings')}</p>
           <p className="text-3xl font-semibold text-foreground mt-2">{totalMeetings}</p>
-          <p className="text-sm text-muted-foreground mt-1">{t('analytics.stat_all_time')}</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {t('analytics.stat_all_time')}
+            {deletedMeetings > 0 && (
+              <span> · {t('analytics.stat_deleted_note').replace('{count}', String(deletedMeetings))}</span>
+            )}
+          </p>
         </div>
         <Button
           variant="ghost"
