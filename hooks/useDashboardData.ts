@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { conversationsAPI, analyticsAPI } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { sortByUrgencyThenDate } from '@/lib/utils';
@@ -145,11 +146,21 @@ export function useDashboardData(user: User | null, loading: boolean, isLoggingO
   const handleToggleTask = async (taskId: number, completed: boolean) => {
     try {
       await conversationsAPI.toggleTaskCompletion(taskId, completed);
+      // Dashboard tasks merge events + notes (same backend table), so update both
       queryClient.setQueryData<{ events: RawEvent[]; notes: RawNote[]; conversations: any[] }>(
         ['dashboard'],
-        (old) => old ? { ...old, events: old.events.map(e => e.id === taskId ? { ...e, completed } : e) } : old
+        (old) => old ? {
+          ...old,
+          events: old.events.map(e => e.id === taskId ? { ...e, completed } : e),
+          notes: old.notes.map(n => n.id === taskId ? { ...n, completed } : n),
+        } : old
       );
-    } catch (error) {}
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      toast.success(completed ? 'Task marked as completed' : 'Task marked as incomplete');
+    } catch (error) {
+      toast.error('Failed to update task status');
+    }
   };
 
   const handleDeleteTask = async (taskId: number) => {
@@ -157,20 +168,32 @@ export function useDashboardData(user: User | null, loading: boolean, isLoggingO
       await conversationsAPI.deleteEvent(taskId);
       queryClient.setQueryData<{ events: RawEvent[]; notes: RawNote[]; conversations: any[] }>(
         ['dashboard'],
-        (old) => old ? { ...old, events: old.events.filter(e => e.id !== taskId) } : old
+        (old) => old ? {
+          ...old,
+          events: old.events.filter(e => e.id !== taskId),
+          notes: old.notes.filter(n => n.id !== taskId),
+        } : old
       );
-    } catch (error) {}
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      toast.success('Task deleted');
+    } catch (error) {
+      toast.error('Failed to delete task');
+    }
   };
 
   const handleDeleteEvent = async (eventId: number) => {
-    if (!confirm('Are you sure you want to delete this event?')) return;
     try {
       await conversationsAPI.deleteEvent(eventId);
       queryClient.setQueryData<{ events: RawEvent[]; notes: RawNote[]; conversations: any[] }>(
         ['dashboard'],
         (old) => old ? { ...old, events: old.events.filter(e => e.id !== eventId) } : old
       );
-    } catch (error) {}
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      toast.success('Event deleted');
+    } catch (error) {
+      toast.error('Failed to delete event');
+    }
   };
 
   return {

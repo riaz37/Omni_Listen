@@ -50,6 +50,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
   const [userPresets, setUserPresets] = useState<Preset[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [applyingPreset, setApplyingPreset] = useState<string | null>(null);
   const [view, setView] = useState<'list' | 'edit'>('list');
   const [editingPreset, setEditingPreset] = useState<Preset | null>(null);
   const [isSystemTemplate, setIsSystemTemplate] = useState(false);
@@ -83,7 +84,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
 
   const handleSelectPreset = async (preset: Preset) => {
     try {
-      setSaving(true);
+      setApplyingPreset(preset.name);
 
       await authAPI.setActiveRole(preset.name);
 
@@ -107,7 +108,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
     } catch (error) {
       toast.error('Failed to save role selection. Please try again.');
     } finally {
-      setSaving(false);
+      setApplyingPreset(null);
     }
   };
 
@@ -215,6 +216,7 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
 
   const renderPresetCard = (preset: Preset) => {
     const isActive = activeRoleName === preset.name;
+    const isApplying = applyingPreset === preset.name;
 
     return (
       <div
@@ -267,15 +269,15 @@ export default function RoleConfigModal({ isOpen, onClose, onRoleSelected, activ
         <div className="flex items-center gap-1.5 pt-3 border-t border-border">
           <Button
             onClick={() => handleSelectPreset(preset)}
-            disabled={isActive || saving}
-            loading={saving && !isActive}
+            disabled={isActive || applyingPreset !== null}
+            loading={isApplying}
             className={`flex-1 ${
               isActive
                 ? 'bg-primary/10 text-primary cursor-default border border-primary/20 hover:bg-primary/10'
                 : ''
             }`}
           >
-            {isActive ? t('common_ui.role_modal.active') : (saving ? t('common_ui.role_modal.saving') : t('common_ui.role_modal.apply'))}
+            {isActive ? t('common_ui.role_modal.active') : (isApplying ? t('common_ui.role_modal.saving') : t('common_ui.role_modal.apply'))}
           </Button>
 
           <Button

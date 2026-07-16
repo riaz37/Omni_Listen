@@ -70,7 +70,7 @@ describe('UploadQueue.pendingCount', () => {
 
 describe('UploadQueue config payload', () => {
   it('includes summary_style from saved processing_config', async () => {
-    localStorage.setItem('processing_config', JSON.stringify({ summary_style: 'detailed' }));
+    localStorage.setItem('processing_config', JSON.stringify({ summary_style: 'executive' }));
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: async () => ({ job_id: 'job-3' }),
@@ -82,11 +82,11 @@ describe('UploadQueue config payload', () => {
 
     const body = (fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body as FormData;
     const config = JSON.parse(body.get('config') as string);
-    expect(config.summary_style).toBe('detailed');
+    expect(config.summary_style).toBe('executive');
     localStorage.removeItem('processing_config');
   });
 
-  it('defaults summary_style to concise when the saved value is invalid', async () => {
+  it('defaults summary_style to detailed when the saved value is invalid', async () => {
     localStorage.setItem('processing_config', JSON.stringify({ summary_style: 'bogus' }));
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
@@ -99,11 +99,11 @@ describe('UploadQueue config payload', () => {
 
     const body = (fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body as FormData;
     const config = JSON.parse(body.get('config') as string);
-    expect(config.summary_style).toBe('concise');
+    expect(config.summary_style).toBe('detailed');
     localStorage.removeItem('processing_config');
   });
 
-  it('defaults summary_style to concise when no config is saved', async () => {
+  it('defaults summary_style to detailed when no config is saved', async () => {
     localStorage.removeItem('processing_config');
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
@@ -116,6 +116,6 @@ describe('UploadQueue config payload', () => {
 
     const body = (fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body as FormData;
     const config = JSON.parse(body.get('config') as string);
-    expect(config.summary_style).toBe('concise');
+    expect(config.summary_style).toBe('detailed');
   });
 });

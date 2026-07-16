@@ -118,9 +118,14 @@ export default function TasksPage() {
   const handleToggleTask = async (taskId: number, completed: boolean) => {
     try {
       await conversationsAPI.toggleTaskCompletion(taskId, completed);
+      // Tasks merge events + notes (same backend table), so update both caches
       queryClient.setQueryData(['events'], (old: any[] = []) =>
         old.map(e => e.id === taskId ? { ...e, completed } : e)
       );
+      queryClient.setQueryData(['notes'], (old: any[] = []) =>
+        old.map(n => n.id === taskId ? { ...n, completed } : n)
+      );
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       toast.success(completed ? 'Task marked as completed' : 'Task marked as incomplete');
     } catch (error) {
       toast.error('Failed to update task status');
@@ -137,6 +142,10 @@ export default function TasksPage() {
           queryClient.setQueryData(['events'], (old: any[] = []) =>
             old.filter(e => e.id !== taskId)
           );
+          queryClient.setQueryData(['notes'], (old: any[] = []) =>
+            old.filter(n => n.id !== taskId)
+          );
+          queryClient.invalidateQueries({ queryKey: ['dashboard'] });
           toast.success('Task deleted successfully');
         } catch (error) {
           toast.error('Failed to delete task');
@@ -166,6 +175,7 @@ export default function TasksPage() {
         ...old,
       ]);
 
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       setNewTask({ title: '', description: '', date: '', urgency: 'no' });
       setShowAddTaskModal(false);
       toast.success('Task created successfully');

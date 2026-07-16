@@ -36,7 +36,7 @@ function readSavedSummaryStyle(): SummaryStyle {
   } catch {
     // Corrupt localStorage — fall through to default
   }
-  return 'concise';
+  return 'detailed';
 }
 
 export class UploadQueue {

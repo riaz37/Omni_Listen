@@ -29,12 +29,6 @@ import { useTranslation } from '@/lib/i18n/use-translation';
 
 type SortColumn = 'title' | 'status' | 'assignee' | 'date';
 
-interface ConfirmDialogState {
-  title: string;
-  message: string;
-  onConfirm: () => void;
-}
-
 export default function EventsPage() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -68,6 +62,8 @@ export default function EventsPage() {
     setShowEditModal,
     events,
     isDeleting,
+    confirmDialog,
+    setConfirmDialog,
     handleToggleNotification,
     handleToggleCompletion,
     handleEditEvent,
@@ -75,13 +71,11 @@ export default function EventsPage() {
     handleSyncEvent,
     handleDeleteEvent,
     handleBulkDelete,
+    handleDeleteAll,
   } = useEventsData(user);
 
   const [sortColumn, setSortColumn] = useState<SortColumn>('date');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
-  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(
-    null,
-  );
 
   const handleSort = (column: SortColumn) => {
     if (sortColumn === column) {
@@ -114,26 +108,6 @@ export default function EventsPage() {
     } else {
       setSelectedEventIds((prev) => [...new Set([...prev, ...selectableIds])]);
     }
-  };
-
-  const requestDeleteEvent = (eventId: string) => {
-    setConfirmDialog({
-      title: 'Delete event?',
-      message: 'Are you sure you want to delete this event?',
-      onConfirm: () => {
-        void handleDeleteEvent(eventId);
-      },
-    });
-  };
-
-  const requestBulkDelete = () => {
-    setConfirmDialog({
-      title: 'Delete selected events?',
-      message: `Are you sure you want to delete ${selectedEventIds.length} selected event(s)?`,
-      onConfirm: () => {
-        void handleBulkDelete();
-      },
-    });
   };
 
   // Sort the already-filtered events by column
@@ -298,7 +272,7 @@ export default function EventsPage() {
                     {selectedEventIds.length} selected
                   </span>
                   <button
-                    onClick={requestBulkDelete}
+                    onClick={handleBulkDelete}
                     disabled={isDeleting}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-destructive-foreground bg-destructive hover:bg-destructive/90 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -347,7 +321,7 @@ export default function EventsPage() {
               onEdit={handleEditEvent}
               onReschedule={setReschedulingEvent}
               onViewDetails={setSelectedEvent}
-              onDelete={requestDeleteEvent}
+              onDelete={handleDeleteEvent}
               onSetCurrentPage={(p) => {
                 if (typeof p === 'function') {
                   handlePageChange(p(currentPage));
@@ -368,7 +342,7 @@ export default function EventsPage() {
             user={user}
             onClose={() => setSelectedEvent(null)}
             onSyncEvent={handleSyncEvent}
-            onDeleteEvent={requestDeleteEvent}
+            onDeleteEvent={handleDeleteEvent}
             onNavigateToMeeting={(meetingId) =>
               router.push(lp(`/conversation?id=${meetingId}`))
             }
@@ -413,15 +387,13 @@ export default function EventsPage() {
           />
         )}
 
+        {/* Delete Confirmation Dialog */}
         {confirmDialog && (
           <ConfirmDialog
             isOpen={!!confirmDialog}
             title={confirmDialog.title}
             message={confirmDialog.message}
-            onConfirm={() => {
-              confirmDialog.onConfirm();
-              setConfirmDialog(null);
-            }}
+            onConfirm={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }}
             onCancel={() => setConfirmDialog(null)}
           />
         )}
