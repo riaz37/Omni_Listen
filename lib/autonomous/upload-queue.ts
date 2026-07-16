@@ -39,6 +39,23 @@ function readSavedSummaryStyle(): SummaryStyle {
   return 'detailed';
 }
 
+function readSavedLanguage(): string {
+  try {
+    const raw = typeof localStorage !== 'undefined'
+      ? localStorage.getItem('processing_config')
+      : null;
+    if (raw) {
+      const language = JSON.parse(raw).language;
+      if (typeof language === 'string' && /^(auto|multi|[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})?)$/.test(language)) {
+        return language;
+      }
+    }
+  } catch {
+    // Corrupt localStorage — fall through to default
+  }
+  return 'auto';
+}
+
 export class UploadQueue {
   private _apiUrl: string;
   private _active = 0;
@@ -159,6 +176,7 @@ export class UploadQueue {
       const config: Record<string, unknown> = {
         custom_field_only: false,
         summary_style: readSavedSummaryStyle(),
+        language: readSavedLanguage(),
       };
       const userInput = (next.userInput ?? '').trim();
       if (userInput) config.user_input = userInput;

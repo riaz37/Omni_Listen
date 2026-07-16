@@ -15,6 +15,7 @@ import {
   AlertTriangle,
   RotateCcw,
   Download,
+  Languages,
 } from 'lucide-react';
 import DashboardProcessing from './DashboardProcessing';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -27,7 +28,7 @@ import { toast } from 'sonner';
 import { Bot } from 'lucide-react';
 import AutonomousTab from './AutonomousTab';
 import type { AutonomousState, AutonomousSettings } from '@/lib/autonomous/types';
-import type { SummaryStyle } from '@/lib/config-context';
+import type { SummaryStyle, MeetingLanguage } from '@/lib/config-context';
 import { Dropdown, DropdownTrigger, DropdownContent, DropdownItem } from '@/components/ui/dropdown';
 
 // Chips shown before the "+N more" expander in the Quick Access row.
@@ -37,6 +38,7 @@ interface RecorderConfig {
   user_input: string;
   custom_field_only: boolean;
   summary_style?: SummaryStyle;
+  language?: MeetingLanguage;
   [key: string]: any;
 }
 
@@ -175,6 +177,43 @@ export default function DashboardRecorder({
     { value: 'detailed', label: 'Narrative', hint: 'Story-like recap with names & context' },
     { value: 'executive', label: 'Executive', hint: 'Overview + key points' },
   ] as const;
+
+  const LANGUAGE_OPTIONS = [
+    { value: 'auto', label: 'Auto', hint: 'Detects the spoken language' },
+    { value: 'ar', label: 'العربية', hint: 'Arabic meetings' },
+    { value: 'en', label: 'English', hint: 'English meetings' },
+    { value: 'multi', label: 'Multilingual', hint: 'Mixed languages, without Arabic' },
+  ] as const;
+
+  const renderLanguageSelector = () => {
+    const current = config.language ?? 'auto';
+    const currentOption =
+      LANGUAGE_OPTIONS.find((opt) => opt.value === current) ?? LANGUAGE_OPTIONS[0];
+    return (
+      <Dropdown
+        mode="select"
+        value={current}
+        onValueChange={(v) => updateConfig({ language: v as MeetingLanguage })}
+        className="shrink-0"
+      >
+        <DropdownTrigger className="flex items-center gap-1.5 px-3 py-1.5 border border-border rounded-lg bg-card text-foreground hover:bg-muted transition-colors text-xs font-medium cursor-pointer">
+          <Languages className="w-3.5 h-3.5 text-muted-foreground" />
+          {currentOption.label}
+          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+        </DropdownTrigger>
+        <DropdownContent align="end" className="min-w-[14rem]">
+          {LANGUAGE_OPTIONS.map((opt) => (
+            <DropdownItem key={opt.value} value={opt.value}>
+              <span className="flex flex-col items-start text-start">
+                <span className="font-medium">{opt.label}</span>
+                <span className="text-xs text-muted-foreground">{opt.hint}</span>
+              </span>
+            </DropdownItem>
+          ))}
+        </DropdownContent>
+      </Dropdown>
+    );
+  };
 
   const renderSummaryStyleSelector = () => {
     const current = config.summary_style ?? 'detailed';
@@ -458,6 +497,11 @@ export default function DashboardRecorder({
               <div className="space-y-6 flex-1 flex flex-col">
                 {inputMode === 'upload' && (
                   <>
+                    {/* Meeting language */}
+                    <div className="flex justify-end -mb-3">
+                      {renderLanguageSelector()}
+                    </div>
+
                     <label
                       htmlFor="file-upload"
                       onDragOver={handleDragOver}
@@ -538,6 +582,11 @@ export default function DashboardRecorder({
                 {/* Record Mode */}
                 {inputMode === 'record' && (
                   <div className="flex flex-col items-center justify-center flex-1 py-2 space-y-5">
+                    {/* Meeting language */}
+                    <div className="w-full flex justify-end -mb-3">
+                      {renderLanguageSelector()}
+                    </div>
+
                     {/* Timer */}
                     <div className="relative">
                       <div className="text-5xl sm:text-6xl font-light text-foreground tracking-tight font-mono">

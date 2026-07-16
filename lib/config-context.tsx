@@ -4,6 +4,10 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export type SummaryStyle = 'concise' | 'detailed' | 'executive';
 
+// 'auto' lets the backend detect the language, 'multi' is Deepgram's
+// code-switching mode, other values are language tags like 'ar' or 'en'.
+export type MeetingLanguage = 'auto' | 'ar' | 'en' | 'multi';
+
 interface ProcessingConfig {
   role: string;
   output_fields: {
@@ -20,6 +24,7 @@ interface ProcessingConfig {
   user_input: string;
   custom_field_only: boolean;
   summary_style: SummaryStyle;
+  language: MeetingLanguage;
 }
 
 interface ConfigContextType {
@@ -44,6 +49,7 @@ const DEFAULT_CONFIG: ProcessingConfig = {
   user_input: '',
   custom_field_only: false,
   summary_style: 'detailed',
+  language: 'auto',
 };
 
 const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
