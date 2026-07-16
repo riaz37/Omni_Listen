@@ -27,8 +27,14 @@ const nextConfig = {
     NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
     NEXT_PUBLIC_GITHUB_CLIENT_ID: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID,
   },
-}
+  webpack: (config) => {
+    config.experiments = { ...config.experiments, asyncWebAssembly: true };
+    return config;
+  },
+  // Turbopack (Next.js 16 default bundler) — silence the "webpack config without turbopack config" error
+  turbopack: {},
+};
 
 // Disable PWA to avoid confusion - users should download the desktop .exe instead
 // module.exports = withPWA(nextConfig)
-module.exports = nextConfig
+module.exports = nextConfig;
