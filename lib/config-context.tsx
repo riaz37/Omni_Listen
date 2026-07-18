@@ -1,6 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { authAPI, type SyncedPreferences } from './api';
+import { useAuth } from './auth-context';
 
 export type SummaryStyle = 'concise' | 'detailed' | 'executive';
 
@@ -54,8 +56,47 @@ const DEFAULT_CONFIG: ProcessingConfig = {
 
 const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
 
+const VALID_LANGUAGES: readonly string[] = ['auto', 'ar', 'en', 'multi'];
+const VALID_SUMMARY_STYLES: readonly string[] = ['concise', 'detailed', 'executive'];
+
+// Server prefs are clamped on write, but validate again here so an older or
+// foreign value (e.g. a language tag this UI has no option for) can never
+// put the selectors in an impossible state.
+function sanitizeServerPrefs(prefs: SyncedPreferences): Partial<ProcessingConfig> {
+  const updates: Partial<ProcessingConfig> = {};
+  if (typeof prefs.role === 'string' && prefs.role) {
+    updates.role = prefs.role;
+  }
+  if (typeof prefs.summary_style === 'string' && VALID_SUMMARY_STYLES.includes(prefs.summary_style)) {
+    updates.summary_style = prefs.summary_style as SummaryStyle;
+  }
+  if (typeof prefs.language === 'string' && VALID_LANGUAGES.includes(prefs.language)) {
+    updates.language = prefs.language as MeetingLanguage;
+  }
+  if (typeof prefs.custom_field_only === 'boolean') {
+    updates.custom_field_only = prefs.custom_field_only;
+  }
+  if (prefs.output_fields && typeof prefs.output_fields === 'object') {
+    const fields = { ...DEFAULT_CONFIG.output_fields };
+    for (const key of Object.keys(fields) as (keyof ProcessingConfig['output_fields'])[]) {
+      const value = prefs.output_fields[key];
+      if (typeof value === 'boolean') fields[key] = value;
+    }
+    updates.output_fields = fields;
+  }
+  return updates;
+}
+
+function cacheConfig(config: ProcessingConfig): void {
+  // Don't save user_input to localStorage - it's saved per-user in database
+  const { user_input, ...configToSave } = config;
+  localStorage.setItem('processing_config', JSON.stringify({ ...configToSave, user_input: '' }));
+}
+
 export function ConfigProvider({ children }: { children: React.ReactNode }) {
   const [config, setConfigState] = useState<ProcessingConfig>(DEFAULT_CONFIG);
+  const { user } = useAuth();
+  const pushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load config from localStorage on mount
   useEffect(() => {
@@ -71,12 +112,52 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // Account-level preferences win over the local cache so settings follow
+  // the user across browsers and devices (localStorage is only a fast,
+  // offline-safe starting point until this fetch lands).
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    authAPI
+      .getPreferences()
+      .then(({ preferences }) => {
+        if (cancelled || !preferences) return;
+        setConfigState((prev) => {
+          const merged = { ...prev, ...sanitizeServerPrefs(preferences) };
+          cacheConfig(merged);
+          return merged;
+        });
+      })
+      .catch(() => {
+        // Offline or cold backend - the local cache stands
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
+
+  useEffect(() => {
+    return () => {
+      if (pushTimer.current) clearTimeout(pushTimer.current);
+    };
+  }, []);
+
   // Save config to localStorage whenever it changes
   const setConfig = (newConfig: ProcessingConfig) => {
     setConfigState(newConfig);
-    // Don't save user_input to localStorage - it's now saved per-user in database
-    const { user_input, ...configToSave } = newConfig;
-    localStorage.setItem('processing_config', JSON.stringify({ ...configToSave, user_input: '' }));
+    cacheConfig(newConfig);
+
+    // Debounced write-through to the account (fire-and-forget): the same
+    // settings then appear on the next sign-in from any browser or device.
+    if (user?.id) {
+      const { user_input, ...prefsToSync } = newConfig;
+      if (pushTimer.current) clearTimeout(pushTimer.current);
+      pushTimer.current = setTimeout(() => {
+        authAPI.savePreferences(prefsToSync).catch(() => {
+          // Best-effort sync; localStorage already has the change
+        });
+      }, 1000);
+    }
   };
 
   const updateConfig = (updates: Partial<ProcessingConfig>) => {

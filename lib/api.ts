@@ -7,6 +7,16 @@ import { uploadWithStallRetry } from './upload-stall';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+// Account-level processing defaults synced via /api/user/preferences.
+// Matches the client's processing_config minus user_input.
+export interface SyncedPreferences {
+  role?: string;
+  output_fields?: Record<string, boolean>;
+  custom_field_only?: boolean;
+  summary_style?: string;
+  language?: string;
+}
+
 function getSignInUrl(): string {
   const lang = (typeof localStorage !== 'undefined' && localStorage.getItem('NEXT_LOCALE'))
     || (typeof navigator !== 'undefined' && navigator.language.startsWith('ar') ? 'ar' : 'en');
@@ -165,6 +175,16 @@ export const authAPI = {
 
   saveLastQuery: async (query: string, role_name?: string | null) => {
     const response = await api.post('/api/user/last-query', { query, role_name });
+    return response.data;
+  },
+
+  getPreferences: async (): Promise<{ preferences: SyncedPreferences | null }> => {
+    const response = await api.get('/api/user/preferences');
+    return response.data;
+  },
+
+  savePreferences: async (preferences: SyncedPreferences): Promise<{ success: boolean }> => {
+    const response = await api.put('/api/user/preferences', preferences);
     return response.data;
   },
 
