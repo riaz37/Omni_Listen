@@ -23,6 +23,15 @@ function getSignInUrl(): string {
   return `/${lang}/signin`;
 }
 
+// Routes that require a session. Only these may hard-redirect to /signin when
+// the session is dead — public pages (landing, marketing, auth flows) must
+// render for anonymous visitors even though AuthProvider's /me probe 401s there.
+const PROTECTED_ROUTES = /^\/(en|ar)\/(listen|history|analytics|calendar|events|notes|queries|tasks|settings|conversation|autonomous|mini)(\/|$)/;
+
+export function shouldRedirectToSignIn(pathname: string): boolean {
+  return PROTECTED_ROUTES.test(pathname);
+}
+
 // Create axios instance
 export const api = axios.create({
   baseURL: API_URL,
@@ -90,11 +99,11 @@ api.interceptors.response.use(
 
         if (sessionDead && typeof window !== 'undefined') {
           localStorage.removeItem('cached_user');
-          // Don't hard-redirect when already on an auth page — doing so causes an
-          // infinite reload loop: checkAuth calls /api/auth/me with no valid cookie,
-          // the interceptor fires, hard-reloads /signin, and repeats forever.
-          const onAuthPage = /\/(signin|signup)(\/|$|\?)/.test(window.location.pathname);
-          if (!onAuthPage) {
+          // Hard-redirect only from protected app routes. Public pages (landing,
+          // marketing, signin/signup) must stay put: redirecting from /signin
+          // causes an infinite reload loop, and redirecting from the landing
+          // page means no logged-out visitor can ever see it.
+          if (shouldRedirectToSignIn(window.location.pathname)) {
             try {
               await axios.post(`${API_URL}/api/auth/logout`, {}, { withCredentials: true });
             } catch {
