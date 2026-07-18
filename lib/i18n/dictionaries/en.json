@@ -731,6 +731,7 @@
     "subtitle": "View and manage all your conversation events and insights",
     "stat_total_meetings": "Total Meetings",
     "stat_all_time": "All time",
+    "stat_deleted_note": "{count} deleted not included",
     "stat_total_events": "Total Events",
     "stat_avg_duration": "Avg Duration",
     "stat_per_meeting": "Per Meeting",

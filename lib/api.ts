@@ -7,10 +7,29 @@ import { uploadWithStallRetry } from './upload-stall';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+// Account-level processing defaults synced via /api/user/preferences.
+// Matches the client's processing_config minus user_input.
+export interface SyncedPreferences {
+  role?: string;
+  output_fields?: Record<string, boolean>;
+  custom_field_only?: boolean;
+  summary_style?: string;
+  language?: string;
+}
+
 function getSignInUrl(): string {
   const lang = (typeof localStorage !== 'undefined' && localStorage.getItem('NEXT_LOCALE'))
     || (typeof navigator !== 'undefined' && navigator.language.startsWith('ar') ? 'ar' : 'en');
   return `/${lang}/signin`;
+}
+
+// Routes that require a session. Only these may hard-redirect to /signin when
+// the session is dead — public pages (landing, marketing, auth flows) must
+// render for anonymous visitors even though AuthProvider's /me probe 401s there.
+const PROTECTED_ROUTES = /^\/(en|ar)\/(listen|history|analytics|calendar|events|notes|queries|tasks|settings|conversation|autonomous|mini)(\/|$)/;
+
+export function shouldRedirectToSignIn(pathname: string): boolean {
+  return PROTECTED_ROUTES.test(pathname);
 }
 
 // Create axios instance
@@ -80,11 +99,11 @@ api.interceptors.response.use(
 
         if (sessionDead && typeof window !== 'undefined') {
           localStorage.removeItem('cached_user');
-          // Don't hard-redirect when already on an auth page — doing so causes an
-          // infinite reload loop: checkAuth calls /api/auth/me with no valid cookie,
-          // the interceptor fires, hard-reloads /signin, and repeats forever.
-          const onAuthPage = /\/(signin|signup)(\/|$|\?)/.test(window.location.pathname);
-          if (!onAuthPage) {
+          // Hard-redirect only from protected app routes. Public pages (landing,
+          // marketing, signin/signup) must stay put: redirecting from /signin
+          // causes an infinite reload loop, and redirecting from the landing
+          // page means no logged-out visitor can ever see it.
+          if (shouldRedirectToSignIn(window.location.pathname)) {
             try {
               await axios.post(`${API_URL}/api/auth/logout`, {}, { withCredentials: true });
             } catch {
@@ -165,6 +184,16 @@ export const authAPI = {
 
   saveLastQuery: async (query: string, role_name?: string | null) => {
     const response = await api.post('/api/user/last-query', { query, role_name });
+    return response.data;
+  },
+
+  getPreferences: async (): Promise<{ preferences: SyncedPreferences | null }> => {
+    const response = await api.get('/api/user/preferences');
+    return response.data;
+  },
+
+  savePreferences: async (preferences: SyncedPreferences): Promise<{ success: boolean }> => {
+    const response = await api.put('/api/user/preferences', preferences);
     return response.data;
   },
 

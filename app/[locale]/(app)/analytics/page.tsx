@@ -191,6 +191,7 @@ export default function AnalyticsPage() {
           {/* Stat Cards */}
           <AnalyticsStatCards
             totalMeetings={totalConversations}
+            deletedMeetings={analytics?.deleted_meetings || 0}
             totalEvents={totalEvents}
             avgDuration={avgDuration}
             last30Days={last30Days}
