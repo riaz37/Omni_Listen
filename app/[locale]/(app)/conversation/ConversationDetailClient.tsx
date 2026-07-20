@@ -8,7 +8,7 @@ import { useAuth } from '@/lib/auth-context';
 import { conversationsAPI, calendarAPI } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Calendar, FileText, Loader2, Download, Check, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Calendar, FileText, Loader2, Download, Check, ArrowLeft, RefreshCw, AlertTriangle } from 'lucide-react';
 import { exportConversationToPDF } from '@/lib/export';
 import { toast } from 'sonner';
 import FloatingChat from '@/components/FloatingChat';
@@ -17,6 +17,22 @@ import { ConversationKeyTakeaways } from './ConversationKeyTakeaways';
 import { ConversationTranscript } from './ConversationTranscript';
 import { ConversationSidebar } from './ConversationSidebar';
 import PageEntrance from '@/components/ui/page-entrance';
+
+// Backend placeholder (audio_processor.py) substituted when transcription returns
+// no segments at all — e.g. a Deepgram silence result.
+const NO_SPEECH_PLACEHOLDER = 'Transcription failed or no speech found.';
+
+// True when the transcript has no actual spoken content — covers both the
+// backend's placeholder string and a "successful" transcription of silence,
+// which comes back as segment scaffolding ("[00:00 - 00:00] Speaker 1: ")
+// wrapped around empty text.
+export function hasNoSpeech(conversation: any): boolean {
+    const transcript = conversation?.raw_transcript;
+    if (!transcript || typeof transcript !== 'string' || !transcript.trim()) return true;
+    if (transcript.trim() === NO_SPEECH_PLACEHOLDER) return true;
+    const withoutScaffolding = transcript.replace(/\[\d{2}:\d{2}\s*-\s*\d{2}:\d{2}\]\s*Speaker\s*\d+:/g, '');
+    return !/\w/.test(withoutScaffolding);
+}
 
 export default function ConversationDetailClient() {
     const router = useRouter();
@@ -257,15 +273,33 @@ export default function ConversationDetailClient() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Content */}
                     <div className="lg:col-span-2 space-y-6">
-                        {/* Key Takeaways / Summary — skip empty {} or error sentinel from failed extractions */}
-                        {(conversation.key_takeaways || (conversation.final_summary && Object.keys(conversation.final_summary).length > 0 && conversation.final_summary.english !== 'Error')) && (
-                            <ConversationKeyTakeaways
-                                summary={conversation.key_takeaways || conversation.final_summary}
-                            />
+                        {/* Key Takeaways / Summary — no-speech recordings get an explanatory
+                            card instead of the silent blank space a truly empty summary leaves */}
+                        {hasNoSpeech(conversation) ? (
+                            <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-6 flex items-start gap-4">
+                                <AlertTriangle className="w-6 h-6 text-amber-500 mt-0.5 shrink-0" />
+                                <div>
+                                    <h2 className="text-base font-semibold text-foreground mb-1">
+                                        {t('conversation.no_speech_title')}
+                                    </h2>
+                                    <p className="text-sm text-muted-foreground mb-4">
+                                        {t('conversation.no_speech_description')}
+                                    </p>
+                                    <Button onClick={() => router.push(lp('/listen'))} size="sm">
+                                        {t('conversation.no_speech_record_again')}
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : (
+                            (conversation.key_takeaways || (conversation.final_summary && Object.keys(conversation.final_summary).length > 0 && conversation.final_summary.english !== 'Error')) && (
+                                <ConversationKeyTakeaways
+                                    summary={conversation.key_takeaways || conversation.final_summary}
+                                />
+                            )
                         )}
 
-                        {/* Transcript */}
-                        {conversation.raw_transcript && (
+                        {/* Transcript — suppressed for no-speech recordings, since it would only show placeholder/empty scaffolding */}
+                        {conversation.raw_transcript && !hasNoSpeech(conversation) && (
                             <ConversationTranscript
                                 transcript={conversation.raw_transcript}
                                 isExpanded={isTranscriptExpanded}

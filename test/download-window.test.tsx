@@ -168,6 +168,8 @@ describe('DashboardRecorder download button', () => {
     isProcessing: false,
     recordingTime: 0,
     audioUrl: null,
+    audioLevel: 0,
+    noAudioDetected: false,
     processingProgress: 0,
     file: null,
     config: { user_input: '', custom_field_only: false },

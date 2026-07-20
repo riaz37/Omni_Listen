@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   Upload,
@@ -50,6 +50,8 @@ interface DashboardRecorderProps {
   isProcessing: boolean;
   recordingTime: number;
   audioUrl: string | null;
+  audioLevel: number;
+  noAudioDetected: boolean;
   processingProgress: number;
   file: File | null;
   config: RecorderConfig;
@@ -93,6 +95,8 @@ export default function DashboardRecorder({
   isProcessing,
   recordingTime,
   audioUrl,
+  audioLevel,
+  noAudioDetected,
   processingProgress,
   file,
   config,
@@ -162,6 +166,20 @@ export default function DashboardRecorder({
     }
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  // Fires once per recording session (not on every silence-flicker) so the
+  // user gets a single nudge rather than repeated toasts.
+  const hasWarnedNoAudioRef = useRef(false);
+  useEffect(() => {
+    if (!isRecording) {
+      hasWarnedNoAudioRef.current = false;
+      return;
+    }
+    if (noAudioDetected && !hasWarnedNoAudioRef.current) {
+      hasWarnedNoAudioRef.current = true;
+      toast.warning("We're not detecting any audio. Check that your microphone is unmuted.");
+    }
+  }, [isRecording, noAudioDetected]);
 
   const handleDownloadAgain = async (recording: RecordingEntry) => {
     try {
@@ -602,31 +620,37 @@ export default function DashboardRecorder({
                       )}
                     </div>
 
-                    {/* Visualizer Placeholder */}
+                    {/* Audio Level Visualizer — bar heights track the real microphone RMS level (audioLevel prop) */}
                     <div className="h-16 flex items-end gap-1.5 justify-center w-full max-w-lg px-4">
                       {[...Array(20)].map((_, i) => {
-                        const baseHeight = Math.sin((i / 20) * Math.PI * 3) * 35 + 50;
+                        // Per-bar multiplier so a real signal reads as a natural bar shape rather than one flat block.
+                        const variation = 0.55 + Math.abs(Math.sin((i / 20) * Math.PI * 3)) * 0.45;
+                        const heightPct = isRecording && !isPaused
+                          ? Math.max(8, Math.min(100, audioLevel * 100 * variation))
+                          : 15;
                         return (
                           <motion.div
                             key={i}
                             className={`w-2 rounded-full ${isRecording ? 'bg-primary' : 'bg-muted-foreground/20'}`}
-                            animate={isRecording && !isPaused ? {
-                              height: [`${baseHeight * 0.4}%`, `${baseHeight}%`, `${baseHeight * 0.6}%`],
-                              opacity: 1,
-                            } : {
-                              height: '15%',
-                              opacity: 0.5,
+                            animate={{
+                              height: `${heightPct}%`,
+                              opacity: isRecording && !isPaused ? 1 : 0.5,
                             }}
-                            transition={isRecording && !isPaused ? {
-                              height: { duration: 0.8 + (i % 3) * 0.2, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut', delay: i * 0.04 },
-                              opacity: { duration: 0.3 },
-                            } : {
-                              duration: 0.3,
-                            }}
+                            transition={{ duration: 0.1, ease: 'easeOut' }}
                           />
                         );
                       })}
                     </div>
+
+                    {/* No-audio warning — shown when the mic has been silent (or muted) for a sustained period */}
+                    {isRecording && !isPaused && noAudioDetected && (
+                      <div className="w-full max-w-lg rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 flex items-start gap-3">
+                        <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+                        <p className="text-sm text-foreground">
+                          We&apos;re not detecting any audio. Check that your microphone is unmuted and selected as the input device.
+                        </p>
+                      </div>
+                    )}
 
                     {/* Controls */}
                     <div className="flex items-center gap-8">
