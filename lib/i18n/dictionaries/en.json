@@ -2,6 +2,8 @@
   "common": {
     "loading": "Loading...",
     "error": "Something went wrong",
+    "error_description": "We couldn't load your data. Please try again.",
+    "retry": "Retry",
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -641,6 +643,8 @@
   "conversation": {
     "loading": "Loading...",
     "not_found": "Conversation not found.",
+    "load_error_title": "Couldn't load this conversation",
+    "load_error_action": "Try again",
     "back": "Back",
     "default_title": "Conversation Analysis",
     "export_to_pdf": "Export to PDF",
@@ -833,7 +837,9 @@
     "day_view.generating": "Generating...",
     "day_view.meetings_suffix": "meeting",
     "day_view.meetings_plural": "meetings",
-    "day_view.empty": "No meetings to display"
+    "day_view.empty": "No meetings to display",
+    "day_view.load_more": "Show older days",
+    "day_view.load_error": "Couldn't load this day's summary"
   },
   "common_ui": {
     "confirm_dialog.cancel": "Cancel",

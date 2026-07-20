@@ -6,6 +6,8 @@ import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useQuery } from '@tanstack/react-query';
 import { analyticsAPI, conversationsAPI } from '@/lib/api';
+import { AlertTriangle } from 'lucide-react';
+import EmptyState from '@/components/EmptyState';
 import { AnalyticsSkeleton } from './AnalyticsSkeleton';
 import { AnalyticsStatCards } from './AnalyticsStatCards';
 import { RecentConversationsCard } from './RecentConversationsCard';
@@ -101,21 +103,21 @@ export default function AnalyticsPage() {
   const { user, loading, isRevalidated } = useRequireAuth();
   const canFetch = !!user && isRevalidated;
 
-  const { data: analytics, isLoading: analyticsLoading } = useQuery({
+  const { data: analytics, isLoading: analyticsLoading, isError: analyticsError, refetch: refetchAnalytics } = useQuery({
     queryKey: ['analytics'],
     queryFn: () => analyticsAPI.getAnalytics(),
     enabled: canFetch,
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: rawConversations = [], isLoading: convLoading } = useQuery({
+  const { data: rawConversations = [], isLoading: convLoading, isError: convError, refetch: refetchConversations } = useQuery({
     queryKey: ['conversations', 'all'],
     queryFn: () => conversationsAPI.getAllConversations(),
     enabled: canFetch,
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: rawEvents = [], isLoading: eventsLoading } = useQuery({
+  const { data: rawEvents = [], isLoading: eventsLoading, isError: eventsError, refetch: refetchEvents } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
       const r = await conversationsAPI.getAllEvents();
@@ -125,7 +127,7 @@ export default function AnalyticsPage() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: rawNotes = [], isLoading: notesLoading } = useQuery({
+  const { data: rawNotes = [], isLoading: notesLoading, isError: notesError, refetch: refetchNotes } = useQuery({
     queryKey: ['notes'],
     queryFn: async () => {
       const r = await conversationsAPI.getAllNotes();
@@ -136,6 +138,13 @@ export default function AnalyticsPage() {
   });
 
   const isLoading = analyticsLoading || convLoading || eventsLoading || notesLoading;
+  const isError = analyticsError || convError || eventsError || notesError;
+  const refetchAll = () => {
+    refetchAnalytics();
+    refetchConversations();
+    refetchEvents();
+    refetchNotes();
+  };
 
   const conversations = useMemo<Conversation[]>(() => {
     return (Array.isArray(rawConversations) ? rawConversations : []).slice(0, 2).map((m: any) => {
@@ -188,47 +197,60 @@ export default function AnalyticsPage() {
             </p>
           </div>
 
-          {/* Stat Cards */}
-          <AnalyticsStatCards
-            totalMeetings={totalConversations}
-            deletedMeetings={analytics?.deleted_meetings || 0}
-            totalEvents={totalEvents}
-            avgDuration={avgDuration}
-            last30Days={last30Days}
-            onNavigate={(path) => router.push(lp(path))}
-          />
+          {isError ? (
+            <div className="bg-card rounded-lg border border-border shadow-sm">
+              <EmptyState
+                icon={AlertTriangle}
+                title={t('common.error')}
+                description={t('common.error_description')}
+                action={{ label: t('common.retry'), onClick: refetchAll }}
+              />
+            </div>
+          ) : (
+            <>
+              {/* Stat Cards */}
+              <AnalyticsStatCards
+                totalMeetings={totalConversations}
+                deletedMeetings={analytics?.deleted_meetings || 0}
+                totalEvents={totalEvents}
+                avgDuration={avgDuration}
+                last30Days={last30Days}
+                onNavigate={(path) => router.push(lp(path))}
+              />
 
-          {/* Recent Conversations + Recent Notes */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <RecentConversationsCard
-              conversations={conversations}
-              totalConversations={totalConversations}
-              onNavigate={(path) => router.push(lp(path))}
-            />
-            <RecentNotesCard
-              notes={notes}
-              totalNotes={analytics?.total_notes || 0}
-              getCategoryBadge={getCategoryBadge}
-            />
-          </div>
+              {/* Recent Conversations + Recent Notes */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <RecentConversationsCard
+                  conversations={conversations}
+                  totalConversations={totalConversations}
+                  onNavigate={(path) => router.push(lp(path))}
+                />
+                <RecentNotesCard
+                  notes={notes}
+                  totalNotes={analytics?.total_notes || 0}
+                  getCategoryBadge={getCategoryBadge}
+                />
+              </div>
 
-          {/* Event List + Recent Additional Analysis History */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <EventListCard
-              events={events}
-              totalEvents={totalEvents}
-            />
-            <AnalysisHistoryCard
-              notes={notes}
-            />
-          </div>
+              {/* Event List + Recent Additional Analysis History */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <EventListCard
+                  events={events}
+                  totalEvents={totalEvents}
+                />
+                <AnalysisHistoryCard
+                  notes={notes}
+                />
+              </div>
 
-          {/* Task List Table */}
-          <TaskListTable
-            tasks={tasks}
-            getStatusBadge={getStatusBadge}
-            getUrgencyLabel={getUrgencyLabel}
-          />
+              {/* Task List Table */}
+              <TaskListTable
+                tasks={tasks}
+                getStatusBadge={getStatusBadge}
+                getUrgencyLabel={getUrgencyLabel}
+              />
+            </>
+          )}
         </PageEntrance>
       </div>
     </Skeleton>

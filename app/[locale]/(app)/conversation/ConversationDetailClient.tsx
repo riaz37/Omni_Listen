@@ -45,6 +45,7 @@ export default function ConversationDetailClient() {
 
     const [conversation, setConversation] = useState<any>(null);
     const [loadingConversation, setLoadingConversation] = useState(true);
+    const [loadError, setLoadError] = useState<string | null>(null);
     const [syncing, setSyncing] = useState(false);
     const [retrying, setRetrying] = useState(false);
     const [isTranscriptExpanded, setIsTranscriptExpanded] = useState(false);
@@ -59,6 +60,8 @@ export default function ConversationDetailClient() {
 
     const loadConversation = async () => {
         if (!jobId) return;
+        setLoadingConversation(true);
+        setLoadError(null);
         try {
             const data = await conversationsAPI.getConversationDetails(jobId);
             setConversation(data);
@@ -71,6 +74,7 @@ export default function ConversationDetailClient() {
             } else {
                 const errorMsg = error.response?.data?.detail || error.message || 'Failed to load conversation';
                 toast.error(`Error loading conversation: ${errorMsg}`);
+                setLoadError(errorMsg);
             }
         } finally {
             setLoadingConversation(false);
@@ -185,10 +189,6 @@ export default function ConversationDetailClient() {
         }
     };
 
-    if (!conversation && !loading && !loadingConversation) {
-        return null;
-    }
-
     return (
         <Skeleton name="conversation-detail" loading={loading || loadingConversation} fallback={
             <div className="min-h-screen bg-background">
@@ -208,7 +208,16 @@ export default function ConversationDetailClient() {
                 </div>
             </div>
         }>
-            {!conversation ? (
+            {loadError ? (
+                <div className="min-h-screen bg-background flex items-center justify-center">
+                    <div className="flex flex-col items-center text-center max-w-sm px-4">
+                        <AlertTriangle className="w-10 h-10 text-amber-500 mb-4" />
+                        <h2 className="text-lg font-semibold text-foreground mb-1">{t('conversation.load_error_title')}</h2>
+                        <p className="text-sm text-muted-foreground mb-6">{loadError}</p>
+                        <Button onClick={loadConversation}>{t('conversation.load_error_action')}</Button>
+                    </div>
+                </div>
+            ) : !conversation ? (
                 <div className="min-h-screen bg-background flex items-center justify-center">
                     <p className="text-muted-foreground">{t('conversation.not_found')}</p>
                 </div>
