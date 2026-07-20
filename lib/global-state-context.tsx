@@ -10,6 +10,13 @@ import type { RecordingEntry } from '@/lib/types';
 const DOWNLOAD_WINDOW_KEY = 'esap-download-window';
 const DOWNLOAD_WINDOW_SECONDS = 300;
 
+// Audio level metering — RMS below this counts as silence.
+const SILENCE_RMS_THRESHOLD = 0.01;
+// How long silence must persist before we warn the user.
+const SILENCE_WARNING_MS = 6000;
+// Skip the warning during this initial window so a quiet start isn't flagged immediately.
+const SILENCE_GRACE_MS = 3000;
+
 interface GlobalStateContextType {
     // Recording State
     isRecording: boolean;
@@ -18,6 +25,8 @@ interface GlobalStateContextType {
     audioBlob: Blob | null;
     audioUrl: string | null;
     mediaRecorderRef: React.MutableRefObject<MediaRecorder | null>;
+    audioLevel: number;
+    noAudioDetected: boolean;
     startRecording: () => Promise<void>;
     stopRecording: () => void;
     pauseRecording: () => void;
@@ -59,6 +68,13 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
+    const [audioLevel, setAudioLevel] = useState(0);
+    const [noAudioDetected, setNoAudioDetected] = useState(false);
+    const audioContextRef = useRef<AudioContext | null>(null);
+    const analyserRef = useRef<AnalyserNode | null>(null);
+    const levelRafRef = useRef<number | null>(null);
+    const silenceStartRef = useRef<number | null>(null);
+    const recordingStartRef = useRef<number>(0);
     const [recoveredRecording, setRecoveredRecording] = useState<RecordingEntry | null>(null);
     const [currentRecordingId, setCurrentRecordingId] = useState<string | null>(null);
     const currentRecordingIdRef = useRef<string | null>(null);
@@ -147,6 +163,100 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
+    // Stops the RMS metering loop and tears down the AudioContext/AnalyserNode.
+    // Safe to call multiple times — every recording-exit path (normal stop,
+    // cancel) calls this so a stale AudioContext never leaks between recordings.
+    const stopLevelMeter = () => {
+        if (levelRafRef.current !== null) {
+            cancelAnimationFrame(levelRafRef.current);
+            levelRafRef.current = null;
+        }
+        if (audioContextRef.current) {
+            audioContextRef.current.close().catch(() => {});
+            audioContextRef.current = null;
+        }
+        analyserRef.current = null;
+        silenceStartRef.current = null;
+        setAudioLevel(0);
+        setNoAudioDetected(false);
+    };
+
+    // Taps the raw mic stream (independent of MediaRecorder) with an AnalyserNode
+    // to compute a live RMS level and flag sustained silence. Never connected to
+    // destination, so there is no monitoring playback/feedback.
+    const startLevelMeter = (stream: MediaStream) => {
+        try {
+            const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
+            const audioContext: AudioContext = new AudioContextCtor();
+            const source = audioContext.createMediaStreamSource(stream);
+            const analyser = audioContext.createAnalyser();
+            analyser.fftSize = 2048;
+            source.connect(analyser);
+            audioContextRef.current = audioContext;
+            analyserRef.current = analyser;
+            if (audioContext.state === 'suspended') {
+                audioContext.resume().catch(() => {});
+            }
+        } catch (meterError) {
+            console.warn('Audio level metering unavailable:', meterError);
+            return;
+        }
+
+        recordingStartRef.current = Date.now();
+        silenceStartRef.current = null;
+
+        const audioTrack = stream.getAudioTracks()[0];
+        if (audioTrack) {
+            audioTrack.onmute = () => setNoAudioDetected(true);
+            audioTrack.onunmute = () => {
+                silenceStartRef.current = null;
+                setNoAudioDetected(false);
+            };
+        }
+
+        const dataArray = new Uint8Array(analyserRef.current!.fftSize);
+        const loop = () => {
+            const analyser = analyserRef.current;
+            if (!analyser) return;
+
+            // Paused MediaRecorder still leaves the underlying track live, so the
+            // analyser keeps reading real audio — force the meter to 0 while
+            // paused per design, rather than showing (misleading) live levels.
+            if (mediaRecorderRef.current?.state === 'paused') {
+                setAudioLevel(0);
+                silenceStartRef.current = null;
+                setNoAudioDetected(false);
+                levelRafRef.current = requestAnimationFrame(loop);
+                return;
+            }
+
+            analyser.getByteTimeDomainData(dataArray);
+            let sumSquares = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                const normalized = (dataArray[i] - 128) / 128;
+                sumSquares += normalized * normalized;
+            }
+            const rms = Math.sqrt(sumSquares / dataArray.length);
+            setAudioLevel(Math.min(1, rms * 4));
+
+            const now = Date.now();
+            if (rms < SILENCE_RMS_THRESHOLD) {
+                if (silenceStartRef.current === null) silenceStartRef.current = now;
+                const silentForMs = now - silenceStartRef.current;
+                const elapsedSinceStart = now - recordingStartRef.current;
+                if (elapsedSinceStart > SILENCE_GRACE_MS && silentForMs > SILENCE_WARNING_MS) {
+                    setNoAudioDetected(true);
+                }
+            } else {
+                silenceStartRef.current = null;
+                setNoAudioDetected(false);
+            }
+
+            levelRafRef.current = requestAnimationFrame(loop);
+        };
+        levelRafRef.current = requestAnimationFrame(loop);
+    };
+
     const startRecording = async () => {
         try {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -197,6 +307,7 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
             };
 
             recorder.onstop = () => {
+                stopLevelMeter();
                 const blob = new Blob(audioChunksRef.current, { type: mimeType });
                 setAudioBlob(blob);
                 setAudioUrl(URL.createObjectURL(blob));
@@ -226,6 +337,7 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
 
             mediaRecorderRef.current = recorder;
             recorder.start(5000);
+            startLevelMeter(stream);
             setIsRecording(true);
             setIsPaused(false);
             setRecordingTime(0);
@@ -266,6 +378,7 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     };
 
     const cancelRecording = () => {
+        stopLevelMeter();
         if (mediaRecorderRef.current) {
             const stream = mediaRecorderRef.current.stream;
             if (stream) {
@@ -457,6 +570,7 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     return (
         <GlobalStateContext.Provider value={{
             isRecording, isPaused, recordingTime, audioBlob, audioUrl, mediaRecorderRef,
+            audioLevel, noAudioDetected,
             startRecording, stopRecording, pauseRecording, resumeRecording, cancelRecording, deleteRecording,
             recoveredRecording,
             currentRecordingId,

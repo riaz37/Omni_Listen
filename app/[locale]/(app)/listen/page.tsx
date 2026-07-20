@@ -68,6 +68,8 @@ export default function DashboardPage() {
     recordingTime,
     audioUrl,
     audioBlob,
+    audioLevel,
+    noAudioDetected,
     isProcessing,
     processingStatus,
     processingProgress,
@@ -565,6 +567,8 @@ export default function DashboardPage() {
             isProcessing={isProcessing}
             recordingTime={recordingTime}
             audioUrl={audioUrl}
+            audioLevel={audioLevel}
+            noAudioDetected={noAudioDetected}
             processingProgress={processingProgress}
             file={file}
             config={config}

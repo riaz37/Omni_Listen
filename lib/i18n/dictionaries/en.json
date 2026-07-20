@@ -656,7 +656,10 @@
     "sidebar_tbd": "TBD",
     "sidebar_done": "Done",
     "takeaways_english": "English",
-    "takeaways_arabic": "Arabic"
+    "takeaways_arabic": "Arabic",
+    "no_speech_title": "No speech detected",
+    "no_speech_description": "This recording doesn't appear to contain any spoken audio. Your microphone may have been muted, silent, or set to the wrong input device. Try recording again and check your mic is picking up sound before you stop.",
+    "no_speech_record_again": "Record again"
   },
   "events": {
     "title": "Events List",
