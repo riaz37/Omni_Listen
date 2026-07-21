@@ -25,6 +25,7 @@ import {
   Trash2,
   Download,
   Search,
+  AlertTriangle,
 } from 'lucide-react';
 
 type SortColumn = 'title' | 'events' | 'date';
@@ -52,7 +53,7 @@ export default function HistoryPage() {
   } | null>(null);
   const [retryingJobIds, setRetryingJobIds] = useState<Set<string>>(new Set());
 
-  const { data: conversationsData, isLoading: loadingConversations } = useQuery({
+  const { data: conversationsData, isLoading: loadingConversations, isError: conversationsError, refetch: refetchConversations } = useQuery({
     queryKey: ['conversations', 'history'],
     queryFn: async (): Promise<{ meetings: any[]; total: number }> => {
       const data = await conversationsAPI.getConversations(1000);
@@ -320,6 +321,16 @@ export default function HistoryPage() {
           </div>
 
           {/* Tab content */}
+          {conversationsError ? (
+            <div className="bg-card rounded-lg border border-border shadow-sm">
+              <EmptyState
+                icon={AlertTriangle}
+                title={t('common.error')}
+                description={t('common.error_description')}
+                action={{ label: t('common.retry'), onClick: () => refetchConversations() }}
+              />
+            </div>
+          ) : (
           <AnimatePresence mode="wait">
             {historyView === 'conversations' && (
               <motion.div key="conversations" {...tabContentVariants}>
@@ -399,6 +410,7 @@ export default function HistoryPage() {
               </motion.div>
             )}
           </AnimatePresence>
+          )}
         </PageEntrance>
 
         {confirmDialog && (

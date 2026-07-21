@@ -2,9 +2,10 @@
 
 import { useRouter } from 'next/navigation';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
-import { Calendar, FileText, RefreshCw, Sparkles, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { Calendar, FileText, RefreshCw, Sparkles, ChevronDown, ChevronUp, ExternalLink, AlertTriangle } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
-import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import { useMemo, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { summaryAPI } from '@/lib/api';
 import { useTranslation } from '@/lib/i18n/use-translation';
 
@@ -32,93 +33,59 @@ interface Source {
     title: string;
 }
 
-interface SummaryData {
-    content: string;
-    sources: Source[];
+interface DailySummaryQueryData {
+    status: 'ready' | 'generating' | 'not_found';
+    content?: string;
+    sources?: Source[];
 }
+
+const VISIBLE_DAYS_STEP = 14;
 
 function DayGroupItem({ group }: { group: DayGroup }) {
     const router = useRouter();
     const lp = useLocalePath();
     const { t } = useTranslation();
-    const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [loadingSummary, setLoadingSummary] = useState(true);
+    const queryClient = useQueryClient();
     const [isExpanded, setIsExpanded] = useState(false);
 
-    // Generation runs server-side in the background (POST returns 202
-    // immediately); poll the GET endpoint until the summary is ready.
-    const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+    const queryKey = ['dailySummary', group.date];
 
-    const stopPolling = useCallback(() => {
-        if (pollTimer.current) {
-            clearInterval(pollTimer.current);
-            pollTimer.current = null;
-        }
-    }, []);
-
-    const startPolling = useCallback(() => {
-        if (pollTimer.current) return;
-        let attempts = 0;
-        pollTimer.current = setInterval(async () => {
-            attempts += 1;
-            if (attempts > 30) { // give up after ~2 minutes
-                stopPolling();
-                setLoading(false);
-                return;
-            }
+    const { data, isLoading, isError, refetch } = useQuery<DailySummaryQueryData>({
+        queryKey,
+        queryFn: async () => {
             try {
-                const data = await summaryAPI.getDailySummary(group.date);
-                if (data.status === 'generating') return;
-                setSummaryData({
-                    content: data.content,
-                    sources: data.sources || []
-                });
-                stopPolling();
-                setLoading(false);
-            } catch (e) {
-                // 404 — generation finished without a summary (e.g. no meetings)
-                stopPolling();
-                setLoading(false);
+                const res = await summaryAPI.getDailySummary(group.date);
+                return {
+                    status: res.status === 'generating' ? 'generating' : 'ready',
+                    content: res.content,
+                    sources: res.sources || [],
+                };
+            } catch (e: any) {
+                if (e?.response?.status === 404) {
+                    return { status: 'not_found' };
+                }
+                throw e;
             }
-        }, 4000);
-    }, [group.date, stopPolling]);
+        },
+        // Generation runs server-side in the background; keep polling only
+        // while a run is in flight for this date. TanStack dedupes by
+        // queryKey, so this replaces the old per-mount setInterval loop.
+        refetchInterval: (query) => (query.state.data?.status === 'generating' ? 4000 : false),
+        staleTime: 5 * 60 * 1000,
+    });
 
-    useEffect(() => {
-        loadSummary();
-        return stopPolling;
-    }, [group.date]);
+    const regenerateMutation = useMutation({
+        mutationFn: () => summaryAPI.generateDailySummary(group.date),
+        onSuccess: () => {
+            queryClient.setQueryData<DailySummaryQueryData>(queryKey, { status: 'generating' });
+        },
+    });
 
-    const loadSummary = async () => {
-        setLoadingSummary(true);
-        try {
-            const data = await summaryAPI.getDailySummary(group.date);
-            if (data.status === 'generating') {
-                // A generation is already running (e.g. page refresh mid-run)
-                setLoading(true);
-                startPolling();
-            } else {
-                setSummaryData({
-                    content: data.content,
-                    sources: data.sources || []
-                });
-            }
-        } catch (e) {
-            // Summary might not exist yet
-        } finally {
-            setLoadingSummary(false);
-        }
-    };
+    const loading = regenerateMutation.isPending || data?.status === 'generating';
 
-    const handleRegenerate = async (e: React.MouseEvent) => {
+    const handleRegenerate = (e: React.MouseEvent) => {
         e.stopPropagation();
-        setLoading(true);
-        try {
-            await summaryAPI.generateDailySummary(group.date);
-            startPolling(); // loading stays on until polling resolves
-        } catch (e) {
-            setLoading(false);
-        }
+        regenerateMutation.mutate();
     };
 
     // Parse [N] tags and replace with link icons only
@@ -155,12 +122,15 @@ function DayGroupItem({ group }: { group: DayGroup }) {
         });
     };
 
+    const summaryContent = data?.status === 'ready' ? data.content : undefined;
+    const summarySources = data?.sources || [];
+
     // Get preview text (first ~150 chars, without reference tags)
-    const previewText = summaryData?.content
-        ? summaryData.content
+    const previewText = summaryContent
+        ? summaryContent
             .replace(/\[\d+\]/g, '') // Remove [N] tags for preview
             .slice(0, 150)
-            .trim() + (summaryData.content.length > 150 ? '...' : '')
+            .trim() + (summaryContent.length > 150 ? '...' : '')
         : null;
 
     return (
@@ -186,7 +156,7 @@ function DayGroupItem({ group }: { group: DayGroup }) {
 
             {/* Summary Section */}
             <div className="px-6 py-4">
-                {loadingSummary ? (
+                {isLoading ? (
                     <div className="animate-pulse">
                         <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
@@ -201,7 +171,19 @@ function DayGroupItem({ group }: { group: DayGroup }) {
                             <div className="h-3.5 w-24 bg-muted rounded" />
                         </div>
                     </div>
-                ) : summaryData ? (
+                ) : isError ? (
+                    <div className="flex flex-col items-center justify-center py-6 text-center">
+                        <AlertTriangle className="w-8 h-8 text-muted-foreground/40 mb-2" />
+                        <p className="text-sm text-muted-foreground mb-3">{t('history.day_view.load_error')}</p>
+                        <button
+                            onClick={() => refetch()}
+                            className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground text-sm font-medium rounded-lg flex items-center gap-2 transition-colors"
+                        >
+                            <RefreshCw className="w-4 h-4" />
+                            {t('common.retry')}
+                        </button>
+                    </div>
+                ) : summaryContent ? (
                     <div>
                         {/* Summary Header */}
                         <div className="flex items-center justify-between mb-3">
@@ -227,10 +209,10 @@ function DayGroupItem({ group }: { group: DayGroup }) {
                             {isExpanded ? (
                                 // Full summary with link icons
                                 <div className="prose prose-sm max-w-none text-foreground/80 leading-relaxed">
-                                    {summaryData.content.split('\n').map((line, i) => (
+                                    {summaryContent.split('\n').map((line, i) => (
                                         line.trim() && (
                                             <p key={i} className="mb-2">
-                                                {renderSummaryWithLinks(line, summaryData.sources)}
+                                                {renderSummaryWithLinks(line, summarySources)}
                                             </p>
                                         )
                                     ))}
@@ -281,6 +263,9 @@ function DayGroupItem({ group }: { group: DayGroup }) {
 }
 
 export default function DayHistoryView({ meetings }: DayHistoryViewProps) {
+    const { t } = useTranslation();
+    const [visibleCount, setVisibleCount] = useState(VISIBLE_DAYS_STEP);
+
     const dayGroups = useMemo((): DayGroup[] => {
         const grouped = new Map<string, Meeting[]>();
 
@@ -312,11 +297,24 @@ export default function DayHistoryView({ meetings }: DayHistoryViewProps) {
         );
     }
 
+    const visibleGroups = dayGroups.slice(0, visibleCount);
+    const hasMore = dayGroups.length > visibleCount;
+
     return (
         <div className="space-y-6">
-            {dayGroups.map((group) => (
+            {visibleGroups.map((group) => (
                 <DayGroupItem key={group.date} group={group} />
             ))}
+            {hasMore && (
+                <div className="flex justify-center pt-2">
+                    <button
+                        onClick={() => setVisibleCount((c) => c + VISIBLE_DAYS_STEP)}
+                        className="px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 rounded-lg border border-border transition-colors"
+                    >
+                        {t('history.day_view.load_more')}
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

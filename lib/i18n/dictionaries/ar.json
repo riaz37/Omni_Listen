@@ -2,6 +2,8 @@
   "common": {
     "loading": "جارٍ التحميل...",
     "error": "حدث خطأ ما",
+    "error_description": "تعذر تحميل بياناتك. يرجى المحاولة مرة أخرى.",
+    "retry": "إعادة المحاولة",
     "save": "حفظ",
     "cancel": "إلغاء",
     "delete": "حذف",
@@ -641,6 +643,8 @@
   "conversation": {
     "loading": "جارٍ التحميل...",
     "not_found": "المحادثة غير موجودة.",
+    "load_error_title": "تعذر تحميل هذه المحادثة",
+    "load_error_action": "حاول مرة أخرى",
     "back": "رجوع",
     "default_title": "تحليل المحادثة",
     "export_to_pdf": "تصدير إلى PDF",
@@ -833,7 +837,9 @@
     "day_view.generating": "جارٍ التوليد...",
     "day_view.meetings_suffix": "اجتماع",
     "day_view.meetings_plural": "اجتماعات",
-    "day_view.empty": "لا توجد اجتماعات للعرض"
+    "day_view.empty": "لا توجد اجتماعات للعرض",
+    "day_view.load_more": "عرض الأيام الأقدم",
+    "day_view.load_error": "تعذر تحميل ملخص هذا اليوم"
   },
   "common_ui": {
     "confirm_dialog.cancel": "إلغاء",
