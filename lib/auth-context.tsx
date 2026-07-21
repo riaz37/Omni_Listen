@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { authAPI } from './api';
 import { useLocalePath } from './i18n/use-locale-path';
 
@@ -36,6 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isRevalidated, setIsRevalidated] = useState(false);
   const router = useRouter();
   const lp = useLocalePath();
+  const queryClient = useQueryClient();
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -81,6 +83,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Only the display cache and React state are written here.
     localStorage.setItem('cached_user', JSON.stringify(tokens.user));
     sessionStorage.removeItem('omni-presets-cache');
+    // Some queries (e.g. daily summaries) are cached with staleTime: Infinity —
+    // clear the whole client so the previous account's data can't leak in.
+    queryClient.clear();
     setUser(tokens.user);
     setIsRevalidated(true);
     setLoading(false);
@@ -125,6 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setTimeout(() => {
       localStorage.removeItem('cached_user');
       sessionStorage.removeItem('processingJobId');
+      queryClient.clear();
       setUser(null);
       setIsRevalidated(false);
       setIsLoggingOut(false);

@@ -48,6 +48,11 @@ function DayGroupItem({ group }: { group: DayGroup }) {
     const queryClient = useQueryClient();
     const [isExpanded, setIsExpanded] = useState(false);
 
+    // "Today" can still get new meetings and its summary can still be generating,
+    // so it must always revalidate — only closed/past days are safe to treat as
+    // permanently fresh (staleTime: Infinity below).
+    const isToday = group.date === new Date().toISOString().split('T')[0];
+
     const queryKey = ['dailySummary', group.date];
 
     const { data, isLoading, isError, refetch } = useQuery<DailySummaryQueryData>({
@@ -71,7 +76,9 @@ function DayGroupItem({ group }: { group: DayGroup }) {
         // while a run is in flight for this date. TanStack dedupes by
         // queryKey, so this replaces the old per-mount setInterval loop.
         refetchInterval: (query) => (query.state.data?.status === 'generating' ? 4000 : false),
-        staleTime: 5 * 60 * 1000,
+        // Closed days can't change, so once fetched they never need to go stale
+        // and refetch again — only today needs the periodic revalidation.
+        staleTime: isToday ? 5 * 60 * 1000 : Infinity,
     });
 
     const regenerateMutation = useMutation({

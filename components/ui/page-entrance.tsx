@@ -64,7 +64,12 @@ export default function PageEntrance({
 }: PageEntranceProps) {
   const firstVisit = useFirstVisit(name);
 
-  if (prefersReducedMotion()) {
+  // Only the true first visit runs the framer-motion stagger transition (needs
+  // an actual initial -> animate transition to propagate to children). On a
+  // return visit the parent would mount with initial={false} — already at
+  // "visible" with no transition ever firing — leaving stagger children stuck
+  // at their hidden (opacity: 0) variant. Render plainly instead.
+  if (prefersReducedMotion() || !firstVisit) {
     return <div className={className}>{children}</div>;
   }
 
