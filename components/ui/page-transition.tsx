@@ -26,9 +26,12 @@ export default function PageTransition({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const prevIndexRef = useRef<number>(NAV_INDEX[pathname] ?? 0);
+  // usePathname() returns the locale-prefixed path (e.g. "/en/history");
+  // NAV_INDEX is keyed without the locale segment.
+  const routePath = pathname.replace(/^\/[a-z]{2}(?=\/|$)/, '');
+  const prevIndexRef = useRef<number>(NAV_INDEX[routePath] ?? 0);
 
-  const currentIndex = NAV_INDEX[pathname] ?? prevIndexRef.current;
+  const currentIndex = NAV_INDEX[routePath] ?? prevIndexRef.current;
   const direction = currentIndex >= prevIndexRef.current ? 1 : -1;
 
   // Update ref AFTER computing direction
@@ -40,7 +43,14 @@ export default function PageTransition({
   }
 
   return (
-    <AnimatePresence mode="wait" custom={direction} initial={false}>
+    // No mode="wait": with it, a route restored from Next.js's client-side
+    // router cache (e.g. router.back()) can arrive faster than framer-motion's
+    // exit-tracking expects, so the "wait for the old page to finish exiting"
+    // gate never resolves — the new page mounts, sits at its enter() styles
+    // (opacity: 0), and never animates to center(), leaving a permanently
+    // blank page with no error. Letting both pages animate concurrently
+    // removes that gate entirely.
+    <AnimatePresence custom={direction} initial={false}>
       <motion.div
         key={pathname}
         custom={direction}
