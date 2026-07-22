@@ -58,6 +58,12 @@ const PRIMARY_ITEMS: readonly NavItem[] = [
   { href: '/queries', labelKey: 'nav.queries', icon: MessageSquare },
 ] as const;
 
+// Every visible nav link auto-prefetches on mount by default, which fires a
+// burst of requests for routes the user probably isn't about to visit (all 8
+// PRIMARY_ITEMS at once). Only prefetch the two highest-traffic destinations;
+// everything else still navigates fine on click, just without the head start.
+const PREFETCH_ROUTES = new Set<string>(['/listen', '/history']);
+
 // ─── SECONDARY: "Workspace" dropdown (used in mobile bottom sheet) ──────────
 
 const SECONDARY_ITEMS: readonly NavItem[] = [
@@ -82,6 +88,7 @@ function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
   return (
     <Link
       href={lp(item.href)}
+      prefetch={PREFETCH_ROUTES.has(item.href) ? undefined : false}
       className={`relative inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
         isActive
           ? 'text-foreground'
@@ -243,6 +250,7 @@ function MobileMoreSheet({
               <Link
                 key={item.href}
                 href={lp(item.href)}
+                prefetch={false}
                 onClick={onClose}
                 className={`flex items-center gap-3 px-6 py-3 transition-colors ${
                   isActive
@@ -266,6 +274,7 @@ function MobileMoreSheet({
               <Link
                 key={item.href}
                 href={lp(item.href)}
+                prefetch={false}
                 onClick={onClose}
                 className={`flex items-center gap-3 px-6 py-3 transition-colors ${
                   isActive
@@ -441,6 +450,7 @@ function Navigation() {
                 <Link
                   key={item.href}
                   href={lp(item.href)}
+                  prefetch={PREFETCH_ROUTES.has(item.href) ? undefined : false}
                   role="tab"
                   aria-selected={isActive}
                   className={`flex flex-col items-center justify-center px-2 py-1 transition-colors min-w-0 flex-1 ${

@@ -33,6 +33,12 @@ const nextConfig = {
   },
   // Turbopack (Next.js 16 default bundler) — silence the "webpack config without turbopack config" error
   turbopack: {},
+  experimental: {
+    // Automatic per-icon tree-shaking for lucide-react (imported icon-by-icon
+    // across dozens of components) — smaller emitted chunks, no import-site
+    // changes needed.
+    optimizePackageImports: ['lucide-react'],
+  },
 };
 
 // Disable PWA to avoid confusion - users should download the desktop .exe instead
