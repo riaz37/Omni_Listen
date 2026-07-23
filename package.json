@@ -10,6 +10,7 @@
     "dev": "next dev",
     "prebuild": "node scripts/write-version.js",
     "build": "next build",
+    "analyze": "cross-env ANALYZE=true next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "dev:electron": "concurrently \"cross-env BROWSER=none npm run dev\" \"wait-on http://localhost:3000 && tsc -p tsconfig.electron.json && cross-env ELECTRON_START_URL=http://localhost:3000 electron .\"",
@@ -88,6 +89,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.2.11",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^20.14.10",

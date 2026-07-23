@@ -9,6 +9,13 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   },
 });
 
+// Opt-in bundle analyzer — run with `ANALYZE=true npm run build`, writes
+// static HTML reports to .next/analyze/ instead of opening a browser tab.
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+  openAnalyzer: false,
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
@@ -43,4 +50,4 @@ const nextConfig = {
 
 // Disable PWA to avoid confusion - users should download the desktop .exe instead
 // module.exports = withPWA(nextConfig)
-module.exports = nextConfig;
+module.exports = withBundleAnalyzer(nextConfig);
