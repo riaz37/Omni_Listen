@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { useTranslation } from '@/lib/i18n/use-translation';
@@ -50,22 +50,32 @@ export default function ConversationDetailClient() {
     const [retrying, setRetrying] = useState(false);
     const [isTranscriptExpanded, setIsTranscriptExpanded] = useState(false);
 
+    // Tracks which jobId the most recently started request is for. Navigating
+    // from one conversation straight to another (before the first request
+    // finishes) previously let whichever request resolved last win the race —
+    // often the first, slower one — clobbering the correct conversation with
+    // a stale one. Every load checks this before touching state.
+    const latestJobIdRef = useRef<string | null>(null);
+
     useEffect(() => {
         if (!loading && !user && !isLoggingOut) {
             router.push(lp('/signin'));
         } else if (user && jobId) {
-            loadConversation();
+            loadConversation(jobId);
         }
     }, [user, loading, jobId, router, isLoggingOut]);
 
-    const loadConversation = async () => {
-        if (!jobId) return;
+    const loadConversation = async (id: string | null = jobId) => {
+        if (!id) return;
+        latestJobIdRef.current = id;
         setLoadingConversation(true);
         setLoadError(null);
         try {
-            const data = await conversationsAPI.getConversationDetails(jobId);
+            const data = await conversationsAPI.getConversationDetails(id);
+            if (latestJobIdRef.current !== id) return; // a newer conversation was requested meanwhile
             setConversation(data);
         } catch (error: any) {
+            if (latestJobIdRef.current !== id) return;
 
             // Show specific error message
             if (error.response?.status === 404) {
@@ -77,7 +87,7 @@ export default function ConversationDetailClient() {
                 setLoadError(errorMsg);
             }
         } finally {
-            setLoadingConversation(false);
+            if (latestJobIdRef.current === id) setLoadingConversation(false);
         }
     };
 
@@ -214,7 +224,7 @@ export default function ConversationDetailClient() {
                         <AlertTriangle className="w-10 h-10 text-amber-500 mb-4" />
                         <h2 className="text-lg font-semibold text-foreground mb-1">{t('conversation.load_error_title')}</h2>
                         <p className="text-sm text-muted-foreground mb-6">{loadError}</p>
-                        <Button onClick={loadConversation}>{t('conversation.load_error_action')}</Button>
+                        <Button onClick={() => loadConversation()}>{t('conversation.load_error_action')}</Button>
                     </div>
                 </div>
             ) : !conversation ? (
