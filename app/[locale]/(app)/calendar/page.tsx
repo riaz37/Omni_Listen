@@ -9,7 +9,6 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { conversationsAPI } from '@/lib/api';
 import { toast } from 'sonner';
-import { dateFnsLocalizer } from 'react-big-calendar';
 import type { CalendarProps } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay, parseISO, isFuture, isToday, isValid } from 'date-fns';
 import { enUS } from 'date-fns/locale';
@@ -29,9 +28,19 @@ import { useTranslation } from '@/lib/i18n/use-translation';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './calendar-styles.css';
 
+// Shared promise so the Calendar component and the localizer setup below both
+// trigger a single import() of react-big-calendar instead of two.
+let reactBigCalendarModulePromise: Promise<typeof import('react-big-calendar')> | null = null;
+function loadReactBigCalendar() {
+  if (!reactBigCalendarModulePromise) {
+    reactBigCalendarModulePromise = import('react-big-calendar');
+  }
+  return reactBigCalendarModulePromise;
+}
+
 const Calendar = dynamic(
   async () => {
-    const mod = await import('react-big-calendar');
+    const mod = await loadReactBigCalendar();
     return mod.Calendar as ComponentType<CalendarProps<CalendarEvent>>;
   },
   { ssr: false, loading: () => <div className="h-full flex items-center justify-center text-muted-foreground text-sm">{/* calendar loading */}</div> }
@@ -40,14 +49,6 @@ const Calendar = dynamic(
 const locales = {
   'en-US': enUS,
 };
-
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales,
-});
 
 export default function EventsPage() {
   const { t } = useTranslation();
@@ -63,6 +64,18 @@ export default function EventsPage() {
   const [filterType, setFilterType] = useState<'all' | 'conversation' | 'task' | 'deadline'>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEventList, setShowEventList] = useState(false);
+  const [localizer, setLocalizer] = useState<CalendarProps<CalendarEvent>['localizer'] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadReactBigCalendar().then((mod) => {
+      if (cancelled) return;
+      setLocalizer(mod.dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales }));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const [newEvent, setNewEvent] = useState({
     title: '',
     start: '',
@@ -321,6 +334,10 @@ export default function EventsPage() {
 
           {view === 'yearly' ? (
             <YearlyView currentDate={currentDate} />
+          ) : !localizer ? (
+            <div className="h-full flex items-center justify-center text-muted-foreground text-sm" style={{ height: 'calc(100vh - 280px)', minHeight: '620px' }}>
+              {/* calendar loading */}
+            </div>
           ) : (
             <div style={{ height: 'calc(100vh - 280px)', minHeight: '620px' }}>
               <Calendar

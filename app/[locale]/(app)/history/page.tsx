@@ -43,7 +43,11 @@ export default function HistoryPage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedConversationIds, setSelectedConversationIds] = useState<number[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [historyView, setHistoryView] = useState<'conversations' | 'days'>('days');
+  const [historyView, setHistoryView] = useState<'conversations' | 'days'>(() => {
+    if (typeof window === 'undefined') return 'days';
+    const saved = sessionStorage.getItem('esap-history-view');
+    return saved === 'conversations' || saved === 'days' ? saved : 'days';
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [confirmDialog, setConfirmDialog] = useState<{
     title: string;
@@ -70,6 +74,10 @@ export default function HistoryPage() {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
+
+  useEffect(() => {
+    sessionStorage.setItem('esap-history-view', historyView);
+  }, [historyView]);
 
   const handleDelete = (jobId: string) => {
     setConfirmDialog({
@@ -331,7 +339,7 @@ export default function HistoryPage() {
               />
             </div>
           ) : (
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false}>
             {historyView === 'conversations' && (
               <motion.div key="conversations" {...tabContentVariants}>
                 {/* Search & Filters */}

@@ -1,10 +1,13 @@
 'use client';
 
 import Navigation from '@/components/Navigation';
-import PageTransition from '@/components/ui/page-transition';
 import '@/lib/boneyard-config';
 // Import bones registry once generated: import './bones/registry';
 
+// PageTransition lives in template.tsx, not here — layouts persist across
+// navigations by design, which breaks AnimatePresence's exit tracking (see
+// template.tsx for details). Navigation must stay in the layout so it
+// doesn't remount on every route change.
 export default function AppLayout({
   children,
 }: {
@@ -13,7 +16,7 @@ export default function AppLayout({
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <PageTransition>{children}</PageTransition>
+      {children}
     </div>
   );
 }
