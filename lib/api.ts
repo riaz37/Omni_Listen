@@ -343,15 +343,42 @@ export const conversationsAPI = {
     return response.data;
   },
 
-  // Direct queries for events/notes (works even if meeting is deleted)
+  // Direct queries for events/notes (works even if meeting is deleted).
+  // /api/all-events paginates server-side (200/page max) — loop through every
+  // page so callers doing client-side filtering/counting see the full set,
+  // not just the first 50 (the server's default when no limit is passed).
   getAllEvents: async () => {
-    const response = await api.get('/api/all-events');
-    return response.data;
+    const pageSize = 200;
+    let offset = 0;
+    let events: any[] = [];
+    let total = 0;
+    while (true) {
+      const response = await api.get('/api/all-events', { params: { limit: pageSize, offset } });
+      const page = response.data.events ?? [];
+      events = events.concat(page);
+      total = response.data.total ?? events.length;
+      offset += pageSize;
+      if (page.length < pageSize || offset >= total) break;
+    }
+    return { events, total };
   },
 
+  // /api/all-notes paginates the same way as /api/all-events (200/page,
+  // 50 default) — loop through every page so callers see the full set.
   getAllNotes: async () => {
-    const response = await api.get('/api/all-notes');
-    return response.data;
+    const pageSize = 200;
+    let offset = 0;
+    let notes: any[] = [];
+    let total = 0;
+    while (true) {
+      const response = await api.get('/api/all-notes', { params: { limit: pageSize, offset } });
+      const page = response.data.notes ?? [];
+      notes = notes.concat(page);
+      total = response.data.total ?? notes.length;
+      offset += pageSize;
+      if (page.length < pageSize || offset >= total) break;
+    }
+    return { notes, total };
   },
 
   createTask: async (taskData: { title: string; description?: string; date?: string; urgency?: string }) => {
