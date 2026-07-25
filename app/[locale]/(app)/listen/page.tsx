@@ -553,9 +553,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Morning Briefing Floating Bubble */}
-        <MorningBriefingCard />
-
         {/* Main Content Area with Sidebar */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Input Area */}
@@ -647,6 +644,12 @@ export default function DashboardPage() {
           />
         )}
       </PageEntrance>
+
+      {/* Rendered outside PageEntrance: its "fixed" positioning must stay
+          relative to the viewport, not to a framer-motion ancestor that
+          applies a transform (which would make it a new containing block
+          and clip/misposition the floating bubble). */}
+      <MorningBriefingCard />
     </div>
     </Skeleton>
   );

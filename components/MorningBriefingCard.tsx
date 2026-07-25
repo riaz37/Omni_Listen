@@ -162,12 +162,7 @@ export default function MorningBriefingBubble() {
         }
     };
 
-    const currentHour = new Date().getHours();
-    const isMorning = currentHour >= 4 && currentHour < 12;
-
     if (loading || !position) return null;
-    // Show if there is content (any hour), or if it's morning and user can generate one.
-    if (!briefing?.content && !isMorning) return null;
 
     // Compute panel position: open upward or downward, left or right
     const panelWidth = 384; // w-96 = 384px

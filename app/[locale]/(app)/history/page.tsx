@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -39,7 +39,11 @@ export default function HistoryPage() {
   const queryClient = useQueryClient();
   const [sortColumn, setSortColumn] = useState<SortColumn>('date');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(() => {
+    if (typeof window === 'undefined') return 1;
+    const saved = parseInt(sessionStorage.getItem('esap-history-page') || '', 10);
+    return Number.isFinite(saved) && saved > 0 ? saved : 1;
+  });
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedConversationIds, setSelectedConversationIds] = useState<number[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -71,13 +75,26 @@ export default function HistoryPage() {
   const conversations = conversationsData?.meetings ?? [];
   const serverTotal = conversationsData?.total;
 
+  const isFirstSearchRender = useRef(true);
   useEffect(() => {
+    // Skip on mount — otherwise this clobbers the page number restored from
+    // sessionStorage above back to 1 as soon as the component loads.
+    if (isFirstSearchRender.current) {
+      isFirstSearchRender.current = false;
+      return;
+    }
     setCurrentPage(1);
   }, [searchQuery]);
 
   useEffect(() => {
     sessionStorage.setItem('esap-history-view', historyView);
   }, [historyView]);
+
+  // Persist the page number so clicking into a conversation and navigating
+  // back returns to the same page instead of resetting to page 1.
+  useEffect(() => {
+    sessionStorage.setItem('esap-history-page', String(currentPage));
+  }, [currentPage]);
 
   const handleDelete = (jobId: string) => {
     setConfirmDialog({
@@ -230,6 +247,16 @@ export default function HistoryPage() {
   }, [conversations, searchQuery, sortColumn, sortDir]);
 
   const totalPages = Math.ceil(filteredConversations.length / rowsPerPage);
+
+  // A page restored from sessionStorage can be out of range once the real
+  // conversation count is known (e.g. items were deleted since) — clamp it
+  // rather than showing an empty page.
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
   const paginatedConversations = filteredConversations.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
