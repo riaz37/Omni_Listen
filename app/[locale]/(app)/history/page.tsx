@@ -48,9 +48,9 @@ export default function HistoryPage() {
   const [selectedConversationIds, setSelectedConversationIds] = useState<number[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [historyView, setHistoryView] = useState<'conversations' | 'days'>(() => {
-    if (typeof window === 'undefined') return 'days';
+    if (typeof window === 'undefined') return 'conversations';
     const saved = sessionStorage.getItem('esap-history-view');
-    return saved === 'conversations' || saved === 'days' ? saved : 'days';
+    return saved === 'conversations' || saved === 'days' ? saved : 'conversations';
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -353,6 +353,9 @@ export default function HistoryPage() {
           {/* Tabs */}
           <div className="mb-6">
             <HistoryTabs activeView={historyView} onViewChange={setHistoryView} />
+            <p className="text-sm text-muted-foreground mt-2">
+              {historyView === 'conversations' ? t('history.tabs.conversations_desc') : t('history.tabs.days_desc')}
+            </p>
           </div>
 
           {/* Tab content */}

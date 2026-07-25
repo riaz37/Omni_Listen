@@ -234,7 +234,7 @@ export default function EventsPage() {
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b border-border mb-6">
+          <div className="flex border-b border-border">
             {(['all', 'today', 'upcoming', 'past'] as const).map((tab) => (
               <button
                 key={tab}
@@ -252,6 +252,12 @@ export default function EventsPage() {
               </button>
             ))}
           </div>
+          <p className="text-sm text-muted-foreground mt-2 mb-6">
+            {activeTab === 'all' ? t('events.tab_all_desc')
+              : activeTab === 'today' ? t('events.tab_today_desc')
+              : activeTab === 'upcoming' ? t('events.tab_upcoming_desc')
+              : t('events.tab_past_desc')}
+          </p>
 
           {/* Search & Filters */}
           <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">

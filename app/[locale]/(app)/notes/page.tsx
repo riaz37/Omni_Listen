@@ -348,7 +348,7 @@ export default function NotesPage() {
           />
 
           {/* Tabs */}
-          <div className="flex border-b border-border mb-6">
+          <div className="flex border-b border-border">
             <button
               onClick={() => { setActiveTab('all'); setCurrentPage(1); }}
               className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
@@ -370,6 +370,9 @@ export default function NotesPage() {
               {t('notes.tab_completed')}
             </button>
           </div>
+          <p className="text-sm text-muted-foreground mt-2 mb-6">
+            {activeTab === 'all' ? t('notes.tab_all_desc') : t('notes.tab_completed_desc')}
+          </p>
 
           {/* Search & Filters */}
           <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
