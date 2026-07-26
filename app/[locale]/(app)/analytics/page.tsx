@@ -24,7 +24,7 @@ interface Conversation {
   title: string;
   created_at: string;
   event_count: number;
-  final_summary?: any;
+  summary_preview?: string;
 }
 
 interface Note {
@@ -147,16 +147,13 @@ export default function AnalyticsPage() {
   };
 
   const conversations = useMemo<Conversation[]>(() => {
-    return (Array.isArray(rawConversations) ? rawConversations : []).slice(0, 2).map((m: any) => {
-      const summary = typeof m.final_summary === 'string' ? JSON.parse(m.final_summary) : m.final_summary;
-      return {
-        job_id: m.job_id,
-        title: summary?.title || 'Conversation Analysis',
-        created_at: m.created_at,
-        event_count: rawEvents.filter((ev: any) => ev.meeting_id === m.job_id).length,
-        final_summary: summary,
-      };
-    });
+    return (Array.isArray(rawConversations) ? rawConversations : []).slice(0, 2).map((m: any) => ({
+      job_id: m.job_id,
+      title: m.title || 'Conversation Analysis',
+      created_at: m.created_at,
+      event_count: rawEvents.filter((ev: any) => ev.meeting_id === m.job_id).length,
+      summary_preview: m.summary_preview,
+    }));
   }, [rawConversations, rawEvents]);
 
   const events = useMemo<EventItem[]>(() => rawEvents.slice(0, 2), [rawEvents]);
@@ -176,6 +173,8 @@ export default function AnalyticsPage() {
     });
     return allTasks.slice(0, 4);
   }, [rawEvents, rawNotes]);
+
+  const totalTasks = rawEvents.length + rawNotes.length;
 
   if (!user) return null;
 
@@ -246,6 +245,7 @@ export default function AnalyticsPage() {
               {/* Task List Table */}
               <TaskListTable
                 tasks={tasks}
+                totalTasks={totalTasks}
                 getStatusBadge={getStatusBadge}
                 getUrgencyLabel={getUrgencyLabel}
               />

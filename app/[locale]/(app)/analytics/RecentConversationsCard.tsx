@@ -11,7 +11,7 @@ interface Conversation {
   title: string;
   created_at: string;
   event_count: number;
-  final_summary?: any;
+  summary_preview?: string;
 }
 
 interface RecentConversationsCardProps {
@@ -26,6 +26,7 @@ export function RecentConversationsCard({ conversations, totalConversations, onN
     <div className="bg-card-2 rounded-lg border border-border p-5">
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-foreground">{t('analytics.conversations.title')}</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">{t('analytics.conversations.description')}</p>
         <p className="text-sm text-muted-foreground mt-0.5">
           {totalConversations} {t('analytics.conversations.total_suffix')} &middot; {conversations.length} {t('analytics.conversations.shown')}
         </p>
@@ -44,8 +45,8 @@ export function RecentConversationsCard({ conversations, totalConversations, onN
               </span>
             </div>
             <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-              {conversation.final_summary?.summary
-                ? conversation.final_summary.summary.substring(0, 120) + '...'
+              {conversation.summary_preview
+                ? conversation.summary_preview.substring(0, 120) + '...'
                 : t('analytics.conversations.summary_placeholder')}
             </p>
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
