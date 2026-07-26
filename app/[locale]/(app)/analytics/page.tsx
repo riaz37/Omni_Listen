@@ -177,6 +177,8 @@ export default function AnalyticsPage() {
     return allTasks.slice(0, 4);
   }, [rawEvents, rawNotes]);
 
+  const totalTasks = rawEvents.length + rawNotes.length;
+
   if (!user) return null;
 
   const totalConversations = analytics?.total_meetings || 0;
@@ -246,6 +248,7 @@ export default function AnalyticsPage() {
               {/* Task List Table */}
               <TaskListTable
                 tasks={tasks}
+                totalTasks={totalTasks}
                 getStatusBadge={getStatusBadge}
                 getUrgencyLabel={getUrgencyLabel}
               />

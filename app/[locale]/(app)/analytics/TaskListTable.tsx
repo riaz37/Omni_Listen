@@ -21,18 +21,19 @@ interface Task {
 
 interface TaskListTableProps {
   tasks: Task[];
+  totalTasks: number;
   getStatusBadge: (completed: boolean) => ReactNode;
   getUrgencyLabel: (urgency?: string) => ReactNode;
 }
 
-export function TaskListTable({ tasks, getStatusBadge, getUrgencyLabel }: TaskListTableProps) {
+export function TaskListTable({ tasks, totalTasks, getStatusBadge, getUrgencyLabel }: TaskListTableProps) {
   const { t } = useTranslation();
   return (
     <div className="bg-card-2 rounded-lg border border-border p-5">
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-foreground">{t('analytics.tasks.title')}</h2>
         <p className="text-sm text-muted-foreground mt-0.5">
-          {tasks.length} {t('analytics.tasks.total_suffix')} &middot; {tasks.length} {t('analytics.tasks.shown')}
+          {totalTasks} {t('analytics.tasks.total_suffix')} &middot; {tasks.length} {t('analytics.tasks.shown')}
         </p>
       </div>
 
