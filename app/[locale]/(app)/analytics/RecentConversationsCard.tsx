@@ -11,7 +11,7 @@ interface Conversation {
   title: string;
   created_at: string;
   event_count: number;
-  final_summary?: any;
+  summary_preview?: string;
 }
 
 interface RecentConversationsCardProps {
@@ -44,8 +44,8 @@ export function RecentConversationsCard({ conversations, totalConversations, onN
               </span>
             </div>
             <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-              {conversation.final_summary?.summary
-                ? conversation.final_summary.summary.substring(0, 120) + '...'
+              {conversation.summary_preview
+                ? conversation.summary_preview.substring(0, 120) + '...'
                 : t('analytics.conversations.summary_placeholder')}
             </p>
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
