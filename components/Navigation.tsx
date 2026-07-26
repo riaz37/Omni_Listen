@@ -49,13 +49,13 @@ interface NavItem {
 
 const PRIMARY_ITEMS: readonly NavItem[] = [
   { href: '/listen', labelKey: 'nav.listen', icon: Home },
-  { href: '/analytics', labelKey: 'nav.analytics', icon: BarChart3 },
   { href: '/history', labelKey: 'nav.history', icon: History },
-  { href: '/calendar', labelKey: 'nav.calendar', icon: Calendar },
   { href: '/events', labelKey: 'nav.events', icon: List },
   { href: '/tasks', labelKey: 'nav.tasks', icon: CheckSquare },
   { href: '/notes', labelKey: 'nav.notes', icon: StickyNote },
+  { href: '/calendar', labelKey: 'nav.calendar', icon: Calendar },
   { href: '/queries', labelKey: 'nav.queries', icon: MessageSquare },
+  { href: '/analytics', labelKey: 'nav.analytics', icon: BarChart3 },
 ] as const;
 
 // Every visible nav link auto-prefetches on mount by default, which fires a

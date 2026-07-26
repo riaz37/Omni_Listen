@@ -47,11 +47,10 @@ export default function HistoryPage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedConversationIds, setSelectedConversationIds] = useState<number[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [historyView, setHistoryView] = useState<'conversations' | 'days'>(() => {
-    if (typeof window === 'undefined') return 'days';
-    const saved = sessionStorage.getItem('esap-history-view');
-    return saved === 'conversations' || saved === 'days' ? saved : 'days';
-  });
+  // Always opens on Conversations, even mid-session after switching to Days —
+  // deliberately not remembered across reloads/navigation (unlike the page
+  // number below), so the default is never ambiguous.
+  const [historyView, setHistoryView] = useState<'conversations' | 'days'>('conversations');
   const [searchQuery, setSearchQuery] = useState('');
   const [confirmDialog, setConfirmDialog] = useState<{
     title: string;
@@ -85,10 +84,6 @@ export default function HistoryPage() {
     }
     setCurrentPage(1);
   }, [searchQuery]);
-
-  useEffect(() => {
-    sessionStorage.setItem('esap-history-view', historyView);
-  }, [historyView]);
 
   // Persist the page number so clicking into a conversation and navigating
   // back returns to the same page instead of resetting to page 1.
@@ -353,6 +348,9 @@ export default function HistoryPage() {
           {/* Tabs */}
           <div className="mb-6">
             <HistoryTabs activeView={historyView} onViewChange={setHistoryView} />
+            <p className="text-sm text-muted-foreground mt-2">
+              {historyView === 'conversations' ? t('history.tabs.conversations_desc') : t('history.tabs.days_desc')}
+            </p>
           </div>
 
           {/* Tab content */}

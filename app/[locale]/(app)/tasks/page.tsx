@@ -284,7 +284,7 @@ export default function TasksPage() {
         />
 
         {/* Tabs */}
-        <div className="flex border-b border-border mb-6">
+        <div className="flex border-b border-border">
           <button
             onClick={() => setActiveTab('all')}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === 'all'
@@ -304,6 +304,9 @@ export default function TasksPage() {
             {t('tasks.tab_done')}
           </button>
         </div>
+        <p className="text-sm text-muted-foreground mt-2 mb-6">
+          {activeTab === 'all' ? t('tasks.tab_all_desc') : t('tasks.tab_done_desc')}
+        </p>
 
         {/* Search & Filters */}
         <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
