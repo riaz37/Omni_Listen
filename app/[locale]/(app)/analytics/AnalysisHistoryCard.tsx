@@ -24,6 +24,7 @@ export function AnalysisHistoryCard({ notes }: AnalysisHistoryCardProps) {
     <div className="bg-card-2 rounded-lg border border-border p-5">
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-foreground">{t('analytics.analysis.title')}</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">{t('analytics.analysis.description')}</p>
         <p className="text-sm text-muted-foreground mt-0.5">
           {notes.length} {t('analytics.analysis.total_suffix')} &middot; {notes.length} {t('analytics.analysis.shown')}
         </p>

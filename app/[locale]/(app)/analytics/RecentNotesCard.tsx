@@ -27,6 +27,7 @@ export function RecentNotesCard({ notes, totalNotes, getCategoryBadge }: RecentN
     <div className="bg-card-2 rounded-lg border border-border p-5">
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-foreground">{t('analytics.notes.title')}</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">{t('analytics.notes.description')}</p>
         <p className="text-sm text-muted-foreground mt-0.5">
           {totalNotes} {t('analytics.notes.total_suffix')} &middot; {notes.length} {t('analytics.notes.shown')}
         </p>

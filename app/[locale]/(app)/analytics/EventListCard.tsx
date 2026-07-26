@@ -31,6 +31,7 @@ export function EventListCard({ events, totalEvents }: EventListCardProps) {
     <div className="bg-card-2 rounded-lg border border-border p-5">
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-foreground">{t('analytics.event_list.title')}</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">{t('analytics.event_list.description')}</p>
         <p className="text-sm text-muted-foreground mt-0.5">
           {totalEvents} {t('analytics.event_list.total_suffix')} &middot; {events.length} {t('analytics.event_list.shown')}
         </p>

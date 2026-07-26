@@ -32,6 +32,7 @@ export function TaskListTable({ tasks, totalTasks, getStatusBadge, getUrgencyLab
     <div className="bg-card-2 rounded-lg border border-border p-5">
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-foreground">{t('analytics.tasks.title')}</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">{t('analytics.tasks.description')}</p>
         <p className="text-sm text-muted-foreground mt-0.5">
           {totalTasks} {t('analytics.tasks.total_suffix')} &middot; {tasks.length} {t('analytics.tasks.shown')}
         </p>
