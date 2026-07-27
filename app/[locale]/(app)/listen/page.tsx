@@ -16,6 +16,7 @@ import { Skeleton } from 'boneyard-js/react';
 import PageEntrance from '@/components/ui/page-entrance';
 import MorningBriefingCard from '@/components/MorningBriefingCard';
 import DashboardRecorder from '@/components/dashboard/DashboardRecorder';
+import MicPicker from '@/components/dashboard/MicPicker';
 import DashboardRecentConversations from '@/components/dashboard/DashboardRecentConversations';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useElectronSync } from '@/hooks/useElectronSync';
@@ -86,6 +87,7 @@ export default function DashboardPage() {
     dismissRecovery,
     downloadSecondsLeft,
     triggerDownload,
+    isPreviewingMic,
   } = useGlobalState();
 
   const [inputMode, setInputMode] = useState<'upload' | 'record' | 'auto'>('record');
@@ -375,6 +377,9 @@ export default function DashboardPage() {
         toast.error('No microphone found. Please connect a microphone and try again.');
       } else if (error.name === 'NotSupportedError') {
         toast.error('Audio recording is not supported in your browser. Please try a different browser.');
+      } else if (error.name === 'OverconstrainedError') {
+        // Only reachable if acquireMicStream's own default-device retry also failed.
+        toast.error('Selected microphone is unavailable. Please choose a different microphone and try again.');
       } else {
         toast.error(`Failed to access microphone: ${error.message || 'Unknown error'}`);
       }
@@ -566,6 +571,8 @@ export default function DashboardPage() {
             audioUrl={audioUrl}
             audioLevel={audioLevel}
             noAudioDetected={noAudioDetected}
+            micPicker={inputMode === 'record' ? <MicPicker /> : undefined}
+            isPreviewingMic={isPreviewingMic}
             processingProgress={processingProgress}
             file={file}
             config={config}

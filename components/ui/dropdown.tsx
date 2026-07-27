@@ -47,6 +47,8 @@ interface DropdownProps {
   readonly onValueChange?: (v: string) => void;
   readonly children: ReactNode;
   readonly className?: string;
+  /** Fired whenever the open state changes — e.g. to arm a live preview only while the picker is open. */
+  readonly onOpenChange?: (open: boolean) => void;
 }
 
 export function Dropdown({
@@ -55,6 +57,7 @@ export function Dropdown({
   onValueChange,
   children,
   className = '',
+  onOpenChange,
 }: DropdownProps) {
   const rawId = useId();
   const id = rawId.replace(/:/g, '');
@@ -62,6 +65,18 @@ export function Dropdown({
   const contentId = `dd-content-${id}`;
 
   const { isOpen, toggle, close, ref } = useDropdown();
+  const isMountedRef = useRef(false);
+
+  useEffect(() => {
+    if (!isMountedRef.current) {
+      isMountedRef.current = true;
+      return;
+    }
+    onOpenChange?.(isOpen);
+    // onOpenChange is intentionally excluded — callers pass inline functions
+    // and this should fire only on actual open/close transitions, not mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   return (
     <DropdownContext.Provider

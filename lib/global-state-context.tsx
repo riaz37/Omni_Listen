@@ -6,6 +6,9 @@ import { conversationsAPI } from './api';
 import * as vault from './recording-vault';
 import { downloadBlob } from './download-blob';
 import type { RecordingEntry } from '@/lib/types';
+import { MicGraph, type MicGraphHooks } from './audio/mic-graph';
+import { acquireMicStream } from './audio/mic-stream';
+import { readMicPreference, writeMicPreference, resolveMicDevice } from './mic-preference';
 
 const DOWNLOAD_WINDOW_KEY = 'esap-download-window';
 const DOWNLOAD_WINDOW_SECONDS = 300;
@@ -37,6 +40,15 @@ interface GlobalStateContextType {
     currentRecordingId: string | null;
     activateRecovery: (entry: RecordingEntry) => void;
     dismissRecovery: (id: string) => void;
+
+    // Microphone selection
+    selectedMicId: string | null;
+    selectedMicLabel: string;
+    isSwitchingMic: boolean;
+    isPreviewingMic: boolean;
+    setMicDevice: (deviceId: string | null, label: string) => Promise<void>;
+    startMicPreview: () => Promise<void>;
+    stopMicPreview: () => void;
 
     // Download Window
     downloadSecondsLeft: number | null;
@@ -70,8 +82,6 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     const audioChunksRef = useRef<Blob[]>([]);
     const [audioLevel, setAudioLevel] = useState(0);
     const [noAudioDetected, setNoAudioDetected] = useState(false);
-    const audioContextRef = useRef<AudioContext | null>(null);
-    const analyserRef = useRef<AnalyserNode | null>(null);
     const levelRafRef = useRef<number | null>(null);
     const silenceStartRef = useRef<number | null>(null);
     const recordingStartRef = useRef<number>(0);
@@ -79,6 +89,24 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     const [currentRecordingId, setCurrentRecordingId] = useState<string | null>(null);
     const currentRecordingIdRef = useRef<string | null>(null);
     const chunkIndexRef = useRef<number>(0);
+
+    // --- Microphone selection ---
+    // The single MicGraph instance backing whichever stream is "live" right
+    // now — either a pre-recording preview or an active recording. Owns the
+    // one AudioContext; see lib/audio/mic-graph.ts for the hot-swap design.
+    const micGraphRef = useRef<MicGraph | null>(null);
+    const [selectedMicId, setSelectedMicId] = useState<string | null>(() => {
+        const pref = readMicPreference();
+        return pref && pref.deviceId !== '' ? pref.deviceId : null;
+    });
+    const selectedMicIdRef = useRef<string | null>(selectedMicId);
+    const [selectedMicLabel, setSelectedMicLabel] = useState<string>(() => readMicPreference()?.label ?? '');
+    const [isSwitchingMic, setIsSwitchingMic] = useState(false);
+    const [isPreviewingMic, setIsPreviewingMic] = useState(false);
+    const isRecordingRef = useRef(false);
+    useEffect(() => {
+        isRecordingRef.current = isRecording;
+    }, [isRecording]);
 
     // --- Download Window ---
     const [downloadSecondsLeft, setDownloadSecondsLeft] = useState<number | null>(null);
@@ -163,66 +191,42 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    // Stops the RMS metering loop and tears down the AudioContext/AnalyserNode.
-    // Safe to call multiple times — every recording-exit path (normal stop,
-    // cancel) calls this so a stale AudioContext never leaks between recordings.
+    // Stops the RMS metering loop. Safe to call multiple times — every
+    // recording-exit path (normal stop, cancel) calls this. The AudioContext
+    // itself is now owned by MicGraph and torn down via micGraph.close(),
+    // not here.
     const stopLevelMeter = () => {
         if (levelRafRef.current !== null) {
             cancelAnimationFrame(levelRafRef.current);
             levelRafRef.current = null;
         }
-        if (audioContextRef.current) {
-            audioContextRef.current.close().catch(() => {});
-            audioContextRef.current = null;
-        }
-        analyserRef.current = null;
         silenceStartRef.current = null;
         setAudioLevel(0);
         setNoAudioDetected(false);
     };
 
-    // Taps the raw mic stream (independent of MediaRecorder) with an AnalyserNode
-    // to compute a live RMS level and flag sustained silence. Never connected to
-    // destination, so there is no monitoring playback/feedback.
-    const startLevelMeter = (stream: MediaStream) => {
-        try {
-            const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
-            const audioContext: AudioContext = new AudioContextCtor();
-            const source = audioContext.createMediaStreamSource(stream);
-            const analyser = audioContext.createAnalyser();
-            analyser.fftSize = 2048;
-            source.connect(analyser);
-            audioContextRef.current = audioContext;
-            analyserRef.current = analyser;
-            if (audioContext.state === 'suspended') {
-                audioContext.resume().catch(() => {});
-            }
-        } catch (meterError) {
-            console.warn('Audio level metering unavailable:', meterError);
-            return;
-        }
+    // Reads the live RMS level off the given MicGraph and, in 'recording'
+    // mode, flags sustained silence. 'preview' mode skips silence-detection
+    // (that banner/toast is recording-only and already gated on isRecording
+    // by the UI) but still drives the level meter shown before recording
+    // starts. Throttled to ~20Hz — audioLevel lives in this top-level
+    // context, so an un-throttled 60fps RAF loop would re-render the whole
+    // page tree that often, and the preview extends the window it runs in
+    // from "while recording" to "whenever the picker is open".
+    const LEVEL_UPDATE_INTERVAL_MS = 50;
 
+    const startLevelMeter = (graph: MicGraph, mode: 'preview' | 'recording') => {
         recordingStartRef.current = Date.now();
         silenceStartRef.current = null;
 
-        const audioTrack = stream.getAudioTracks()[0];
-        if (audioTrack) {
-            audioTrack.onmute = () => setNoAudioDetected(true);
-            audioTrack.onunmute = () => {
-                silenceStartRef.current = null;
-                setNoAudioDetected(false);
-            };
-        }
-
-        const dataArray = new Uint8Array(analyserRef.current!.fftSize);
+        let lastUpdate = 0;
         const loop = () => {
-            const analyser = analyserRef.current;
-            if (!analyser) return;
+            if (micGraphRef.current !== graph) return; // superseded/closed — let this loop instance die
 
             // Paused MediaRecorder still leaves the underlying track live, so the
-            // analyser keeps reading real audio — force the meter to 0 while
-            // paused per design, rather than showing (misleading) live levels.
-            if (mediaRecorderRef.current?.state === 'paused') {
+            // graph keeps reading real audio — force the meter to 0 while paused
+            // per design, rather than showing (misleading) live levels.
+            if (mode === 'recording' && mediaRecorderRef.current?.state === 'paused') {
                 setAudioLevel(0);
                 silenceStartRef.current = null;
                 setNoAudioDetected(false);
@@ -230,26 +234,25 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
                 return;
             }
 
-            analyser.getByteTimeDomainData(dataArray);
-            let sumSquares = 0;
-            for (let i = 0; i < dataArray.length; i++) {
-                const normalized = (dataArray[i] - 128) / 128;
-                sumSquares += normalized * normalized;
-            }
-            const rms = Math.sqrt(sumSquares / dataArray.length);
-            setAudioLevel(Math.min(1, rms * 4));
-
             const now = Date.now();
-            if (rms < SILENCE_RMS_THRESHOLD) {
-                if (silenceStartRef.current === null) silenceStartRef.current = now;
-                const silentForMs = now - silenceStartRef.current;
-                const elapsedSinceStart = now - recordingStartRef.current;
-                if (elapsedSinceStart > SILENCE_GRACE_MS && silentForMs > SILENCE_WARNING_MS) {
-                    setNoAudioDetected(true);
+            if (now - lastUpdate >= LEVEL_UPDATE_INTERVAL_MS) {
+                lastUpdate = now;
+                const rms = graph.getRms();
+                setAudioLevel(Math.min(1, Math.round(rms * 4 * 100) / 100));
+
+                if (mode === 'recording') {
+                    if (rms < SILENCE_RMS_THRESHOLD) {
+                        if (silenceStartRef.current === null) silenceStartRef.current = now;
+                        const silentForMs = now - silenceStartRef.current;
+                        const elapsedSinceStart = now - recordingStartRef.current;
+                        if (elapsedSinceStart > SILENCE_GRACE_MS && silentForMs > SILENCE_WARNING_MS) {
+                            setNoAudioDetected(true);
+                        }
+                    } else {
+                        silenceStartRef.current = null;
+                        setNoAudioDetected(false);
+                    }
                 }
-            } else {
-                silenceStartRef.current = null;
-                setNoAudioDetected(false);
             }
 
             levelRafRef.current = requestAnimationFrame(loop);
@@ -257,21 +260,129 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         levelRafRef.current = requestAnimationFrame(loop);
     };
 
+    // Hardware mute/unmute and unexpected track-end (e.g. device unplugged)
+    // are wired once per MicGraph and re-bound onto the new track by the
+    // graph itself on every swap (see mic-graph.ts) — so these callbacks
+    // don't need to change when the device changes.
+    //
+    // Recovers when the active mic disappears mid-use (unplugged), whether
+    // that's caught via the track's own 'ended' event or a devicechange scan
+    // (see the effect below). Re-resolves the stored preference against the
+    // fresh device list — same logic a stale deviceId uses on next launch —
+    // and swaps to whatever that resolves to (typically system default).
+    const handleActiveDeviceLost = useCallback(async () => {
+        const graph = micGraphRef.current;
+        if (!graph) return;
+        try {
+            const devices = (await navigator.mediaDevices.enumerateDevices()).filter(
+                (d) => d.kind === 'audioinput',
+            );
+            const resolved = resolveMicDevice(readMicPreference(), devices);
+            const { stream } = await acquireMicStream(resolved.deviceId);
+            await graph.swapSource(stream);
+            selectedMicIdRef.current = resolved.deviceId;
+            setSelectedMicId(resolved.deviceId);
+            silenceStartRef.current = null;
+            recordingStartRef.current = Date.now();
+            toast.warning(
+                isRecordingRef.current
+                    ? 'Your microphone was disconnected — switched to the system default so the recording continues.'
+                    : 'Your microphone was disconnected — switched to the system default.',
+            );
+        } catch (err) {
+            console.error('Failed to recover from a disconnected microphone:', err);
+        }
+    }, []);
+
+    const micGraphHooks: MicGraphHooks = {
+        onTrackMute: (muted) => {
+            if (muted) {
+                setNoAudioDetected(true);
+            } else {
+                silenceStartRef.current = null;
+                setNoAudioDetected(false);
+            }
+        },
+        onTrackEnded: () => {
+            handleActiveDeviceLost();
+        },
+    };
+
+    // Chrome fires devicechange 2-4x per physical plug/unplug event —
+    // debounce so we don't re-enumerate and re-check on every one of them.
+    useEffect(() => {
+        const mediaDevices = navigator.mediaDevices as (MediaDevices & EventTarget) | undefined;
+        if (!mediaDevices?.addEventListener) return;
+
+        let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+        const handler = () => {
+            if (debounceTimer) clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                const graph = micGraphRef.current;
+                if (!graph) return;
+                navigator.mediaDevices
+                    .enumerateDevices()
+                    .then((all) => {
+                        const inputs = all.filter((d) => d.kind === 'audioinput');
+                        const activeId = graph.activeStream?.getAudioTracks()[0]?.getSettings().deviceId;
+                        const stillPresent = !activeId || inputs.some((d) => d.deviceId === activeId);
+                        if (!stillPresent) handleActiveDeviceLost();
+                    })
+                    .catch(() => {});
+            }, 300);
+        };
+
+        mediaDevices.addEventListener('devicechange', handler);
+        return () => {
+            if (debounceTimer) clearTimeout(debounceTimer);
+            mediaDevices.removeEventListener('devicechange', handler);
+        };
+    }, [handleActiveDeviceLost]);
+
+    // AudioContext suspension watchdog: a suspended context feeding a
+    // MediaStreamAudioDestinationNode emits digital silence into an
+    // otherwise structurally-valid WebM. Backgrounded tabs (especially
+    // mobile Safari) can suspend the context out from under an active
+    // recording; ensureRunning() is a no-op unless that's actually happened.
+    useEffect(() => {
+        if (!isRecording) return;
+        const interval = setInterval(() => {
+            micGraphRef.current?.ensureRunning().catch(() => {});
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [isRecording]);
+
     const startRecording = async () => {
         try {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 throw new Error('Audio recording is not supported in your browser.');
             }
 
-            // No hard sampleRate constraint — it can throw
-            // OverconstrainedError on devices that don't support 44.1 kHz.
-            const stream = await navigator.mediaDevices.getUserMedia({
-                audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    autoGainControl: true,
-                },
-            });
+            const targetDeviceId = selectedMicIdRef.current;
+            let graph = micGraphRef.current;
+            let fellBackToDefault = false;
+
+            if (graph) {
+                // A preview (or an already-running graph) is live — hand it over
+                // instead of opening the mic a second time. Only re-acquire if the
+                // user picked a specific device that differs from what's live.
+                const liveId = graph.activeStream?.getAudioTracks()[0]?.getSettings().deviceId ?? null;
+                if (targetDeviceId !== null && liveId !== targetDeviceId) {
+                    const acquired = await acquireMicStream(targetDeviceId);
+                    await graph.swapSource(acquired.stream);
+                    fellBackToDefault = acquired.fellBackToDefault;
+                }
+                await graph.ensureRunning();
+            } else {
+                const acquired = await acquireMicStream(targetDeviceId);
+                graph = await MicGraph.create(acquired.stream, micGraphHooks);
+                micGraphRef.current = graph;
+                fellBackToDefault = acquired.fellBackToDefault;
+            }
+
+            if (fellBackToDefault) {
+                toast.warning('Selected microphone is unavailable — recording from the system default instead.');
+            }
 
             let mimeType = 'audio/webm';
             if (!MediaRecorder.isTypeSupported('audio/webm')) {
@@ -281,7 +392,10 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
 
             // 128 kbps matches the extension and desktop recorders; the
             // browser default bitrate can be too low for clean transcription.
-            const recorder = new MediaRecorder(stream, {
+            // Constructed on graph.stream (the MicGraph destination), not the
+            // raw mic stream — this is what makes a mid-recording device swap
+            // possible without ever stopping/restarting the recorder.
+            const recorder = new MediaRecorder(graph.stream, {
                 mimeType,
                 audioBitsPerSecond: 128000,
             });
@@ -311,7 +425,12 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
                 const blob = new Blob(audioChunksRef.current, { type: mimeType });
                 setAudioBlob(blob);
                 setAudioUrl(URL.createObjectURL(blob));
-                stream.getTracks().forEach((track) => track.stop());
+                // Releases the mic. MediaRecorder now reads from the MicGraph's
+                // destination stream, not the raw mic stream, so stopping
+                // recorder.stream's tracks (the old approach) would no longer
+                // release anything — micGraph.close() is what actually does it.
+                micGraphRef.current?.close();
+                micGraphRef.current = null;
 
                 const stoppedAt = new Date().toISOString();
                 vault
@@ -337,9 +456,10 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
 
             mediaRecorderRef.current = recorder;
             recorder.start(5000);
-            startLevelMeter(stream);
+            startLevelMeter(graph, 'recording');
             setIsRecording(true);
             setIsPaused(false);
+            setIsPreviewingMic(false); // graph handed over to the recording
             setRecordingTime(0);
             setAudioBlob(null);
             setAudioUrl(null);
@@ -380,13 +500,15 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     const cancelRecording = () => {
         stopLevelMeter();
         if (mediaRecorderRef.current) {
-            const stream = mediaRecorderRef.current.stream;
-            if (stream) {
-                stream.getTracks().forEach((track) => track.stop());
-            }
             mediaRecorderRef.current.onstop = null;
             mediaRecorderRef.current.stop();
         }
+        // Releases the mic — see the matching comment in recorder.onstop above.
+        // MicGraph.close() stops its tracks synchronously (before its one
+        // internal await), so the hardware indicator turns off immediately
+        // even though close() itself isn't awaited here.
+        micGraphRef.current?.close();
+        micGraphRef.current = null;
         if (currentRecordingIdRef.current) {
             vault.deleteRecording(currentRecordingIdRef.current).catch(() => {});
             currentRecordingIdRef.current = null;
@@ -419,6 +541,72 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         setRecordingTime(0);
         audioChunksRef.current = [];
         setAutoProcess(false);
+    };
+
+    // Switches the live graph to a different device, whether idle, previewing,
+    // or mid-recording. Acquire-before-teardown: the new stream is opened
+    // while the old one is still live, so a failure here leaves the old mic
+    // fully intact and nothing is lost.
+    const setMicDevice = async (deviceId: string | null, label: string) => {
+        const previousId = selectedMicIdRef.current;
+        const previousLabel = selectedMicLabel;
+
+        writeMicPreference({ deviceId, label });
+        selectedMicIdRef.current = deviceId;
+        setSelectedMicId(deviceId);
+        setSelectedMicLabel(label);
+
+        const graph = micGraphRef.current;
+        if (!graph) return; // idle with no live graph — the next start/preview will pick this up
+
+        setIsSwitchingMic(true);
+        try {
+            const acquired = await acquireMicStream(deviceId);
+            await graph.swapSource(acquired.stream);
+            silenceStartRef.current = null;
+            recordingStartRef.current = Date.now();
+            setNoAudioDetected(false);
+        } catch (err) {
+            console.error('Failed to switch microphone:', err);
+            writeMicPreference({ deviceId: previousId, label: previousLabel });
+            selectedMicIdRef.current = previousId;
+            setSelectedMicId(previousId);
+            setSelectedMicLabel(previousLabel);
+            toast.error('Could not switch to that microphone. Still recording from the previous one.');
+        } finally {
+            setIsSwitchingMic(false);
+        }
+    };
+
+    // Opens the mic and starts the level meter WITHOUT a MediaRecorder, so the
+    // picker can show a live "does this mic hear me" preview before Start is
+    // pressed. Only ever called as a direct result of a user gesture — never
+    // on mount — so there is no surprise permission prompt and no tab mic
+    // indicator left on from a page load the user didn't ask for.
+    const startMicPreview = async () => {
+        if (isRecording || micGraphRef.current) return;
+        try {
+            const acquired = await acquireMicStream(selectedMicIdRef.current);
+            const graph = await MicGraph.create(acquired.stream, micGraphHooks);
+            micGraphRef.current = graph;
+            setIsPreviewingMic(true);
+            startLevelMeter(graph, 'preview');
+            if (acquired.fellBackToDefault) {
+                toast.warning('Selected microphone is unavailable — previewing the system default instead.');
+            }
+        } catch (err) {
+            console.error('Mic preview unavailable:', err);
+        }
+    };
+
+    // No-op while recording — the preview graph has already been handed over
+    // to the recording at that point and must not be torn down here.
+    const stopMicPreview = () => {
+        if (isRecording) return;
+        stopLevelMeter();
+        micGraphRef.current?.close();
+        micGraphRef.current = null;
+        setIsPreviewingMic(false);
     };
 
     const activateRecovery = (entry: RecordingEntry) => {
@@ -576,6 +764,8 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
             currentRecordingId,
             activateRecovery,
             dismissRecovery,
+            selectedMicId, selectedMicLabel, isSwitchingMic, isPreviewingMic,
+            setMicDevice, startMicPreview, stopMicPreview,
             downloadSecondsLeft, downloadWindowFileName, triggerDownload,
             processingJobId, processingStatus, processingProgress, isProcessing,
             startProcessing, pollJobStatus, resetProcessing,
