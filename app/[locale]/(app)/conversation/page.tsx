@@ -1,3 +1,5 @@
+'use client';
+
 import { Suspense } from 'react';
 import ConversationDetailClient from './ConversationDetailClient';
 import { useConversationId } from '@/hooks/useConversationId';
