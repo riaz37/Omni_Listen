@@ -669,6 +669,23 @@
     "no_speech_description": "This recording doesn't appear to contain any spoken audio. Your microphone may have been muted, silent, or set to the wrong input device. Try recording again and check your mic is picking up sound before you stop.",
     "no_speech_record_again": "Record again"
   },
+  "recorder": {
+    "mic_label": "Microphone",
+    "mic_system_default": "System default",
+    "mic_system_default_hint": "Uses whatever mic your OS has set as default",
+    "mic_allow_title": "Allow microphone access",
+    "mic_allow_body": "We need permission to list your microphones and show their names.",
+    "mic_allow_button": "Allow microphone access",
+    "mic_denied_title": "Microphone access blocked",
+    "mic_denied_body": "Microphone access is blocked in your browser settings. You can still record — it will use your system default microphone.",
+    "mic_none_found": "No microphones found",
+    "mic_switching": "Switching microphone...",
+    "mic_switch_failed": "Could not switch to {name}. Still recording from the previous microphone.",
+    "mic_disconnected": "Your microphone was disconnected — switched to the system default.",
+    "mic_disconnected_recording": "Your microphone was disconnected — switched to the system default so the recording continues.",
+    "mic_unavailable_fallback": "Selected microphone is unavailable — recording from the system default instead.",
+    "mic_test": "Test mic"
+  },
   "events": {
     "title": "Events List",
     "subtitle": "All events extracted from your conversations",

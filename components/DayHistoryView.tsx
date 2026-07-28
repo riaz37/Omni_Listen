@@ -8,6 +8,7 @@ import { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { summaryAPI } from '@/lib/api';
 import { useTranslation } from '@/lib/i18n/use-translation';
+import { goToConversation } from '@/lib/navigation';
 
 interface Meeting {
     job_id: string;
@@ -113,7 +114,7 @@ function DayGroupItem({ group }: { group: DayGroup }) {
                             key={i}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                router.push(lp(`/conversation?id=${source.job_id}`));
+                                goToConversation(router, lp, source.job_id);
                             }}
                             className="inline-flex items-center ms-1 p-0.5 text-primary hover:text-text-primary hover:bg-primary/10 rounded transition-colors"
                             title={`Go to: ${source.title}`}

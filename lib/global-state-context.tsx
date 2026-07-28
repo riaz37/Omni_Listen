@@ -1,11 +1,18 @@
 'use client';
 
 import React, { createContext, useContext, useState, useRef, useEffect, useCallback, ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { conversationsAPI } from './api';
 import * as vault from './recording-vault';
 import { downloadBlob } from './download-blob';
 import type { RecordingEntry } from '@/lib/types';
+import { MicGraph, type MicGraphHooks } from './audio/mic-graph';
+import { acquireMicStream } from './audio/mic-stream';
+import {
+    readMicPreference, writeMicPreference, resolveMicDevice,
+    deriveMicSelection, canResolveDevices,
+} from './mic-preference';
 
 const DOWNLOAD_WINDOW_KEY = 'esap-download-window';
 const DOWNLOAD_WINDOW_SECONDS = 300;
@@ -38,6 +45,15 @@ interface GlobalStateContextType {
     activateRecovery: (entry: RecordingEntry) => void;
     dismissRecovery: (id: string) => void;
 
+    // Microphone selection
+    selectedMicId: string | null;
+    selectedMicLabel: string;
+    isSwitchingMic: boolean;
+    isPreviewingMic: boolean;
+    setMicDevice: (deviceId: string | null, label: string) => Promise<void>;
+    startMicPreview: () => Promise<void>;
+    stopMicPreview: () => void;
+
     // Download Window
     downloadSecondsLeft: number | null;
     downloadWindowFileName: string | null;
@@ -48,6 +64,13 @@ interface GlobalStateContextType {
     processingStatus: string;
     processingProgress: number;
     isProcessing: boolean;
+    // Set exactly once per job when it reaches a terminal state; consumers
+    // must call acknowledgeJobCompletion() after handling it so it isn't
+    // handled twice by e.g. both the listen page and FloatingStatusIndicator.
+    completedJobId: string | null;
+    failedJobId: string | null;
+    failedJobError: string | null;
+    acknowledgeJobCompletion: () => void;
     startProcessing: (file: File, config: any) => Promise<string>;
     pollJobStatus: (id: string) => void;
     resetProcessing: () => void;
@@ -60,6 +83,8 @@ interface GlobalStateContextType {
 const GlobalStateContext = createContext<GlobalStateContextType | undefined>(undefined);
 
 export function GlobalStateProvider({ children }: { children: ReactNode }) {
+    const queryClient = useQueryClient();
+
     // --- Recording State ---
     const [isRecording, setIsRecording] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
@@ -70,8 +95,6 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     const audioChunksRef = useRef<Blob[]>([]);
     const [audioLevel, setAudioLevel] = useState(0);
     const [noAudioDetected, setNoAudioDetected] = useState(false);
-    const audioContextRef = useRef<AudioContext | null>(null);
-    const analyserRef = useRef<AnalyserNode | null>(null);
     const levelRafRef = useRef<number | null>(null);
     const silenceStartRef = useRef<number | null>(null);
     const recordingStartRef = useRef<number>(0);
@@ -79,6 +102,24 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     const [currentRecordingId, setCurrentRecordingId] = useState<string | null>(null);
     const currentRecordingIdRef = useRef<string | null>(null);
     const chunkIndexRef = useRef<number>(0);
+
+    // --- Microphone selection ---
+    // The single MicGraph instance backing whichever stream is "live" right
+    // now — either a pre-recording preview or an active recording. Owns the
+    // one AudioContext; see lib/audio/mic-graph.ts for the hot-swap design.
+    const micGraphRef = useRef<MicGraph | null>(null);
+    const [selectedMicId, setSelectedMicId] = useState<string | null>(() => {
+        const pref = readMicPreference();
+        return pref && pref.deviceId !== '' ? pref.deviceId : null;
+    });
+    const selectedMicIdRef = useRef<string | null>(selectedMicId);
+    const [selectedMicLabel, setSelectedMicLabel] = useState<string>(() => readMicPreference()?.label ?? '');
+    const [isSwitchingMic, setIsSwitchingMic] = useState(false);
+    const [isPreviewingMic, setIsPreviewingMic] = useState(false);
+    const isRecordingRef = useRef(false);
+    useEffect(() => {
+        isRecordingRef.current = isRecording;
+    }, [isRecording]);
 
     // --- Download Window ---
     const [downloadSecondsLeft, setDownloadSecondsLeft] = useState<number | null>(null);
@@ -163,66 +204,42 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    // Stops the RMS metering loop and tears down the AudioContext/AnalyserNode.
-    // Safe to call multiple times — every recording-exit path (normal stop,
-    // cancel) calls this so a stale AudioContext never leaks between recordings.
+    // Stops the RMS metering loop. Safe to call multiple times — every
+    // recording-exit path (normal stop, cancel) calls this. The AudioContext
+    // itself is now owned by MicGraph and torn down via micGraph.close(),
+    // not here.
     const stopLevelMeter = () => {
         if (levelRafRef.current !== null) {
             cancelAnimationFrame(levelRafRef.current);
             levelRafRef.current = null;
         }
-        if (audioContextRef.current) {
-            audioContextRef.current.close().catch(() => {});
-            audioContextRef.current = null;
-        }
-        analyserRef.current = null;
         silenceStartRef.current = null;
         setAudioLevel(0);
         setNoAudioDetected(false);
     };
 
-    // Taps the raw mic stream (independent of MediaRecorder) with an AnalyserNode
-    // to compute a live RMS level and flag sustained silence. Never connected to
-    // destination, so there is no monitoring playback/feedback.
-    const startLevelMeter = (stream: MediaStream) => {
-        try {
-            const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
-            const audioContext: AudioContext = new AudioContextCtor();
-            const source = audioContext.createMediaStreamSource(stream);
-            const analyser = audioContext.createAnalyser();
-            analyser.fftSize = 2048;
-            source.connect(analyser);
-            audioContextRef.current = audioContext;
-            analyserRef.current = analyser;
-            if (audioContext.state === 'suspended') {
-                audioContext.resume().catch(() => {});
-            }
-        } catch (meterError) {
-            console.warn('Audio level metering unavailable:', meterError);
-            return;
-        }
+    // Reads the live RMS level off the given MicGraph and, in 'recording'
+    // mode, flags sustained silence. 'preview' mode skips silence-detection
+    // (that banner/toast is recording-only and already gated on isRecording
+    // by the UI) but still drives the level meter shown before recording
+    // starts. Throttled to ~20Hz — audioLevel lives in this top-level
+    // context, so an un-throttled 60fps RAF loop would re-render the whole
+    // page tree that often, and the preview extends the window it runs in
+    // from "while recording" to "whenever the picker is open".
+    const LEVEL_UPDATE_INTERVAL_MS = 50;
 
+    const startLevelMeter = (graph: MicGraph, mode: 'preview' | 'recording') => {
         recordingStartRef.current = Date.now();
         silenceStartRef.current = null;
 
-        const audioTrack = stream.getAudioTracks()[0];
-        if (audioTrack) {
-            audioTrack.onmute = () => setNoAudioDetected(true);
-            audioTrack.onunmute = () => {
-                silenceStartRef.current = null;
-                setNoAudioDetected(false);
-            };
-        }
-
-        const dataArray = new Uint8Array(analyserRef.current!.fftSize);
+        let lastUpdate = 0;
         const loop = () => {
-            const analyser = analyserRef.current;
-            if (!analyser) return;
+            if (micGraphRef.current !== graph) return; // superseded/closed — let this loop instance die
 
             // Paused MediaRecorder still leaves the underlying track live, so the
-            // analyser keeps reading real audio — force the meter to 0 while
-            // paused per design, rather than showing (misleading) live levels.
-            if (mediaRecorderRef.current?.state === 'paused') {
+            // graph keeps reading real audio — force the meter to 0 while paused
+            // per design, rather than showing (misleading) live levels.
+            if (mode === 'recording' && mediaRecorderRef.current?.state === 'paused') {
                 setAudioLevel(0);
                 silenceStartRef.current = null;
                 setNoAudioDetected(false);
@@ -230,26 +247,25 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
                 return;
             }
 
-            analyser.getByteTimeDomainData(dataArray);
-            let sumSquares = 0;
-            for (let i = 0; i < dataArray.length; i++) {
-                const normalized = (dataArray[i] - 128) / 128;
-                sumSquares += normalized * normalized;
-            }
-            const rms = Math.sqrt(sumSquares / dataArray.length);
-            setAudioLevel(Math.min(1, rms * 4));
-
             const now = Date.now();
-            if (rms < SILENCE_RMS_THRESHOLD) {
-                if (silenceStartRef.current === null) silenceStartRef.current = now;
-                const silentForMs = now - silenceStartRef.current;
-                const elapsedSinceStart = now - recordingStartRef.current;
-                if (elapsedSinceStart > SILENCE_GRACE_MS && silentForMs > SILENCE_WARNING_MS) {
-                    setNoAudioDetected(true);
+            if (now - lastUpdate >= LEVEL_UPDATE_INTERVAL_MS) {
+                lastUpdate = now;
+                const rms = graph.getRms();
+                setAudioLevel(Math.min(1, Math.round(rms * 4 * 100) / 100));
+
+                if (mode === 'recording') {
+                    if (rms < SILENCE_RMS_THRESHOLD) {
+                        if (silenceStartRef.current === null) silenceStartRef.current = now;
+                        const silentForMs = now - silenceStartRef.current;
+                        const elapsedSinceStart = now - recordingStartRef.current;
+                        if (elapsedSinceStart > SILENCE_GRACE_MS && silentForMs > SILENCE_WARNING_MS) {
+                            setNoAudioDetected(true);
+                        }
+                    } else {
+                        silenceStartRef.current = null;
+                        setNoAudioDetected(false);
+                    }
                 }
-            } else {
-                silenceStartRef.current = null;
-                setNoAudioDetected(false);
             }
 
             levelRafRef.current = requestAnimationFrame(loop);
@@ -257,21 +273,252 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         levelRafRef.current = requestAnimationFrame(loop);
     };
 
+    // Atomic write-set for "what the picker should show right now" — the ref
+    // mirror (read synchronously by acquisition code) and the two pieces of
+    // display state always change together. Promoted out of setMicDevice's
+    // duplicated inline form (used below in its happy path and rollback) so
+    // every other correction path (idle reconciliation, live-graph recovery,
+    // acquisition fallback) writes the same three things the same way —
+    // previously handleActiveDeviceLost only wrote selectedMicId and silently
+    // left a stale selectedMicLabel on screen.
+    const applyMicSelection = useCallback((deviceId: string | null, label: string) => {
+        selectedMicIdRef.current = deviceId;
+        setSelectedMicId(deviceId);
+        setSelectedMicLabel(label);
+    }, []);
+
+    // Re-validates the stored mic preference against a fresh device list and
+    // corrects the DISPLAYED selection when the remembered device has gone
+    // away — without requiring a live MicGraph. This is what was entirely
+    // missing before: both handleActiveDeviceLost and the devicechange effect
+    // only ever ran while a graph was live, so unplugging a device between
+    // recordings (or while idle) left the picker showing a dead device
+    // indefinitely, and the next preview/recording would silently open the
+    // system default while still LABELED as the disconnected device.
+    //
+    // Deliberately reads the preference from localStorage, never from
+    // selectedMicId/selectedMicLabel state — that asymmetry (display cleared,
+    // preference kept) is what lets a later replug of the same device be
+    // silently re-adopted by label, per resolveMicDevice's design.
+    //
+    // Returns the deviceId that should actually be opened, so callers can use
+    // it directly instead of trusting selectedMicIdRef blindly.
+    const reconcileMicSelection = useCallback(async (devices?: MediaDeviceInfo[]): Promise<string | null> => {
+        try {
+            const inputs = devices ?? (await navigator.mediaDevices.enumerateDevices()).filter(
+                (d) => d.kind === 'audioinput',
+            );
+            // Permission not yet granted (or genuinely no mics) — enumerateDevices()
+            // returns blank-labeled entries in that state, which would otherwise
+            // read as "every stored device is stale" and wipe a perfectly good
+            // remembered mic on every cold page load. Change nothing instead.
+            if (!canResolveDevices(inputs)) return selectedMicIdRef.current;
+
+            const pref = readMicPreference();
+            const resolution = resolveMicDevice(pref, inputs);
+            const next = deriveMicSelection(resolution, pref);
+
+            // Only a 'label'/'label-normalized' match (device present under a
+            // reshuffled id) is a legitimate permanent correction. A 'stale'
+            // match must NEVER be persisted — that's what keeps a later replug
+            // of the same physical device re-adoptable by label.
+            if (next.shouldPersist && pref && next.deviceId !== pref.deviceId) {
+                writeMicPreference({ deviceId: next.deviceId, label: next.label, groupId: resolution.device?.groupId });
+            }
+
+            applyMicSelection(next.deviceId, next.label);
+            return next.deviceId;
+        } catch (err) {
+            console.error('Failed to reconcile microphone selection:', err);
+            return selectedMicIdRef.current;
+        }
+    }, [applyMicSelection]);
+
+    // Hardware mute/unmute and unexpected track-end (e.g. device unplugged)
+    // are wired once per MicGraph and re-bound onto the new track by the
+    // graph itself on every swap (see mic-graph.ts) — so these callbacks
+    // don't need to change when the device changes.
+    //
+    // Recovers when the active mic disappears mid-use (unplugged), whether
+    // that's caught via the track's own 'ended' event or a devicechange scan
+    // (see the effect below). Re-resolves the stored preference against the
+    // fresh device list — same logic a stale deviceId uses on next launch —
+    // and swaps to whatever that resolves to (typically system default).
+    //
+    // Stays live-graph-only by design (the idle case is reconcileMicSelection's
+    // job) — accepts an optional pre-fetched device list so the devicechange
+    // effect, which already enumerated to check "is the active device still
+    // present", doesn't have to enumerate a second time.
+    const handleActiveDeviceLost = useCallback(async (devices?: MediaDeviceInfo[]) => {
+        const graph = micGraphRef.current;
+        if (!graph) return;
+        try {
+            const inputs = devices ?? (await navigator.mediaDevices.enumerateDevices()).filter(
+                (d) => d.kind === 'audioinput',
+            );
+            const pref = readMicPreference();
+            const resolution = resolveMicDevice(pref, inputs);
+            const acquired = await acquireMicStream(resolution.deviceId);
+            await graph.swapSource(acquired.stream);
+
+            // getUserMedia's actual result wins over what the resolution predicted
+            // — if it had to fall back to default, the display must say so too.
+            const next = acquired.fellBackToDefault
+                ? { deviceId: null, label: '', shouldPersist: false }
+                : deriveMicSelection(resolution, pref);
+            if (next.shouldPersist && pref && next.deviceId !== pref.deviceId) {
+                writeMicPreference({ deviceId: next.deviceId, label: next.label, groupId: resolution.device?.groupId });
+            }
+            applyMicSelection(next.deviceId, next.label);
+
+            silenceStartRef.current = null;
+            recordingStartRef.current = Date.now();
+            toast.warning(
+                isRecordingRef.current
+                    ? 'Your microphone was disconnected — switched to the system default so the recording continues.'
+                    : 'Your microphone was disconnected — switched to the system default.',
+            );
+        } catch (err) {
+            console.error('Failed to recover from a disconnected microphone:', err);
+        }
+    }, [applyMicSelection]);
+
+    const micGraphHooks: MicGraphHooks = {
+        onTrackMute: (muted) => {
+            if (muted) {
+                setNoAudioDetected(true);
+            } else {
+                silenceStartRef.current = null;
+                setNoAudioDetected(false);
+            }
+        },
+        onTrackEnded: () => {
+            handleActiveDeviceLost();
+        },
+    };
+
+    // Chrome fires devicechange 2-4x per physical plug/unplug event —
+    // debounce so we don't re-enumerate and re-check on every one of them.
+    //
+    // enumerateDevices() now runs unconditionally (not gated on a live graph)
+    // so an idle disconnect/replug is caught too — previously this whole
+    // handler no-opped whenever there was no live MicGraph, which is exactly
+    // the state the app is in between recordings. Exactly one of {live
+    // recovery, idle reconciliation, nothing} runs per event, and the list is
+    // fetched once and threaded into handleActiveDeviceLost rather than
+    // re-fetched by it.
+    useEffect(() => {
+        const mediaDevices = navigator.mediaDevices as (MediaDevices & EventTarget) | undefined;
+        if (!mediaDevices?.addEventListener) return;
+
+        let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+        const handler = () => {
+            if (debounceTimer) clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                navigator.mediaDevices
+                    .enumerateDevices()
+                    .then((all) => {
+                        const inputs = all.filter((d) => d.kind === 'audioinput');
+                        const graph = micGraphRef.current;
+                        if (graph) {
+                            const activeId = graph.activeStream?.getAudioTracks()[0]?.getSettings().deviceId;
+                            const stillPresent = !activeId || inputs.some((d) => d.deviceId === activeId);
+                            // A graph that's still healthy is left alone even if a
+                            // different (or newly re-plugged) preferred device now
+                            // appears — swapping it out from under an in-progress
+                            // recording would be a surprise nobody asked for. That
+                            // stays owned entirely by the "still present" check above.
+                            if (!stillPresent) handleActiveDeviceLost(inputs);
+                        } else {
+                            reconcileMicSelection(inputs);
+                        }
+                    })
+                    .catch(() => {});
+            }, 300);
+        };
+
+        mediaDevices.addEventListener('devicechange', handler);
+        return () => {
+            if (debounceTimer) clearTimeout(debounceTimer);
+            mediaDevices.removeEventListener('devicechange', handler);
+        };
+    }, [handleActiveDeviceLost, reconcileMicSelection]);
+
+    // Closes the "device was unplugged while the tab was closed, then the
+    // page was reloaded" gap — devicechange never fires for that. Safe to run
+    // unconditionally on mount: enumerateDevices() never prompts for
+    // permission or lights the tab's mic indicator, and canResolveDevices
+    // doubles as the permission gate inside reconcileMicSelection (blank
+    // labels ⇒ no change), so this can never surprise a first-time visitor.
+    //
+    // Synchronizing displayed state with an external system (the OS device
+    // list) on mount — the synchronous correction is intentional, not a
+    // re-render loop; it fires at most once per mount and only ever changes
+    // anything if the remembered device has actually gone away or come back
+    // renamed.
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        reconcileMicSelection().catch(() => {});
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // AudioContext suspension watchdog: a suspended context feeding a
+    // MediaStreamAudioDestinationNode emits digital silence into an
+    // otherwise structurally-valid WebM. Backgrounded tabs (especially
+    // mobile Safari) can suspend the context out from under an active
+    // recording; ensureRunning() is a no-op unless that's actually happened.
+    useEffect(() => {
+        if (!isRecording) return;
+        const interval = setInterval(() => {
+            micGraphRef.current?.ensureRunning().catch(() => {});
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [isRecording]);
+
     const startRecording = async () => {
         try {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 throw new Error('Audio recording is not supported in your browser.');
             }
 
-            // No hard sampleRate constraint — it can throw
-            // OverconstrainedError on devices that don't support 44.1 kHz.
-            const stream = await navigator.mediaDevices.getUserMedia({
-                audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    autoGainControl: true,
-                },
-            });
+            let graph = micGraphRef.current;
+            let fellBackToDefault = false;
+
+            if (graph) {
+                // A preview (or an already-running graph) is live — hand it over
+                // instead of opening the mic a second time. Only re-acquire if the
+                // user picked a specific device that differs from what's live.
+                // Already reconciled when the preview started (and kept correct by
+                // onTrackEnded/devicechange since) — re-reconciling here would risk
+                // swapping a working preview at the exact moment of handover.
+                const targetDeviceId = selectedMicIdRef.current;
+                const liveId = graph.activeStream?.getAudioTracks()[0]?.getSettings().deviceId ?? null;
+                if (targetDeviceId !== null && liveId !== targetDeviceId) {
+                    const acquired = await acquireMicStream(targetDeviceId);
+                    await graph.swapSource(acquired.stream);
+                    fellBackToDefault = acquired.fellBackToDefault;
+                }
+                await graph.ensureRunning();
+            } else {
+                // Cold start — re-resolve against a fresh device list first, rather
+                // than trusting selectedMicIdRef blindly, in case a disconnect
+                // happened while idle and its devicechange event was missed
+                // (mirrors acquireVadStream's same re-resolve-per-acquisition
+                // pattern in lib/autonomous/vad-manager.ts).
+                const targetDeviceId = await reconcileMicSelection();
+                const acquired = await acquireMicStream(targetDeviceId);
+                graph = await MicGraph.create(acquired.stream, micGraphHooks);
+                micGraphRef.current = graph;
+                fellBackToDefault = acquired.fellBackToDefault;
+            }
+
+            if (fellBackToDefault) {
+                // getUserMedia's actual result overrides whatever was displayed —
+                // preference stays untouched (same stale-vs-persist rule as
+                // reconcileMicSelection) so a replug can still re-adopt it.
+                applyMicSelection(null, '');
+                toast.warning('Selected microphone is unavailable — recording from the system default instead.');
+            }
 
             let mimeType = 'audio/webm';
             if (!MediaRecorder.isTypeSupported('audio/webm')) {
@@ -281,7 +528,10 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
 
             // 128 kbps matches the extension and desktop recorders; the
             // browser default bitrate can be too low for clean transcription.
-            const recorder = new MediaRecorder(stream, {
+            // Constructed on graph.stream (the MicGraph destination), not the
+            // raw mic stream — this is what makes a mid-recording device swap
+            // possible without ever stopping/restarting the recorder.
+            const recorder = new MediaRecorder(graph.stream, {
                 mimeType,
                 audioBitsPerSecond: 128000,
             });
@@ -311,7 +561,12 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
                 const blob = new Blob(audioChunksRef.current, { type: mimeType });
                 setAudioBlob(blob);
                 setAudioUrl(URL.createObjectURL(blob));
-                stream.getTracks().forEach((track) => track.stop());
+                // Releases the mic. MediaRecorder now reads from the MicGraph's
+                // destination stream, not the raw mic stream, so stopping
+                // recorder.stream's tracks (the old approach) would no longer
+                // release anything — micGraph.close() is what actually does it.
+                micGraphRef.current?.close();
+                micGraphRef.current = null;
 
                 const stoppedAt = new Date().toISOString();
                 vault
@@ -337,9 +592,10 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
 
             mediaRecorderRef.current = recorder;
             recorder.start(5000);
-            startLevelMeter(stream);
+            startLevelMeter(graph, 'recording');
             setIsRecording(true);
             setIsPaused(false);
+            setIsPreviewingMic(false); // graph handed over to the recording
             setRecordingTime(0);
             setAudioBlob(null);
             setAudioUrl(null);
@@ -380,13 +636,15 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     const cancelRecording = () => {
         stopLevelMeter();
         if (mediaRecorderRef.current) {
-            const stream = mediaRecorderRef.current.stream;
-            if (stream) {
-                stream.getTracks().forEach((track) => track.stop());
-            }
             mediaRecorderRef.current.onstop = null;
             mediaRecorderRef.current.stop();
         }
+        // Releases the mic — see the matching comment in recorder.onstop above.
+        // MicGraph.close() stops its tracks synchronously (before its one
+        // internal await), so the hardware indicator turns off immediately
+        // even though close() itself isn't awaited here.
+        micGraphRef.current?.close();
+        micGraphRef.current = null;
         if (currentRecordingIdRef.current) {
             vault.deleteRecording(currentRecordingIdRef.current).catch(() => {});
             currentRecordingIdRef.current = null;
@@ -421,6 +679,72 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         setAutoProcess(false);
     };
 
+    // Switches the live graph to a different device, whether idle, previewing,
+    // or mid-recording. Acquire-before-teardown: the new stream is opened
+    // while the old one is still live, so a failure here leaves the old mic
+    // fully intact and nothing is lost.
+    const setMicDevice = async (deviceId: string | null, label: string) => {
+        const previousId = selectedMicIdRef.current;
+        const previousLabel = selectedMicLabel;
+
+        writeMicPreference({ deviceId, label });
+        applyMicSelection(deviceId, label);
+
+        const graph = micGraphRef.current;
+        if (!graph) return; // idle with no live graph — the next start/preview will pick this up
+
+        setIsSwitchingMic(true);
+        try {
+            const acquired = await acquireMicStream(deviceId);
+            await graph.swapSource(acquired.stream);
+            silenceStartRef.current = null;
+            recordingStartRef.current = Date.now();
+            setNoAudioDetected(false);
+        } catch (err) {
+            console.error('Failed to switch microphone:', err);
+            writeMicPreference({ deviceId: previousId, label: previousLabel });
+            applyMicSelection(previousId, previousLabel);
+            toast.error('Could not switch to that microphone. Still recording from the previous one.');
+        } finally {
+            setIsSwitchingMic(false);
+        }
+    };
+
+    // Opens the mic and starts the level meter WITHOUT a MediaRecorder, so the
+    // picker can show a live "does this mic hear me" preview before Start is
+    // pressed. Only ever called as a direct result of a user gesture — never
+    // on mount — so there is no surprise permission prompt and no tab mic
+    // indicator left on from a page load the user didn't ask for.
+    const startMicPreview = async () => {
+        if (isRecording || micGraphRef.current) return;
+        try {
+            // Re-resolve against a fresh device list first — see the matching
+            // comment in startRecording's cold-start branch.
+            const targetDeviceId = await reconcileMicSelection();
+            const acquired = await acquireMicStream(targetDeviceId);
+            const graph = await MicGraph.create(acquired.stream, micGraphHooks);
+            micGraphRef.current = graph;
+            setIsPreviewingMic(true);
+            startLevelMeter(graph, 'preview');
+            if (acquired.fellBackToDefault) {
+                applyMicSelection(null, '');
+                toast.warning('Selected microphone is unavailable — previewing the system default instead.');
+            }
+        } catch (err) {
+            console.error('Mic preview unavailable:', err);
+        }
+    };
+
+    // No-op while recording — the preview graph has already been handed over
+    // to the recording at that point and must not be torn down here.
+    const stopMicPreview = () => {
+        if (isRecording) return;
+        stopLevelMeter();
+        micGraphRef.current?.close();
+        micGraphRef.current = null;
+        setIsPreviewingMic(false);
+    };
+
     const activateRecovery = (entry: RecordingEntry) => {
         setRecoveredRecording(entry);
     };
@@ -449,7 +773,31 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     const [processingStatus, setProcessingStatus] = useState('');
     const [processingProgress, setProcessingProgress] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
-    const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    // Set exactly once when a job reaches a terminal state — consumers (the
+    // listen page while mounted, FloatingStatusIndicator otherwise) react to
+    // these instead of the page itself running its own duplicate poll loop
+    // and navigating from inside a setInterval callback, which is what let a
+    // late/duplicate completion push the user back to a PREVIOUS meeting.
+    const [completedJobId, setCompletedJobId] = useState<string | null>(null);
+    const [failedJobId, setFailedJobId] = useState<string | null>(null);
+    const [failedJobError, setFailedJobError] = useState<string | null>(null);
+    // setTimeout-chain handle for the current poll (see pollJobStatus below).
+    const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    // Bumped on every pollJobStatus()/resetProcessing() call. A tick whose
+    // generation no longer matches the current one belongs to a superseded
+    // chain and must not touch state, however late its response arrives.
+    const pollGenerationRef = useRef(0);
+    // Which vault recording (if any) the in-flight job corresponds to —
+    // captured at startProcessing time so cleanup is correct even if the
+    // user has started a new recording (currentRecordingId has moved on)
+    // by the time this job finishes.
+    const processingRecordingIdRef = useRef<string | null>(null);
+
+    const acknowledgeJobCompletion = useCallback(() => {
+        setCompletedJobId(null);
+        setFailedJobId(null);
+        setFailedJobError(null);
+    }, []);
 
     // Restore processing state from localStorage on mount
     useEffect(() => {
@@ -461,9 +809,9 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
             pollJobStatus(persistedJobId);
         }
         return () => {
-            if (pollIntervalRef.current) {
-                clearInterval(pollIntervalRef.current);
-                pollIntervalRef.current = null;
+            if (pollTimeoutRef.current) {
+                clearTimeout(pollTimeoutRef.current);
+                pollTimeoutRef.current = null;
             }
         };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -472,6 +820,10 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         setIsProcessing(true);
         setProcessingStatus('Uploading...');
         setProcessingProgress(0);
+        setCompletedJobId(null);
+        setFailedJobId(null);
+        setFailedJobError(null);
+        processingRecordingIdRef.current = currentRecordingIdRef.current;
 
         try {
             const result = await conversationsAPI.uploadAudio(file, config, (percent) => {
@@ -491,17 +843,21 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     };
 
     const pollJobStatus = useCallback((id: string) => {
-        // Cancel any existing poll
-        if (pollIntervalRef.current) {
-            clearInterval(pollIntervalRef.current);
-            pollIntervalRef.current = null;
+        // Cancel any existing poll chain — a superseding call invalidates it.
+        if (pollTimeoutRef.current) {
+            clearTimeout(pollTimeoutRef.current);
+            pollTimeoutRef.current = null;
         }
+        const generation = ++pollGenerationRef.current;
 
         let intervalMs = 2000;
         let attempts = 0;
         const MAX_ATTEMPTS = 60;
 
         const tick = async () => {
+            // A newer poll (or a reset) has superseded this chain.
+            if (pollGenerationRef.current !== generation) return;
+
             if (attempts >= MAX_ATTEMPTS) {
                 setIsProcessing(false);
                 setProcessingStatus('Timed out waiting for result. Please refresh.');
@@ -511,6 +867,11 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
 
             try {
                 const statusData = await conversationsAPI.getJobStatus(id);
+                // The response may have arrived after this chain was superseded —
+                // a naive setInterval let exactly this kind of stale response
+                // overwrite state for a job the user had already moved past.
+                if (pollGenerationRef.current !== generation) return;
+
                 setProcessingProgress(statusData.overall_progress);
 
                 const stages = statusData.stages || {};
@@ -527,44 +888,70 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
                 setProcessingStatus(currentStatus);
 
                 if (statusData.status === 'completed' || statusData.status === 'failed') {
-                    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-                    pollIntervalRef.current = null;
                     setIsProcessing(false);
                     localStorage.removeItem('processingJobId');
+
+                    const recId = processingRecordingIdRef.current;
                     if (statusData.status === 'failed') {
                         setProcessingStatus(`Failed: ${statusData.error}`);
+                        if (recId) {
+                            vault.updateRecording(recId, { status: 'failed' }).catch(() => {});
+                        }
+                        setFailedJobError(statusData.error ?? null);
+                        setFailedJobId(id);
+                    } else {
+                        deleteRecording();
+                        if (recId) {
+                            vault.updateRecording(recId, { status: 'processed' }).catch(() => {});
+                            vault.deleteChunks(recId).catch(() => {});
+                        }
+                        // History's React Query cache has a 5-minute staleTime and
+                        // was never invalidated on completion — a user who finished
+                        // recording and went straight to History could be shown a
+                        // list that predates the meeting they just made. This is
+                        // the one place every completion passes through regardless
+                        // of which page is mounted.
+                        queryClient.invalidateQueries({ queryKey: ['conversations', 'history'] });
+                        setCompletedJobId(id);
                     }
-                    return;
+                    return; // terminal — no further ticks for this chain
                 }
             } catch (error: any) {
                 console.error('Status check failed:', error);
+                if (pollGenerationRef.current !== generation) return;
                 if (error?.response?.status === 404 || error?.message?.includes('404')) {
-                    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-                    pollIntervalRef.current = null;
                     resetProcessing();
                     return;
                 }
+                // Transient error — fall through and keep polling.
             }
 
-            // Exponential backoff with jitter, capped at 15s
+            if (pollGenerationRef.current !== generation) return;
+            // Exponential backoff with jitter, capped at 15s. Scheduled only
+            // now, AFTER this tick's await has fully settled — never before —
+            // so two getJobStatus calls for the same chain can never be in
+            // flight at once regardless of how long the backend takes.
             intervalMs = Math.min(intervalMs * 1.4 + Math.random() * 500, 15000);
-            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-            pollIntervalRef.current = setInterval(tick, intervalMs);
+            pollTimeoutRef.current = setTimeout(tick, intervalMs);
         };
 
         // Initial poll after jittered delay (500–1500ms)
         const jitteredStart = 500 + Math.random() * 1000;
-        pollIntervalRef.current = setInterval(tick, jitteredStart);
+        pollTimeoutRef.current = setTimeout(tick, jitteredStart);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const resetProcessing = () => {
+        pollGenerationRef.current++; // invalidate any in-flight chain
         setProcessingJobId(null);
         setProcessingStatus('');
         setProcessingProgress(0);
         setIsProcessing(false);
+        setCompletedJobId(null);
+        setFailedJobId(null);
+        setFailedJobError(null);
         localStorage.removeItem('processingJobId');
-        if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+        if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current);
     };
 
     return (
@@ -576,8 +963,11 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
             currentRecordingId,
             activateRecovery,
             dismissRecovery,
+            selectedMicId, selectedMicLabel, isSwitchingMic, isPreviewingMic,
+            setMicDevice, startMicPreview, stopMicPreview,
             downloadSecondsLeft, downloadWindowFileName, triggerDownload,
             processingJobId, processingStatus, processingProgress, isProcessing,
+            completedJobId, failedJobId, failedJobError, acknowledgeJobCompletion,
             startProcessing, pollJobStatus, resetProcessing,
             autoProcess, setAutoProcess
         }}>

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useState } from 'react';
-import { SelectDropdown } from '@/components/ui/dropdown';
+import { SelectDropdown, Dropdown, DropdownTrigger, DropdownContent, DropdownItem } from '@/components/ui/dropdown';
 
 function ControlledSelect() {
   const [value, setValue] = useState('10');
@@ -93,5 +93,42 @@ describe('SelectDropdown', () => {
       expect(listbox).toHaveStyle('top: 172px');
       expect(listbox).toHaveStyle('max-height: 244px');
     });
+  });
+});
+
+describe('Dropdown onOpenChange', () => {
+  it('fires true when opened and false when closed by selecting an option', async () => {
+    const onOpenChange = vi.fn();
+    render(
+      <Dropdown mode="select" value="a" onValueChange={() => {}} onOpenChange={onOpenChange}>
+        <DropdownTrigger className="">trigger</DropdownTrigger>
+        <DropdownContent>
+          <DropdownItem value="a">A</DropdownItem>
+          <DropdownItem value="b">B</DropdownItem>
+        </DropdownContent>
+      </Dropdown>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'trigger' }));
+    expect(onOpenChange).toHaveBeenLastCalledWith(true);
+
+    fireEvent.click(await screen.findByRole('option', { name: 'B' }));
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenLastCalledWith(false);
+    });
+  });
+
+  it('does not fire on mount when the dropdown starts closed', () => {
+    const onOpenChange = vi.fn();
+    render(
+      <Dropdown mode="select" value="a" onValueChange={() => {}} onOpenChange={onOpenChange}>
+        <DropdownTrigger className="">trigger</DropdownTrigger>
+        <DropdownContent>
+          <DropdownItem value="a">A</DropdownItem>
+        </DropdownContent>
+      </Dropdown>,
+    );
+
+    expect(onOpenChange).not.toHaveBeenCalled();
   });
 });

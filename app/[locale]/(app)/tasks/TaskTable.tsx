@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
+import { goToConversation } from '@/lib/navigation';
 import { Checkbox } from '@/components/ui/checkbox';
 
 interface Task {
@@ -147,7 +148,7 @@ export function TaskTable({
                   <td className="p-3 max-w-[300px]">
                     <div
                       className={`font-medium text-foreground ${task.meetingId ? 'cursor-pointer hover:text-primary' : ''} ${task.completed ? 'line-through opacity-60' : ''}`}
-                      onClick={() => task.meetingId && router.push(lp(`/conversation?id=${task.meetingId}`))}
+                      onClick={() => task.meetingId && goToConversation(router, lp, task.meetingId)}
                     >
                       {task.title}
                     </div>

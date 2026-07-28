@@ -11,6 +11,7 @@ import HistoryTabs from '@/components/HistoryTabs';
 import DayHistoryView from '@/components/DayHistoryView';
 import { ConversationTable } from '@/components/ConversationTable';
 import { conversationsAPI } from '@/lib/api';
+import { goToConversation } from '@/lib/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { exportConversationsToCSV } from '@/lib/export';
 import { Skeleton } from 'boneyard-js/react';
@@ -164,7 +165,7 @@ export default function HistoryPage() {
   };
 
   const handleViewConversation = (jobId: string) => {
-    router.push(lp(`/conversation?id=${jobId}`));
+    goToConversation(router, lp, jobId);
   };
 
   const setConversationStage = (jobId: string, stage: string) => {
@@ -188,7 +189,7 @@ export default function HistoryPage() {
           if (status.status === 'completed') {
             clearInterval(poll);
             setRetryingJobIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
-            router.push(lp(`/conversation?id=${jobId}`));
+            goToConversation(router, lp, jobId);
           } else if (status.status === 'failed') {
             clearInterval(poll);
             setRetryingJobIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });

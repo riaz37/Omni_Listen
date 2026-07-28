@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import {
   Upload,
@@ -52,6 +52,10 @@ interface DashboardRecorderProps {
   audioUrl: string | null;
   audioLevel: number;
   noAudioDetected: boolean;
+  /** Slot for the microphone picker — rendered next to the language selector in Record mode. */
+  micPicker?: ReactNode;
+  /** Live before recording starts (mic preview armed) — drives the level visualizer's idle→live state. */
+  isPreviewingMic?: boolean;
   processingProgress: number;
   file: File | null;
   config: RecorderConfig;
@@ -97,6 +101,8 @@ export default function DashboardRecorder({
   audioUrl,
   audioLevel,
   noAudioDetected,
+  micPicker,
+  isPreviewingMic = false,
   processingProgress,
   file,
   config,
@@ -600,8 +606,9 @@ export default function DashboardRecorder({
                 {/* Record Mode */}
                 {inputMode === 'record' && (
                   <div className="flex flex-col items-center justify-center flex-1 py-2 space-y-5">
-                    {/* Meeting language */}
-                    <div className="w-full flex justify-end -mb-3">
+                    {/* Microphone picker + meeting language */}
+                    <div className="w-full flex flex-wrap items-center justify-between gap-2 -mb-3">
+                      {micPicker ?? <span />}
                       {renderLanguageSelector()}
                     </div>
 
@@ -625,16 +632,19 @@ export default function DashboardRecorder({
                       {[...Array(20)].map((_, i) => {
                         // Per-bar multiplier so a real signal reads as a natural bar shape rather than one flat block.
                         const variation = 0.55 + Math.abs(Math.sin((i / 20) * Math.PI * 3)) * 0.45;
-                        const heightPct = isRecording && !isPaused
+                        // Live before Start is pressed too, while the mic preview is armed —
+                        // this is the pre-recording level meter, reusing the same bars.
+                        const isLive = (isRecording && !isPaused) || (!isRecording && isPreviewingMic);
+                        const heightPct = isLive
                           ? Math.max(8, Math.min(100, audioLevel * 100 * variation))
                           : 15;
                         return (
                           <motion.div
                             key={i}
-                            className={`w-2 rounded-full ${isRecording ? 'bg-primary' : 'bg-muted-foreground/20'}`}
+                            className={`w-2 rounded-full ${isRecording || isPreviewingMic ? 'bg-primary' : 'bg-muted-foreground/20'}`}
                             animate={{
                               height: `${heightPct}%`,
-                              opacity: isRecording && !isPaused ? 1 : 0.5,
+                              opacity: isLive ? 1 : 0.5,
                             }}
                             transition={{ duration: 0.1, ease: 'easeOut' }}
                           />

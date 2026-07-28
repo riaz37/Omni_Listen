@@ -1,8 +1,11 @@
 'use client';
 
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 import { useGlobalState } from '@/lib/global-state-context';
 import { useRouter, usePathname } from 'next/navigation';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
+import { goToConversation } from '@/lib/navigation';
 import { Mic, Loader2, X, Maximize2, Play, Pause, Square } from 'lucide-react';
 
 export default function FloatingStatusIndicator() {
@@ -13,6 +16,10 @@ export default function FloatingStatusIndicator() {
         processingStatus,
         processingProgress,
         processingJobId,
+        completedJobId,
+        failedJobId,
+        failedJobError,
+        acknowledgeJobCompletion,
         isPaused,
         pauseRecording,
         resumeRecording,
@@ -29,6 +36,31 @@ export default function FloatingStatusIndicator() {
     // UNLESS we are on a different "view" of the dashboard (but dashboard is single page currently)
     // Actually, for better UX, let's show it if we are NOT on the dashboard page.
     const isDashboard = pathname === '/listen';
+
+    // While the listen page is mounted, ITS OWN useProcessingCompletion hook
+    // owns completedJobId/failedJobId and navigates directly. This component
+    // is mounted for the entire app session (see app/[locale]/layout.tsx), so
+    // it's the one place that can reliably catch a completion that happens
+    // while the user is on some OTHER page — rather than silently yanking
+    // them back to /listen (or worse, to whatever meeting they've since
+    // navigated to), it offers a toast with a link and lets them decide.
+    useEffect(() => {
+        if (isDashboard) return;
+        if (completedJobId) {
+            const jobId = completedJobId;
+            toast.success('Meeting ready to view', {
+                action: {
+                    label: 'View',
+                    onClick: () => goToConversation(router, lp, jobId),
+                },
+            });
+            acknowledgeJobCompletion();
+        } else if (failedJobId) {
+            toast.error('Processing failed: ' + (failedJobError ?? 'Unknown error'));
+            acknowledgeJobCompletion();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isDashboard, completedJobId, failedJobId]);
 
     if (isDashboard) return null;
 

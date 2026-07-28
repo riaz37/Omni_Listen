@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
+import { goToConversation } from '@/lib/navigation';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useEventsData, getEventTypeColor } from '@/hooks/useEventsData';
 import { exportEventsToCSV, exportToICS } from '@/lib/export';
@@ -350,7 +351,7 @@ export default function EventsPage() {
             onSyncEvent={handleSyncEvent}
             onDeleteEvent={handleDeleteEvent}
             onNavigateToMeeting={(meetingId) =>
-              router.push(lp(`/conversation?id=${meetingId}`))
+              goToConversation(router, lp, meetingId)
             }
             getEventTypeColor={getEventTypeColor}
           />
