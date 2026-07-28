@@ -8,7 +8,7 @@ import { useConfig } from '@/lib/config-context';
 import { useGlobalState } from '@/lib/global-state-context';
 import { toast } from 'sonner';
 import RoleConfigModal from '@/components/RoleConfigModal';
-import { presetsAPI, authAPI } from '@/lib/api';
+import { presetsAPI, authAPI, conversationsAPI } from '@/lib/api';
 import { SYSTEM_PRESETS } from '@/lib/presets';
 import { Loader2, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,8 +23,11 @@ import { useElectronSync } from '@/hooks/useElectronSync';
 import { useWebSocketNotifications } from '@/hooks/useWebSocketNotifications';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useAutonomous } from '@/hooks/useAutonomous';
+import { useProcessingCompletion } from '@/hooks/useProcessingCompletion';
+import { useAutoProcessOnce } from '@/hooks/useAutoProcessOnce';
 import * as vault from '@/lib/recording-vault';
 import { getMaxUploadMb, isFileTooLarge } from '@/lib/upload-limits';
+import { goToConversation } from '@/lib/navigation';
 import { useTranslation } from '@/lib/i18n/use-translation';
 
 declare global {
@@ -65,7 +68,6 @@ export default function DashboardPage() {
     startRecording,
     stopRecording,
     cancelRecording,
-    deleteRecording,
     recordingTime,
     audioUrl,
     audioBlob,
@@ -74,6 +76,10 @@ export default function DashboardPage() {
     isProcessing,
     processingStatus,
     processingProgress,
+    completedJobId,
+    failedJobId,
+    failedJobError,
+    acknowledgeJobCompletion,
     startProcessing,
     resetProcessing,
     isPaused,
@@ -82,7 +88,6 @@ export default function DashboardPage() {
     autoProcess,
     setAutoProcess,
     recoveredRecording,
-    currentRecordingId,
     activateRecovery,
     dismissRecovery,
     downloadSecondsLeft,
@@ -399,9 +404,6 @@ export default function DashboardPage() {
       return;
     }
 
-    // Capture recording ID before async operations
-    const capturedRecordingId = currentRecordingId;
-
     // If the dashboard additional analysis box is empty, fall back to the role preset's
     // default query so the preset's configured analysis still runs.
     const effectiveConfig = {
@@ -410,51 +412,16 @@ export default function DashboardPage() {
     };
 
     try {
-      // startProcessing already polls job status via GlobalStateProvider.pollJobStatus.
-      // We only need to watch for completion to handle navigation + vault cleanup.
-      const id = await startProcessing(audioSource, effectiveConfig);
-
-      const watchInterval = setInterval(async () => {
-        try {
-          const { conversationsAPI } = await import('@/lib/api');
-          const statusData = await conversationsAPI.getJobStatus(id);
-          if (statusData.status === 'completed') {
-            clearInterval(watchInterval);
-            deleteRecording();
-
-            if (capturedRecordingId) {
-              vault.updateRecording(capturedRecordingId, { status: 'processed' }).catch(() => {});
-              vault.deleteChunks(capturedRecordingId).catch(() => {});
-            }
-
-            let retries = 0;
-            const maxRetries = 5;
-            const verifyMeeting = async () => {
-              try {
-                await conversationsAPI.getConversationDetails(id);
-                router.push(lp(`/conversation?id=${id}`));
-              } catch (error) {
-                retries++;
-                if (retries < maxRetries) {
-                  setTimeout(verifyMeeting, 500);
-                } else {
-                  router.push(lp(`/conversation?id=${id}`));
-                }
-              }
-            };
-            verifyMeeting();
-          } else if (statusData.status === 'failed') {
-            clearInterval(watchInterval);
-            toast.error('Processing failed: ' + statusData.error);
-            if (capturedRecordingId) {
-              vault.updateRecording(capturedRecordingId, { status: 'failed' }).catch(() => {});
-            }
-          }
-        } catch (e) {
-          clearInterval(watchInterval);
-        }
-      }, 5000);
-
+      // GlobalStateProvider.pollJobStatus (started inside startProcessing) is
+      // the ONLY thing that watches this job from here on — including vault
+      // cleanup and the completedJobId/failedJobId signal that
+      // useProcessingCompletion (below) reacts to. This function used to run
+      // its own second, redundant setInterval poll and navigate straight from
+      // inside it; an overlapping tick on a slow (Render cold-start) backend
+      // could fire more than once and push the user to the WRONG meeting —
+      // see the regression tests in test/listen/completion-navigation.test.tsx
+      // and test/global-state-polling.test.tsx.
+      await startProcessing(audioSource, effectiveConfig);
     } catch (error: any) {
       if (error?.response?.status === 413) {
         toast.error(`File is too large. Maximum upload size is ${getMaxUploadMb()} MB.`);
@@ -493,13 +460,39 @@ export default function DashboardPage() {
     }
   };
 
-  // Auto-process recording when blob is ready
-  useEffect(() => {
-    if (autoProcess && audioBlob && !isRecording) {
-      uploadRecording();
-      setAutoProcess(false);
-    }
-  }, [autoProcess, audioBlob, isRecording]);
+  // Auto-process recording when blob is ready — guarded so a given blob is
+  // ever uploaded once (see useAutoProcessOnce.ts for why the naive version
+  // of this effect could double-upload).
+  useAutoProcessOnce({ autoProcess, audioBlob, isRecording, setAutoProcess, uploadRecording });
+
+  // Reacts to GlobalStateProvider's completedJobId/failedJobId — the single
+  // source of truth for "a processing job just finished" — by verifying the
+  // meeting is queryable and navigating to it, but only while this page is
+  // still mounted. If the user has already navigated away, this hook's
+  // cleanup deliberately skips navigation and leaves the job
+  // un-acknowledged so FloatingStatusIndicator can offer it as a toast +
+  // link instead of yanking the user back to it.
+  useProcessingCompletion({
+    completedJobId,
+    failedJobId,
+    failedJobError,
+    acknowledgeJobCompletion,
+    onNavigateToConversation: (jobId) => goToConversation(router, lp, jobId),
+    verifyConversationExists: async (jobId) => {
+      try {
+        await conversationsAPI.getConversationDetails(jobId);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    onVerifyFailed: () => {
+      toast.error('Meeting processed but could not be loaded. Check History in a moment.');
+    },
+    onProcessingFailed: (error) => {
+      toast.error('Processing failed: ' + (error ?? 'Unknown error'));
+    },
+  });
 
   return (
     <Skeleton name="dashboard-recorder" loading={loading} fallback={

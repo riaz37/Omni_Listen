@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
+import { goToConversation } from '@/lib/navigation';
 import { normalizeUrgency } from '@/lib/utils';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -98,7 +99,7 @@ export default function DashboardRecentConversations({
             clearInterval(poll);
             setRetryingIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
             onRecentConversationRetried?.(jobId);
-            router.push(lp(`/conversation?id=${jobId}`));
+            goToConversation(router, lp, jobId);
           } else if (status.status === 'failed') {
             clearInterval(poll);
             setRetryingIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
@@ -229,7 +230,7 @@ export default function DashboardRecentConversations({
                           </Button>
                         </div>
                       </div>
-                      <h3 className={`font-medium text-sm text-foreground mb-0.5 ${task.meetingId ? 'cursor-pointer' : ''}`} onClick={() => task.meetingId && router.push(lp(`/conversation?id=${task.meetingId}`))}>
+                      <h3 className={`font-medium text-sm text-foreground mb-0.5 ${task.meetingId ? 'cursor-pointer' : ''}`} onClick={() => task.meetingId && goToConversation(router, lp, task.meetingId)}>
                         {task.title}
                       </h3>
                       {task.description && <p className="text-xs text-muted-foreground mb-2 line-clamp-1">{task.description}</p>}
@@ -316,7 +317,7 @@ export default function DashboardRecentConversations({
                   return (
                     <div
                       key={meeting.job_id}
-                      onClick={() => router.push(lp(`/conversation?id=${meeting.job_id}`))}
+                      onClick={() => goToConversation(router, lp, meeting.job_id)}
                       className="p-3 rounded-lg border border-border bg-card-2 hover:bg-muted cursor-pointer transition-colors"
                     >
                       <h3 className="font-medium text-sm text-foreground mb-1 line-clamp-1">

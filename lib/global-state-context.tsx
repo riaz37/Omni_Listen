@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useRef, useEffect, useCallback, ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { conversationsAPI } from './api';
 import * as vault from './recording-vault';
@@ -60,6 +61,13 @@ interface GlobalStateContextType {
     processingStatus: string;
     processingProgress: number;
     isProcessing: boolean;
+    // Set exactly once per job when it reaches a terminal state; consumers
+    // must call acknowledgeJobCompletion() after handling it so it isn't
+    // handled twice by e.g. both the listen page and FloatingStatusIndicator.
+    completedJobId: string | null;
+    failedJobId: string | null;
+    failedJobError: string | null;
+    acknowledgeJobCompletion: () => void;
     startProcessing: (file: File, config: any) => Promise<string>;
     pollJobStatus: (id: string) => void;
     resetProcessing: () => void;
@@ -72,6 +80,8 @@ interface GlobalStateContextType {
 const GlobalStateContext = createContext<GlobalStateContextType | undefined>(undefined);
 
 export function GlobalStateProvider({ children }: { children: ReactNode }) {
+    const queryClient = useQueryClient();
+
     // --- Recording State ---
     const [isRecording, setIsRecording] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
@@ -637,7 +647,31 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     const [processingStatus, setProcessingStatus] = useState('');
     const [processingProgress, setProcessingProgress] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
-    const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    // Set exactly once when a job reaches a terminal state — consumers (the
+    // listen page while mounted, FloatingStatusIndicator otherwise) react to
+    // these instead of the page itself running its own duplicate poll loop
+    // and navigating from inside a setInterval callback, which is what let a
+    // late/duplicate completion push the user back to a PREVIOUS meeting.
+    const [completedJobId, setCompletedJobId] = useState<string | null>(null);
+    const [failedJobId, setFailedJobId] = useState<string | null>(null);
+    const [failedJobError, setFailedJobError] = useState<string | null>(null);
+    // setTimeout-chain handle for the current poll (see pollJobStatus below).
+    const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    // Bumped on every pollJobStatus()/resetProcessing() call. A tick whose
+    // generation no longer matches the current one belongs to a superseded
+    // chain and must not touch state, however late its response arrives.
+    const pollGenerationRef = useRef(0);
+    // Which vault recording (if any) the in-flight job corresponds to —
+    // captured at startProcessing time so cleanup is correct even if the
+    // user has started a new recording (currentRecordingId has moved on)
+    // by the time this job finishes.
+    const processingRecordingIdRef = useRef<string | null>(null);
+
+    const acknowledgeJobCompletion = useCallback(() => {
+        setCompletedJobId(null);
+        setFailedJobId(null);
+        setFailedJobError(null);
+    }, []);
 
     // Restore processing state from localStorage on mount
     useEffect(() => {
@@ -649,9 +683,9 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
             pollJobStatus(persistedJobId);
         }
         return () => {
-            if (pollIntervalRef.current) {
-                clearInterval(pollIntervalRef.current);
-                pollIntervalRef.current = null;
+            if (pollTimeoutRef.current) {
+                clearTimeout(pollTimeoutRef.current);
+                pollTimeoutRef.current = null;
             }
         };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -660,6 +694,10 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         setIsProcessing(true);
         setProcessingStatus('Uploading...');
         setProcessingProgress(0);
+        setCompletedJobId(null);
+        setFailedJobId(null);
+        setFailedJobError(null);
+        processingRecordingIdRef.current = currentRecordingIdRef.current;
 
         try {
             const result = await conversationsAPI.uploadAudio(file, config, (percent) => {
@@ -679,17 +717,21 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     };
 
     const pollJobStatus = useCallback((id: string) => {
-        // Cancel any existing poll
-        if (pollIntervalRef.current) {
-            clearInterval(pollIntervalRef.current);
-            pollIntervalRef.current = null;
+        // Cancel any existing poll chain — a superseding call invalidates it.
+        if (pollTimeoutRef.current) {
+            clearTimeout(pollTimeoutRef.current);
+            pollTimeoutRef.current = null;
         }
+        const generation = ++pollGenerationRef.current;
 
         let intervalMs = 2000;
         let attempts = 0;
         const MAX_ATTEMPTS = 60;
 
         const tick = async () => {
+            // A newer poll (or a reset) has superseded this chain.
+            if (pollGenerationRef.current !== generation) return;
+
             if (attempts >= MAX_ATTEMPTS) {
                 setIsProcessing(false);
                 setProcessingStatus('Timed out waiting for result. Please refresh.');
@@ -699,6 +741,11 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
 
             try {
                 const statusData = await conversationsAPI.getJobStatus(id);
+                // The response may have arrived after this chain was superseded —
+                // a naive setInterval let exactly this kind of stale response
+                // overwrite state for a job the user had already moved past.
+                if (pollGenerationRef.current !== generation) return;
+
                 setProcessingProgress(statusData.overall_progress);
 
                 const stages = statusData.stages || {};
@@ -715,44 +762,70 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
                 setProcessingStatus(currentStatus);
 
                 if (statusData.status === 'completed' || statusData.status === 'failed') {
-                    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-                    pollIntervalRef.current = null;
                     setIsProcessing(false);
                     localStorage.removeItem('processingJobId');
+
+                    const recId = processingRecordingIdRef.current;
                     if (statusData.status === 'failed') {
                         setProcessingStatus(`Failed: ${statusData.error}`);
+                        if (recId) {
+                            vault.updateRecording(recId, { status: 'failed' }).catch(() => {});
+                        }
+                        setFailedJobError(statusData.error ?? null);
+                        setFailedJobId(id);
+                    } else {
+                        deleteRecording();
+                        if (recId) {
+                            vault.updateRecording(recId, { status: 'processed' }).catch(() => {});
+                            vault.deleteChunks(recId).catch(() => {});
+                        }
+                        // History's React Query cache has a 5-minute staleTime and
+                        // was never invalidated on completion — a user who finished
+                        // recording and went straight to History could be shown a
+                        // list that predates the meeting they just made. This is
+                        // the one place every completion passes through regardless
+                        // of which page is mounted.
+                        queryClient.invalidateQueries({ queryKey: ['conversations', 'history'] });
+                        setCompletedJobId(id);
                     }
-                    return;
+                    return; // terminal — no further ticks for this chain
                 }
             } catch (error: any) {
                 console.error('Status check failed:', error);
+                if (pollGenerationRef.current !== generation) return;
                 if (error?.response?.status === 404 || error?.message?.includes('404')) {
-                    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-                    pollIntervalRef.current = null;
                     resetProcessing();
                     return;
                 }
+                // Transient error — fall through and keep polling.
             }
 
-            // Exponential backoff with jitter, capped at 15s
+            if (pollGenerationRef.current !== generation) return;
+            // Exponential backoff with jitter, capped at 15s. Scheduled only
+            // now, AFTER this tick's await has fully settled — never before —
+            // so two getJobStatus calls for the same chain can never be in
+            // flight at once regardless of how long the backend takes.
             intervalMs = Math.min(intervalMs * 1.4 + Math.random() * 500, 15000);
-            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-            pollIntervalRef.current = setInterval(tick, intervalMs);
+            pollTimeoutRef.current = setTimeout(tick, intervalMs);
         };
 
         // Initial poll after jittered delay (500–1500ms)
         const jitteredStart = 500 + Math.random() * 1000;
-        pollIntervalRef.current = setInterval(tick, jitteredStart);
+        pollTimeoutRef.current = setTimeout(tick, jitteredStart);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const resetProcessing = () => {
+        pollGenerationRef.current++; // invalidate any in-flight chain
         setProcessingJobId(null);
         setProcessingStatus('');
         setProcessingProgress(0);
         setIsProcessing(false);
+        setCompletedJobId(null);
+        setFailedJobId(null);
+        setFailedJobError(null);
         localStorage.removeItem('processingJobId');
-        if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+        if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current);
     };
 
     return (
@@ -768,6 +841,7 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
             setMicDevice, startMicPreview, stopMicPreview,
             downloadSecondsLeft, downloadWindowFileName, triggerDownload,
             processingJobId, processingStatus, processingProgress, isProcessing,
+            completedJobId, failedJobId, failedJobError, acknowledgeJobCompletion,
             startProcessing, pollJobStatus, resetProcessing,
             autoProcess, setAutoProcess
         }}>

@@ -4,6 +4,7 @@ import type { ComponentType } from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
+import { goToConversation } from '@/lib/navigation';
 import dynamic from 'next/dynamic';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -381,7 +382,7 @@ export default function EventsPage() {
           calendarConnected={!!user?.calendar_connected}
           onClose={() => setSelectedEvent(null)}
           onSync={handleSyncEvent}
-          onNavigateToConversation={(conversationId) => router.push(lp(`/conversation?id=${conversationId}`))}
+          onNavigateToConversation={(conversationId) => goToConversation(router, lp, conversationId)}
         />
       )}
 

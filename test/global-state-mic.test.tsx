@@ -1,6 +1,7 @@
 import React from 'react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { GlobalStateProvider, useGlobalState } from '@/lib/global-state-context';
 import { installFakeWebAudio, fakeTrack, fakeMediaStream } from './helpers/fake-web-audio';
@@ -13,8 +14,13 @@ import { installFakeMediaRecorder, installFakeMediaDevices, FakeMediaDevices } f
 let mediaDevices: FakeMediaDevices;
 
 function setup() {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return renderHook(() => useGlobalState(), {
-    wrapper: ({ children }) => <GlobalStateProvider>{children}</GlobalStateProvider>,
+    wrapper: ({ children }) => (
+      <QueryClientProvider client={queryClient}>
+        <GlobalStateProvider>{children}</GlobalStateProvider>
+      </QueryClientProvider>
+    ),
   });
 }
 

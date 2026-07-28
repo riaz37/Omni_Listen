@@ -5,6 +5,7 @@ import {
   Link2,
 } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n/use-translation';
+import { conversationPath } from '@/lib/navigation';
 
 interface Conversation {
   job_id: string;
@@ -36,7 +37,7 @@ export function RecentConversationsCard({ conversations, totalConversations, onN
           <div
             key={conversation.job_id}
             className="bg-background rounded-lg border border-border p-4 cursor-pointer hover:border-primary/30 transition-colors"
-            onClick={() => onNavigate(`/conversation?id=${conversation.job_id}`)}
+            onClick={() => onNavigate(conversationPath(conversation.job_id))}
           >
             <div className="flex items-start justify-between mb-2">
               <h3 className="text-sm font-medium text-foreground line-clamp-1">{conversation.title}</h3>

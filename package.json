@@ -13,6 +13,8 @@
     "analyze": "cross-env ANALYZE=true next build --webpack",
     "start": "next start",
     "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "dev:electron": "concurrently \"cross-env BROWSER=none npm run dev\" \"wait-on http://localhost:3000 && tsc -p tsconfig.electron.json && cross-env ELECTRON_START_URL=http://localhost:3000 electron .\"",
     "build:main": "tsc -p tsconfig.electron.json",
     "dist": "cross-env ELECTRON_BUILD=true NEXT_PUBLIC_API_URL=https://esaplistenweb.onrender.com next build && npm run build:main && electron-builder",

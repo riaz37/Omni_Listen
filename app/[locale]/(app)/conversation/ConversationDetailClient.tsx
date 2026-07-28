@@ -34,12 +34,24 @@ export function hasNoSpeech(conversation: any): boolean {
     return !/\w/.test(withoutScaffolding);
 }
 
-export default function ConversationDetailClient() {
+interface ConversationDetailClientProps {
+    // Sourced from useConversationId() (page.tsx), which reads the live
+    // window.location.search rather than the router's (sometimes stale)
+    // useSearchParams() — see that hook for why. Accepted as a prop, not
+    // read internally, so this component never has its own opinion about
+    // the URL that could disagree with the one the caller resolved.
+    jobId?: string | null;
+}
+
+export default function ConversationDetailClient({ jobId: jobIdProp }: ConversationDetailClientProps = {}) {
     const router = useRouter();
     const lp = useLocalePath();
     const { t } = useTranslation();
     const searchParams = useSearchParams();
-    const jobId = searchParams.get('id');
+    // Prop wins when provided (real usage via page.tsx); falls back to
+    // useSearchParams() so the exported component still works if ever
+    // rendered without the prop (e.g. existing tests).
+    const jobId = jobIdProp !== undefined ? jobIdProp : searchParams.get('id');
 
     const { user, loading, isLoggingOut } = useAuth();
 
@@ -57,6 +69,23 @@ export default function ConversationDetailClient() {
     // a stale one. Every load checks this before touching state.
     const latestJobIdRef = useRef<string | null>(null);
 
+    // Defense in depth: as soon as the requested id changes, drop whatever
+    // conversation is currently rendered. Without this, a slow fetch for the
+    // new id leaves the OLD meeting's content on screen (behind the loading
+    // skeleton flag, but state-wise still populated) until the new response
+    // lands — and if that response is ever itself stale or mismatched, the
+    // old content would otherwise still be showing under the new id.
+    //
+    // Synchronizing rendered state with the jobId prop (an external value
+    // this component doesn't own) — the synchronous reset is intentional,
+    // not a re-render loop; jobId only changes when the caller (page.tsx)
+    // gives this component a new key anyway, so this effect runs at most
+    // once per mounted instance in real usage.
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setConversation(null);
+    }, [jobId]);
+
     useEffect(() => {
         if (!loading && !user && !isLoggingOut) {
             router.push(lp('/signin'));
@@ -73,6 +102,11 @@ export default function ConversationDetailClient() {
         try {
             const data = await conversationsAPI.getConversationDetails(id);
             if (latestJobIdRef.current !== id) return; // a newer conversation was requested meanwhile
+            // The response must actually be for the id it was requested for.
+            // Guards against a mismatched/stale payload silently rendering
+            // under the wrong id — the root cause class of the "shows the
+            // previous meeting" bug this component now defends against.
+            if (data && data.job_id && data.job_id !== id) return;
             setConversation(data);
         } catch (error: any) {
             if (latestJobIdRef.current !== id) return;

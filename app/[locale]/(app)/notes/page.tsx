@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
+import { goToConversation } from '@/lib/navigation';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { conversationsAPI } from '@/lib/api';
@@ -453,7 +454,7 @@ export default function NotesPage() {
           <NoteQuickViewModal
             note={selectedNote}
             onClose={() => setSelectedNote(null)}
-            onViewDetails={(meetingId) => router.push(lp(`/conversation?id=${meetingId}`))}
+            onViewDetails={(meetingId) => goToConversation(router, lp, meetingId)}
           />
         )}
 

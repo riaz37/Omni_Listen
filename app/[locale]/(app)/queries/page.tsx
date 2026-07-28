@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
+import { goToConversation } from '@/lib/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useQuery } from '@tanstack/react-query';
 import { conversationsAPI } from '@/lib/api';
@@ -293,7 +294,7 @@ export default function QueriesPage() {
                     copiedIndex={copiedIndex}
                     onToggleExpand={setExpandedIndex}
                     onCopy={copyToClipboard}
-                    onNavigateToMeeting={(meetingId) => router.push(lp(`/conversation?id=${meetingId}`))}
+                    onNavigateToMeeting={(meetingId) => goToConversation(router, lp, meetingId)}
                   />
                 );
               })}
