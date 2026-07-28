@@ -9,7 +9,10 @@ import { downloadBlob } from './download-blob';
 import type { RecordingEntry } from '@/lib/types';
 import { MicGraph, type MicGraphHooks } from './audio/mic-graph';
 import { acquireMicStream } from './audio/mic-stream';
-import { readMicPreference, writeMicPreference, resolveMicDevice } from './mic-preference';
+import {
+    readMicPreference, writeMicPreference, resolveMicDevice,
+    deriveMicSelection, canResolveDevices,
+} from './mic-preference';
 
 const DOWNLOAD_WINDOW_KEY = 'esap-download-window';
 const DOWNLOAD_WINDOW_SECONDS = 300;
@@ -270,6 +273,67 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         levelRafRef.current = requestAnimationFrame(loop);
     };
 
+    // Atomic write-set for "what the picker should show right now" — the ref
+    // mirror (read synchronously by acquisition code) and the two pieces of
+    // display state always change together. Promoted out of setMicDevice's
+    // duplicated inline form (used below in its happy path and rollback) so
+    // every other correction path (idle reconciliation, live-graph recovery,
+    // acquisition fallback) writes the same three things the same way —
+    // previously handleActiveDeviceLost only wrote selectedMicId and silently
+    // left a stale selectedMicLabel on screen.
+    const applyMicSelection = useCallback((deviceId: string | null, label: string) => {
+        selectedMicIdRef.current = deviceId;
+        setSelectedMicId(deviceId);
+        setSelectedMicLabel(label);
+    }, []);
+
+    // Re-validates the stored mic preference against a fresh device list and
+    // corrects the DISPLAYED selection when the remembered device has gone
+    // away — without requiring a live MicGraph. This is what was entirely
+    // missing before: both handleActiveDeviceLost and the devicechange effect
+    // only ever ran while a graph was live, so unplugging a device between
+    // recordings (or while idle) left the picker showing a dead device
+    // indefinitely, and the next preview/recording would silently open the
+    // system default while still LABELED as the disconnected device.
+    //
+    // Deliberately reads the preference from localStorage, never from
+    // selectedMicId/selectedMicLabel state — that asymmetry (display cleared,
+    // preference kept) is what lets a later replug of the same device be
+    // silently re-adopted by label, per resolveMicDevice's design.
+    //
+    // Returns the deviceId that should actually be opened, so callers can use
+    // it directly instead of trusting selectedMicIdRef blindly.
+    const reconcileMicSelection = useCallback(async (devices?: MediaDeviceInfo[]): Promise<string | null> => {
+        try {
+            const inputs = devices ?? (await navigator.mediaDevices.enumerateDevices()).filter(
+                (d) => d.kind === 'audioinput',
+            );
+            // Permission not yet granted (or genuinely no mics) — enumerateDevices()
+            // returns blank-labeled entries in that state, which would otherwise
+            // read as "every stored device is stale" and wipe a perfectly good
+            // remembered mic on every cold page load. Change nothing instead.
+            if (!canResolveDevices(inputs)) return selectedMicIdRef.current;
+
+            const pref = readMicPreference();
+            const resolution = resolveMicDevice(pref, inputs);
+            const next = deriveMicSelection(resolution, pref);
+
+            // Only a 'label'/'label-normalized' match (device present under a
+            // reshuffled id) is a legitimate permanent correction. A 'stale'
+            // match must NEVER be persisted — that's what keeps a later replug
+            // of the same physical device re-adoptable by label.
+            if (next.shouldPersist && pref && next.deviceId !== pref.deviceId) {
+                writeMicPreference({ deviceId: next.deviceId, label: next.label, groupId: resolution.device?.groupId });
+            }
+
+            applyMicSelection(next.deviceId, next.label);
+            return next.deviceId;
+        } catch (err) {
+            console.error('Failed to reconcile microphone selection:', err);
+            return selectedMicIdRef.current;
+        }
+    }, [applyMicSelection]);
+
     // Hardware mute/unmute and unexpected track-end (e.g. device unplugged)
     // are wired once per MicGraph and re-bound onto the new track by the
     // graph itself on every swap (see mic-graph.ts) — so these callbacks
@@ -280,18 +344,33 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     // (see the effect below). Re-resolves the stored preference against the
     // fresh device list — same logic a stale deviceId uses on next launch —
     // and swaps to whatever that resolves to (typically system default).
-    const handleActiveDeviceLost = useCallback(async () => {
+    //
+    // Stays live-graph-only by design (the idle case is reconcileMicSelection's
+    // job) — accepts an optional pre-fetched device list so the devicechange
+    // effect, which already enumerated to check "is the active device still
+    // present", doesn't have to enumerate a second time.
+    const handleActiveDeviceLost = useCallback(async (devices?: MediaDeviceInfo[]) => {
         const graph = micGraphRef.current;
         if (!graph) return;
         try {
-            const devices = (await navigator.mediaDevices.enumerateDevices()).filter(
+            const inputs = devices ?? (await navigator.mediaDevices.enumerateDevices()).filter(
                 (d) => d.kind === 'audioinput',
             );
-            const resolved = resolveMicDevice(readMicPreference(), devices);
-            const { stream } = await acquireMicStream(resolved.deviceId);
-            await graph.swapSource(stream);
-            selectedMicIdRef.current = resolved.deviceId;
-            setSelectedMicId(resolved.deviceId);
+            const pref = readMicPreference();
+            const resolution = resolveMicDevice(pref, inputs);
+            const acquired = await acquireMicStream(resolution.deviceId);
+            await graph.swapSource(acquired.stream);
+
+            // getUserMedia's actual result wins over what the resolution predicted
+            // — if it had to fall back to default, the display must say so too.
+            const next = acquired.fellBackToDefault
+                ? { deviceId: null, label: '', shouldPersist: false }
+                : deriveMicSelection(resolution, pref);
+            if (next.shouldPersist && pref && next.deviceId !== pref.deviceId) {
+                writeMicPreference({ deviceId: next.deviceId, label: next.label, groupId: resolution.device?.groupId });
+            }
+            applyMicSelection(next.deviceId, next.label);
+
             silenceStartRef.current = null;
             recordingStartRef.current = Date.now();
             toast.warning(
@@ -302,7 +381,7 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         } catch (err) {
             console.error('Failed to recover from a disconnected microphone:', err);
         }
-    }, []);
+    }, [applyMicSelection]);
 
     const micGraphHooks: MicGraphHooks = {
         onTrackMute: (muted) => {
@@ -320,6 +399,14 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
 
     // Chrome fires devicechange 2-4x per physical plug/unplug event —
     // debounce so we don't re-enumerate and re-check on every one of them.
+    //
+    // enumerateDevices() now runs unconditionally (not gated on a live graph)
+    // so an idle disconnect/replug is caught too — previously this whole
+    // handler no-opped whenever there was no live MicGraph, which is exactly
+    // the state the app is in between recordings. Exactly one of {live
+    // recovery, idle reconciliation, nothing} runs per event, and the list is
+    // fetched once and threaded into handleActiveDeviceLost rather than
+    // re-fetched by it.
     useEffect(() => {
         const mediaDevices = navigator.mediaDevices as (MediaDevices & EventTarget) | undefined;
         if (!mediaDevices?.addEventListener) return;
@@ -328,15 +415,23 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         const handler = () => {
             if (debounceTimer) clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
-                const graph = micGraphRef.current;
-                if (!graph) return;
                 navigator.mediaDevices
                     .enumerateDevices()
                     .then((all) => {
                         const inputs = all.filter((d) => d.kind === 'audioinput');
-                        const activeId = graph.activeStream?.getAudioTracks()[0]?.getSettings().deviceId;
-                        const stillPresent = !activeId || inputs.some((d) => d.deviceId === activeId);
-                        if (!stillPresent) handleActiveDeviceLost();
+                        const graph = micGraphRef.current;
+                        if (graph) {
+                            const activeId = graph.activeStream?.getAudioTracks()[0]?.getSettings().deviceId;
+                            const stillPresent = !activeId || inputs.some((d) => d.deviceId === activeId);
+                            // A graph that's still healthy is left alone even if a
+                            // different (or newly re-plugged) preferred device now
+                            // appears — swapping it out from under an in-progress
+                            // recording would be a surprise nobody asked for. That
+                            // stays owned entirely by the "still present" check above.
+                            if (!stillPresent) handleActiveDeviceLost(inputs);
+                        } else {
+                            reconcileMicSelection(inputs);
+                        }
                     })
                     .catch(() => {});
             }, 300);
@@ -347,7 +442,25 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
             if (debounceTimer) clearTimeout(debounceTimer);
             mediaDevices.removeEventListener('devicechange', handler);
         };
-    }, [handleActiveDeviceLost]);
+    }, [handleActiveDeviceLost, reconcileMicSelection]);
+
+    // Closes the "device was unplugged while the tab was closed, then the
+    // page was reloaded" gap — devicechange never fires for that. Safe to run
+    // unconditionally on mount: enumerateDevices() never prompts for
+    // permission or lights the tab's mic indicator, and canResolveDevices
+    // doubles as the permission gate inside reconcileMicSelection (blank
+    // labels ⇒ no change), so this can never surprise a first-time visitor.
+    //
+    // Synchronizing displayed state with an external system (the OS device
+    // list) on mount — the synchronous correction is intentional, not a
+    // re-render loop; it fires at most once per mount and only ever changes
+    // anything if the remembered device has actually gone away or come back
+    // renamed.
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        reconcileMicSelection().catch(() => {});
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // AudioContext suspension watchdog: a suspended context feeding a
     // MediaStreamAudioDestinationNode emits digital silence into an
@@ -368,7 +481,6 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
                 throw new Error('Audio recording is not supported in your browser.');
             }
 
-            const targetDeviceId = selectedMicIdRef.current;
             let graph = micGraphRef.current;
             let fellBackToDefault = false;
 
@@ -376,6 +488,10 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
                 // A preview (or an already-running graph) is live — hand it over
                 // instead of opening the mic a second time. Only re-acquire if the
                 // user picked a specific device that differs from what's live.
+                // Already reconciled when the preview started (and kept correct by
+                // onTrackEnded/devicechange since) — re-reconciling here would risk
+                // swapping a working preview at the exact moment of handover.
+                const targetDeviceId = selectedMicIdRef.current;
                 const liveId = graph.activeStream?.getAudioTracks()[0]?.getSettings().deviceId ?? null;
                 if (targetDeviceId !== null && liveId !== targetDeviceId) {
                     const acquired = await acquireMicStream(targetDeviceId);
@@ -384,6 +500,12 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
                 }
                 await graph.ensureRunning();
             } else {
+                // Cold start — re-resolve against a fresh device list first, rather
+                // than trusting selectedMicIdRef blindly, in case a disconnect
+                // happened while idle and its devicechange event was missed
+                // (mirrors acquireVadStream's same re-resolve-per-acquisition
+                // pattern in lib/autonomous/vad-manager.ts).
+                const targetDeviceId = await reconcileMicSelection();
                 const acquired = await acquireMicStream(targetDeviceId);
                 graph = await MicGraph.create(acquired.stream, micGraphHooks);
                 micGraphRef.current = graph;
@@ -391,6 +513,10 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
             }
 
             if (fellBackToDefault) {
+                // getUserMedia's actual result overrides whatever was displayed —
+                // preference stays untouched (same stale-vs-persist rule as
+                // reconcileMicSelection) so a replug can still re-adopt it.
+                applyMicSelection(null, '');
                 toast.warning('Selected microphone is unavailable — recording from the system default instead.');
             }
 
@@ -562,9 +688,7 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         const previousLabel = selectedMicLabel;
 
         writeMicPreference({ deviceId, label });
-        selectedMicIdRef.current = deviceId;
-        setSelectedMicId(deviceId);
-        setSelectedMicLabel(label);
+        applyMicSelection(deviceId, label);
 
         const graph = micGraphRef.current;
         if (!graph) return; // idle with no live graph — the next start/preview will pick this up
@@ -579,9 +703,7 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         } catch (err) {
             console.error('Failed to switch microphone:', err);
             writeMicPreference({ deviceId: previousId, label: previousLabel });
-            selectedMicIdRef.current = previousId;
-            setSelectedMicId(previousId);
-            setSelectedMicLabel(previousLabel);
+            applyMicSelection(previousId, previousLabel);
             toast.error('Could not switch to that microphone. Still recording from the previous one.');
         } finally {
             setIsSwitchingMic(false);
@@ -596,12 +718,16 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
     const startMicPreview = async () => {
         if (isRecording || micGraphRef.current) return;
         try {
-            const acquired = await acquireMicStream(selectedMicIdRef.current);
+            // Re-resolve against a fresh device list first — see the matching
+            // comment in startRecording's cold-start branch.
+            const targetDeviceId = await reconcileMicSelection();
+            const acquired = await acquireMicStream(targetDeviceId);
             const graph = await MicGraph.create(acquired.stream, micGraphHooks);
             micGraphRef.current = graph;
             setIsPreviewingMic(true);
             startLevelMeter(graph, 'preview');
             if (acquired.fellBackToDefault) {
+                applyMicSelection(null, '');
                 toast.warning('Selected microphone is unavailable — previewing the system default instead.');
             }
         } catch (err) {

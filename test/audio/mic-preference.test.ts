@@ -7,6 +7,8 @@ import {
   normalizeLabel,
   resolveMicDevice,
   buildAudioConstraints,
+  deriveMicSelection,
+  canResolveDevices,
 } from '@/lib/mic-preference';
 
 function fakeDevice(deviceId: string, label: string, groupId = 'group-1'): MediaDeviceInfo {
@@ -100,6 +102,87 @@ describe('resolveMicDevice', () => {
     const pref = { v: 1 as const, deviceId: 'gone', label: 'Unplugged Mic', savedAt: 0 };
     const result = resolveMicDevice(pref, devices);
     expect(result).toEqual({ deviceId: null, matchedBy: 'stale' });
+  });
+});
+
+describe('deriveMicSelection', () => {
+  const devices = [fakeDevice('id-a', 'Built-in Microphone'), fakeDevice('id-b', 'USB Headset')];
+
+  it('"default" match: no preference to persist, keeps the stored label if any', () => {
+    const pref = { v: 1 as const, deviceId: '', label: 'System default', savedAt: 0 };
+    const resolution = resolveMicDevice(pref, devices);
+    expect(deriveMicSelection(resolution, pref)).toEqual({
+      deviceId: null,
+      label: 'System default',
+      shouldPersist: false,
+    });
+  });
+
+  it('"default" match with no stored preference at all: label is empty', () => {
+    const resolution = resolveMicDevice(null, devices);
+    expect(deriveMicSelection(resolution, null)).toEqual({
+      deviceId: null,
+      label: '',
+      shouldPersist: false,
+    });
+  });
+
+  it('"id" match: device present under its known id, nothing to persist', () => {
+    const pref = { v: 1 as const, deviceId: 'id-b', label: 'USB Headset', savedAt: 0 };
+    const resolution = resolveMicDevice(pref, devices);
+    expect(deriveMicSelection(resolution, pref)).toEqual({
+      deviceId: 'id-b',
+      label: 'USB Headset',
+      shouldPersist: false,
+    });
+  });
+
+  it('"label" match: device reshuffled to a new id — must be persisted so the fresh id sticks', () => {
+    const pref = { v: 1 as const, deviceId: 'stale-id', label: 'USB Headset', savedAt: 0 };
+    const resolution = resolveMicDevice(pref, devices);
+    expect(deriveMicSelection(resolution, pref)).toEqual({
+      deviceId: 'id-b',
+      label: 'USB Headset',
+      shouldPersist: true,
+    });
+  });
+
+  it('"label-normalized" match: same — must be persisted', () => {
+    const pref = { v: 1 as const, deviceId: 'stale-id', label: 'Default - USB Headset', savedAt: 0 };
+    const resolution = resolveMicDevice(pref, devices);
+    expect(deriveMicSelection(resolution, pref)).toEqual({
+      deviceId: 'id-b',
+      label: 'USB Headset',
+      shouldPersist: true,
+    });
+  });
+
+  it('"stale" match: falls back to default WITHOUT persisting, so a later replug can still re-adopt it', () => {
+    const pref = { v: 1 as const, deviceId: 'gone', label: 'Unplugged Mic', savedAt: 0 };
+    const resolution = resolveMicDevice(pref, devices);
+    expect(deriveMicSelection(resolution, pref)).toEqual({
+      deviceId: null,
+      label: '',
+      shouldPersist: false,
+    });
+  });
+});
+
+describe('canResolveDevices', () => {
+  it('is false for an empty device list', () => {
+    expect(canResolveDevices([])).toBe(false);
+  });
+
+  it('is false when devices have no labels (permission not yet granted)', () => {
+    expect(canResolveDevices([fakeDevice('', '')])).toBe(false);
+  });
+
+  it('is false when devices have an id but a blank label', () => {
+    expect(canResolveDevices([fakeDevice('id-a', '')])).toBe(false);
+  });
+
+  it('is true when at least one device has both an id and a label', () => {
+    expect(canResolveDevices([fakeDevice('id-a', 'Built-in Microphone')])).toBe(true);
   });
 });
 

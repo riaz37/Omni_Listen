@@ -100,6 +100,52 @@ export function resolveMicDevice(pref: MicPreference | null, devices: MediaDevic
   return { deviceId: null, matchedBy: 'stale' };
 }
 
+export interface MicSelectionUpdate {
+  deviceId: string | null;
+  label: string;
+  /** True only when the device was found under a NEW deviceId — rewrite localStorage. */
+  shouldPersist: boolean;
+}
+
+/**
+ * Decides what the picker should DISPLAY (and what should be persisted) for a
+ * given resolveMicDevice() result. Kept separate from resolveMicDevice itself
+ * so the persist-or-not policy — the part that actually matters for
+ * behavior — has its own dedicated tests, independent of device-matching.
+ *
+ * The critical distinction is 'stale' vs 'label'/'label-normalized':
+ *   - 'stale'  → the device is genuinely gone. Fall back to default for
+ *     display, but do NOT touch the stored preference — that's what lets a
+ *     later re-plug of the same device be silently re-adopted by label.
+ *   - 'label'/'label-normalized' → the device is present, just under a
+ *     reshuffled id (a normal OS/browser occurrence). This is a legitimate
+ *     permanent correction, so the preference IS rewritten to the fresh id.
+ */
+export function deriveMicSelection(resolution: MicResolution, pref: MicPreference | null): MicSelectionUpdate {
+  switch (resolution.matchedBy) {
+    case 'default':
+      return { deviceId: null, label: pref?.label ?? '', shouldPersist: false };
+    case 'id':
+      return { deviceId: resolution.deviceId, label: resolution.device!.label, shouldPersist: false };
+    case 'label':
+    case 'label-normalized':
+      return { deviceId: resolution.deviceId, label: resolution.device!.label, shouldPersist: true };
+    case 'stale':
+      return { deviceId: null, label: '', shouldPersist: false };
+  }
+}
+
+/**
+ * True iff the device list is trustworthy enough to reconcile a selection
+ * against — i.e. mic permission has actually been granted. Before that,
+ * enumerateDevices() returns entries with blank deviceId/label (Chrome) or an
+ * empty array (Firefox), which would otherwise read as "every stored device
+ * is stale" and silently wipe the remembered mic on every cold page load.
+ */
+export function canResolveDevices(devices: MediaDeviceInfo[]): boolean {
+  return devices.some((d) => d.deviceId !== '' && d.label !== '');
+}
+
 /**
  * Baseline getUserMedia audio constraints, unchanged from the pre-existing
  * recorder, with an exact deviceId added when a specific device is selected.

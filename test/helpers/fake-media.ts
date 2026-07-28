@@ -50,10 +50,20 @@ export function installFakeMediaRecorder() {
   vi.stubGlobal('MediaRecorder', FakeMediaRecorder);
 }
 
+/** Builds a fake MediaDeviceInfo — the shape resolveMicDevice/canResolveDevices expect. */
+export function fakeDeviceInfo(deviceId: string, label: string, groupId = 'group-1'): MediaDeviceInfo {
+  return { deviceId, label, kind: 'audioinput', groupId, toJSON: () => ({}) } as MediaDeviceInfo;
+}
+
 /** navigator.mediaDevices, with devicechange support via a real EventTarget. */
 export class FakeMediaDevices extends EventTarget {
   getUserMedia = vi.fn();
   enumerateDevices = vi.fn().mockResolvedValue([]);
+
+  /** Convenience: what enumerateDevices() resolves to from the next call on. */
+  setDevices(...devices: MediaDeviceInfo[]) {
+    this.enumerateDevices.mockResolvedValue(devices);
+  }
 }
 
 export function installFakeMediaDevices(): FakeMediaDevices {
