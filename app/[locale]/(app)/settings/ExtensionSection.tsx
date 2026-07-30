@@ -74,21 +74,21 @@ export function ExtensionSection() {
           {connectionState === 'loading' && (
             <>
               <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-              <span className="text-muted-foreground">Checking extension…</span>
+              <span className="text-muted-foreground">{t('settings.ext.checking')}</span>
             </>
           )}
           {connectionState === 'connected' && (
             <>
-              <CheckCircle2 className="w-4 h-4 text-green-500 dark:text-green-400" />
-              <span className="text-green-600 dark:text-green-400 font-medium">
-                Extension connected
+              <CheckCircle2 className="w-4 h-4 text-primary" />
+              <span className="text-primary font-medium">
+                {t('settings.ext.connected')}
               </span>
             </>
           )}
           {connectionState === 'not-connected' && (
             <>
               <Circle className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Extension not connected</span>
+              <span className="text-muted-foreground">{t('settings.ext.not_connected')}</span>
             </>
           )}
         </div>

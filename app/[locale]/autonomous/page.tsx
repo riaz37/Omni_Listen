@@ -37,7 +37,11 @@ export default function AutonomousHeadPage() {
             processor.connect(audioContext.destination);
 
             // 3. Setup WebSocket
-            const ws = new WebSocket("ws://localhost:8000/ws/autonomous");
+            // /ws/autonomous now requires an access token as a query param —
+            // this dev/test harness page pulls whatever the Electron/extension
+            // login flow last wrote to localStorage.
+            const token = localStorage.getItem('access_token') || '';
+            const ws = new WebSocket(`ws://localhost:8000/ws/autonomous?token=${encodeURIComponent(token)}`);
             socketRef.current = ws;
 
             ws.onopen = () => {

@@ -35,7 +35,13 @@ export default function FloatingStatusIndicator() {
     // Don't show if we are already on the dashboard (where the main controls are)
     // UNLESS we are on a different "view" of the dashboard (but dashboard is single page currently)
     // Actually, for better UX, let's show it if we are NOT on the dashboard page.
-    const isDashboard = pathname === '/listen';
+    // Routes are locale-prefixed (/en/listen, /ar/listen) — must compare against
+    // lp('/listen'), not a bare '/listen', or this is always false (see
+    // Navigation.tsx's `pathname === lp(item.href)` for the same pattern done
+    // correctly). Being always false meant the toast-and-acknowledge effect below
+    // fired unconditionally, even while sitting on the listen page, racing ahead
+    // of and starving the listen page's own useProcessingCompletion navigation.
+    const isDashboard = pathname === lp('/listen');
 
     // While the listen page is mounted, ITS OWN useProcessingCompletion hook
     // owns completedJobId/failedJobId and navigates directly. This component
