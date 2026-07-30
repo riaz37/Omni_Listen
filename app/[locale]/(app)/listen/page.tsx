@@ -19,7 +19,6 @@ import DashboardRecorder from '@/components/dashboard/DashboardRecorder';
 import MicPicker from '@/components/dashboard/MicPicker';
 import DashboardRecentConversations from '@/components/dashboard/DashboardRecentConversations';
 import ConfirmDialog from '@/components/ConfirmDialog';
-import { useElectronSync } from '@/hooks/useElectronSync';
 import { useWebSocketNotifications } from '@/hooks/useWebSocketNotifications';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useAutonomous } from '@/hooks/useAutonomous';
@@ -29,25 +28,6 @@ import * as vault from '@/lib/recording-vault';
 import { getMaxUploadMb, isFileTooLarge } from '@/lib/upload-limits';
 import { goToConversation } from '@/lib/navigation';
 import { useTranslation } from '@/lib/i18n/use-translation';
-
-declare global {
-  interface Window {
-    electron?: {
-      startRecording?: () => Promise<boolean>;
-      stopRecording?: () => Promise<boolean>;
-      onVadStatus?: (callback: (status: string) => void) => void;
-      restoreMain?: () => Promise<void>;
-      sendMiniAction?: (action: string) => Promise<void>;
-      onMiniAction?: (callback: (action: string) => void) => void;
-      sendTimerUpdate?: (time: string) => Promise<void>;
-      onTimerUpdate?: (callback: (time: string) => void) => void;
-      sendProcessingStatus?: (status: string) => Promise<void>;
-      onProcessingStatus?: (callback: (status: string) => void) => void;
-      sendRecordingState?: (state: { isPaused: boolean; isRecording: boolean }) => Promise<void>;
-      onRecordingState?: (callback: (state: { isPaused: boolean }) => void) => void;
-    };
-  }
-}
 
 const CHIP_QUERIES: Record<string, string> = {
   'budget': 'What were the main budget concerns discussed?',
@@ -128,19 +108,6 @@ export default function DashboardPage() {
     }
   }, [user, loading, isLoggingOut, router]);
 
-  // Electron IPC sync
-  useElectronSync({
-    isRecording,
-    isPaused,
-    isProcessing,
-    recordingTime,
-    processingStatus,
-    stopRecording,
-    cancelRecording,
-    pauseRecording,
-    resumeRecording,
-    setAutoProcess,
-  });
 
   // WebSocket notifications
   useWebSocketNotifications({ user, refreshUser });
