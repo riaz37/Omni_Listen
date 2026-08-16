@@ -16,6 +16,7 @@ export interface Conversation {
   title?: string;
   summary_preview?: string;
   event_count?: number;
+  note_count?: number;
   has_custom_query?: boolean;
   failed_at_stage?: string | null;
 }

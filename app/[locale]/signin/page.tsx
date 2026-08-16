@@ -32,7 +32,6 @@ export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isElectron, setIsElectron] = useState(false);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -60,11 +59,6 @@ export default function SignInPage() {
   }, []);
 
   useEffect(() => {
-    const isElectronEnv = typeof window !== 'undefined' && (window as any).electron;
-    if (isElectronEnv) {
-      setIsElectron(true);
-    }
-
     const handleOAuthCallback = async () => {
       if (processedRef.current) return; // Prevent double execution
 
@@ -110,7 +104,7 @@ export default function SignInPage() {
   }, [user, router]);
 
   useEffect(() => {
-    if (isElectron || signinMode !== 'oauth' || user) return;
+    if (signinMode !== 'oauth' || user) return;
 
     let cancelled = false;
 
@@ -152,62 +146,7 @@ export default function SignInPage() {
     return () => {
       cancelled = true;
     };
-  }, [signinMode, isElectron, user]);
-
-  // Deep Link Listener for Electron
-  useEffect(() => {
-    if (typeof window !== 'undefined' && (window as any).electron && (window as any).electron.onDeepLinkAuth) {
-      (window as any).electron.onDeepLinkAuth((url: string) => {
-        try {
-          // Parse URL using DOM URL API (or manual string parsing if needed)
-          // The URL comes as 'esapai-listen://auth/callback?access_token=...'
-          // Browsers/Node might stumble on custom protocol in new URL()?
-          // Let's replace protocol to http for parsing
-          const httpUrl = url.replace('esapai-listen://', 'http://localhost/');
-          const parsed = new URL(httpUrl);
-
-          const accessToken = parsed.searchParams.get('access_token');
-          const refreshToken = parsed.searchParams.get('refresh_token');
-          const errorParam = parsed.searchParams.get('error');
-
-          if (errorParam) {
-            toast.error("Login failed: " + decodeURIComponent(errorParam));
-            return;
-          }
-
-          if (accessToken && refreshToken) {
-            // Store tokens
-            localStorage.setItem('access_token', accessToken);
-            localStorage.setItem('refresh_token', refreshToken);
-
-            // Fetch User Details to complete login context
-            authAPI.getCurrentUser().then(userData => {
-              login({
-                access_token: accessToken,
-                refresh_token: refreshToken,
-                user: userData
-              });
-              toast.success("Signed in with Google!");
-              redirectAfterLogin({ user: userData });
-            }).catch(err => {
-              toast.error("Login incomplete. Please try again.");
-            });
-          }
-        } catch (e) {
-        }
-      });
-    }
-  }, [login, router]);
-
-  const handleElectronGoogleLogin = async () => {
-    try {
-      const { authorization_url } = await authAPI.getGoogleAuthUrl();
-      // Open in default browser
-      window.open(authorization_url, '_blank');
-    } catch (err) {
-      toast.error("Could not start login process.");
-    }
-  };
+  }, [signinMode, user]);
 
   const redirectAfterLogin = async (userData: any) => {
     // Check if calendar is connected
@@ -401,34 +340,18 @@ export default function SignInPage() {
 
           {/* Tab Switcher */}
           <div className="flex gap-2 mb-8 bg-muted p-1.5 rounded-xl">
-            {!isElectron && (
-              <button
-                onClick={() => {
-                  setSigninMode('oauth');
-                  setError('');
-                }}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${signinMode === 'oauth'
-                  ? 'bg-card text-foreground shadow-sm ring-1 ring-border'
-                  : 'text-muted-foreground hover:text-foreground'
-                  }`}
-              >
-                {t('auth.signin.tab_quick')}
-              </button>
-            )}
-            {isElectron && (
-              <button
-                onClick={() => {
-                  setSigninMode('oauth');
-                  setError('');
-                }}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${signinMode === 'oauth'
-                  ? 'bg-card text-foreground shadow-sm ring-1 ring-border'
-                  : 'text-muted-foreground hover:text-foreground'
-                  }`}
-              >
-                {t('auth.signin.tab_google')}
-              </button>
-            )}
+            <button
+              onClick={() => {
+                setSigninMode('oauth');
+                setError('');
+              }}
+              className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${signinMode === 'oauth'
+                ? 'bg-card text-foreground shadow-sm ring-1 ring-border'
+                : 'text-muted-foreground hover:text-foreground'
+                }`}
+            >
+              {t('auth.signin.tab_quick')}
+            </button>
             <button
               onClick={() => {
                 setSigninMode('email');
@@ -448,17 +371,7 @@ export default function SignInPage() {
             <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
               {/* Google Sign In */}
               <div className="flex justify-center w-full">
-                {!isElectron ? (
-                  <div id="googleSignInButton" className="w-full flex justify-center"></div>
-                ) : (
-                  <button
-                    onClick={handleElectronGoogleLogin}
-                    className="flex items-center justify-center gap-3 px-6 py-2.5 bg-card border border-border hover:bg-muted text-foreground rounded-lg transition-colors w-full font-medium shadow-sm"
-                  >
-                    <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
-                    <span>{t('auth.signin.google_btn')}</span>
-                  </button>
-                )}
+                <div id="googleSignInButton" className="w-full flex justify-center"></div>
               </div>
 
               {/* GitHub Sign In section commented out

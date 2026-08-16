@@ -3,7 +3,6 @@
   "productName": "Omni Listen",
   "version": "1.0.0",
   "private": true,
-  "main": "dist-electron/main/index.js",
   "description": "Background Listening Agent Desktop App",
   "author": "Omni Listen Team",
   "scripts": {
@@ -15,35 +14,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "dev:electron": "concurrently \"cross-env BROWSER=none npm run dev\" \"wait-on http://localhost:3000 && tsc -p tsconfig.electron.json && cross-env ELECTRON_START_URL=http://localhost:3000 electron .\"",
-    "build:main": "tsc -p tsconfig.electron.json",
-    "dist": "cross-env ELECTRON_BUILD=true NEXT_PUBLIC_API_URL=https://esaplistenweb.onrender.com next build && npm run build:main && electron-builder",
-    "dist:local": "cross-env ELECTRON_BUILD=true NEXT_PUBLIC_API_URL=http://localhost:8000 next build && npm run build:main && electron-builder",
     "boneyard:build": "npx boneyard-js build http://localhost:3000"
-  },
-  "build": {
-    "appId": "com.omni.listen",
-    "files": [
-      "out/**/*",
-      "dist-electron/**/*",
-      "package.json"
-    ],
-    "icon": "public/logo.png",
-    "directories": {
-      "output": "dist"
-    },
-    "win": {
-      "icon": "public/logo.png",
-      "target": "nsis"
-    },
-    "protocols": [
-      {
-        "name": "Omni Listen Protocol",
-        "schemes": [
-          "omni-listen"
-        ]
-      }
-    ]
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.9",
@@ -64,8 +35,6 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
-    "electron-squirrel-startup": "^1.0.1",
-    "electron-store": "^8.1.0",
     "framer-motion": "^12.23.25",
     "geist": "^1.7.0",
     "html2pdf.js": "^0.12.1",
@@ -74,8 +43,6 @@
     "next": "^16.2.2",
     "next-auth": "^4.24.7",
     "next-themes": "^0.4.6",
-    "node-record-lpcm16": "^1.0.1",
-    "onnxruntime-node": "^1.16.0",
     "onnxruntime-web": "1.17.3",
     "react": "^18.3.1",
     "react-big-calendar": "^1.19.4",
@@ -100,10 +67,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.4.19",
-    "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
-    "electron": "^29.1.0",
-    "electron-builder": "^24.13.0",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.2",
     "fake-indexeddb": "^6.2.5",
@@ -112,7 +76,6 @@
     "tailwindcss": "^3.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.2",
-    "wait-on": "^7.2.0"
+    "vitest": "^4.1.2"
   }
 }
