@@ -46,7 +46,7 @@ export const NAV_INDEX: Record<string, number> = {
   '/events': 4,
   '/tasks': 5,
   '/notes': 6,
-  '/queries': 7,
+  '/analysis': 7,
   '/settings': 8,
 };
 

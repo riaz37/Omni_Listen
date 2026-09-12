@@ -47,14 +47,14 @@ interface NavItem {
 
 // ─── PRIMARY: Always visible in top bar ──────────────────────────────────────
 
-const PRIMARY_ITEMS: readonly NavItem[] = [
+export const PRIMARY_ITEMS: readonly NavItem[] = [
   { href: '/listen', labelKey: 'nav.listen', icon: Home },
   { href: '/history', labelKey: 'nav.history', icon: History },
   { href: '/events', labelKey: 'nav.events', icon: List },
   { href: '/tasks', labelKey: 'nav.tasks', icon: CheckSquare },
   { href: '/notes', labelKey: 'nav.notes', icon: StickyNote },
   { href: '/calendar', labelKey: 'nav.calendar', icon: Calendar },
-  { href: '/queries', labelKey: 'nav.queries', icon: MessageSquare },
+  { href: '/analysis', labelKey: 'nav.queries', icon: MessageSquare },
   { href: '/analytics', labelKey: 'nav.analytics', icon: BarChart3 },
 ] as const;
 
@@ -66,11 +66,11 @@ const PREFETCH_ROUTES = new Set<string>(['/listen', '/history']);
 
 // ─── SECONDARY: "Workspace" dropdown (used in mobile bottom sheet) ──────────
 
-const SECONDARY_ITEMS: readonly NavItem[] = [
+export const SECONDARY_ITEMS: readonly NavItem[] = [
   { href: '/events', labelKey: 'nav.events', icon: List },
   { href: '/tasks', labelKey: 'nav.tasks', icon: CheckSquare },
   { href: '/notes', labelKey: 'nav.notes', icon: StickyNote },
-  { href: '/queries', labelKey: 'nav.queries', icon: MessageSquare },
+  { href: '/analysis', labelKey: 'nav.queries', icon: MessageSquare },
 ] as const;
 
 // ─── TERTIARY: User avatar menu items ────────────────────────────────────────

@@ -16,11 +16,14 @@ export default function LandingNav() {
   const lp = useLocalePath();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Section links carry the home path so they work from /pricing and /about
+  // too; next/link scrolls to the hash after navigating (or in place on the
+  // home page).
   const navLinks = [
-    { label: t('marketing.nav.features'), href: '#features' },
-    { label: t('marketing.nav.how_it_works'), href: '#how-it-works' },
-    { label: t('marketing.nav.pricing'), href: lp('/pricing'), isRoute: true },
-    { label: t('marketing.nav.about'), href: lp('/about'), isRoute: true },
+    { label: t('marketing.nav.features'), href: `${lp('/')}#features` },
+    { label: t('marketing.nav.how_it_works'), href: `${lp('/')}#how-it-works` },
+    { label: t('marketing.nav.pricing'), href: lp('/pricing') },
+    { label: t('marketing.nav.about'), href: lp('/about') },
   ];
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -54,17 +57,11 @@ export default function LandingNav() {
 
           {/* Desktop nav links */}
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) =>
-              link.isRoute ? (
-                <Link key={link.label} href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3">
-                  {link.label}
-                </Link>
-              ) : (
-                <a key={link.label} href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3">
-                  {link.label}
-                </a>
-              )
-            )}
+            {navLinks.map((link) => (
+              <Link key={link.label} href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors py-3">
+                {link.label}
+              </Link>
+            ))}
           </div>
 
           <div className="flex items-center gap-3">
@@ -110,27 +107,16 @@ export default function LandingNav() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl">
           <div className="px-4 py-4 space-y-3">
-            {navLinks.map((link) =>
-              link.isRoute ? (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ) : (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </a>
-              )
-            )}
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
             {!user && (
               <div className="pt-3 border-t border-border flex flex-col gap-2">
                 <Link

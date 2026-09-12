@@ -1,6 +1,6 @@
 'use client';
 
-import { ListTodo, CalendarDays, AlertTriangle, FileText } from 'lucide-react';
+import { ListTodo, CalendarDays, AlertTriangle, FileText, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,6 +22,7 @@ interface NewTaskData {
   description: string;
   date: string;
   urgency: 'yes' | 'no';
+  assignee: string;
 }
 
 interface AddTaskModalProps {
@@ -86,6 +87,21 @@ export function AddTaskModal({ show, newTask, onNewTaskChange, onClose, onSubmit
                 { value: 'no', label: t('tasks.modal_urgency_normal') },
               ]}
               className="w-full"
+            />
+          </div>
+
+          {/* Assignee */}
+          <div className="space-y-2">
+            <Label htmlFor="task-assignee" className="flex items-center gap-1.5">
+              <User className="w-3.5 h-3.5 text-muted-foreground" />
+              {t('tasks.modal_assignee_label')}
+            </Label>
+            <Input
+              id="task-assignee"
+              value={newTask.assignee}
+              onChange={(e) => onNewTaskChange({ ...newTask, assignee: e.target.value })}
+              placeholder={t('tasks.modal_assignee_placeholder')}
+              maxLength={200}
             />
           </div>
 

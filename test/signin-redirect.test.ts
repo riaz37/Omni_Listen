@@ -31,7 +31,7 @@ describe('shouldRedirectToSignIn', () => {
     expect(shouldRedirectToSignIn('/en/calendar')).toBe(true);
     expect(shouldRedirectToSignIn('/en/events')).toBe(true);
     expect(shouldRedirectToSignIn('/en/notes')).toBe(true);
-    expect(shouldRedirectToSignIn('/en/queries')).toBe(true);
+    expect(shouldRedirectToSignIn('/en/analysis')).toBe(true);
     expect(shouldRedirectToSignIn('/en/tasks')).toBe(true);
     expect(shouldRedirectToSignIn('/en/settings')).toBe(true);
     expect(shouldRedirectToSignIn('/en/conversation')).toBe(true);

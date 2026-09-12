@@ -83,7 +83,13 @@ export default function RescheduleEventModal({ event, isOpen, onClose, onSave }:
       const initialTime = getInitialTime();
 
       if (formData.date !== initialDate) updates.date = formData.date;
-      if (formData.time !== initialTime) updates.time = formData.time;
+      if (formData.time !== initialTime) {
+        updates.time = formData.time;
+        // Clearing the time makes this an all-day event. The stored date may
+        // still carry a time component (ISO "T10:00"), which the UI would
+        // otherwise keep deriving a time from, so send the date-only value too.
+        if (formData.time === '') updates.date = formData.date;
+      }
 
       if (Object.keys(updates).length > 0) {
         await onSave(event.id, updates);
@@ -150,6 +156,8 @@ export default function RescheduleEventModal({ event, isOpen, onClose, onSave }:
                 value={formData.time}
                 onChange={(time) => setFormData({ ...formData, time })}
                 placeholder="Leave empty for all-day"
+                allowEmpty
+                emptyLabel="All day"
               />
               <p className="text-xs text-muted-foreground">
                 Leave empty for an all-day event

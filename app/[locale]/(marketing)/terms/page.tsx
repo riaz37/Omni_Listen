@@ -2,312 +2,279 @@
 
 import Link from 'next/link';
 import { useTranslation } from '@/lib/i18n/use-translation';
+import { useLocalePath } from '@/lib/i18n/use-locale-path';
+import { SITE } from '@/lib/site';
+import LegalDocument, { type LegalContent } from '@/components/legal/LegalDocument';
 
 type Lang = 'en' | 'ar';
 
-const content = {
-    en: {
-        title: 'Terms of Service',
-        lastUpdated: 'Last Updated:',
-        lastUpdatedDate: 'April 12, 2026',
-        toggle: { en: 'EN', ar: 'عربي' },
-        s1: {
-            heading: '1. Agreement',
-            body: (link: React.ReactNode) => (
-                <>
-                    These Terms govern access to OmniListen at {link}, operated by <strong>Empowering Energy (trading as ESAP AI)</strong> (CR No. [Insert CR Number]). Apply to the Client organization and all Authorized Users. Operate alongside MSA, SOW, and DPA &mdash; MSA/DPA takes precedence in conflicts.
-                </>
-            ),
+const LAST_UPDATED = { en: 'September 9, 2026', ar: '9 سبتمبر 2026' };
+
+function siteLink() {
+  return (
+    <a href={SITE.url} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer" dir="ltr">
+      {SITE.host}
+    </a>
+  );
+}
+
+function crClause(lang: Lang): string {
+  if (!SITE.commercialRegistration) return '';
+  return lang === 'ar'
+    ? ` (رقم السجل التجاري ${SITE.commercialRegistration})`
+    : ` (CR No. ${SITE.commercialRegistration})`;
+}
+
+function buildContent(lang: Lang, privacyHref: string): LegalContent {
+  if (lang === 'ar') {
+    return {
+      title: 'شروط الخدمة',
+      lastUpdated: 'آخر تحديث:',
+      lastUpdatedDate: LAST_UPDATED.ar,
+      intro: (
+        <>
+          تنظّم هذه الشروط استخدامك لخدمة OmniListen المتاحة على {siteLink()} وتطبيق سطح المكتب وإضافة المتصفح التابعة لها
+          (يُشار إليها معاً بـ«الخدمة»)، والتي تشغّلها شركة <strong>Empowering Energy (تعمل تحت اسم ESAP AI)</strong>{crClause('ar')}
+          («نحن»). باستخدامك الخدمة فإنك توافق على هذه الشروط وعلى{' '}
+          <Link href={privacyHref} className="text-primary hover:underline">سياسة الخصوصية</Link>.
+        </>
+      ),
+      sections: [
+        {
+          heading: '1. الأهلية والحسابات',
+          paragraphs: [
+            'يجب أن يكون عمرك 18 عاماً على الأقل لاستخدام الخدمة. إذا كنت تستخدمها نيابةً عن مؤسسة، فإنك تقرّ بأن لديك الصلاحية لإلزامها بهذه الشروط.',
+            'أنت مسؤول عن الحفاظ على سرية بيانات الدخول إلى حسابك وعن كل نشاط يتم من خلاله. أبلغنا فوراً على support@esap.ai عند اشتباهك بأي استخدام غير مصرّح به.',
+          ],
         },
-        s2: {
-            heading: '2. Description of Service',
-            items: [
-                'Bilingual Arabic/English transcription (real-time and post-session)',
-                'AI-powered speaker identification and labeling',
-                'Automated action item extraction and task assignment',
-                'Role-based meeting analysis (PM, HR, Executive)',
-                'Meeting history, search, and knowledge archiving',
-                'Calendar integration and session management',
-                'Usage analytics and organizational dashboards',
-            ],
+        {
+          heading: '2. الخدمة والمرحلة التجريبية',
+          paragraphs: [
+            'تتيح الخدمة تسجيل الاجتماعات أو رفع ملفاتها الصوتية، وتفريغها نصياً بالعربية والإنجليزية، وتوليد ملخصات ومهام وأحداث بمساعدة الذكاء الاصطناعي، مع تكامل اختياري مع التقويم.',
+            'الخدمة متاحة حالياً كنسخة تجريبية عامة. قد نغيّر الميزات أو نضيفها أو نزيلها أو نعلّقها أثناء هذه المرحلة، وقد تحتوي الخدمة على أخطاء.',
+          ],
         },
-        s3: {
-            heading: '3. Access and Authorized Users',
-            body: 'Access exclusively to Client and designated Authorized Users per signed MSA. Client is responsible for credentials, authorized access, compliance, and ensuring all meeting participants are informed and have consented before recording.',
+        {
+          heading: '3. مسؤولية التسجيل وموافقة المشاركين',
+          paragraphs: [
+            'تختلف قوانين تسجيل المحادثات من بلد إلى آخر، وقد تتطلب موافقة جميع الأطراف. قبل أن تسجّل أو ترفع أي محادثة، يجب عليك إبلاغ جميع المشاركين بأنها تُسجَّل والحصول على موافقتهم حيثما يتطلب القانون ذلك.',
+            'تعرض الخدمة إشعاراً بهذا الالتزام قبل أول تسجيل («قبل أن تسجّل») وتذكيراً دائماً بجوار زر التسجيل. ومع ذلك، تبقى المسؤولية القانونية عن الحصول على الموافقة عليك وحدك. لا نتحمّل أي مسؤولية عن تسجيل تم دون الموافقة المطلوبة.',
+          ],
         },
-        s4: {
-            heading: '4. Participant Recording Consent',
-            intro: 'Client bears full responsibility for:',
-            items: [
-                'Notifying all participants before recording begins',
-                'Obtaining explicit, informed consent',
-                'Ensuring participants are not penalized for declining',
-                'Maintaining consent records per session',
-            ],
-            note: 'OmniListen provides in-platform recording notifications and session start prompts. Legal responsibility rests with the Client as Data Controller. Failure to obtain consent = violation of PDPL and these Terms. OmniListen is not liable for the Client\u2019s failure to consent.',
+        {
+          heading: '4. المحتوى الخاص بك وترخيص المعالجة',
+          paragraphs: [
+            'تحتفظ بجميع حقوقك في التسجيلات والنصوص والملاحظات التي ترفعها أو تنشئها («المحتوى»). تمنحنا ترخيصاً محدوداً وغير حصري لتخزين المحتوى ومعالجته ونقله إلى مزودي الخدمات لدينا بالقدر اللازم لتقديم الخدمة لك فقط.',
+            'لا نستخدم المحتوى الخاص بك لتدريب نماذج الذكاء الاصطناعي، ولا نسمح لمزودينا بذلك.',
+          ],
         },
-        s5: {
-            heading: '5. Acceptable Use',
-            intro: 'Prohibited:',
-            items: [
-                'Recording without participant consent',
-                'Personal/non-business recording context',
-                'Reverse engineering platform or AI models',
-                'Using outputs for competing products',
-                'Sharing/reselling access',
-                'Using AI outputs as the sole basis for formal HR decisions, disciplinary actions, and legal proceedings without human review',
-            ],
+        {
+          heading: '5. الاستخدام المقبول',
+          items: [
+            'عدم رفع محتوى ليس لديك الحق في تسجيله أو مشاركته.',
+            'عدم استخدام الخدمة للمراقبة أو المضايقة أو انتهاك خصوصية الآخرين.',
+            'عدم محاولة الوصول غير المصرّح به إلى الخدمة أو أنظمتها أو حسابات المستخدمين الآخرين.',
+            'عدم إعادة بيع الخدمة أو إعادة توزيعها دون موافقتنا الكتابية.',
+          ],
         },
-        s6: {
-            heading: '6. AI-Generated Content Disclaimer',
-            items: [
-                'Transcription may contain errors (noisy environments, accents, technical language)',
-                'Speaker ID is AI-generated, not 100% accurate \u2014 human review required',
-                'Role-based outputs are decision-support only, not professional advice',
-            ],
-            labelPrefix: 'All outputs labeled:',
-            label: '"AI-generated — review before using in formal decisions."',
+        {
+          heading: '6. المخرجات المولّدة بالذكاء الاصطناعي',
+          paragraphs: [
+            'تُنتَج النصوص والملخصات والمهام والأحداث تلقائياً وقد تحتوي على أخطاء أو حذف أو تفسيرات غير دقيقة. راجع المخرجات قبل الاعتماد عليها في أي قرار. لا تُعد المخرجات استشارة قانونية أو مالية أو مهنية.',
+          ],
         },
-        s7: {
-            heading: '7. Client Data and Content',
-            intro: 'Client retains full ownership. OmniListen commits to:',
-            items: [
-                'Never selling, licensing, or sharing Client Content',
-                'Never use Client Content to train AI models without explicit written consent',
-                'Accessing only for contracted service delivery, security, or legal compliance',
-            ],
+        {
+          heading: '7. الخطط والفوترة',
+          paragraphs: [
+            'الخدمة مجانية خلال المرحلة التجريبية العامة. عند إطلاق الخطط المدفوعة، تُنشر الأسعار وحدود الاستخدام في صفحة الأسعار، وتتم معالجة المدفوعات عبر مزود الدفع لدينا. ستُخطر مسبقاً بأي تغيير يؤثر على حسابك.',
+          ],
         },
-        s8: {
-            heading: '8. Data Processing and Privacy',
-            body: (link: React.ReactNode) => (
-                <>
-                    Governed by our {link} and signed DPA. Complies with PDPL Royal Decree M/19, including Sensitive Personal Data provisions under Article 23.
-                </>
-            ),
-            linkText: 'Privacy Policy',
+        {
+          heading: '8. الخصوصية وحماية البيانات',
+          paragraphs: [
+            <>
+              يخضع جمع بياناتك الشخصية ومعالجتها لـ<Link href={privacyHref} className="text-primary hover:underline">سياسة الخصوصية</Link>،
+              التي تتوافق مع نظام حماية البيانات الشخصية في المملكة العربية السعودية (PDPL).
+            </>,
+          ],
         },
-        s9: { heading: '9. Pricing and Commercial Terms', body: 'Defined exclusively in a signed MSA or SOW. These Terms do not govern billing independently.' },
-        s10: { heading: '10. Intellectual Property', body: 'All platform technology, AI models, software, documentation, and trademarks are the exclusive intellectual property of Empowering Energy. Client receives a limited, non-exclusive, non-transferable license to use the Service per the MSA.' },
-        s11: { heading: '11. Confidentiality', body: 'Each party agrees to protect the other\u2019s confidential information for the duration of the agreement and for 3 years post-termination.' },
-        s12: { heading: '12. Service Availability', body: 'Empowering Energy targets 99.5% service availability, excluding scheduled maintenance and force majeure events.' },
-        s13: { heading: '13. Limitation of Liability', body: 'To the maximum extent permitted by law, Empowering Energy\u2019s aggregate liability is capped at 3 months\u2019 fees paid by the Client. We shall not be liable for any indirect, incidental, special, consequential, or punitive damages.' },
-        s14: { heading: '14. Termination', body: 'Either party may terminate per the MSA. On termination, Client has a 30-day data export window. Permanent deletion is confirmed in writing.' },
-        s15: { heading: '15. Governing Law', body: 'These Terms are governed by the laws of the Kingdom of Saudi Arabia. Disputes are subject to the exclusive jurisdiction of the courts of Riyadh.' },
-        s16: { heading: '16. Changes', body: 'Empowering Energy may update these Terms with 14 days\u2019 written notice to the Client.' },
-        s17: {
-            heading: '17. Contact',
-            team: 'Empowering Energy — Legal Team',
-            questionsLabel: 'Questions about these Terms:',
+        {
+          heading: '9. الملكية الفكرية',
+          paragraphs: [
+            'تبقى المنصة وبرمجياتها وعلاماتها التجارية ملكاً لشركة Empowering Energy أو مرخّصيها. تحصل على حق محدود وغير حصري وغير قابل للنقل لاستخدام الخدمة وفقاً لهذه الشروط.',
+          ],
         },
-        footer: 'Empowering Energy (trading as ESAP AI). All rights reserved.',
-    },
-    ar: {
-        title: 'شروط الخدمة',
-        lastUpdated: 'آخر تحديث:',
-        lastUpdatedDate: '12 أبريل 2026',
-        toggle: { en: 'EN', ar: 'عربي' },
-        s1: {
-            heading: '1. الاتفاقية',
-            body: (link: React.ReactNode) => (
-                <>
-                    تنظّم هذه الشروط الوصول إلى OmniListen على {link}، المشغّلة من قِبَل <strong>Empowering Energy (تعمل تحت اسم ESAP AI)</strong> (رقم السجل التجاري [أدخل رقم السجل]). تنطبق على المؤسسة العميلة وجميع المستخدمين المعتمدين. تعمل جنبًا إلى جنب مع اتفاقيات MSA وSOW وDPA &mdash; وتسود اتفاقية MSA/DPA في حال التعارض.
-                </>
-            ),
+        {
+          heading: '10. الخدمات ومزودو الطرف الثالث',
+          paragraphs: [
+            'نعتمد على مزودين خارجيين للاستضافة وتحويل الكلام إلى نص ونماذج اللغة والبريد الإلكتروني والدفع. ترد قائمتهم في سياسة الخصوصية. قد يؤثر انقطاع خدماتهم على توفر الخدمة.',
+          ],
         },
-        s2: {
-            heading: '2. وصف الخدمة',
-            items: [
-                'تفريغ ثنائي اللغة (عربي/إنجليزي) في الوقت الفعلي وبعد انتهاء الجلسة',
-                'تحديد المتحدث ووضع العلامات بواسطة الذكاء الاصطناعي',
-                'استخراج بنود العمل وتعيين المهام تلقائيًا',
-                'تحليل الاجتماعات حسب الدور (مدير مشروع، موارد بشرية، تنفيذي)',
-                'سجل الاجتماعات والبحث وأرشفة المعرفة',
-                'التكامل مع التقويم وإدارة الجلسات',
-                'تحليلات الاستخدام ولوحات المعلومات التنظيمية',
-            ],
+        {
+          heading: '11. الإنهاء والتصدير والحذف',
+          paragraphs: [
+            'لإغلاق حسابك، راسلنا على support@esap.ai. يجوز لنا تعليق حسابك أو إنهاؤه عند مخالفة هذه الشروط بعد إشعارك ما لم تكن المخالفة جسيمة. يمكنك تصدير المحادثات والأحداث والسجل من داخل الخدمة قبل الإغلاق. عند طلبك الحذف الدائم نُكمله خلال 30 يوماً.',
+          ],
         },
-        s3: {
-            heading: '3. الوصول والمستخدمون المعتمدون',
-            body: 'الوصول حصراً للعميل والمستخدمين المعتمدين المحددين وفقًا لاتفاقية MSA الموقّعة. يتحمّل العميل المسؤولية عن بيانات الاعتماد، والوصول المصرّح به، والامتثال، والتأكد من إبلاغ جميع المشاركين في الاجتماع وموافقتهم قبل التسجيل.',
+        {
+          heading: '12. إخلاء المسؤولية وحدودها',
+          paragraphs: [
+            'تُقدَّم الخدمة «كما هي» دون ضمانات من أي نوع بالقدر الذي يسمح به القانون. لا نضمن أن تكون الخدمة خالية من الأخطاء أو متاحة دون انقطاع. بالقدر الذي يسمح به القانون، لا نتحمّل مسؤولية أي خسائر غير مباشرة أو تبعية، وتقتصر مسؤوليتنا الإجمالية على المبالغ التي دفعتها لنا خلال الاثني عشر شهراً السابقة للمطالبة.',
+          ],
         },
-        s4: {
-            heading: '4. موافقة المشاركين على التسجيل',
-            intro: 'يتحمّل العميل المسؤولية الكاملة عن:',
-            items: [
-                'إبلاغ جميع المشاركين قبل بدء التسجيل',
-                'الحصول على موافقة صريحة ومستنيرة',
-                'ضمان عدم معاقبة المشاركين عند الرفض',
-                'الاحتفاظ بسجلات الموافقة لكل جلسة',
-            ],
-            note: 'يوفّر OmniListen إشعارات التسجيل داخل المنصّة وتنبيهات بدء الجلسة. تقع المسؤولية القانونية على عاتق العميل بصفته المتحكّم في البيانات. عدم الحصول على الموافقة = انتهاك لنظام PDPL ولهذه الشروط. لا يتحمّل OmniListen المسؤولية عن إخفاق العميل في الحصول على الموافقة.',
+        {
+          heading: '13. القانون الحاكم',
+          paragraphs: [
+            'تخضع هذه الشروط لأنظمة المملكة العربية السعودية. تختصّ محاكم الرياض بالنظر في أي نزاع.',
+          ],
         },
-        s5: {
-            heading: '5. الاستخدام المقبول',
-            intro: 'يُحظر:',
-            items: [
-                'التسجيل دون موافقة المشاركين',
-                'التسجيل في سياقات شخصية أو غير تجارية',
-                'الهندسة العكسية للمنصّة أو لنماذج الذكاء الاصطناعي',
-                'استخدام المخرجات في منتجات منافسة',
-                'مشاركة الوصول أو إعادة بيعه',
-                'استخدام مخرجات الذكاء الاصطناعي كأساس وحيد للقرارات الرسمية للموارد البشرية أو الإجراءات التأديبية أو الإجراءات القانونية دون مراجعة بشرية',
-            ],
+        {
+          heading: '14. التعديلات على هذه الشروط',
+          paragraphs: [
+            'قد نحدّث هذه الشروط. عند إجراء تغيير جوهري سنخطرك عبر البريد الإلكتروني أو داخل الخدمة قبل 14 يوماً على الأقل من سريانه. استمرارك في استخدام الخدمة بعد ذلك يعني قبولك للشروط المحدّثة.',
+          ],
         },
-        s6: {
-            heading: '6. إخلاء مسؤولية المحتوى المُنشأ بالذكاء الاصطناعي',
-            items: [
-                'قد يحتوي التفريغ على أخطاء (بيئات مزعجة، لهجات، لغة تقنية)',
-                'تحديد المتحدث مُنشأ بالذكاء الاصطناعي وليس دقيقًا بنسبة 100% — مطلوبة مراجعة بشرية',
-                'المخرجات المستندة إلى الدور هي لدعم القرار فقط وليست استشارة مهنية',
-            ],
-            labelPrefix: 'جميع المخرجات موسومة بـ:',
-            label: '"مُنشأ بالذكاء الاصطناعي — يُرجى المراجعة قبل الاستخدام في القرارات الرسمية."',
+        {
+          heading: '15. عملاء المؤسسات',
+          paragraphs: [
+            'إذا كانت مؤسستك قد أبرمت اتفاقية خدمات رئيسية أو اتفاقية معالجة بيانات موقّعة مع Empowering Energy، فإن تلك الاتفاقية تسود على هذه الشروط في حال التعارض.',
+          ],
         },
-        s7: {
-            heading: '7. بيانات ومحتوى العميل',
-            intro: 'يحتفظ العميل بالملكية الكاملة. يلتزم OmniListen بـ:',
-            items: [
-                'عدم بيع محتوى العميل أو ترخيصه أو مشاركته مطلقًا',
-                'عدم استخدام محتوى العميل لتدريب نماذج الذكاء الاصطناعي دون موافقة خطّية صريحة',
-                'الوصول فقط لتقديم الخدمة التعاقدية أو لأغراض الأمن أو الامتثال القانوني',
-            ],
+        {
+          heading: '16. التواصل',
+          paragraphs: ['للاستفسارات حول هذه الشروط: legal@esap.ai'],
         },
-        s8: {
-            heading: '8. معالجة البيانات والخصوصية',
-            body: (link: React.ReactNode) => (
-                <>
-                    تخضع لـ{link} الخاصة بنا واتفاقية معالجة البيانات (DPA) الموقّعة. تتوافق مع نظام حماية البيانات الشخصية (PDPL) الصادر بالمرسوم الملكي م/19، بما في ذلك أحكام البيانات الشخصية الحسّاسة وفقًا للمادة 23.
-                </>
-            ),
-            linkText: 'سياسة الخصوصية',
-        },
-        s9: { heading: '9. التسعير والشروط التجارية', body: 'تُحدَّد حصراً في اتفاقية MSA أو SOW موقّعة. لا تنظّم هذه الشروط الفوترة بشكل مستقل.' },
-        s10: { heading: '10. الملكية الفكرية', body: 'جميع تقنيات المنصّة، ونماذج الذكاء الاصطناعي، والبرمجيات، والوثائق، والعلامات التجارية هي ملكية فكرية حصرية لشركة Empowering Energy. يحصل العميل على ترخيص محدود، غير حصري، وغير قابل للنقل لاستخدام الخدمة وفقًا لاتفاقية MSA.' },
-        s11: { heading: '11. السرّية', body: 'يوافق كل طرف على حماية المعلومات السرّية للطرف الآخر طوال مدّة الاتفاقية ولمدة 3 سنوات بعد إنهائها.' },
-        s12: { heading: '12. توفّر الخدمة', body: 'تستهدف Empowering Energy توفّر الخدمة بنسبة 99.5%، باستثناء فترات الصيانة المجدوَلة وحالات القوة القاهرة.' },
-        s13: { heading: '13. تحديد المسؤولية', body: 'إلى أقصى حد يسمح به القانون، تقتصر المسؤولية الإجمالية لـ Empowering Energy على رسوم 3 أشهر يدفعها العميل. لن نكون مسؤولين عن أي أضرار غير مباشرة أو عرضية أو خاصة أو تبعية أو عقابية.' },
-        s14: { heading: '14. الإنهاء', body: 'يجوز لأي طرف الإنهاء وفقًا لاتفاقية MSA. عند الإنهاء، يحصل العميل على مهلة 30 يومًا لتصدير البيانات. يتم تأكيد الحذف الدائم كتابيًا.' },
-        s15: { heading: '15. القانون الحاكم', body: 'تخضع هذه الشروط لأنظمة المملكة العربية السعودية. تختصّ محاكم الرياض حصرياً بالنظر في أي نزاعات.' },
-        s16: { heading: '16. التعديلات', body: 'يجوز لـ Empowering Energy تحديث هذه الشروط بإشعار كتابي للعميل قبل 14 يومًا.' },
-        s17: {
-            heading: '17. التواصل',
-            team: 'Empowering Energy — الفريق القانوني',
-            questionsLabel: 'استفسارات حول هذه الشروط:',
-        },
-        footer: 'Empowering Energy (تعمل تحت اسم ESAP AI). جميع الحقوق محفوظة.',
-    },
-} as const;
+      ],
+      footer: 'Empowering Energy (تعمل تحت اسم ESAP AI). جميع الحقوق محفوظة.',
+    };
+  }
+
+  return {
+    title: 'Terms of Service',
+    lastUpdated: 'Last Updated:',
+    lastUpdatedDate: LAST_UPDATED.en,
+    intro: (
+      <>
+        These Terms govern your use of OmniListen at {siteLink()}, its desktop app and its browser extension (together, the
+        &quot;Service&quot;), operated by <strong>Empowering Energy (trading as ESAP AI)</strong>{crClause('en')} (&quot;we&quot;).
+        By using the Service you agree to these Terms and to our{' '}
+        <Link href={privacyHref} className="text-primary hover:underline">Privacy Policy</Link>.
+      </>
+    ),
+    sections: [
+      {
+        heading: '1. Eligibility and accounts',
+        paragraphs: [
+          'You must be at least 18 years old to use the Service. If you use it on behalf of an organisation, you confirm that you have authority to bind that organisation to these Terms.',
+          'You are responsible for keeping your sign-in details confidential and for all activity under your account. Tell us at support@esap.ai as soon as you suspect unauthorised use.',
+        ],
+      },
+      {
+        heading: '2. The Service and beta status',
+        paragraphs: [
+          'The Service lets you record or upload meeting audio, transcribe it in Arabic and English, and generate AI-assisted summaries, tasks and events, with optional calendar integration.',
+          'The Service is currently in public beta. We may change, add, remove or suspend features during this period, and the Service may contain errors.',
+        ],
+      },
+      {
+        heading: '3. Recording responsibility and participant consent',
+        paragraphs: [
+          'Laws on recording conversations differ by country and may require the consent of every participant. Before you record or upload a conversation, you must tell everyone taking part that it is being recorded and obtain their consent where the law requires it.',
+          'The Service shows a notice of this obligation before your first recording ("Before you record") and a permanent reminder next to the record button. The legal responsibility for obtaining consent nevertheless rests with you alone. We accept no liability for recordings made without the required consent.',
+        ],
+      },
+      {
+        heading: '4. Your content and our licence to process it',
+        paragraphs: [
+          'You keep all rights in the recordings, transcripts and notes you upload or create ("Content"). You grant us a limited, non-exclusive licence to store, process and transmit Content to our service providers only as needed to provide the Service to you.',
+          'We do not use your Content to train AI models, and we do not permit our providers to do so.',
+        ],
+      },
+      {
+        heading: '5. Acceptable use',
+        items: [
+          'Do not upload content you have no right to record or share.',
+          'Do not use the Service to surveil, harass or invade the privacy of others.',
+          'Do not attempt unauthorised access to the Service, its systems or other users’ accounts.',
+          'Do not resell or redistribute the Service without our written consent.',
+        ],
+      },
+      {
+        heading: '6. AI-generated output',
+        paragraphs: [
+          'Transcripts, summaries, tasks and events are generated automatically and may contain errors, omissions or misinterpretations. Review output before relying on it for any decision. Output is not legal, financial or professional advice.',
+        ],
+      },
+      {
+        heading: '7. Plans and billing',
+        paragraphs: [
+          'The Service is free during the public beta. When paid plans launch, prices and usage limits will be published on the Pricing page and payments processed by our payment provider. You will be notified in advance of any change that affects your account.',
+        ],
+      },
+      {
+        heading: '8. Privacy and data protection',
+        paragraphs: [
+          <>
+            How we collect and process personal data is described in our{' '}
+            <Link href={privacyHref} className="text-primary hover:underline">Privacy Policy</Link>, which follows the Personal
+            Data Protection Law of the Kingdom of Saudi Arabia (PDPL).
+          </>,
+        ],
+      },
+      {
+        heading: '9. Intellectual property',
+        paragraphs: [
+          'The platform, its software and its trademarks remain the property of Empowering Energy or its licensors. You receive a limited, non-exclusive, non-transferable right to use the Service under these Terms.',
+        ],
+      },
+      {
+        heading: '10. Third-party services and providers',
+        paragraphs: [
+          'We rely on third-party providers for hosting, speech-to-text, language models, email and payments. They are listed in the Privacy Policy. An outage at a provider may affect the availability of the Service.',
+        ],
+      },
+      {
+        heading: '11. Termination, export and deletion',
+        paragraphs: [
+          'To close your account, email support@esap.ai. We may suspend or terminate your account for a breach of these Terms, with notice unless the breach is serious. You can export conversations, events and history from within the Service before closing. When you request permanent deletion we complete it within 30 days.',
+        ],
+      },
+      {
+        heading: '12. Disclaimers and limitation of liability',
+        paragraphs: [
+          'The Service is provided "as is" without warranties of any kind to the extent permitted by law. We do not guarantee that the Service will be error-free or uninterrupted. To the extent permitted by law, we are not liable for indirect or consequential losses, and our total liability is limited to the amounts you paid us in the twelve months before the claim.',
+        ],
+      },
+      {
+        heading: '13. Governing law',
+        paragraphs: [
+          'These Terms are governed by the laws of the Kingdom of Saudi Arabia. Disputes are subject to the jurisdiction of the courts of Riyadh.',
+        ],
+      },
+      {
+        heading: '14. Changes to these Terms',
+        paragraphs: [
+          'We may update these Terms. For a material change we will notify you by email or within the Service at least 14 days before it takes effect. Continuing to use the Service after that date means you accept the updated Terms.',
+        ],
+      },
+      {
+        heading: '15. Enterprise customers',
+        paragraphs: [
+          'If your organisation has a signed master services agreement or data processing agreement with Empowering Energy, that agreement prevails over these Terms where they conflict.',
+        ],
+      },
+      {
+        heading: '16. Contact',
+        paragraphs: ['Questions about these Terms: legal@esap.ai'],
+      },
+    ],
+    footer: 'Empowering Energy (trading as ESAP AI). All rights reserved.',
+  };
+}
 
 export default function TermsPage() {
-    const { locale, dir } = useTranslation();
-    const lang: Lang = locale === 'ar' ? 'ar' : 'en';
-    const t = content[lang];
-
-    return (
-        <div dir={dir} lang={lang}>
-            <div className="h-16" />
-
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <article className="bg-card rounded-xl shadow-lg p-8 md:p-12">
-                    <header className="mb-10 border-b pb-8">
-                        <div className="flex items-start justify-between gap-4 mb-4">
-                            <h1 className="text-4xl font-bold text-foreground">{t.title}</h1>
-                        </div>
-                        <p className="text-muted-foreground">
-                            <strong>{t.lastUpdated}</strong> {t.lastUpdatedDate}
-                        </p>
-                    </header>
-
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">{t.s1.heading}</h2>
-                        <p className="text-foreground leading-relaxed">
-                            {t.s1.body(
-                                <a href="https://omni-listen.vercel.app" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer" dir="ltr">
-                                    omni-listen.vercel.app
-                                </a>
-                            )}
-                        </p>
-                    </section>
-
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">{t.s2.heading}</h2>
-                        <ul className="list-disc ps-6 text-foreground space-y-2">
-                            {t.s2.items.map((item) => <li key={item}>{item}</li>)}
-                        </ul>
-                    </section>
-
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">{t.s3.heading}</h2>
-                        <p className="text-foreground leading-relaxed">{t.s3.body}</p>
-                    </section>
-
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">{t.s4.heading}</h2>
-                        <div className="bg-muted rounded-lg p-6">
-                            <p className="font-semibold text-foreground mb-3">{t.s4.intro}</p>
-                            <ul className="list-disc ps-6 text-foreground space-y-2">
-                                {t.s4.items.map((item) => <li key={item}>{item}</li>)}
-                            </ul>
-                            <p className="mt-4 text-sm text-muted-foreground">{t.s4.note}</p>
-                        </div>
-                    </section>
-
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">{t.s5.heading}</h2>
-                        <p className="text-foreground mb-2">{t.s5.intro}</p>
-                        <ul className="list-disc ps-6 text-foreground space-y-2">
-                            {t.s5.items.map((item) => <li key={item}>{item}</li>)}
-                        </ul>
-                    </section>
-
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">{t.s6.heading}</h2>
-                        <ul className="list-disc ps-6 text-foreground space-y-2">
-                            {t.s6.items.map((item) => <li key={item}>{item}</li>)}
-                            <li>{t.s6.labelPrefix} <strong>{t.s6.label}</strong></li>
-                        </ul>
-                    </section>
-
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">{t.s7.heading}</h2>
-                        <p className="text-foreground mb-2">{t.s7.intro}</p>
-                        <ul className="list-disc ps-6 text-foreground space-y-2">
-                            {t.s7.items.map((item) => <li key={item}>{item}</li>)}
-                        </ul>
-                    </section>
-
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">{t.s8.heading}</h2>
-                        <p className="text-foreground leading-relaxed">
-                            {t.s8.body(
-                                <Link href={`/${locale}/privacy`} className="text-primary hover:underline">{t.s8.linkText}</Link>
-                            )}
-                        </p>
-                    </section>
-
-                    {[t.s9, t.s10, t.s11, t.s12, t.s13, t.s14, t.s15, t.s16].map((s) => (
-                        <section key={s.heading} className="mb-10">
-                            <h2 className="text-2xl font-semibold text-foreground mb-4">{s.heading}</h2>
-                            <p className="text-foreground leading-relaxed">{s.body}</p>
-                        </section>
-                    ))}
-
-                    <section className="mb-10">
-                        <h2 className="text-2xl font-semibold text-foreground mb-4">{t.s17.heading}</h2>
-                        <div className="bg-muted rounded-lg p-6 space-y-2">
-                            <p className="text-foreground"><strong>{t.s17.team}</strong></p>
-                            <p className="text-foreground">
-                                {t.s17.questionsLabel}{' '}
-                                <a href="mailto:legal@esap.ai" className="text-primary hover:underline" dir="ltr">legal@esap.ai</a>
-                            </p>
-                        </div>
-                    </section>
-
-                    <footer className="mt-12 pt-8 border-t text-center text-muted-foreground">
-                        <p>&copy; {new Date().getFullYear()} {t.footer}</p>
-                    </footer>
-                </article>
-            </div>
-        </div>
-    );
+  const { locale } = useTranslation();
+  const lp = useLocalePath();
+  const lang: Lang = locale === 'ar' ? 'ar' : 'en';
+  return <LegalDocument lang={lang} content={buildContent(lang, lp('/privacy'))} />;
 }

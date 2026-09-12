@@ -106,7 +106,13 @@ export default function ConversationDetailClient({ jobId: jobIdProp }: Conversat
             // Guards against a mismatched/stale payload silently rendering
             // under the wrong id — the root cause class of the "shows the
             // previous meeting" bug this component now defends against.
-            if (data && data.job_id && data.job_id !== id) return;
+            if (data && data.job_id && data.job_id !== id) {
+                // Never render data for a different meeting, but never leave
+                // the page silently empty either: surface it as a load error
+                // so the existing retry control is available.
+                setLoadError(t('conversation.load_error_mismatch'));
+                return;
+            }
             setConversation(data);
         } catch (error: any) {
             if (latestJobIdRef.current !== id) return;

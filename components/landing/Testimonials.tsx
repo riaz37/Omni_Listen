@@ -9,29 +9,11 @@ export default function Testimonials() {
   const { t } = useTranslation();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const testimonials = [
-    {
-      quote: t('marketing.testimonials.t1_quote'),
-      name: 'Sarah Chen',
-      role: t('marketing.testimonials.t1_role'),
-      company: 'TechFlow Inc.',
-      avatar: 'SC',
-    },
-    {
-      quote: t('marketing.testimonials.t2_quote'),
-      name: 'Ahmed Al-Rashid',
-      role: t('marketing.testimonials.t2_role'),
-      company: 'DataScale',
-      avatar: 'AR',
-    },
-    {
-      quote: t('marketing.testimonials.t3_quote'),
-      name: 'Maria Rodriguez',
-      role: t('marketing.testimonials.t3_role'),
-      company: 'GrowthLab',
-      avatar: 'MR',
-    },
-  ];
+  // No real customer quotes yet. Add entries here once a customer has approved
+  // one in writing; the section renders nothing while the list is empty.
+  const testimonials: { quote: string; name: string; role: string; company: string; avatar: string }[] = [];
+
+  if (testimonials.length === 0) return null;
 
   function scroll(direction: 'left' | 'right') {
     const container = scrollContainerRef.current;

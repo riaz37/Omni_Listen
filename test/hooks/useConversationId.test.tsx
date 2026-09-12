@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useInsertionEffect } from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
 import { useConversationId } from '@/hooks/useConversationId';
@@ -62,5 +62,49 @@ describe('useConversationId', () => {
       window.dispatchEvent(new PopStateEvent('popstate'));
     });
     expect(screen.getByTestId('id').textContent).toBe('older-a');
+  });
+
+  // Mirrors Next.js 16's HistoryUpdater (app-router.js): the address bar is
+  // updated in a useInsertionEffect, i.e. AFTER the render that first sees
+  // the new search params.
+  function FakeHistoryUpdater({ search }: { search: string }) {
+    useInsertionEffect(() => {
+      setLocationSearch(search);
+    }, [search]);
+    return null;
+  }
+
+  it('resolves the id when the address bar updates only after the first render (navigation from a page without ?id)', () => {
+    // Address bar still shows the previous page (no id); the router already knows the new one.
+    setLocationSearch('');
+    mockSearchParamsValue = 'id=fresh-b';
+    render(
+      <>
+        <FakeHistoryUpdater search="?id=fresh-b" />
+        <Probe />
+      </>,
+    );
+    expect(screen.getByTestId('id').textContent).toBe('fresh-b');
+  });
+
+  it('follows a router-reported id change while the address bar catches up', () => {
+    setLocationSearch('?id=fresh-b');
+    mockSearchParamsValue = 'id=fresh-b';
+    const { rerender } = render(
+      <>
+        <FakeHistoryUpdater search="?id=fresh-b" />
+        <Probe />
+      </>,
+    );
+    expect(screen.getByTestId('id').textContent).toBe('fresh-b');
+
+    mockSearchParamsValue = 'id=next-c';
+    rerender(
+      <>
+        <FakeHistoryUpdater search="?id=next-c" />
+        <Probe />
+      </>,
+    );
+    expect(screen.getByTestId('id').textContent).toBe('next-c');
   });
 });

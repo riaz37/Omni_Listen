@@ -2,5 +2,9 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+  "redirects": [
+    { "source": "/:locale(en|ar)/queries", "destination": "/:locale/analysis", "permanent": true },
+    { "source": "/:locale(en|ar)/queries/", "destination": "/:locale/analysis", "permanent": true }
+  ]
 }
