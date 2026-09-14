@@ -19,6 +19,8 @@ import DashboardRecorder from '@/components/dashboard/DashboardRecorder';
 import MicPicker from '@/components/dashboard/MicPicker';
 import DashboardRecentConversations from '@/components/dashboard/DashboardRecentConversations';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import { useRecordingConsent } from '@/hooks/useRecordingConsent';
+import RecordingConsentDialog from '@/components/RecordingConsentDialog';
 import { useWebSocketNotifications } from '@/hooks/useWebSocketNotifications';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useAutonomous } from '@/hooks/useAutonomous';
@@ -42,6 +44,7 @@ export default function DashboardPage() {
   const lp = useLocalePath();
   const { user, loading, isRevalidated, refreshUser, isLoggingOut } = useAuth();
   const { config, updateConfig } = useConfig();
+  const consent = useRecordingConsent();
 
   const {
     isRecording,
@@ -332,30 +335,38 @@ export default function DashboardPage() {
     setFile(null);
   };
 
-  const handleStartRecording = async () => {
-    try {
-      await startRecording();
-    } catch (error: any) {
-      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-      if (error.name === 'NotAllowedError') {
-        if (isMobile) {
-          toast.error(
-            'Microphone permission denied. Close overlay apps, disable "Draw over other apps", clear site settings, then reload.'
-          );
+  const handleStartRecording = () => {
+    consent.guard(async () => {
+      try {
+        await startRecording();
+      } catch (error: any) {
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (error.name === 'NotAllowedError') {
+          if (isMobile) {
+            toast.error(
+              'Microphone permission denied. Close overlay apps, disable "Draw over other apps", clear site settings, then reload.'
+            );
+          } else {
+            toast.error('Microphone permission denied. Please grant permission in your browser settings and reload the page.');
+          }
+        } else if (error.name === 'NotFoundError') {
+          toast.error('No microphone found. Please connect a microphone and try again.');
+        } else if (error.name === 'NotSupportedError') {
+          toast.error('Audio recording is not supported in your browser. Please try a different browser.');
+        } else if (error.name === 'OverconstrainedError') {
+          // Only reachable if acquireMicStream's own default-device retry also failed.
+          toast.error('Selected microphone is unavailable. Please choose a different microphone and try again.');
         } else {
-          toast.error('Microphone permission denied. Please grant permission in your browser settings and reload the page.');
+          toast.error(`Failed to access microphone: ${error.message || 'Unknown error'}`);
         }
-      } else if (error.name === 'NotFoundError') {
-        toast.error('No microphone found. Please connect a microphone and try again.');
-      } else if (error.name === 'NotSupportedError') {
-        toast.error('Audio recording is not supported in your browser. Please try a different browser.');
-      } else if (error.name === 'OverconstrainedError') {
-        // Only reachable if acquireMicStream's own default-device retry also failed.
-        toast.error('Selected microphone is unavailable. Please choose a different microphone and try again.');
-      } else {
-        toast.error(`Failed to access microphone: ${error.message || 'Unknown error'}`);
       }
-    }
+    });
+  };
+
+  const handleAutonomousStart = () => {
+    consent.guard(async () => {
+      await autonomous.start();
+    });
   };
 
   const processAudio = async (audioSource: File) => {
@@ -408,23 +419,25 @@ export default function DashboardPage() {
     await processAudio(recordingFile);
   };
 
-  const handleUpload = async () => {
+  const handleUpload = () => {
     if (!file) return;
-    await processAudio(file);
+    consent.guard(() => processAudio(file));
   };
 
-  const handleRetryRecovery = async (recordingId: string) => {
+  const handleRetryRecovery = (recordingId: string) => {
     if (!recoveredRecording) return;
-    try {
-      const blob = await vault.assembleBlob(recordingId);
-      const file = new File([blob], recoveredRecording.fileName, {
-        type: recoveredRecording.mimeType,
-      });
-      dismissRecovery(recordingId);
-      await processAudio(file);
-    } catch {
-      toast.error('Could not load recording. The file may have been cleared by the browser.');
-    }
+    consent.guard(async () => {
+      try {
+        const blob = await vault.assembleBlob(recordingId);
+        const file = new File([blob], recoveredRecording.fileName, {
+          type: recoveredRecording.mimeType,
+        });
+        dismissRecovery(recordingId);
+        await processAudio(file);
+      } catch {
+        toast.error('Could not load recording. The file may have been cleared by the browser.');
+      }
+    });
   };
 
   // Auto-process recording when blob is ready — guarded so a given blob is
@@ -559,7 +572,7 @@ export default function DashboardPage() {
             autonomousState={autonomous.state}
             autonomousSettings={autonomous.settings}
             onAutonomousPrepare={autonomous.prepare}
-            onAutonomousStart={autonomous.start}
+            onAutonomousStart={handleAutonomousStart}
             onAutonomousPause={autonomous.pause}
             onAutonomousResume={autonomous.resume}
             onAutonomousUploadNow={autonomous.uploadNow}
@@ -610,6 +623,7 @@ export default function DashboardPage() {
             onCancel={() => setConfirmDialog(null)}
           />
         )}
+        <RecordingConsentDialog {...consent.dialog} />
       </PageEntrance>
 
       {/* Rendered outside PageEntrance: its "fixed" positioning must stay

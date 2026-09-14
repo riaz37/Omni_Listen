@@ -30,6 +30,7 @@ import AutonomousTab from './AutonomousTab';
 import type { AutonomousState, AutonomousSettings } from '@/lib/autonomous/types';
 import type { SummaryStyle, MeetingLanguage } from '@/lib/config-context';
 import { Dropdown, DropdownTrigger, DropdownContent, DropdownItem } from '@/components/ui/dropdown';
+import { useTranslation } from '@/lib/i18n/use-translation';
 
 // Chips shown before the "+N more" expander in the Quick Access row.
 const VISIBLE_QUICK_CHIPS = 4;
@@ -137,6 +138,7 @@ export default function DashboardRecorder({
   onAutonomousUploadAndStop,
   onAutonomousSaveSettings,
 }: DashboardRecorderProps) {
+  const { t } = useTranslation();
   const [showAnalysisBox, setShowAnalysisBox] = useState(false);
   const [showAllChips, setShowAllChips] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -763,6 +765,10 @@ export default function DashboardRecorder({
 
                   </div>
                 )}
+
+                <p className="text-xs text-muted-foreground mt-2 max-w-xs mx-auto">
+                  {t('recorder.consent_notice')}
+                </p>
               </div>
             ) : (
               <DashboardProcessing processingProgress={processingProgress} />

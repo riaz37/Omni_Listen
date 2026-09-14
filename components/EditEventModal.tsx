@@ -65,11 +65,11 @@ export default function EditEventModal({ event, isOpen, onClose, onSave }: EditE
 
     try {
       const updates: any = {};
-      if (formData.title !== event.title) updates.title = formData.title;
-      if (formData.date !== event.date) updates.date = formData.date;
-      if (formData.description !== event.description) updates.description = formData.description;
-      if (formData.location !== event.location) updates.location = formData.location;
-      if (formData.assignee !== event.assignee) updates.assignee = formData.assignee;
+      if (formData.title !== (event.title ?? '')) updates.title = formData.title;
+      if (formData.date !== (event.date ?? '')) updates.date = formData.date;
+      if (formData.description !== (event.description ?? '')) updates.description = formData.description;
+      if (formData.location !== (event.location ?? '')) updates.location = formData.location;
+      if (formData.assignee !== (event.assignee ?? '')) updates.assignee = formData.assignee;
 
       await onSave(event.id, updates);
       onClose();

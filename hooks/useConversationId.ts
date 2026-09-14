@@ -3,37 +3,47 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, usePathname } from 'next/navigation';
 
-// On a statically-exported Next.js app (`output: 'export'`), /conversation is
-// a single prerendered document — there is no server round-trip to re-derive
-// route state from. Client-side navigation via router.push() can leave
-// useSearchParams() reporting the PREVIOUS conversation's id for one or more
-// renders after the address bar has already moved on. That staleness was the
-// root cause of the "shows the previous meeting" bug: the detail page
-// happily fetched and rendered whatever stale id useSearchParams() handed it.
+// Two sources for the conversation id, each right at a different moment:
 //
-// window.location.search is what the address bar (and the user) actually
-// shows, so it must always win. useSearchParams()/usePathname() are kept
-// only to force a re-render when the router navigates — pushState does not
-// fire any DOM event we could otherwise listen for.
+// On mount, window.location.search is authoritative when it carries an id
+// (reflects the current URL from history, bookmarks, or Back/Forward). If
+// the address bar is empty (arriving from a page without ?id), fall back to
+// useSearchParams() for the router's knowledge.
+//
+// After mount, useSearchParams() reports fresh router navigation during
+// render (correct on the first render of the new tree). But window.location
+// lags behind: Next.js 16 updates it inside HistoryUpdater's
+// useInsertionEffect, after that render. So apply the router change during
+// render via render-phase state sync, then reconcile against the address bar
+// after every commit once it has caught up. popstate covers Back/Forward,
+// which do not re-render the router.
 function readIdFromLocation(): string | null {
   if (typeof window === 'undefined') return null;
   return new URLSearchParams(window.location.search).get('id');
 }
 
 export function useConversationId(): string | null {
-  useSearchParams();
-  usePathname();
+  const routerId = useSearchParams().get('id');
+  usePathname(); // re-render on route change even when search params are unchanged
 
-  const urlId = readIdFromLocation();
-  const [id, setId] = useState<string | null>(urlId);
+  const [id, setId] = useState<string | null>(() => readIdFromLocation() ?? routerId);
+  const [lastRouterId, setLastRouterId] = useState<string | null>(routerId);
 
-  // Render-phase adjustment (React's documented pattern for syncing state to
-  // a prop/external value during render) — not a set-state-in-effect, so this
-  // takes effect on the very render that revealed the new id instead of one
-  // render later.
-  if (id !== urlId) {
-    setId(urlId);
+  // Render-phase adjustment (React's documented pattern for deriving state
+  // from an external value during render): a router-reported change is
+  // applied on the very render that revealed it.
+  if (routerId !== lastRouterId) {
+    setLastRouterId(routerId);
+    setId(routerId);
   }
+
+  // Post-commit reconciliation against the address bar. No dependency array
+  // on purpose: it must run after every commit, it is a single string
+  // comparison, and setState with an equal value is a no-op.
+  useEffect(() => {
+    const live = readIdFromLocation();
+    setId((prev) => (prev === live ? prev : live));
+  });
 
   useEffect(() => {
     const onPopState = () => setId(readIdFromLocation());

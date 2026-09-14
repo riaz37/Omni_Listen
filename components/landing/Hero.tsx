@@ -70,13 +70,13 @@ export default function Hero() {
               {t('marketing.hero.cta_primary')}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <a
-              href="#how-it-works"
+            <Link
+              href={`${lp('/')}#how-it-works`}
               className="px-8 py-4 rounded-full border border-border bg-background hover:bg-muted text-muted-foreground font-semibold flex items-center gap-2 transition-all"
             >
               <Play className="w-4 h-4" />
               {t('marketing.hero.cta_secondary')}
-            </a>
+            </Link>
           </motion.div>
         </div>
       </section>

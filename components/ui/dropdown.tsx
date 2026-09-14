@@ -16,6 +16,7 @@ import { ChevronDown, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DURATIONS, EASINGS } from '@/lib/motion';
 import { useDropdown } from '@/hooks/useDropdown';
+import { DialogContentContext } from '@/components/ui/dialog';
 
 // ─── Context ────────────────────────────────────────────────────────────────
 
@@ -29,6 +30,7 @@ interface DropdownContextValue {
   readonly triggerId: string;
   readonly contentId: string;
   readonly dropdownId: string;
+  readonly portal: boolean;
 }
 
 const DropdownContext = createContext<DropdownContextValue | null>(null);
@@ -49,6 +51,12 @@ interface DropdownProps {
   readonly className?: string;
   /** Fired whenever the open state changes — e.g. to arm a live preview only while the picker is open. */
   readonly onOpenChange?: (open: boolean) => void;
+  /**
+   * Render the menu through a document.body portal (default outside
+   * dialogs). Inside a DialogContent this defaults to false so the menu stays
+   * within the dialog's subtree.
+   */
+  readonly portal?: boolean;
 }
 
 export function Dropdown({
@@ -58,6 +66,7 @@ export function Dropdown({
   children,
   className = '',
   onOpenChange,
+  portal,
 }: DropdownProps) {
   const rawId = useId();
   const id = rawId.replace(/:/g, '');
@@ -66,6 +75,8 @@ export function Dropdown({
 
   const { isOpen, toggle, close, ref } = useDropdown();
   const isMountedRef = useRef(false);
+  const insideDialog = useContext(DialogContentContext);
+  const usePortal = portal ?? !insideDialog;
 
   useEffect(() => {
     if (!isMountedRef.current) {
@@ -90,6 +101,7 @@ export function Dropdown({
         triggerId,
         contentId,
         dropdownId: id,
+        portal: usePortal,
       }}
     >
       <div ref={ref} className={`relative ${className}`} data-dropdown-id={id}>
@@ -138,7 +150,7 @@ export function DropdownContent({
   className = '',
   align = 'start',
 }: DropdownContentProps) {
-  const { isOpen, close, contentId, triggerId, mode, dropdownId } =
+  const { isOpen, close, contentId, triggerId, mode, dropdownId, portal } =
     useDropdownContext();
 
   const [focusIndex, setFocusIndex] = useState(-1);
@@ -169,7 +181,7 @@ export function DropdownContent({
   }, [isOpen]);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !portal) return;
 
     const updatePosition = () => {
       const trigger = document.getElementById(triggerId);
@@ -209,7 +221,7 @@ export function DropdownContent({
       window.removeEventListener('resize', updatePosition);
       window.removeEventListener('scroll', updatePosition, true);
     };
-  }, [align, isOpen, triggerId]);
+  }, [align, isOpen, portal, triggerId]);
 
   // Move DOM focus when focusIndex changes
   useEffect(() => {
@@ -252,42 +264,54 @@ export function DropdownContent({
           e.preventDefault();
           close();
           document.getElementById(triggerId)?.focus();
+          // Stop this Escape from also reaching an ancestor dialog's
+          // dismiss handling — only the menu should close on this press,
+          // not a parent MotionDialog. (Radix's DismissableLayer listens
+          // on document, so this alone isn't sufficient for that case; see
+          // the onEscapeKeyDown guard on DialogContent in ui/dialog.tsx.)
+          e.stopPropagation();
           break;
       }
     },
     [close, focusIndex, getItems, triggerId],
   );
 
-  if (typeof document === 'undefined') {
-    return null;
-  }
+  const menuClassName = `min-w-[12rem] bg-popover border border-border rounded-lg shadow-dropdown z-50 p-1 overflow-x-hidden overflow-y-auto ${className}`;
 
-  return createPortal(
+  const menu = (
     <AnimatePresence>
       {isOpen && (
-          <motion.div
-            ref={contentRef}
-            id={contentId}
-            data-dropdown-id={dropdownId}
-            role={mode === 'select' ? 'listbox' : 'menu'}
-            aria-labelledby={triggerId}
-            onKeyDown={handleKeyDown}
-            className={`fixed min-w-[12rem] bg-popover border border-border rounded-lg shadow-dropdown z-50 p-1 overflow-x-hidden overflow-y-auto ${className}`}
-            style={{
-              ...(position ?? {}),
-              visibility: position ? 'visible' : 'hidden',
-            }}
-            initial={{ opacity: 0, scale: 0.95, y: -4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -4 }}
-            transition={{ duration: DURATIONS.fast, ease: EASINGS.easeOut }}
-          >
-            {children}
-          </motion.div>
+        <motion.div
+          ref={contentRef}
+          id={contentId}
+          data-dropdown-id={dropdownId}
+          role={mode === 'select' ? 'listbox' : 'menu'}
+          aria-labelledby={triggerId}
+          onKeyDown={handleKeyDown}
+          className={
+            portal
+              ? `fixed ${menuClassName}`
+              : `absolute top-full mt-2 max-h-[240px] ${align === 'end' ? 'end-0' : 'start-0'} ${menuClassName}`
+          }
+          style={
+            portal
+              ? { ...(position ?? {}), visibility: position ? 'visible' : 'hidden' }
+              : undefined
+          }
+          initial={{ opacity: 0, scale: 0.95, y: -4 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: -4 }}
+          transition={{ duration: DURATIONS.fast, ease: EASINGS.easeOut }}
+        >
+          {children}
+        </motion.div>
       )}
-    </AnimatePresence>,
-    document.body,
+    </AnimatePresence>
   );
+
+  if (!portal) return menu;
+  if (typeof document === 'undefined') return null;
+  return createPortal(menu, document.body);
 }
 
 // ─── Item ───────────────────────────────────────────────────────────────────

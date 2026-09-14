@@ -21,6 +21,13 @@ const DialogClose = DialogPrimitive.Close
 const DialogOpenContext = React.createContext(false)
 
 /**
+ * True for anything rendered inside a DialogContent. In-flow overlays
+ * (components/ui/dropdown.tsx) read this to avoid portaling out of the
+ * dialog, which the modal layer would treat as an "outside" interaction.
+ */
+export const DialogContentContext = React.createContext(false)
+
+/**
  * Drop-in replacement for Dialog that threads `open` to FM-animated children.
  * Use this instead of `Dialog` when you need Framer Motion exit animations.
  */
@@ -104,10 +111,36 @@ interface DialogContentProps
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
->(({ className, children, hideClose, ...props }, ref) => {
+>(({ className, children, hideClose, onEscapeKeyDown, ...props }, ref) => {
   const open = React.useContext(DialogOpenContext)
   const isMobile = useIsMobile()
   const reduced = prefersReducedMotion()
+
+  // Radix's DismissableLayer listens for Escape on `document` and, unless
+  // this callback prevents it, dismisses the dialog. An in-flow dropdown
+  // (components/ui/dropdown.tsx) renders inside this same subtree rather
+  // than through its own Radix layer, so its own Escape handling can't
+  // reliably win a race against this document-level listener — the fix has
+  // to live here: if a dropdown menu is currently open anywhere in this
+  // dialog, swallow the Escape so only the menu closes on this press.
+  //
+  // The check is deliberately keyed off an actual open menu/listbox node
+  // (DropdownContent only renders one while its dropdown is open), not off
+  // event.target's closest `[data-dropdown-id]` — that attribute also sits
+  // on the always-present dropdown *wrapper* (trigger + content), so a
+  // target-based check would keep matching, and keep swallowing Escape,
+  // even after the menu closes and focus lands back on the trigger button.
+  const handleEscapeKeyDown = React.useCallback(
+    (event: KeyboardEvent) => {
+      onEscapeKeyDown?.(event)
+      if (event.defaultPrevented) return
+      const menuOpen = document.querySelector(
+        '[role="listbox"][data-dropdown-id], [role="menu"][data-dropdown-id]',
+      )
+      if (menuOpen) event.preventDefault()
+    },
+    [onEscapeKeyDown],
+  )
 
   const variants = isMobile ? mobileContentVariants : desktopContentVariants
 
@@ -121,7 +154,7 @@ const DialogContent = React.forwardRef<
       {open && (
         <DialogPortal forceMount>
           <DialogOverlay />
-          <DialogPrimitive.Content ref={ref} forceMount asChild {...props}>
+          <DialogPrimitive.Content ref={ref} forceMount asChild onEscapeKeyDown={handleEscapeKeyDown} {...props}>
             <motion.div
               className={cn(isMobile ? mobileClasses : desktopClasses, className)}
               style={!isMobile ? { x: "-50%", y: "-50%" } : undefined}
@@ -135,7 +168,9 @@ const DialogContent = React.forwardRef<
                   <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
                 </div>
               )}
-              {children}
+              <DialogContentContext.Provider value={true}>
+                {children}
+              </DialogContentContext.Provider>
               {!hideClose && (
                 <DialogPrimitive.Close className="absolute end-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
                   <X className="h-4 w-4" />

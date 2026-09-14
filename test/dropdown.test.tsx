@@ -54,7 +54,14 @@ describe('SelectDropdown', () => {
 
     fireEvent.mouseDown(textNode as Node);
 
-    expect(screen.getByRole('option', { name: /25/i })).toBeVisible();
+    // Was a synchronous assertion right after the mousedown: the option's
+    // visibility comes from a framer-motion opacity animation, so under
+    // CPU contention (e.g. more test files running in parallel) the style
+    // hadn't necessarily committed yet, making this flaky. Same assertion,
+    // just given a moment to settle.
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: /25/i })).toBeVisible();
+    });
 
     fireEvent.click(option);
 

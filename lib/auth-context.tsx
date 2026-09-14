@@ -17,6 +17,7 @@ interface User {
   last_custom_query?: string | null;
   role_preferences?: string | null; // JSON string
   has_password?: boolean;
+  recording_consent_acknowledged_at?: string | null;
 }
 
 interface AuthContextType {
@@ -141,6 +142,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const userData = await authAPI.getCurrentUser();
       setUser(userData);
+      try {
+        localStorage.setItem('cached_user', JSON.stringify(userData));
+      } catch {
+        // Display cache is best-effort (e.g. private browsing storage limits).
+      }
     } catch (error) {
       console.error('Failed to refresh user:', error);
     }

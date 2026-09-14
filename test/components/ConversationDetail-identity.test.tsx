@@ -118,6 +118,10 @@ describe('ConversationDetailClient — identity binding', () => {
     await new Promise((r) => setTimeout(r, 10));
 
     expect(screen.queryByText('Testing Audio Connectivity')).not.toBeInTheDocument();
+    // The page must not sit in a silent, empty, non-loading state either.
+    expect(
+      screen.getByText('conversation.load_error_mismatch'),
+    ).toBeInTheDocument();
   });
 
   it('clears previously rendered conversation data when jobId changes', async () => {

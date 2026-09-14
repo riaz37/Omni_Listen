@@ -19,6 +19,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Users,
+  Pencil,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
@@ -57,6 +58,7 @@ interface TaskTableProps {
   onSelectAllOnPage: () => void;
   onToggleTask: (taskId: number, completed: boolean) => void;
   onDeleteTask: (taskId: number) => void;
+  onEditTask: (task: Task) => void;
   onSetCurrentPage: (page: number | ((prev: number) => number)) => void;
   onSetRowsPerPage: (rows: number) => void;
 }
@@ -78,6 +80,7 @@ export function TaskTable({
   onSelectAllOnPage,
   onToggleTask,
   onDeleteTask,
+  onEditTask,
   onSetCurrentPage,
   onSetRowsPerPage,
 }: TaskTableProps) {
@@ -117,9 +120,7 @@ export function TaskTable({
               </button>
             </th>
             <th className="text-start p-3 font-medium text-muted-foreground">
-              <button className="flex items-center gap-1">
-                {t('tasks.col_assign')} <ArrowUpDown className="w-3.5 h-3.5" />
-              </button>
+              {t('tasks.col_tags')}
             </th>
             <th className="w-10 p-3"></th>
           </tr>
@@ -190,6 +191,9 @@ export function TaskTable({
                         <MoreHorizontal className="w-4 h-4" />
                       </DropdownTrigger>
                       <DropdownContent align="end">
+                        <DropdownItem icon={Pencil} onClick={() => onEditTask(task)}>
+                          {t('common.edit')}
+                        </DropdownItem>
                         <DropdownItem icon={CheckCircle2} onClick={() => onToggleTask(task.id, !task.completed)}>
                           {task.completed ? t('tasks.mark_incomplete') : t('tasks.mark_done')}
                         </DropdownItem>

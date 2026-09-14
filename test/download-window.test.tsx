@@ -5,6 +5,10 @@ import { toast } from 'sonner';
 import * as downloadBlobModule from '@/lib/download-blob';
 import DashboardRecorder from '@/components/dashboard/DashboardRecorder';
 
+vi.mock('@/lib/i18n/use-translation', () => ({
+  useTranslation: () => ({ t: (k: string) => k, locale: 'en', dir: 'ltr' }),
+}));
+
 // We test onstop behaviour by checking sessionStorage is written
 // and downloadBlob is NOT called automatically.
 

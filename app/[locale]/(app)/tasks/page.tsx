@@ -8,7 +8,9 @@ import { toast } from 'sonner';
 import { normalizeUrgency, sortByUrgencyThenDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import EditEventModal from '@/components/EditEventModal';
 import { Search, Plus } from 'lucide-react';
+import { format, isValid } from 'date-fns';
 import { Skeleton } from 'boneyard-js/react';
 import CustomDropdown from '@/components/ui/custom-dropdown';
 import { TasksSkeleton } from './TasksSkeleton';
@@ -46,6 +48,7 @@ export default function TasksPage() {
   const [sortColumn, setSortColumn] = useState<'title' | 'status' | 'priority' | 'assign'>('title');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [confirmDialog, setConfirmDialog] = useState<{title: string; message: string; onConfirm: () => void} | null>(null);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   // Add task modal state
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
@@ -53,7 +56,8 @@ export default function TasksPage() {
     title: '',
     description: '',
     date: '',
-    urgency: 'no' as 'yes' | 'no'
+    urgency: 'no' as 'yes' | 'no',
+    assignee: '',
   });
 
   const { data: rawEvents = [], isLoading: eventsLoading } = useQuery({
@@ -102,7 +106,8 @@ export default function TasksPage() {
           id: note.id,
           title: note.title || 'Untitled Note',
           description: note.description || note.details,
-          date: new Date(note.created_at || Date.now()),
+          // Notes normally carry no date and fall back to created_at; an edited date (handleSaveTask) takes precedence.
+          date: new Date(note.date || note.created_at || Date.now()),
           completed: note.completed || false,
           type: 'notes',
           category: note.category || note.note_type,
@@ -154,6 +159,25 @@ export default function TasksPage() {
     });
   };
 
+  const handleSaveTask = async (
+    taskId: number,
+    updates: { title?: string; date?: string; description?: string; location?: string; assignee?: string },
+  ) => {
+    try {
+      await conversationsAPI.updateEvent(taskId, updates);
+      // Tasks merge events + notes (same backend table), so patch both caches.
+      const patch = (item: any) => (item.id === taskId ? { ...item, ...updates } : item);
+      queryClient.setQueryData(['events'], (old: any[] = []) => old.map(patch));
+      queryClient.setQueryData(['notes'], (old: any[] = []) => old.map(patch));
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      setEditingTask(null);
+      toast.success('Task updated');
+    } catch (error) {
+      toast.error('Failed to update task');
+      throw error;
+    }
+  };
+
   const handleCreateTask = async () => {
     if (!newTask.title.trim()) {
       toast.error('Please enter a task title');
@@ -165,18 +189,19 @@ export default function TasksPage() {
         title: newTask.title,
         description: newTask.description,
         date: newTask.date || new Date().toISOString().split('T')[0],
-        urgency: newTask.urgency
+        urgency: newTask.urgency,
+        assignee: newTask.assignee.trim() || undefined,
       });
 
       queryClient.setQueryData(['events'], (old: any[] = []) => [
         { id: createdTask.id, title: createdTask.title, description: createdTask.description,
           date: createdTask.date, completed: false, urgency: createdTask.urgency,
-          meeting_id: '', category: undefined, assignee: undefined },
+          meeting_id: '', category: undefined, assignee: createdTask.assignee },
         ...old,
       ]);
 
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-      setNewTask({ title: '', description: '', date: '', urgency: 'no' });
+      setNewTask({ title: '', description: '', date: '', urgency: 'no', assignee: '' });
       setShowAddTaskModal(false);
       toast.success('Task created successfully');
     } catch (error) {
@@ -361,6 +386,7 @@ export default function TasksPage() {
           onSelectAllOnPage={handleSelectAllOnPage}
           onToggleTask={handleToggleTask}
           onDeleteTask={handleDeleteTask}
+          onEditTask={setEditingTask}
           onSetCurrentPage={setCurrentPage}
           onSetRowsPerPage={(rows) => { setRowsPerPage(rows); setCurrentPage(1); }}
         />
@@ -372,6 +398,20 @@ export default function TasksPage() {
           onClose={() => setShowAddTaskModal(false)}
           onSubmit={handleCreateTask}
         />
+        {editingTask && (
+          <EditEventModal
+            event={{
+              id: editingTask.id,
+              title: editingTask.title,
+              date: isValid(editingTask.date) ? format(editingTask.date, 'yyyy-MM-dd') : '',
+              description: editingTask.description,
+              assignee: editingTask.assignee,
+            }}
+            isOpen
+            onClose={() => setEditingTask(null)}
+            onSave={handleSaveTask}
+          />
+        )}
         {confirmDialog && (
           <ConfirmDialog
             isOpen={!!confirmDialog}

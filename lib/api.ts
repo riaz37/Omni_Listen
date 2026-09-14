@@ -26,7 +26,7 @@ function getSignInUrl(): string {
 // Routes that require a session. Only these may hard-redirect to /signin when
 // the session is dead — public pages (landing, marketing, auth flows) must
 // render for anonymous visitors even though AuthProvider's /me probe 401s there.
-const PROTECTED_ROUTES = /^\/(en|ar)\/(listen|history|analytics|calendar|events|notes|queries|tasks|settings|conversation|autonomous|mini)(\/|$)/;
+const PROTECTED_ROUTES = /^\/(en|ar)\/(listen|history|analytics|calendar|events|notes|queries|analysis|tasks|settings|conversation|autonomous|mini)(\/|$)/;
 
 export function shouldRedirectToSignIn(pathname: string): boolean {
   return PROTECTED_ROUTES.test(pathname);
@@ -157,6 +157,11 @@ export const authAPI = {
 
   getCurrentUser: async () => {
     const response = await api.get('/api/auth/me');
+    return response.data;
+  },
+
+  acknowledgeRecordingConsent: async (): Promise<{ recording_consent_acknowledged_at: string }> => {
+    const response = await api.post('/api/user/recording-consent');
     return response.data;
   },
 
@@ -381,7 +386,7 @@ export const conversationsAPI = {
     return { notes, total };
   },
 
-  createTask: async (taskData: { title: string; description?: string; date?: string; urgency?: string }) => {
+  createTask: async (taskData: { title: string; description?: string; date?: string; urgency?: string; assignee?: string }) => {
     const response = await api.post('/api/tasks', taskData);
     return response.data;
   },

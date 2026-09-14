@@ -3,6 +3,10 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import DashboardRecorder from '@/components/dashboard/DashboardRecorder';
 
+vi.mock('@/lib/i18n/use-translation', () => ({
+  useTranslation: () => ({ t: (key: string) => key, locale: 'en', dir: 'ltr' }),
+}));
+
 const baseProps = {
   inputMode: 'record' as const,
   setInputMode: vi.fn(),
