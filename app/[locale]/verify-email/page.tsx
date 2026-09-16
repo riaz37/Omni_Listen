@@ -1,6 +1,9 @@
 import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 import VerifyEmailContent from './VerifyEmailContent';
+import { seoMetadata } from '@/lib/seo/metadata';
+
+export const generateMetadata = seoMetadata('verifyEmail');
 
 function LoadingFallback() {
   return (

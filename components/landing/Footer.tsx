@@ -2,10 +2,9 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Linkedin, Facebook, Instagram, Youtube } from 'lucide-react';
 import { useLocalePath } from '@/lib/i18n/use-locale-path';
 import { useTranslation } from '@/lib/i18n/use-translation';
-import { SITE, type SocialLink } from '@/lib/site';
+import SocialLinks from '@/components/SocialLinks';
 
 const productLinks = [
   { labelKey: 'marketing.nav.features', href: '/#features' },
@@ -25,19 +24,6 @@ const legalLinks = [
   { labelKey: 'marketing.footer.security', href: '/security' },
 ];
 
-const XIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5 fill-current">
-    <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
-  </svg>
-);
-
-const SOCIAL_ICONS: Record<SocialLink['icon'], React.ReactNode> = {
-  x: <XIcon />,
-  linkedin: <Linkedin className="w-5 h-5" />,
-  facebook: <Facebook className="w-5 h-5" />,
-  instagram: <Instagram className="w-5 h-5" />,
-  youtube: <Youtube className="w-5 h-5" />,
-};
 
 export default function Footer() {
   const lp = useLocalePath();
@@ -49,8 +35,8 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Image src="/logo-black.png" alt="OmniListen" width={28} height={28} className="rounded-md block dark:hidden" />
-              <Image src="/logo.png" alt="OmniListen" width={28} height={28} className="rounded-md hidden dark:block" />
+              <Image src="/logo-black.png" alt="" width={107} height={28} className="h-7 w-auto block dark:hidden" />
+              <Image src="/logo.png" alt="" width={107} height={28} className="h-7 w-auto hidden dark:block" />
               <span className="font-bold text-foreground">OmniListen</span>
             </div>
             <p className="text-muted-foreground leading-relaxed">
@@ -113,22 +99,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4 text-muted-foreground">
           <p>&copy; {new Date().getFullYear()} OmniListen. {t('marketing.footer.copyright')}</p>
-          {SITE.socialLinks.length > 0 && (
-            <div className="flex gap-5">
-              {SITE.socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-foreground transition-colors p-2"
-                  aria-label={social.label}
-                >
-                  {SOCIAL_ICONS[social.icon]}
-                </a>
-              ))}
-            </div>
-          )}
+          <SocialLinks />
         </div>
       </div>
     </footer>

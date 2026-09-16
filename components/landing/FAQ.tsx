@@ -4,37 +4,18 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n/use-translation';
+import { FAQ_KEYS } from '@/lib/seo/faq-items';
 
 export default function FAQ() {
   const { t } = useTranslation();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const faqs = [
-    {
-      question: t('marketing.faq.q1'),
-      answer: t('marketing.faq.a1'),
-    },
-    {
-      question: t('marketing.faq.q2'),
-      answer: t('marketing.faq.a2'),
-    },
-    {
-      question: t('marketing.faq.q3'),
-      answer: t('marketing.faq.a3'),
-    },
-    {
-      question: t('marketing.faq.q4'),
-      answer: t('marketing.faq.a4'),
-    },
-    {
-      question: t('marketing.faq.q5'),
-      answer: t('marketing.faq.a5'),
-    },
-    {
-      question: t('marketing.faq.q6'),
-      answer: t('marketing.faq.a6'),
-    },
-  ];
+  // Same list the FAQPage schema is built from, so the markup and the
+  // visible text cannot drift apart. See lib/seo/faq-items.ts.
+  const faqs = FAQ_KEYS.map(({ question, answer }) => ({
+    question: t(`marketing.${question}`),
+    answer: t(`marketing.${answer}`),
+  }));
 
   const toggle = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -79,9 +60,12 @@ export default function FAQ() {
                   aria-expanded={isOpen}
                   aria-controls={answerId}
                 >
-                  <span className="text-sm font-semibold text-foreground pe-4">
+                  {/* A heading, not a span: each question is the heading of
+                      its answer, which is what lets search and answer engines
+                      extract the pair. The button keeps the interaction. */}
+                  <h3 className="text-sm font-semibold text-foreground pe-4 m-0">
                     {faq.question}
-                  </span>
+                  </h3>
                   <ChevronDown
                     className={`w-5 h-5 text-muted-foreground shrink-0 transition-transform duration-200 ${
                       isOpen ? 'rotate-180' : ''

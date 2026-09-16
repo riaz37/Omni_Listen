@@ -1,31 +1,40 @@
-import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import SocialProof from '@/components/landing/SocialProof';
-import Testimonials from '@/components/landing/Testimonials';
+import fs from 'node:fs';
+import path from 'node:path';
+import { describe, it, expect } from 'vitest';
 
-// QA report item 7: numeric traction claims and invented testimonials during
-// a public beta. Only verifiable statements remain.
+// QA report item 7: numeric traction claims and invented testimonials during a
+// public beta. The fix used to be honest replacement copy; it is now removal,
+// so the guard is structural rather than behavioural. These assertions read the
+// source because there is nothing left to render.
+//
+// The companion guard is test/copy-claims.test.ts, which blocks the claims
+// themselves (accuracy percentages, user counts) from returning to the
+// dictionaries.
 
-vi.mock('@/lib/i18n/use-translation', () => ({
-  useTranslation: () => ({ t: (key: string) => key, locale: 'en', dir: 'ltr' }),
-}));
-vi.mock('framer-motion', () => ({
-  motion: { div: (props: any) => <div {...props} /> },
-  useInView: () => true,
-}));
+const ROOT = path.resolve(__dirname, '..');
+const LANDING = path.join(ROOT, 'app', '[locale]', '(marketing)', 'page.tsx');
 
 describe('landing proof sections', () => {
-  it('SocialProof renders four fact tiles and no counters', () => {
-    const { container } = render(<SocialProof />);
-    for (const n of [1, 2, 3, 4]) {
-      expect(screen.getByText(`marketing.social_proof.fact${n}_title`)).toBeInTheDocument();
+  const source = fs.readFileSync(LANDING, 'utf8');
+
+  it('the fabricated proof components no longer exist', () => {
+    for (const name of ['SocialProof', 'Testimonials']) {
+      expect(
+        fs.existsSync(path.join(ROOT, 'components', 'landing', `${name}.tsx`)),
+        `components/landing/${name}.tsx is back. It carried invented customers or traction numbers.`,
+      ).toBe(false);
     }
-    expect(container.textContent).not.toMatch(/\d{2,}/);
   });
 
-  it('Testimonials renders nothing while there are no real quotes', () => {
-    const { container } = render(<Testimonials />);
-    expect(container).toBeEmptyDOMElement();
+  it('the landing page renders neither section', () => {
+    expect(source).not.toMatch(/SocialProof/);
+    expect(source).not.toMatch(/Testimonials/);
+  });
+
+  it('the landing page composition is still intact', () => {
+    // Removal should not have taken a real section with it.
+    for (const section of ['Hero', 'Features', 'HowItWorks', 'PricingTeaser', 'FAQ', 'CallToAction']) {
+      expect(source, `${section} missing from the landing page`).toMatch(new RegExp(`<${section} />`));
+    }
   });
 });
