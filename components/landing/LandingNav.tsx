@@ -37,9 +37,15 @@ export default function LandingNav() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-2">
           <Link href={lp("/")} className="flex items-center shrink-0" aria-label="OmniListen home">
+            {/* Two variants, one of which is always display:none. The link
+                already carries the accessible name, so both are decorative to
+                a screen reader and get an empty alt. Only the light variant is
+                priority-preloaded: marking both put two competing
+                high-priority requests on the critical path for one visible
+                image. The dark one loads normally when the theme selects it. */}
             <Image
               src="/logo-black.png"
-              alt="OmniListen"
+              alt=""
               width={1236}
               height={323}
               className="h-8 sm:h-10 w-auto object-contain block dark:hidden"
@@ -47,11 +53,10 @@ export default function LandingNav() {
             />
             <Image
               src="/logo.png"
-              alt="OmniListen"
+              alt=""
               width={1236}
               height={323}
               className="h-8 sm:h-10 w-auto object-contain hidden dark:block"
-              priority
             />
           </Link>
 

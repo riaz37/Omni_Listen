@@ -33,6 +33,7 @@ const nextConfig = {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
     NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
     NEXT_PUBLIC_GITHUB_CLIENT_ID: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID,
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'https://omnilisten.esap.ai',
   },
   webpack: (config) => {
     config.experiments = { ...config.experiments, asyncWebAssembly: true };
@@ -44,7 +45,7 @@ const nextConfig = {
     // Automatic per-icon tree-shaking for lucide-react (imported icon-by-icon
     // across dozens of components) — smaller emitted chunks, no import-site
     // changes needed.
-    optimizePackageImports: ['lucide-react'],
+    optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
 };
 

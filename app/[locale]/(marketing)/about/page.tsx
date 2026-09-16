@@ -2,6 +2,9 @@ import Link from 'next/link';
 import { Users, Shield, Zap, Heart } from 'lucide-react';
 import { getDictionary } from '@/lib/i18n/get-dictionary';
 import type { Locale } from '@/lib/i18n/config';
+import { seoMetadata } from '@/lib/seo/metadata';
+
+export const generateMetadata = seoMetadata('about');
 
 export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
     const { locale } = await params;

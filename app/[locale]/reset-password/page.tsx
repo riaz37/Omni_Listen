@@ -1,6 +1,9 @@
 import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 import ResetPasswordContent from './ResetPasswordContent';
+import { seoMetadata } from '@/lib/seo/metadata';
+
+export const generateMetadata = seoMetadata('resetPassword');
 
 function LoadingFallback() {
   return (

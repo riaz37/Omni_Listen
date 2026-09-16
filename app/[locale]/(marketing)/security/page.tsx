@@ -1,6 +1,9 @@
 import { Shield, Lock, Server, Eye, FileCheck, AlertTriangle } from 'lucide-react';
 import { getDictionary } from '@/lib/i18n/get-dictionary';
 import type { Locale } from '@/lib/i18n/config';
+import { seoMetadata } from '@/lib/seo/metadata';
+
+export const generateMetadata = seoMetadata('security');
 
 export default async function SecurityPage({
     params,

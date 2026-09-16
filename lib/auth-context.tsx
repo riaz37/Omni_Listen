@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { authAPI } from './api';
+import { authAPI, isPublicMarketingRoute } from './api';
 import { useLocalePath } from './i18n/use-locale-path';
 
 interface User {
@@ -55,6 +55,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch {
           localStorage.removeItem('cached_user');
         }
+      }
+
+      // A visitor with no cached user on a marketing page has no session worth
+      // probing for. Calling /api/auth/me anyway guarantees a 401, which the
+      // response interceptor answers with a POST /api/auth/refresh carrying a
+      // 90s timeout, so a first-time visitor to the landing page could hold a
+      // hanging request against a cold backend for a minute and a half. Skip
+      // straight to "anonymous" instead. Signed-in visitors still revalidate,
+      // because they have a cached_user, and every non-marketing route still
+      // probes unconditionally.
+      if (!cached && isPublicMarketingRoute(window.location.pathname)) {
+        setUser(null);
+        setLoading(false);
+        setIsRevalidated(true);
+        return;
       }
 
       // Revalidate in background — cookie is sent automatically (withCredentials).

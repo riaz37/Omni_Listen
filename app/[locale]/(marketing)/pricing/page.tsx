@@ -2,6 +2,9 @@ import Link from 'next/link';
 import { Check } from 'lucide-react';
 import { getDictionary } from '@/lib/i18n/get-dictionary';
 import type { Locale } from '@/lib/i18n/config';
+import { seoMetadata } from '@/lib/seo/metadata';
+
+export const generateMetadata = seoMetadata('pricing');
 
 export default async function PricingPage({ params }: { params: Promise<{ locale: string }> }) {
     const { locale } = await params;

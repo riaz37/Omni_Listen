@@ -1,6 +1,6 @@
 {
-  "name": "Omni Listen — AI Personal Assistant",
-  "short_name": "Omni Listen",
+  "name": "OmniListen: AI Personal Assistant",
+  "short_name": "OmniListen",
   "description": "Your AI assistant that listens, understands, and organizes everything you say",
   "start_url": "/",
   "display": "standalone",

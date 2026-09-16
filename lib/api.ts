@@ -26,10 +26,25 @@ function getSignInUrl(): string {
 // Routes that require a session. Only these may hard-redirect to /signin when
 // the session is dead — public pages (landing, marketing, auth flows) must
 // render for anonymous visitors even though AuthProvider's /me probe 401s there.
-const PROTECTED_ROUTES = /^\/(en|ar)\/(listen|history|analytics|calendar|events|notes|queries|analysis|tasks|settings|conversation|autonomous|mini)(\/|$)/;
+const PROTECTED_ROUTES = /^\/(en|ar)\/(listen|history|analytics|calendar|events|notes|queries|analysis|tasks|settings|conversation|mini)(\/|$)/;
 
 export function shouldRedirectToSignIn(pathname: string): boolean {
   return PROTECTED_ROUTES.test(pathname);
+}
+
+// Marketing pages, which render identically for anonymous and signed-in
+// visitors apart from one CTA label. AuthProvider skips its /api/auth/me probe
+// here when there is no cached user, because that probe 401s for every
+// first-time visitor and the 401 interceptor then fires /api/auth/refresh with
+// a 90s timeout, so a logged-out visitor to the landing page could sit with a
+// hanging request against a cold backend. Deliberately excludes /signin,
+// /signup and the token-bearing auth pages: those must still detect an
+// existing session.
+const PUBLIC_MARKETING_ROUTES =
+  /^\/(en|ar)(\/(about|pricing|security|contact|privacy|terms|cookies))?\/?$/;
+
+export function isPublicMarketingRoute(pathname: string): boolean {
+  return PUBLIC_MARKETING_ROUTES.test(pathname);
 }
 
 // Create axios instance
