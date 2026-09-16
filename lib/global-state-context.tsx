@@ -375,8 +375,8 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
             recordingStartRef.current = Date.now();
             toast.warning(
                 isRecordingRef.current
-                    ? 'Your microphone was disconnected — switched to the system default so the recording continues.'
-                    : 'Your microphone was disconnected — switched to the system default.',
+                    ? 'Your microphone was disconnected. Switched to the system default so the recording continues.'
+                    : 'Your microphone was disconnected. Switched to the system default.',
             );
         } catch (err) {
             console.error('Failed to recover from a disconnected microphone:', err);
@@ -517,7 +517,7 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
                 // preference stays untouched (same stale-vs-persist rule as
                 // reconcileMicSelection) so a replug can still re-adopt it.
                 applyMicSelection(null, '');
-                toast.warning('Selected microphone is unavailable — recording from the system default instead.');
+                toast.warning('Selected microphone is unavailable. Recording from the system default instead.');
             }
 
             let mimeType = 'audio/webm';
@@ -728,7 +728,7 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
             startLevelMeter(graph, 'preview');
             if (acquired.fellBackToDefault) {
                 applyMicSelection(null, '');
-                toast.warning('Selected microphone is unavailable — previewing the system default instead.');
+                toast.warning('Selected microphone is unavailable. Previewing the system default instead.');
             }
         } catch (err) {
             console.error('Mic preview unavailable:', err);
