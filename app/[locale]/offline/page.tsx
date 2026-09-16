@@ -23,12 +23,12 @@ export default function OfflinePage() {
           <div className="inline-flex items-center gap-3 mb-6">
             <img
               src="/logo-black.png"
-              alt="Omni Listen"
+              alt="OmniListen"
               className="h-4 w-auto object-contain rounded-xl shadow-lg block dark:hidden"
             />
             <img
               src="/logo.png"
-              alt="Omni Listen"
+              alt="OmniListen"
               className="h-4 w-auto object-contain rounded-xl shadow-lg hidden dark:block"
             />
             <h1 className="text-2xl font-bold">

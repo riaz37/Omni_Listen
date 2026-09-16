@@ -383,17 +383,17 @@ function Navigation() {
               <Link
                 href={lp('/listen')}
                 className="flex items-center"
-                aria-label="Omni Listen home"
+                aria-label="OmniListen home"
               >
                 <div className="relative">
                   <img
                     src="/logo-black.png"
-                    alt="Omni Listen Logo"
+                    alt="OmniListen Logo"
                     className="h-12 sm:h-14 w-auto object-contain block dark:hidden"
                   />
                   <img
                     src="/logo.png"
-                    alt="Omni Listen Logo"
+                    alt="OmniListen Logo"
                     className="h-12 sm:h-14 w-auto object-contain hidden dark:block"
                   />
                   {isRecording && (

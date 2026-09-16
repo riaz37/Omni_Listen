@@ -158,7 +158,7 @@ export default function SignUpPage() {
       }
 
       login(result);
-      toast.success('Account created successfully! Welcome to Omni Listen');
+      toast.success('Account created successfully! Welcome to OmniListen');
 
       // Set a timeout to clear loading state in case redirect fails
       const timeoutId = setTimeout(() => {
@@ -231,12 +231,12 @@ export default function SignUpPage() {
           <Link href={lp("/")} className="inline-flex items-center gap-3 mb-4 hover:opacity-80 transition-opacity">
             <img
               src="/logo-black.png"
-              alt="Omni Listen"
+              alt="OmniListen"
               className="h-4 w-auto object-contain rounded-xl shadow-lg block dark:hidden"
             />
             <img
               src="/logo.png"
-              alt="Omni Listen"
+              alt="OmniListen"
               className="h-4 w-auto object-contain rounded-xl shadow-lg hidden dark:block"
             />
             <h1 className="text-2xl font-bold tracking-tight text-foreground">

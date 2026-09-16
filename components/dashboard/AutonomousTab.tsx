@@ -95,7 +95,7 @@ export default function AutonomousTab({
             />
           </div>
           <p className="text-xs text-muted-foreground text-center">
-            {loadingProgress.percent}% — this only happens once
+            {loadingProgress.percent}%, this only happens once
           </p>
         </div>
       )}
